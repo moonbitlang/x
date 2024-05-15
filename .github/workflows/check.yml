@@ -1,0 +1,177 @@
+name: check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  cla-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      cla-signed: ${{ steps.cla-check-step.outputs.cla-signed }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: CLA check
+        id: cla-check-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_AUTHOR=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }} \
+            | jq -r '.user.login')
+          echo "The PR author is $PR_AUTHOR"
+          EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "Commit author email: $EMAIL"
+          CLA_RESPONSE=$(curl -s "https://mooncakes.io/api/v0/cla/check?gh_username=$PR_AUTHOR&email=$EMAIL")
+          echo "CLA check response: $CLA_RESPONSE"
+          SIGNED=$(echo $CLA_RESPONSE | jq -r '.signed')
+          echo "cla-signed=$SIGNED" >> $GITHUB_ENV
+          echo "If you have any questions about the CLA result, please contact us."
+          if [ "$SIGNED" != "true" ]; then
+            echo "CLA is not signed."
+            exit 1
+          else
+            echo "CLA is signed."
+          fi
+
+  build:
+    strategy:
+      matrix:
+        os:
+          - name: ubuntu-latest
+            path: ubuntu_x86_64_moon_setup
+          - name: macos-latest
+            path: mac_intel_moon_setup
+          - name: macos-14
+            path: mac_m1_moon_setup
+          - name: windows-latest
+
+    runs-on: ${{ matrix.os.name }}
+    continue-on-error: ${{ matrix.os.name == 'macos-14' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/${{ matrix.os.path }}.sh)"
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install on windows
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/windows_moon_setup.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: moon version
+        run: |
+          moon version --all
+          moonrun --version
+
+      - name: moon check
+        run: moon check
+
+      - name: moon info
+        run: |
+          moon info
+          git diff --exit-code
+
+      - name: moon test
+        run: |
+          moon test
+          moon test --target js
+
+      - name: moon bundle
+        run: moon bundle --all
+
+      - name: check core size
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: find ./target -name '*.core' | xargs ls -lh
+
+      - name: check core size on windows
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.core" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
+
+      - name: format diff
+        run: |
+          moon fmt
+          git diff --exit-code
+
+  coverage-check-bleeding:
+    runs-on: macos-14
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install
+        run: |
+          /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/bleeding/mac_m1_moon_setup.sh)"
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: moon test
+        run: moon test --enable-coverage
+
+      - name: coverage report
+        run: |
+          moon coverage report -f summary summary > coverage_summary.txt
+          # Put the coverage report in the pipline output
+          cat coverage_summary.txt >> "$GITHUB_STEP_SUMMARY"
+          moon coverage report -f coveralls -o codecov_report.json --service-name github --service-job-id $GITHUB_RUN_NUMBER
+
+      # The following is workaround for https://github.com/codecov/feedback/issues/126
+      # See `coverage-report-upload.yml` for more info.
+
+      # Workaround for https://github.com/orgs/community/discussions/25220
+      # Triggered sub-workflow is not able to detect the original commit/PR which is available
+      # in this workflow.
+      - name: Store PR number and commit SHA
+        run: |
+          echo "Storing PR number ${{ github.event.number }}"
+          echo "${{ github.event.number }}" > pr_number.txt
+
+          echo "Storing commit SHA ${{ github.event.pull_request.head.sha }}"
+          echo "${{ github.event.pull_request.head.sha }}" > commit_sha.txt
+
+      # This stores the coverage report in artifacts. The actual upload to Codecov
+      # is executed by a different workflow `coverage-report-upload.yml`. The reason for this
+      # split is because `on.pull_request` workflows don't have access to secrets.
+      - name: Store coverage report in artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecov_report
+          path: |
+            pr_number.txt
+            commit_sha.txt
+            codecov_report.json
+
+  typo-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FORCE_COLOR: 1
+      TYPOS_VERSION: v1.19.0
+    steps:
+      - name: download typos
+        run: curl -LsSf https://github.com/crate-ci/typos/releases/download/$TYPOS_VERSION/typos-$TYPOS_VERSION-x86_64-unknown-linux-musl.tar.gz | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: check typos
+        run: typos
+
+  license-header-check:
+    runs-on: ubuntu-latest
+    env:
+      HAWKEYE_VERSION: v5.5.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download HawkEye
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/korandoru/hawkeye/releases/download/$HAWKEYE_VERSION/hawkeye-installer.sh | sh
+      - name: Check License Header
+        run: hawkeye check
