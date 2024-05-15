@@ -1,6 +1,6 @@
 # MoonBit Experimental
 
-This repository contains a module `moonbitlang/experimental`, which is an experimental 
+This repository contains a module `moonbitlang/x`, which is an experimental 
 library consisting of multiple packages that are subject to frequent changes or are 
 not yet mature. These packages are initially placed here for testing and development.
 
@@ -9,11 +9,11 @@ they may be merged into the standard library [moonbitlang/core](https://github.c
 
 ## Usage
 
-To use a package from this repository, add module `moonbitlang/experimental` to 
+To use a package from this repository, add module `moonbitlang/x` to 
 dependencies by command
 
 ```
-moon add moonbitlang/experimental 
+moon add moonbitlang/x
 ``` 
 
 And import any packages in your `moon.pkg.json` file. for example:
@@ -21,7 +21,7 @@ And import any packages in your `moon.pkg.json` file. for example:
 ```json
 {
   "import": [
-    "moonbitlang/experimental/json5"
+    "moonbitlang/x/json5"
   ]
 }
 ```
