@@ -1,4 +1,4 @@
-package moonbitlang/core/uuid
+package moonbitlang/experimental/uuid
 
 // Values
 fn from_bytes(Bytes) -> Result[UUID, String]

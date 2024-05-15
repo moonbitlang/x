@@ -1,4 +1,4 @@
-package moonbitlang/core/json5
+package moonbitlang/experimental/json5
 
 alias @moonbitlang/core/json as @json
 
