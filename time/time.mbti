@@ -1,4 +1,4 @@
-package moonbitlang/core/time
+package moonbitlang/experimental/time
 
 // Values
 fn date_time(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> Result[ZonedDateTime, String]
