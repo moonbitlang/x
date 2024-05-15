@@ -84,17 +84,6 @@ jobs:
           moon test
           moon test --target js
 
-      - name: moon bundle
-        run: moon bundle --all
-
-      - name: check core size
-        if: ${{ matrix.os.name != 'windows-latest' }}
-        run: find ./target -name '*.core' | xargs ls -lh
-
-      - name: check core size on windows
-        if: ${{ matrix.os.name == 'windows-latest' }}
-        run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.core" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
-
       - name: format diff
         run: |
           moon fmt
