@@ -66,12 +66,12 @@ pub fn from_bytes(bytes : Bytes) -> Result[UUID, String] {
 /// The UUID as a 16-byte string.
 pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
-  let rv = Bytes::make(16, 0)
+  let rv = Bytes::make(16)
   for i = 0; i < 8; i = i + 1 {
-    rv[i] = self.hi.lsr((7 - i) * 8).to_int()
+    rv[i] = self.hi.lsr((7 - i) * 8).to_byte()
   }
   for i = 8; i < 16; i = i + 1 {
-    rv[i] = self.lo.lsr((15 - i) * 8).to_int()
+    rv[i] = self.lo.lsr((15 - i) * 8).to_byte()
   }
   rv
 }
@@ -81,8 +81,8 @@ test "bytes" {
     201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185,
   ]
   inspect(from_bytes(buf)?.to_bytes(), content="苉棻僟ꅌꊺऄ맥")? // XXX: this is a terrible Show
-  inspect(from_bytes(Bytes::make(15, 0)), content="Err(requires 16 bytes)")?
-  inspect(from_bytes(Bytes::make(17, 0)), content="Err(requires 16 bytes)")?
+  inspect(from_bytes(Bytes::make(15)), content="Err(requires 16 bytes)")?
+  inspect(from_bytes(Bytes::make(17)), content="Err(requires 16 bytes)")?
 }
 
 fn hex_char_to_int64(c : Char) -> Result[Int64, String] {
@@ -155,16 +155,16 @@ let size : Int = (segments.fold_left(fn { acc, x => acc + x }, init=0) + segment
 
 pub fn to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
-  let rv = Bytes::make(size, 0)
+  let rv = Bytes::make(size)
   for v = self.lo, c = size - 1, i = size - 1, d = segments.length() - 1 {
     let s = segments[d] * 2
     if s == 0 {
       continue self.hi, c, i, d - 1
     } else if i > c - s {
-      rv[i - 1] = hex_table[v.land(0xfL).to_int()]
+      rv[i - 1] = hex_table[v.land(0xfL).to_int()].to_byte()
       continue v.lsr(4), c, i - 2, d
     } else if i > 0 {
-      rv[i - 1] = dash
+      rv[i - 1] = dash.to_byte()
       continue v, i - 2, i - 2, d - 1
     } else {
       break rv.to_string()
