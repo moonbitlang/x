@@ -85,8 +85,8 @@ test "remove_suffix_zero" {
 }
 
 /// FIXME: use split method of String
-fn split(s : String, delimiter : Char) -> @vec.Vec[String] {
-  let spl : @vec.Vec[String] = @vec.Vec::new()
+fn split(s : String, delimiter : Char) -> Array[String] {
+  let spl : Array[String] = Array::new()
   if s.length() == 0 {
     return spl
   }
@@ -104,13 +104,13 @@ fn split(s : String, delimiter : Char) -> @vec.Vec[String] {
 }
 
 test "split" {
-  inspect(split("2000-01-01", '-'), content="Vec::[2000, 01, 01]")?
-  inspect(split("-01-01", '-'), content="Vec::[, 01, 01]")?
-  inspect(split("12-31", '-'), content="Vec::[12, 31]")?
-  inspect(split("-01", '-'), content="Vec::[, 01]")?
-  inspect(split("-", '-'), content="Vec::[, ]")?
-  inspect(split("", '-'), content="Vec::[]")?
-  inspect(split("0", '-'), content="Vec::[0]")?
+  inspect(split("2000-01-01", '-'), content="[2000, 01, 01]")?
+  inspect(split("-01-01", '-'), content="[, 01, 01]")?
+  inspect(split("12-31", '-'), content="[12, 31]")?
+  inspect(split("-01", '-'), content="[, 01]")?
+  inspect(split("-", '-'), content="[, ]")?
+  inspect(split("", '-'), content="[]")?
+  inspect(split("0", '-'), content="[0]")?
 }
 
 let int_overflow_err = "Int overflow"

@@ -131,14 +131,14 @@ test "parses nested objects" {
 //region arrays
 test "parses empty arrays" {
   let json = test_parse("[]")?
-  @assertion.assert_eq(json, @json.JsonValue::Array(@vec.Vec::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Array([]))?
 }
 
 test "parses array values" {
   let json = test_parse("[1]")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Array(@vec.Vec::[@json.JsonValue::Number(1.0)]),
+    @json.JsonValue::Array([@json.JsonValue::Number(1.0)]),
   )?
 }
 
@@ -147,7 +147,7 @@ test "parses multiple array values" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[@json.JsonValue::Number(1.0), @json.JsonValue::Number(2.0)],
+      [@json.JsonValue::Number(1.0), @json.JsonValue::Number(2.0)],
     ),
   )?
 }
@@ -157,10 +157,10 @@ test "parses nested arrays" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(1.0),
         @json.JsonValue::Array(
-          @vec.Vec::[@json.JsonValue::Number(2.0), @json.JsonValue::Number(3.0)],
+          [@json.JsonValue::Number(2.0), @json.JsonValue::Number(3.0)],
         ),
       ],
     ),
@@ -193,7 +193,7 @@ test "parses leading zeroes" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(0.0),
         @json.JsonValue::Number(0.0),
         @json.JsonValue::Number(0.0),
@@ -207,7 +207,7 @@ test "parses integers" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(1.0),
         @json.JsonValue::Number(23.0),
         @json.JsonValue::Number(456.0),
@@ -222,7 +222,7 @@ test "parses signed numbers" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(-1.0),
         @json.JsonValue::Number(2.0),
         @json.JsonValue::Number(-0.1),
@@ -237,7 +237,7 @@ test "parses leading decimal points" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[@json.JsonValue::Number(0.1), @json.JsonValue::Number(0.23)],
+      [@json.JsonValue::Number(0.1), @json.JsonValue::Number(0.23)],
     ),
   )?
 }
@@ -247,7 +247,7 @@ test "parses fractional numbers" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[@json.JsonValue::Number(1.0), @json.JsonValue::Number(1.23)],
+      [@json.JsonValue::Number(1.0), @json.JsonValue::Number(1.23)],
     ),
   )?
 }
@@ -257,7 +257,7 @@ test "parses exponents" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(1.0),
         @json.JsonValue::Number(10.0),
         @json.JsonValue::Number(10.0),
@@ -275,7 +275,7 @@ test "parses hexadecimal numbers" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(1.0),
         @json.JsonValue::Number(16.0),
         @json.JsonValue::Number(255.0),
@@ -290,7 +290,7 @@ test "parses signed and unsigned Infinity" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[
+      [
         @json.JsonValue::Number(@double.inf(1)),
         @json.JsonValue::Number(@double.inf(-1)),
       ],
@@ -356,7 +356,7 @@ test "parses quotes in strings" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Array(
-      @vec.Vec::[@json.JsonValue::String("\""), @json.JsonValue::String("'")],
+      [@json.JsonValue::String("\""), @json.JsonValue::String("'")],
     ),
   )?
 }
