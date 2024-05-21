@@ -86,7 +86,7 @@ test "remove_suffix_zero" {
 
 /// FIXME: use split method of String
 fn split(s : String, delimiter : Char) -> Array[String] {
-  let spl : Array[String] = Array::new()
+  let spl = []
   if s.length() == 0 {
     return spl
   }
