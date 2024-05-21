@@ -73,7 +73,7 @@ fn parse_object(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
 }
 
 fn parse_array(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
-  let vec = @vec.new()
+  let vec = Array::new()
   for ; ; {
     let tok = lex_value(ctx, allow_rbracket=true)?
     match tok {
