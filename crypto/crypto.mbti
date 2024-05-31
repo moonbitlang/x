@@ -1,0 +1,13 @@
+package moonbitlang/x/crypto
+
+// Values
+fn bytes_to_hex_string(Bytes) -> String
+
+fn sha1(Bytes) -> Bytes
+
+// Types and methods
+
+// Traits
+
+// Extension Methods
+
