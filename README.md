@@ -1,5 +1,7 @@
 # MoonBit Experimental
 
+[![Coverage Status](https://coveralls.io/repos/github/moonbitlang/x/badge.svg?branch=main)](https://coveralls.io/github/moonbitlang/x?branch=main)
+
 This repository contains a module `moonbitlang/x`, which is an experimental 
 library consisting of multiple packages that are subject to frequent changes or are 
 not yet mature. These packages are initially placed here for testing and development.
