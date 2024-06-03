@@ -202,6 +202,19 @@ test "parses leading zeroes" {
   )?
 }
 
+test "pattern" {
+  let json_data = 
+    #| [0,1,2,{"a":3,"b":4},[5,6,7],8,9] 
+    #|  
+  let json = test_parse(json_data)?
+  match json {
+    Array ([_,_,_, Object({"a": data})]) => @assertion.assert_eq(data, Some(Number(3.0)))?
+      // inspect(data,)?
+    _ => panic()
+  }  
+  
+}
+
 test "parses integers" {
   let json = test_parse("[1,23,456,7890]")?
   @assertion.assert_eq(
