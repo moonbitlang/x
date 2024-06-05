@@ -3,6 +3,13 @@ package moonbitlang/x/stack
 // Values
 
 // Types and methods
+type List
+impl List {
+  debug_write[T : Debug](Self[T], Buffer) -> Unit
+  op_equal[T : Eq](Self[T], Self[T]) -> Bool
+  to_string[T : Debug](Self[T]) -> String
+}
+
 type Stack
 impl Stack {
   clear[T](Self[T]) -> Unit

@@ -236,7 +236,7 @@ test "push_array" {
 /// println(s) // Stack::[2, 3]
 /// println(s1.pop()) // None
 /// ```
-pub fn pop[T](self : Stack[T]) -> Option[T] {
+pub fn pop[T](self : Stack[T]) -> T? {
   match self.elements {
     Cons(hd, tl) => {
       self.elements = tl
@@ -355,7 +355,7 @@ test "drop_result" {
 /// println(s.peek()) // Some(1)
 /// println(s) // Stack::[1, 2, 3]
 /// ```
-pub fn peek[T](self : Stack[T]) -> Option[T] {
+pub fn peek[T](self : Stack[T]) -> T? {
   match self.elements {
     Cons(hd, _) => Some(hd)
     Nil => None
@@ -478,7 +478,7 @@ pub fn to_list[T](self : Stack[T]) -> List[T] {
 }
 
 test "to_list" {
-  inspect(Stack::[3, 2, 1].to_list(), content="List::[3, 2, 1]")?
+  inspect(Stack::[3, 2, 1].to_list(), content="Cons(3, Cons(2, Cons(1, Nil)))")?
 }
 
 /// Convert stack to array.
