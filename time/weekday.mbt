@@ -22,7 +22,7 @@ enum Weekday {
   Sunday
 } derive(Debug, Eq, Show)
 
-fn Weekday::new(week_day : Int) -> Option[Weekday] {
+fn Weekday::new(week_day : Int) -> Weekday? {
   match week_day {
     1 => Some(Monday)
     2 => Some(Tuesday)
