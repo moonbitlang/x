@@ -30,7 +30,8 @@ fn swap_endian(bytes : Bytes) -> Bytes {
   swapped
 }
 
-/// encode given string to specific text encoding
+/// Encode given string (in UTF16-LE) to specific text encoding
+/// Currently BOM is not supported
 pub fn Encoding::encode(
   encoding : Encoding,
   str : String
@@ -45,26 +46,30 @@ pub fn Encoding::encode(
     UTF16_LE => return Ok(str.to_bytes())
     UTF16_BE => return Ok(swap_endian(str.to_bytes()))
     UTF8 => {
-      fn utf8_of_codepoint(codepoint : Int) -> Array[Int] {
+      fn utf8_of_codepoint(codepoint : Int) -> Result[Array[Int], String] {
         if codepoint <= 0x7F {
-          [codepoint]
+          Ok([codepoint])
         } else if codepoint <= 0x7FF {
-          [(0xC0).lor(codepoint.lsr(6)), (0x80).lor(codepoint.land(0x3F))]
+          Ok([(0xC0).lor(codepoint.lsr(6)), (0x80).lor(codepoint.land(0x3F))])
         } else if codepoint <= 0xFFFF {
-          [
-            (0xE0).lor(codepoint.lsr(12)),
-            (0x80).lor(codepoint.lsr(6).land(0x3F)),
-            (0x80).lor(codepoint.land(0x3F)),
-          ]
+          Ok(
+            [
+              (0xE0).lor(codepoint.lsr(12)),
+              (0x80).lor(codepoint.lsr(6).land(0x3F)),
+              (0x80).lor(codepoint.land(0x3F)),
+            ],
+          )
         } else if codepoint <= 0x10FFFF {
-          [
-            (0xF0).lor(codepoint.lsr(18)),
-            (0x80).lor(codepoint.lsr(12).land(0x3F)),
-            (0x80).lor(codepoint.lsr(6).land(0x3F)),
-            (0x80).lor(codepoint.land(0x3F)),
-          ]
+          Ok(
+            [
+              (0xF0).lor(codepoint.lsr(18)),
+              (0x80).lor(codepoint.lsr(12).land(0x3F)),
+              (0x80).lor(codepoint.lsr(6).land(0x3F)),
+              (0x80).lor(codepoint.land(0x3F)),
+            ],
+          )
         } else {
-          abort("Invalid codepoint")
+          Err("Invalid codepoint")
         }
       }
 
@@ -78,17 +83,17 @@ pub fn Encoding::encode(
             if low >= 0xDC00 && low <= 0xDFFF {
               // low surrogate
               let codepoint = codepoint_of_surrogate_pair(high, low)
-              acc.append(utf8_of_codepoint(codepoint))
+              acc.append(utf8_of_codepoint(codepoint)?)
               i = i + 2
             } else {
-              abort("Invalid surrogate pair")
+              return Err("Invalid UTF-16 sequence: Missing low surrogate")
             }
           } else {
-            abort("Invalid surrogate pair")
+            return Err("Invalid UTF-16 sequence.")
           }
         } else {
           let codepoint = high
-          acc.append(utf8_of_codepoint(codepoint))
+          acc.append(utf8_of_codepoint(codepoint)?)
           i = i + 1
         }
       }
@@ -109,25 +114,31 @@ pub fn Encoding::encode(
               acc.push(codepoint)
               i = i + 2
             } else {
-              abort("Invalid UTF-16 sequence: Missing low surrogate")
+              return Err("Invalid UTF-16 sequence: Missing low surrogate")
             }
           } else {
-            abort("Invalid UTF-16 sequence.")
+            return Err("Invalid UTF-16 sequence.")
           }
         } else {
-          let codepoint = high
-          acc.push(codepoint)
+          acc.push(high)
           i = i + 1
         }
       }
-      let utf32 = Bytes::from_array(acc)
+      let utf32 = Bytes::make(acc.length() * 4)
+      for i = 0; i < acc.length(); i = i + 1 {
+        let codepoint = acc[i]
+        utf32[i * 4 + 3] = codepoint.lsr(24).to_byte()
+        utf32[i * 4 + 2] = codepoint.lsr(16).land(0xFF).to_byte()
+        utf32[i * 4 + 1] = codepoint.lsr(8).land(0xFF).to_byte()
+        utf32[i * 4] = codepoint.land(0xFF).to_byte()
+      }
       return Ok(utf32)
     }
     UTF32_BE => {
       let res = swap_endian(Encoding::encode(UTF32_LE, str)?)
       return Ok(res)
     }
-    _ => abort("TODO: BOM is not implemented")
+    _ => abort("Encoding to BOM is not implemented")
   }
 }
 
@@ -141,9 +152,10 @@ pub fn decode(self : Encoding, bytes : Bytes) -> Result[String, String] {
   abort("TODO: need unsafe_bytes_to_string primitive")
 }
 
-test "endode" {
-  // Little 
-  let s : String = "h"
-  let res = encode(UTF16_BE, s)
-  inspect(res, content="栀")?
+pub fn my_to_array(_self_ : Bytes) -> Array[Int] {
+  let rv = []
+  for i = 0; i < _self_.length(); i = i + 1 {
+    rv.push(_self_[i].to_int())
+  }
+  rv
 }
