@@ -45,7 +45,7 @@ fn parse_value2(
 }
 
 fn parse_object(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
-  let mut map = @map.empty()
+  let mut map = @immut/sorted_map.empty()
   for ; ; {
     let tok = lex_property_name(ctx)?
     match tok {

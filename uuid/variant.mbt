@@ -75,7 +75,7 @@ pub fn variant(self : UUID) -> Variant {
 ///
 /// If the variant of the UUID is not `RFC4122`, returns `None`.
 ///
-pub fn version(self : UUID) -> Option[Version] {
+pub fn version(self : UUID) -> Version? {
   match self.variant() {
     RFC4122(ver) => Some(ver)
     _ => None
