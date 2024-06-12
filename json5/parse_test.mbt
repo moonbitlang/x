@@ -29,9 +29,7 @@ test "parses double string property names" {
   let json = test_parse("{\"a\":1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -39,9 +37,7 @@ test "parses single string property names" {
   let json = test_parse("{a:1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -49,9 +45,7 @@ test "parses unquoted property names" {
   let json = test_parse("{a:1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -97,9 +91,7 @@ test "preserves __proto__ property names" {
   let json = test_parse("{\"__proto__\":1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      Map::[("__proto__", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("__proto__", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -124,9 +116,7 @@ test "parses nested objects" {
       Map::[
         (
           "a",
-          @json.JsonValue::Object(
-            Map::[("b", @json.JsonValue::Number(2.0))],
-          ),
+          @json.JsonValue::Object(Map::[("b", @json.JsonValue::Number(2.0))]),
         ),
       ],
     ),
