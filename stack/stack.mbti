@@ -1,15 +1,10 @@
 package moonbitlang/x/stack
 
+alias @moonbitlang/core/immut/list as @list
+
 // Values
 
 // Types and methods
-type List
-impl List {
-  debug_write[T : Debug](Self[T], Buffer) -> Unit
-  op_equal[T : Eq](Self[T], Self[T]) -> Bool
-  to_string[T : Debug](Self[T]) -> String
-}
-
 type Stack
 impl Stack {
   clear[T](Self[T]) -> Unit
@@ -20,7 +15,7 @@ impl Stack {
   equal[T : Eq](Self[T], Self[T]) -> Bool
   fold[T, U](Self[T], ~init : U, (U, T) -> U) -> U
   from_array[T](Array[T]) -> Self[T]
-  from_list[T](List[T]) -> Self[T]
+  from_list[T](@list.List[T]) -> Self[T]
   from_stack[T](Self[T]) -> Self[T]
   is_empty[T](Self[T]) -> Bool
   iter[T](Self[T], (T) -> Unit) -> Unit
@@ -33,11 +28,11 @@ impl Stack {
   pop_exn[T](Self[T]) -> T
   push[T](Self[T], T) -> Unit
   push_array[T](Self[T], Array[T]) -> Unit
-  push_list[T](Self[T], List[T]) -> Unit
+  push_list[T](Self[T], @list.List[T]) -> Unit
   push_stack[T](Self[T], Self[T]) -> Unit
   return_with_clear[T](Self[T]) -> Self[T]
   to_array[T : Default](Self[T]) -> Array[T]
-  to_list[T](Self[T]) -> List[T]
+  to_list[T](Self[T]) -> @list.List[T]
   to_string[T : Show](Self[T]) -> String
 }
 
