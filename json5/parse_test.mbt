@@ -174,12 +174,12 @@ test "parses nulls" {
 //region booleans
 test "parses true" {
   let json = test_parse("true")?
-  @assertion.assert_eq(json, True)?
+  @assertion.assert_eq(json, @json.JsonValue::True)?
 }
 
 test "parses false" {
   let json = test_parse("false")?
-  @assertion.assert_eq(json, False)?
+  @assertion.assert_eq(json, @json.JsonValue::False)?
 }
 //endregion
 
