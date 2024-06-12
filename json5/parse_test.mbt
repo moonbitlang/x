@@ -22,16 +22,14 @@ fn test_parse(
 //region objects
 test "parses empty objects" {
   let json = test_parse("{}")?
-  @assertion.assert_eq(json, @json.JsonValue::Object(@immut/sorted_map.Map::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Object(Map::[]))?
 }
 
 test "parses double string property names" {
   let json = test_parse("{\"a\":1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      @immut/sorted_map.Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -39,9 +37,7 @@ test "parses single string property names" {
   let json = test_parse("{a:1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      @immut/sorted_map.Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -49,9 +45,7 @@ test "parses unquoted property names" {
   let json = test_parse("{a:1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      @immut/sorted_map.Map::[("a", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -60,7 +54,7 @@ test "parses special character property names" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Object(
-      @immut/sorted_map.Map::[
+      Map::[
         ("$_", @json.JsonValue::Number(1.0)),
         ("_$", @json.JsonValue::Number(2.0)),
         ("a\u200C", @json.JsonValue::Number(3.0)),
@@ -74,7 +68,7 @@ test "parses unicode property names" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Object(
-      @immut/sorted_map.Map::[("ùńîċõďë", @json.JsonValue::Number(9.0))],
+      Map::[("ùńîċõďë", @json.JsonValue::Number(9.0))],
     ),
   )?
 }
@@ -84,7 +78,7 @@ test "parses escaped property names" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Object(
-      @immut/sorted_map.Map::[
+      Map::[
         ("ab", @json.JsonValue::Number(1.0)),
         ("$_", @json.JsonValue::Number(2.0)),
         ("_$", @json.JsonValue::Number(3.0)),
@@ -97,9 +91,7 @@ test "preserves __proto__ property names" {
   let json = test_parse("{\"__proto__\":1}")?
   @assertion.assert_eq(
     json,
-    @json.JsonValue::Object(
-      @immut/sorted_map.Map::[("__proto__", @json.JsonValue::Number(1.0))],
-    ),
+    @json.JsonValue::Object(Map::[("__proto__", @json.JsonValue::Number(1.0))]),
   )?
 }
 
@@ -108,7 +100,7 @@ test "parses multiple properties" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Object(
-      @immut/sorted_map.Map::[
+      Map::[
         ("abc", @json.JsonValue::Number(1.0)),
         ("def", @json.JsonValue::Number(2.0)),
       ],
@@ -121,12 +113,10 @@ test "parses nested objects" {
   @assertion.assert_eq(
     json,
     @json.JsonValue::Object(
-      @immut/sorted_map.Map::[
+      Map::[
         (
           "a",
-          @json.JsonValue::Object(
-            @immut/sorted_map.Map::[("b", @json.JsonValue::Number(2.0))],
-          ),
+          @json.JsonValue::Object(Map::[("b", @json.JsonValue::Number(2.0))]),
         ),
       ],
     ),
@@ -184,12 +174,12 @@ test "parses nulls" {
 //region booleans
 test "parses true" {
   let json = test_parse("true")?
-  @assertion.assert_eq(json, @json.JsonValue::Boolean(true))?
+  @assertion.assert_eq(json, @json.JsonValue::True)?
 }
 
 test "parses false" {
   let json = test_parse("false")?
-  @assertion.assert_eq(json, @json.JsonValue::Boolean(false))?
+  @assertion.assert_eq(json, @json.JsonValue::False)?
 }
 //endregion
 
@@ -383,23 +373,23 @@ test "parses escaped characters" {
 //region comments
 test "parses single-line comments" {
   let json = test_parse("{//comment\n}")?
-  @assertion.assert_eq(json, @json.JsonValue::Object(@immut/sorted_map.Map::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Object(Map::[]))?
 }
 
 test "parses single-line comments at end of input" {
   let json = test_parse("{}//comment")?
-  @assertion.assert_eq(json, @json.JsonValue::Object(@immut/sorted_map.Map::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Object(Map::[]))?
 }
 
 test "parses multi-line comments" {
   let json = test_parse("{/*comment\n** */}")?
-  @assertion.assert_eq(json, @json.JsonValue::Object(@immut/sorted_map.Map::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Object(Map::[]))?
 }
 //endregion
 
 //region whitespace
 test "parses whitespace" {
   let json = test_parse("{\t\u000b\u000c \u00A0\uFEFF\n\r\u2028\u2029\u2003}")?
-  @assertion.assert_eq(json, @json.JsonValue::Object(@immut/sorted_map.Map::[]))?
+  @assertion.assert_eq(json, @json.JsonValue::Object(Map::[]))?
 }
 //endregion
