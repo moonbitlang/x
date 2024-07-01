@@ -67,7 +67,7 @@ test "from_array" {
 
 pub fn to_string[T : Show](self : Stack[T]) -> String {
   let mut res = "Stack::["
-  self.elements.iteri(
+  self.elements.eachi(
     fn(i, t) {
       if i > 0 {
         res += ", "
@@ -172,7 +172,7 @@ test "push" {
 /// println(s) // Stack::[3, 2, 1]
 /// ```
 pub fn push_list[T](self : Stack[T], list : @immut/list.List[T]) -> Unit {
-  list.iter(fn(i) { self.push(i) })
+  list.each(fn(i) { self.push(i) })
 }
 
 test "push_list" {
@@ -193,7 +193,7 @@ test "push_list" {
 /// println(s1) // Stack::[1, 2, 3]
 /// ```
 pub fn push_stack[T](self : Stack[T], stack : Stack[T]) -> Unit {
-  stack.elements.iter(fn(i) { self.push(i) })
+  stack.elements.each(fn(i) { self.push(i) })
 }
 
 test "push_stack" {
@@ -214,7 +214,7 @@ test "push_stack" {
 /// println(s) // Stack::[3, 2, 1]
 /// ```
 pub fn push_array[T](self : Stack[T], array : Array[T]) -> Unit {
-  array.iter(fn(i) { self.push(i) })
+  array.each(fn(i) { self.push(i) })
 }
 
 test "push_array" {
@@ -424,17 +424,17 @@ pub fn length[T](self : Stack[T]) -> Int {
 /// # Example
 /// ```
 /// let s = Stack::[1, 2, 3]
-/// s.iter(fn(i) { println(i) })'
+/// s.each(fn(i) { println(i) })'
 /// ```
-pub fn iter[T](self : Stack[T], f : (T) -> Unit) -> Unit {
-  self.elements.iter(f)
+pub fn each[T](self : Stack[T], f : (T) -> Unit) -> Unit {
+  self.elements.each(f)
 }
 
 test "iter" {
   let s : Stack[Int] = new()
   let mut sum = 0
   let mut sub = 0
-  s.iter(fn(i) { sum = sum + i })
+  s.each(fn(i) { sum = sum + i })
   inspect(sum, content="0")?
   s.push(1)
   s.push(2)
@@ -442,8 +442,8 @@ test "iter" {
   inspect(s.peek_exn(), content="3")?
   sum = 0
   sub = s.peek_exn()
-  s.iter(fn(i) { sum = sum + i })
-  s.iter(fn(i) { sub = sub - i }) // 3 - 3 - 2 - 1
+  s.each(fn(i) { sum = sum + i })
+  s.each(fn(i) { sub = sub - i }) // 3 - 3 - 2 - 1
   inspect(sum, content="6")?
   inspect(sub, content="-3")?
 }
