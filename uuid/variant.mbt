@@ -94,30 +94,30 @@ pub fn as_version(self : UUID, version : Version) -> UUID {
 
 test "variant" {
   inspect(
-    from_hex("81a277a6-771b-1a55-6246-fa3763226aa0")?.variant(),
+    from_hex("81a277a6-771b-1a55-6246-fa3763226aa0")!.variant(),
     content="ReservedNCS",
-  )?
+  )!
   inspect(
-    from_hex("42e0e55d-cee5-044c-b3a6-18a7dc5ae8b4")?.variant(),
+    from_hex("42e0e55d-cee5-044c-b3a6-18a7dc5ae8b4")!.variant(),
     content="RFC4122(Unknown(0))",
-  )?
+  )!
   inspect(
-    from_hex("1db64c57-6b48-fd91-dab2-d3accd060480")?.variant(),
+    from_hex("1db64c57-6b48-fd91-dab2-d3accd060480")!.variant(),
     content="ReservedMicrosoft",
-  )?
+  )!
   inspect(
-    from_hex("96b2d68d-f97d-9358-f2b1-79cbc6d43c83")?.variant(),
+    from_hex("96b2d68d-f97d-9358-f2b1-79cbc6d43c83")!.variant(),
     content="ReservedFuture",
-  )?
+  )!
 }
 
 test "version" {
-  let u = from_hex("907976bf-6784-5a4f-5d7d-33c04dd8fa1a")?
-  inspect(u.version(), content="None")?
-  inspect(u.as_version(V1).version(), content="Some(V1)")?
-  inspect(u.as_version(V2).version(), content="Some(V2)")?
-  inspect(u.as_version(V3).version(), content="Some(V3)")?
-  inspect(u.as_version(V4).version(), content="Some(V4)")?
-  inspect(u.as_version(V5).version(), content="Some(V5)")?
-  inspect(u.as_version(Unknown(9)).version(), content="Some(Unknown(9))")?
+  let u = from_hex("907976bf-6784-5a4f-5d7d-33c04dd8fa1a")!
+  inspect(u.version(), content="None")!
+  inspect(u.as_version(V1).version(), content="Some(V1)")!
+  inspect(u.as_version(V2).version(), content="Some(V2)")!
+  inspect(u.as_version(V3).version(), content="Some(V3)")!
+  inspect(u.as_version(V4).version(), content="Some(V4)")!
+  inspect(u.as_version(V5).version(), content="Some(V5)")!
+  inspect(u.as_version(Unknown(9)).version(), content="Some(Unknown(9))")!
 }

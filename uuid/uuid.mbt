@@ -45,9 +45,9 @@ struct UUID {
 ///
 /// The produced UUID is not RFC-4122 compliant; see also `as_version()`.
 ///
-pub fn from_bytes(bytes : Bytes) -> Result[UUID, String] {
+pub fn from_bytes(bytes : Bytes) -> UUID!String {
   if bytes.length() != 16 {
-    return Err("requires 16 bytes")
+    raise "requires 16 bytes"
   }
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
@@ -60,7 +60,7 @@ pub fn from_bytes(bytes : Bytes) -> Result[UUID, String] {
   } else {
     rv
   }
-  Ok({ hi, lo })
+  { hi, lo }
 }
 
 /// The UUID as a 16-byte string.
@@ -80,12 +80,12 @@ test "bytes" {
   let buf = Bytes::[
     201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185,
   ]
-  inspect(from_bytes(buf)?.to_bytes(), content="苉棻僟ꅌꊺऄ맥")? // XXX: this is a terrible Show
-  inspect(from_bytes(Bytes::make(15)), content="Err(requires 16 bytes)")?
-  inspect(from_bytes(Bytes::make(17)), content="Err(requires 16 bytes)")?
+  inspect(from_bytes(buf)!.to_bytes(), content="苉棻僟ꅌꊺऄ맥")! // XXX: this is a terrible Show
+  inspect(from_bytes(Bytes::make(15))!!, content="Err(requires 16 bytes)")!
+  inspect(from_bytes(Bytes::make(17))!!, content="Err(requires 16 bytes)")!
 }
 
-fn hex_char_to_int64(c : Char) -> Result[Int64, String] {
+fn hex_char_to_int64(c : Char) -> Int64!String {
   let d = if '0' <= c && c <= '9' {
     c.to_int() - '0'.to_int()
   } else if 'a' <= c && c <= 'f' {
@@ -93,9 +93,9 @@ fn hex_char_to_int64(c : Char) -> Result[Int64, String] {
   } else if 'A' <= c && c <= 'F' {
     c.to_int() - 'A'.to_int() + 10
   } else {
-    return Err("invalid syntax")
+    raise "invalid syntax"
   }
-  Ok(d.to_int64())
+  d.to_int64()
 }
 
 /// Constructs a UUID with the given hexadecimal string.
@@ -103,18 +103,18 @@ fn hex_char_to_int64(c : Char) -> Result[Int64, String] {
 /// This function ignores dashes (`-`) in the given string. The remaining
 /// letters must be exactly 32 hexadecimals, or an error will be raised.
 ///
-pub fn from_hex(hex : String) -> Result[UUID, String] {
+pub fn from_hex(hex : String) -> UUID!String {
   // XXX: ideally we should use strconv here, but we don't have sufficient
   // tooling around String yet
   let (hi, i) = for hi = 0L, i = 0, n = 0; n < 16; {
     if i >= hex.length() {
-      return Err("not enough hexadecimal in UUID string")
+      raise "not enough hexadecimal in UUID string"
     }
     let c = hex[i]
     if c == '-' {
       continue hi, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)?
+      let d = hex_char_to_int64(c)!
       continue hi.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -122,22 +122,22 @@ pub fn from_hex(hex : String) -> Result[UUID, String] {
   }
   let (lo, i) = for lo = 0L, i = i, n = 0; n < 16; {
     if i >= hex.length() {
-      return Err("not enough hexadecimal in UUID string")
+      raise "not enough hexadecimal in UUID string"
     }
     let c = hex[i]
     if c == '-' {
       continue lo, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)?
+      let d = hex_char_to_int64(c)!
       continue lo.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
     }
   } else {
     (lo, i)
   }
   if i == hex.length() {
-    Ok({ hi, lo })
+    { hi, lo }
   } else {
-    Err("badly formed hexadecimal UUID string")
+    raise "badly formed hexadecimal UUID string"
   }
 }
 
@@ -174,17 +174,17 @@ pub fn to_string(self : UUID) -> String {
 
 test "from_hex" {
   let hex = "13cb501c-1234-5678-9034-abcdef937e20"
-  inspect(from_hex(hex)?, content=hex)?
+  inspect(from_hex(hex)!, content=hex)!
   inspect(
-    from_hex("12345678-1234-1234-1234-ABCDEF098765")?,
+    from_hex("12345678-1234-1234-1234-ABCDEF098765")!,
     content="12345678-1234-1234-1234-abcdef098765",
-  )?
+  )!
   inspect(
-    from_hex("13cb"),
+    from_hex("13cb")!!,
     content="Err(not enough hexadecimal in UUID string)",
-  )?
+  )!
   inspect(
-    from_hex("13cb501c-99a8-c889-3234"),
+    from_hex("13cb501c-99a8-c889-3234")!!,
     content="Err(not enough hexadecimal in UUID string)",
-  )?
+  )!
 }
