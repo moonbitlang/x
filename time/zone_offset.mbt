@@ -39,22 +39,22 @@ pub fn ZoneOffset::of(
   ~hours : Int = 0,
   ~minutes : Int = 0,
   ~seconds : Int = 0
-) -> Result[ZoneOffset, String] {
-  validate_offset(hours, minutes, seconds)?
+) -> ZoneOffset!String {
+  validate_offset(hours, minutes, seconds)!
   let secs = hours * seconds_per_hour.to_int() + minutes * seconds_per_minute.to_int() +
     seconds
-  ZoneOffset::from_seconds(secs)
+  ZoneOffset::from_seconds(secs)!
 }
 
 /// Creates a offset from seconds.
-pub fn ZoneOffset::from_seconds(seconds : Int) -> Result[ZoneOffset, String] {
+pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!String {
   if seconds == 0 {
-    return Ok(utc_offset)
+    return utc_offset
   }
   if seconds < min_offset_seconds || seconds > max_offset_seconds {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
-  Ok({ id: create_id(seconds), seconds, dst: false })
+  { id: create_id(seconds), seconds, dst: false }
 }
 
 /// Returns the offset id.
@@ -93,7 +93,7 @@ fn create_id(secs : Int) -> String {
   let offset_hours = abs_secs / seconds_per_hour.to_int()
   let offset_mins = abs_secs % seconds_per_hour.to_int() / seconds_per_minute.to_int()
   let offset_secs = abs_secs % seconds_per_minute.to_int()
-  let buf = Buffer::make(9)
+  let buf = Buffer::new(size_hint=9)
   buf.write_char(if secs < 0 { '-' } else { '+' })
   buf.write_string(add_prefix_zero(offset_hours.to_string(), 2))
   buf.write_char(':')
@@ -105,24 +105,24 @@ fn create_id(secs : Int) -> String {
   buf.to_string()
 }
 
-fn validate_offset(h : Int, m : Int, s : Int) -> Result[Unit, String] {
+fn validate_offset(h : Int, m : Int, s : Int) -> Unit!String {
   if h < min_offset_hours || h > max_offset_hours {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
   if m < -59 || m > 59 {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
   if s < -59 || s > 59 {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
   if h > 0 && (m < 0 || s < 0) || h < 0 && (m > 0 || s > 0) {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
   if m > 0 && s < 0 || m < 0 && s > 0 {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
   if h.abs() == 18 && (m != 0 || s != 0) {
-    return Err(invalid_offset_err)
+    raise invalid_offset_err
   }
-  Ok(())
+  ()
 }

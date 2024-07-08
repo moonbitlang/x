@@ -29,8 +29,8 @@ pub fn date_time(
   ~minute : Int = 0,
   ~second : Int = 0,
   ~zone : Zone = utc_zone
-) -> Result[ZonedDateTime, String] {
-  ZonedDateTime::of(year, month, day, ~hour, ~minute, ~second, ~zone)
+) -> ZonedDateTime!String {
+  ZonedDateTime::of(year, month, day, ~hour, ~minute, ~second, ~zone)!
 }
 
 /// Creates a ZonedDateTime from elapsed seconds since the unix epoch and a time zone.
@@ -39,8 +39,8 @@ pub fn unix(
   second : Int64,
   ~nanosecond : Int = 0,
   ~zone : Zone = utc_zone
-) -> Result[ZonedDateTime, String] {
-  ZonedDateTime::from_unix_second(second, ~nanosecond, ~zone)
+) -> ZonedDateTime!String {
+  ZonedDateTime::from_unix_second(second, ~nanosecond, ~zone)!
 }
 
 /// Creates a ZonedDateTime from year, month, day, hour, minute and second.
@@ -53,9 +53,9 @@ pub fn ZonedDateTime::of(
   ~minute : Int = 0,
   ~second : Int = 0,
   ~zone : Zone = utc_zone
-) -> Result[ZonedDateTime, String] {
-  let datetime = PlainDateTime::of(year, month, day, ~hour, ~minute, ~second)?
-  Ok(create_from_plain(datetime, zone))
+) -> ZonedDateTime!String {
+  let datetime = PlainDateTime::of(year, month, day, ~hour, ~minute, ~second)!
+  create_from_plain(datetime, zone)
 }
 
 /// Creates a ZonedDateTime from a PlainDateTime and a time zone.
@@ -73,15 +73,15 @@ pub fn ZonedDateTime::from_unix_second(
   second : Int64,
   ~nanosecond : Int = 0,
   ~zone : Zone = utc_zone
-) -> Result[ZonedDateTime, String] {
+) -> ZonedDateTime!String {
   let offset = zone.lookup_offset(second)
-  let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)?
-  Ok({ datetime, zone, offset })
+  let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)!
+  { datetime, zone, offset }
 }
 
 /// Returns a string representing this datetime, like "2008-08-08T20:00:00+8:00[Asia/Beijing]"
 pub fn to_string(self : ZonedDateTime) -> String {
-  let buf = Buffer::make(0)
+  let buf = Buffer::new(size_hint=0)
   buf.write_string(self.datetime.to_string())
   buf.write_string(self.offset.to_string())
   if self.zone != utc_zone {
@@ -203,131 +203,98 @@ pub fn offset(self : ZonedDateTime) -> ZoneOffset {
 }
 
 /// Adds specified years to this datetime, and returns a new datetime.
-pub fn add_years(
-  self : ZonedDateTime,
-  years : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_years(years)?, self.zone))
+pub fn add_years(self : ZonedDateTime, years : Int64) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_years(years)!, self.zone)
 }
 
 /// Adds specified months to this datetime, and returns a new datetime.
-pub fn add_months(
-  self : ZonedDateTime,
-  months : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_months(months)?, self.zone))
+pub fn add_months(self : ZonedDateTime, months : Int64) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_months(months)!, self.zone)
 }
 
 /// Adds specified weeks to this datetime, and returns a new datetime.
-pub fn add_weeks(
-  self : ZonedDateTime,
-  weeks : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_weeks(weeks)?, self.zone))
+pub fn add_weeks(self : ZonedDateTime, weeks : Int64) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_weeks(weeks)!, self.zone)
 }
 
 /// Adds specified days to this datetime, and returns a new datetime.
-pub fn add_days(
-  self : ZonedDateTime,
-  days : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_days(days)?, self.zone))
+pub fn add_days(self : ZonedDateTime, days : Int64) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_days(days)!, self.zone)
 }
 
 /// Adds specified hours to this datetime, and returns a new datetime.
-pub fn add_hours(
-  self : ZonedDateTime,
-  hours : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_hours(hours)?, self.zone))
+pub fn add_hours(self : ZonedDateTime, hours : Int64) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_hours(hours)!, self.zone)
 }
 
 /// Adds specified minutes to this datetime, and returns a new datetime.
 pub fn add_minutes(
   self : ZonedDateTime,
   minutes : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_minutes(minutes)?, self.zone))
+) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_minutes(minutes)!, self.zone)
 }
 
 /// Adds specified seconds to this datetime, and returns a new datetime.
 pub fn add_seconds(
   self : ZonedDateTime,
   seconds : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_seconds(seconds)?, self.zone))
+) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_seconds(seconds)!, self.zone)
 }
 
 /// Adds specified nanoseconds to this datetime, and returns a new datetime.
 pub fn add_nanoseconds(
   self : ZonedDateTime,
   nanoseconds : Int64
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.add_nanoseconds(nanoseconds)?, self.zone))
+) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.add_nanoseconds(nanoseconds)!, self.zone)
 }
 
 /// Returns a new datetime with the specified year.
-pub fn with_year(
-  self : ZonedDateTime,
-  year : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_year(year)?, self.zone))
+pub fn with_year(self : ZonedDateTime, year : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_year(year)!, self.zone)
 }
 
 /// Returns a new datetime with the specified month.
-pub fn with_month(
-  self : ZonedDateTime,
-  month : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_month(month)?, self.zone))
+pub fn with_month(self : ZonedDateTime, month : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_month(month)!, self.zone)
 }
 
 /// Returns a new datetime with the specified day of the month.
-pub fn with_day(
-  self : ZonedDateTime,
-  day : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_day(day)?, self.zone))
+pub fn with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_day(day)!, self.zone)
 }
 
 /// Returns a new datetime with the specified ordinal day of the year.
 pub fn with_ordinal(
   self : ZonedDateTime,
   ordinal : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_ordinal(ordinal)?, self.zone))
+) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_ordinal(ordinal)!, self.zone)
 }
 
 /// Returns a new datetime with the specified hour.
-pub fn with_hour(
-  self : ZonedDateTime,
-  hour : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_hour(hour)?, self.zone))
+pub fn with_hour(self : ZonedDateTime, hour : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_hour(hour)!, self.zone)
 }
 
 /// Returns a new datetime with the specified minute.
-pub fn with_minute(
-  self : ZonedDateTime,
-  minute : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_minute(minute)?, self.zone))
+pub fn with_minute(self : ZonedDateTime, minute : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_minute(minute)!, self.zone)
 }
 
 /// Returns a new datetime with the specified second.
-pub fn with_second(
-  self : ZonedDateTime,
-  second : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_second(second)?, self.zone))
+pub fn with_second(self : ZonedDateTime, second : Int) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_second(second)!, self.zone)
 }
 
 /// Returns a new datetime with the specified nanosecond.
 pub fn with_nanosecond(
   self : ZonedDateTime,
   nanosecond : Int
-) -> Result[ZonedDateTime, String] {
-  Ok(create_from_plain(self.datetime.with_nanosecond(nanosecond)?, self.zone))
+) -> ZonedDateTime!String {
+  create_from_plain(self.datetime.with_nanosecond(nanosecond)!, self.zone)
 }
 
 fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
