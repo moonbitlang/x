@@ -12,19 +12,19 @@ impl Stack {
   default[T : Default]() -> Self[T]
   drop[T](Self[T]) -> Unit
   drop_result[T](Self[T]) -> Result[Unit, Unit]
+  each[T](Self[T], (T) -> Unit) -> Unit
   equal[T : Eq](Self[T], Self[T]) -> Bool
   fold[T, U](Self[T], ~init : U, (U, T) -> U) -> U
   from_array[T](Array[T]) -> Self[T]
   from_list[T](@list.List[T]) -> Self[T]
   from_stack[T](Self[T]) -> Self[T]
   is_empty[T](Self[T]) -> Bool
-  iter[T](Self[T], (T) -> Unit) -> Unit
   length[T](Self[T]) -> Int
   new[T]() -> Self[T]
   op_equal[T : Eq](Self[T], Self[T]) -> Bool
-  peek[T](Self[T]) -> Option[T]
+  peek[T](Self[T]) -> T?
   peek_exn[T](Self[T]) -> T
-  pop[T](Self[T]) -> Option[T]
+  pop[T](Self[T]) -> T?
   pop_exn[T](Self[T]) -> T
   push[T](Self[T], T) -> Unit
   push_array[T](Self[T], Array[T]) -> Unit
