@@ -21,7 +21,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> Result[String, ParseError] {
     }
   }
 
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some('\'' | '"' as c) =>
         if c == quote {

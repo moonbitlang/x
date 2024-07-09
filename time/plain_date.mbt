@@ -20,25 +20,18 @@ struct PlainDate {
 }
 
 /// Creates a PlainDate from the year, month and day.
-pub fn PlainDate::of(
-  year : Int,
-  month : Int,
-  day : Int
-) -> Result[PlainDate, String] {
+pub fn PlainDate::of(year : Int, month : Int, day : Int) -> PlainDate!String {
   if not(validate_ymd(year, month, day)) {
-    return Err(invalid_date_err)
+    raise invalid_date_err
   }
-  Ok(PlainDate::{ year, month, day })
+  PlainDate::{ year, month, day }
 }
 
 /// Creates a PlainDate from year and ordinal day.
-pub fn PlainDate::from_year_ord(
-  year : Int,
-  ordinal : Int
-) -> Result[PlainDate, String] {
+pub fn PlainDate::from_year_ord(year : Int, ordinal : Int) -> PlainDate!String {
   let valid = validate_year(year) && validate_ordinal(year, ordinal)
   if not(valid) {
-    return Err(invalid_date_err)
+    raise invalid_date_err
   }
   let mut month = 1
   let mut day = ordinal
@@ -46,15 +39,15 @@ pub fn PlainDate::from_year_ord(
     day -= calc_days_in_month(year, month)
     month += 1
   }
-  Ok(PlainDate::{ year, month, day })
+  PlainDate::{ year, month, day }
 }
 
 /// Creates a date from the days count since unix epoch.
-pub fn PlainDate::from_unix_day(unix_day : Int64) -> Result[PlainDate, String] {
+pub fn PlainDate::from_unix_day(unix_day : Int64) -> PlainDate!String {
   let (year, ord) = fixed_days_to_year_ord(
     unix_day + days_zero_year_to_unix_epoch,
   )
-  PlainDate::from_year_ord(year, ord)
+  PlainDate::from_year_ord(year, ord)!
 }
 
 /// Returns the days count since unix epoch of this date.
@@ -64,7 +57,7 @@ pub fn to_unix_day(self : PlainDate) -> Int64 {
 }
 
 /// Creates a PlainDate from a string, like "2008-08-08".
-pub fn PlainDate::from_string(str : String) -> Result[PlainDate, String] {
+pub fn PlainDate::from_string(str : String) -> PlainDate!String {
   // TODO: better parsing implementation.
   let mut s = str
   let mut neg = false
@@ -75,26 +68,26 @@ pub fn PlainDate::from_string(str : String) -> Result[PlainDate, String] {
   s = if s.length() > 10 { str.substring(end=10) } else { s }
   let ymd = split(s, '-')
   if ymd.length() < 3 {
-    return Err(invalid_date_err)
+    raise invalid_date_err
   }
   let mut y = ymd[0]
   let m = ymd[1]
   let d = ymd[2]
   if y.length() < 4 || m.length() < 2 || d.length() < 2 {
-    return Err(invalid_date_err)
+    raise invalid_date_err
   }
   if neg {
     y = "-" + y
   }
-  let year = @strconv.parse(y)?
-  let month = @strconv.parse(m)?
-  let day = @strconv.parse(d)?
-  PlainDate::of(year, month, day)
+  let year = @strconv.parse(y)!
+  let month = @strconv.parse(m)!
+  let day = @strconv.parse(d)!
+  PlainDate::of(year, month, day)!
 }
 
 /// Returns a string representing the date.
 pub fn to_string(self : PlainDate) -> String {
-  let buf = Buffer::make(11)
+  let buf = Buffer::new(size_hint=11)
   if self.year < 0 {
     buf.write_char('-')
   }
@@ -213,79 +206,73 @@ pub fn in_leap_year(self : PlainDate) -> Bool {
 }
 
 /// Returns a new date with the specified year.
-pub fn with_year(self : PlainDate, year : Int) -> Result[PlainDate, String] {
+pub fn with_year(self : PlainDate, year : Int) -> PlainDate!String {
   if self.year == year {
-    return Ok(self)
+    return self
   }
   if validate_year(year) {
     let new_date = create_from_valid(year, self.month, self.day)
-    Ok(new_date)
+    new_date
   } else {
-    Err(invalid_date_err)
+    raise invalid_date_err
   }
 }
 
 /// Returns a new date with the specified month.
-pub fn with_month(self : PlainDate, month : Int) -> Result[PlainDate, String] {
+pub fn with_month(self : PlainDate, month : Int) -> PlainDate!String {
   if self.month == month {
-    return Ok(self)
+    return self
   }
   if validate_month(month) {
     let new_date = create_from_valid(self.year, month, self.day)
-    Ok(new_date)
+    new_date
   } else {
-    Err(invalid_date_err)
+    raise invalid_date_err
   }
 }
 
 /// Returns a new date with the specified day of month.
-pub fn with_day(self : PlainDate, day : Int) -> Result[PlainDate, String] {
+pub fn with_day(self : PlainDate, day : Int) -> PlainDate!String {
   if self.day == day {
-    return Ok(self)
+    return self
   }
   if validate_day(self.year, self.month, day) {
     let new_date = create_from_valid(self.year, self.month, day)
-    Ok(new_date)
+    new_date
   } else {
-    Err(invalid_date_err)
+    raise invalid_date_err
   }
 }
 
 /// Returns a new date with the specified ordinal day of year.
-pub fn with_ordinal(
-  self : PlainDate,
-  ordinal : Int
-) -> Result[PlainDate, String] {
+pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate!String {
   if self.ordinal() == ordinal {
-    return Ok(self)
+    return self
   }
-  PlainDate::from_year_ord(self.year, ordinal)
+  PlainDate::from_year_ord(self.year, ordinal)!
 }
 
 /// Adds specified years to this date, and returns a new date.
-pub fn add_years(self : PlainDate, years : Int64) -> Result[PlainDate, String] {
+pub fn add_years(self : PlainDate, years : Int64) -> PlainDate!String {
   if years == 0L {
-    return Ok(self)
+    return self
   }
-  let new_year = checked_add_int64(self.year.to_int64(), years)?.to_int()
+  let new_year = checked_add_int64(self.year.to_int64(), years)!.to_int()
   if validate_year(new_year) {
     let new_date = create_from_valid(new_year, self.month, self.day)
-    Ok(new_date)
+    new_date
   } else {
-    Err(invalid_date_err)
+    raise invalid_date_err
   }
 }
 
 /// Adds specified months to this date, and returns a new date.
-pub fn add_months(
-  self : PlainDate,
-  months : Int64
-) -> Result[PlainDate, String] {
+pub fn add_months(self : PlainDate, months : Int64) -> PlainDate!String {
   if months == 0L {
-    return Ok(self)
+    return self
   }
   let total_months = self.year.to_int64() * 12L + (self.month.to_int64() - 1L)
-  let new_total_months = checked_add_int64(total_months, months)?
+  let new_total_months = checked_add_int64(total_months, months)!
   let mut new_year = (new_total_months / 12L).to_int()
   let mut new_month = (new_total_months % 12L + 1L).to_int()
   if new_month < 0 {
@@ -293,51 +280,48 @@ pub fn add_months(
     new_month += 12
   }
   if validate_year(new_year) {
-    Ok(create_from_valid(new_year, new_month, self.day))
+    create_from_valid(new_year, new_month, self.day)
   } else {
-    Err(invalid_date_err)
+    raise invalid_date_err
   }
 }
 
 /// Adds specified weeks to this date, and returns a new date.
-pub fn add_weeks(self : PlainDate, weeks : Int64) -> Result[PlainDate, String] {
+pub fn add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!String {
   if weeks == 0L {
-    return Ok(self)
+    return self
   }
-  let days_to_add = checked_mul_int64(weeks, 7L)?
-  self.add_days(days_to_add)
+  let days_to_add = checked_mul_int64(weeks, 7L)!
+  self.add_days(days_to_add)!
 }
 
 /// Adds specified days to this date, and returns a new date.
-pub fn add_days(self : PlainDate, days : Int64) -> Result[PlainDate, String] {
+pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!String {
   if days == 0L {
-    return Ok(self)
+    return self
   }
   let fixed_days = date_to_fixed_days(self.year, self.month, self.day)
-  let new_days = checked_add_int64(fixed_days, days)?
+  let new_days = checked_add_int64(fixed_days, days)!
   let (year, ordinal) = fixed_days_to_year_ord(new_days)
-  PlainDate::from_year_ord(year, ordinal)
+  PlainDate::from_year_ord(year, ordinal)!
 }
 
 /// Adds a period to this date, and returns a new date.
-pub fn add_period(
-  self : PlainDate,
-  period : Period
-) -> Result[PlainDate, String] {
+pub fn add_period(self : PlainDate, period : Period) -> PlainDate!String {
   let mut d = self
-  d = d.add_months(period.to_total_months())?.add_days(period.days().to_int64())?
-  Ok(d)
+  d = d.add_months(period.to_total_months())!.add_days(period.days().to_int64())!
+  d
 }
 
 /// Returns the period between this date and another date.
-pub fn until(self : PlainDate, end : PlainDate) -> Result[Period, String] {
+pub fn until(self : PlainDate, end : PlainDate) -> Period!String {
   let start_months = self.year.to_int64() * 12L + self.month.to_int64() - 1L
   let end_months = end.year.to_int64() * 12L + end.month.to_int64() - 1L
   let mut total_months = end_months - start_months
   let mut days = end.day - self.day
   if total_months > 0L && days < 0 {
     total_months -= 1L
-    let d = self.add_months(total_months)?
+    let d = self.add_months(total_months)!
     let end_days = date_to_fixed_days(end.year, end.month, end.day)
     days = (end_days - date_to_fixed_days(d.year, d.month, d.day)).to_int()
   } else if total_months < 0L && days > 0 {
@@ -346,7 +330,7 @@ pub fn until(self : PlainDate, end : PlainDate) -> Result[Period, String] {
   }
   let years = (total_months / 12L).to_int()
   let months = (total_months % 12L).to_int()
-  Ok(Period::of(~years, ~months, ~days))
+  Period::of(~years, ~months, ~days)
 }
 
 // *****************************

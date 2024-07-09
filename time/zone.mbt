@@ -23,9 +23,9 @@ struct Zone {
 pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset] }
 
 /// Creates a time zone with fixed offset from time zone id and offset seconds.
-pub fn fixed_zone(id : String, offset_seconds : Int) -> Result[Zone, String] {
-  let offset = ZoneOffset::from_seconds(offset_seconds)?
-  Ok(Zone::{ id, offsets: [offset] })
+pub fn fixed_zone(id : String, offset_seconds : Int) -> Zone!String {
+  let offset = ZoneOffset::from_seconds(offset_seconds)!
+  Zone::{ id, offsets: [offset] }
 }
 
 /// Checks if this zone only has one offset.

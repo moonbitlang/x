@@ -76,7 +76,7 @@ To traverse the stack, use the `iter` method.
 ```moonbit
 let st = Stack::[1, 2, 3]
 let mut sum = 0
-st.iter(fn(x) { sum += x }) // sum = 6
+st.each(fn(x) { sum += x }) // sum = 6
 ```
 
 ### Conversion

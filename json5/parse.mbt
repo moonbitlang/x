@@ -46,7 +46,7 @@ fn parse_value2(
 
 fn parse_object(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
   let map = Map::[]
-  for ; ; {
+  for {
     let tok = lex_property_name(ctx)?
     match tok {
       RBrace => break
@@ -74,7 +74,7 @@ fn parse_object(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
 
 fn parse_array(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
   let vec = []
-  for ; ; {
+  for {
     let tok = lex_value(ctx, allow_rbracket=true)?
     match tok {
       RBracket => break

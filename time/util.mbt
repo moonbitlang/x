@@ -13,7 +13,7 @@
 // limitations under the License.
 
 fn add_prefix_zero(s : String, len : Int) -> String {
-  let buf = Buffer::make(len)
+  let buf = Buffer::new(size_hint=len)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
   }
@@ -37,22 +37,22 @@ fn remove_prefix_zero(s : String) -> String {
 }
 
 test "add_prefix_zero" {
-  inspect(add_prefix_zero("", 2), content="00")?
-  inspect(add_prefix_zero("1", 0), content="1")?
-  inspect(add_prefix_zero("1", 1), content="1")?
-  inspect(add_prefix_zero("1", 2), content="01")?
-  inspect(add_prefix_zero("1", 3), content="001")?
+  inspect(add_prefix_zero("", 2), content="00")!
+  inspect(add_prefix_zero("1", 0), content="1")!
+  inspect(add_prefix_zero("1", 1), content="1")!
+  inspect(add_prefix_zero("1", 2), content="01")!
+  inspect(add_prefix_zero("1", 3), content="001")!
 }
 
 test "remove_prefix_zero" {
-  inspect(remove_prefix_zero(""), content="")?
-  inspect(remove_prefix_zero("01"), content="1")?
-  inspect(remove_prefix_zero("09"), content="9")?
-  inspect(remove_prefix_zero("000"), content="0")?
+  inspect(remove_prefix_zero(""), content="")!
+  inspect(remove_prefix_zero("01"), content="1")!
+  inspect(remove_prefix_zero("09"), content="9")!
+  inspect(remove_prefix_zero("000"), content="0")!
 }
 
 fn add_suffix_zero(s : String, len : Int) -> String {
-  let buf = Buffer::make(len)
+  let buf = Buffer::new(size_hint=len)
   buf.write_string(s)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
@@ -72,16 +72,16 @@ fn remove_suffix_zero(s : String) -> String {
 }
 
 test "add_suffix_zero" {
-  inspect(add_suffix_zero("1", 0), content="1")?
-  inspect(add_suffix_zero("1", 1), content="1")?
-  inspect(add_suffix_zero("1", 2), content="10")?
-  inspect(add_suffix_zero("1", 3), content="100")?
+  inspect(add_suffix_zero("1", 0), content="1")!
+  inspect(add_suffix_zero("1", 1), content="1")!
+  inspect(add_suffix_zero("1", 2), content="10")!
+  inspect(add_suffix_zero("1", 3), content="100")!
 }
 
 test "remove_suffix_zero" {
-  inspect(remove_suffix_zero(""), content="")?
-  inspect(remove_suffix_zero("1000100"), content="10001")?
-  inspect(remove_suffix_zero("000"), content="0")?
+  inspect(remove_suffix_zero(""), content="")!
+  inspect(remove_suffix_zero("1000100"), content="10001")!
+  inspect(remove_suffix_zero("000"), content="0")!
 }
 
 /// FIXME: use split method of String
@@ -90,7 +90,7 @@ fn split(s : String, delimiter : Char) -> Array[String] {
   if s.length() == 0 {
     return spl
   }
-  let buf = Buffer::make(0)
+  let buf = Buffer::new(size_hint=0)
   for i = 0; i < s.length(); i = i + 1 {
     if s[i] == delimiter {
       spl.push(buf.to_string())
@@ -104,13 +104,13 @@ fn split(s : String, delimiter : Char) -> Array[String] {
 }
 
 test "split" {
-  inspect(split("2000-01-01", '-'), content="[2000, 01, 01]")?
-  inspect(split("-01-01", '-'), content="[, 01, 01]")?
-  inspect(split("12-31", '-'), content="[12, 31]")?
-  inspect(split("-01", '-'), content="[, 01]")?
-  inspect(split("-", '-'), content="[, ]")?
-  inspect(split("", '-'), content="[]")?
-  inspect(split("0", '-'), content="[0]")?
+  inspect(split("2000-01-01", '-'), content="[2000, 01, 01]")!
+  inspect(split("-01-01", '-'), content="[, 01, 01]")!
+  inspect(split("12-31", '-'), content="[12, 31]")!
+  inspect(split("-01", '-'), content="[, 01]")!
+  inspect(split("-", '-'), content="[, ]")!
+  inspect(split("", '-'), content="[]")!
+  inspect(split("0", '-'), content="[0]")!
 }
 
 let int_overflow_err = "Int overflow"
@@ -118,92 +118,92 @@ let int_overflow_err = "Int overflow"
 let int64_overflow_err = "Int64 overflow"
 
 /// FIXME: use checked_add method of Int
-fn checked_add_int(x : Int, y : Int) -> Result[Int, String] {
+fn checked_add_int(x : Int, y : Int) -> Int!String {
   let r = x.to_int64() + y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
-    Err(int_overflow_err)
+    raise int_overflow_err
   } else {
-    Ok(r.to_int())
+    r.to_int()
   }
 }
 
 /// FIXME: use checked_mul method of Int
-fn checked_mul_int(x : Int, y : Int) -> Result[Int, String] {
+fn checked_mul_int(x : Int, y : Int) -> Int!String {
   let r = x.to_int64() * y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
-    Err(int_overflow_err)
+    raise int_overflow_err
   } else {
-    Ok(r.to_int())
+    r.to_int()
   }
 }
 
 /// FIXME: use checked_add method of Int64
-fn checked_add_int64(x : Int64, y : Int64) -> Result[Int64, String] {
+fn checked_add_int64(x : Int64, y : Int64) -> Int64!String {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
   if x.lxor(r).land(y.lxor(r)) < 0L {
-    Err(int64_overflow_err)
+    raise int64_overflow_err
   } else {
-    Ok(r)
+    r
   }
 }
 
 /// FIXME: use checked_mul method of Int64
-fn checked_mul_int64(x : Int64, y : Int64) -> Result[Int64, String] {
+fn checked_mul_int64(x : Int64, y : Int64) -> Int64!String {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
   if abs_x.lor(abs_y).lsr(31) != 0L {
     // bits that greater than 2^31 might cause overflow
     if y != 0L && r / y != x || x == Int64::min_value() && y == -1L {
-      return Err(int64_overflow_err)
+      raise int64_overflow_err
     }
   }
-  Ok(r)
+  r
 }
 
 test "checked_add_int" {
-  inspect(checked_add_int(1, 1), content="Ok(2)")?
-  inspect(checked_add_int(1, -1), content="Ok(0)")?
-  inspect(checked_add_int(-1, -1), content="Ok(-2)")?
-  inspect(checked_add_int(Int::max_value(), 1), content="Err(Int overflow)")?
-  inspect(checked_add_int(Int::min_value(), -1), content="Err(Int overflow)")?
+  inspect(checked_add_int(1, 1)!!, content="Ok(2)")!
+  inspect(checked_add_int(1, -1)!!, content="Ok(0)")!
+  inspect(checked_add_int(-1, -1)!!, content="Ok(-2)")!
+  inspect(checked_add_int(Int::max_value(), 1)!!, content="Err(Int overflow)")!
+  inspect(checked_add_int(Int::min_value(), -1)!!, content="Err(Int overflow)")!
 }
 
 test "checked_mul_int" {
-  inspect(checked_mul_int(2, 3), content="Ok(6)")?
-  inspect(checked_mul_int(2, -3), content="Ok(-6)")?
-  inspect(checked_mul_int(-2, -3), content="Ok(6)")?
-  inspect(checked_mul_int(Int::max_value(), 2), content="Err(Int overflow)")?
-  inspect(checked_mul_int(Int::min_value(), 2), content="Err(Int overflow)")?
+  inspect(checked_mul_int(2, 3)!!, content="Ok(6)")!
+  inspect(checked_mul_int(2, -3)!!, content="Ok(-6)")!
+  inspect(checked_mul_int(-2, -3)!!, content="Ok(6)")!
+  inspect(checked_mul_int(Int::max_value(), 2)!!, content="Err(Int overflow)")!
+  inspect(checked_mul_int(Int::min_value(), 2)!!, content="Err(Int overflow)")!
 }
 
 test "checked_add_int64" {
-  inspect(checked_add_int64(1L, 1L), content="Ok(2)")?
-  inspect(checked_add_int64(1L, -1L), content="Ok(0)")?
-  inspect(checked_add_int64(-1L, -1L), content="Ok(-2)")?
+  inspect(checked_add_int64(1L, 1L)!!, content="Ok(2)")!
+  inspect(checked_add_int64(1L, -1L)!!, content="Ok(0)")!
+  inspect(checked_add_int64(-1L, -1L)!!, content="Ok(-2)")!
   inspect(
-    checked_add_int64(1L, Int64::max_value()),
+    checked_add_int64(1L, Int64::max_value())!!,
     content="Err(Int64 overflow)",
-  )?
+  )!
   inspect(
-    checked_add_int64(-1L, Int64::min_value()),
+    checked_add_int64(-1L, Int64::min_value())!!,
     content="Err(Int64 overflow)",
-  )?
+  )!
 }
 
 test "checked_mul_int64" {
-  inspect(checked_mul_int64(2L, 3L), content="Ok(6)")?
-  inspect(checked_mul_int64(2L, -3L), content="Ok(-6)")?
-  inspect(checked_mul_int64(-2L, -3L), content="Ok(6)")?
+  inspect(checked_mul_int64(2L, 3L)!!, content="Ok(6)")!
+  inspect(checked_mul_int64(2L, -3L)!!, content="Ok(-6)")!
+  inspect(checked_mul_int64(-2L, -3L)!!, content="Ok(6)")!
   inspect(
-    checked_mul_int64(Int64::max_value(), 2L),
+    checked_mul_int64(Int64::max_value(), 2L)!!,
     content="Err(Int64 overflow)",
-  )?
+  )!
   inspect(
-    checked_mul_int64(Int64::min_value(), 2L),
+    checked_mul_int64(Int64::min_value(), 2L)!!,
     content="Err(Int64 overflow)",
-  )?
+  )!
 }
 
 fn floor(x : Double) -> Double {
@@ -219,62 +219,62 @@ fn floor(x : Double) -> Double {
   }
 }
 
-fn floor_div_int(x : Int, y : Int) -> Result[Int, String] {
+fn floor_div_int(x : Int, y : Int) -> Int!String {
   if y == 0 {
-    return Err("division by zero")
+    raise "division by zero"
   }
   let r = x.to_double() / y.to_double()
-  Ok(floor(r).to_int())
+  floor(r).to_int()
 }
 
 test "floor_div_int" {
-  inspect(floor_div_int(1, 10), content="Ok(0)")?
-  inspect(floor_div_int(-1, 10), content="Ok(-1)")?
-  inspect(floor_div_int(9, 10), content="Ok(0)")?
-  inspect(floor_div_int(-9, 10), content="Ok(-1)")?
-  inspect(floor_div_int(0, 10), content="Ok(0)")?
-  inspect(floor_div_int(10, 0), content="Err(division by zero)")?
+  inspect(floor_div_int(1, 10)!!, content="Ok(0)")!
+  inspect(floor_div_int(-1, 10)!!, content="Ok(-1)")!
+  inspect(floor_div_int(9, 10)!!, content="Ok(0)")!
+  inspect(floor_div_int(-9, 10)!!, content="Ok(-1)")!
+  inspect(floor_div_int(0, 10)!!, content="Ok(0)")!
+  inspect(floor_div_int(10, 0)!!, content="Err(division by zero)")!
 }
 
-fn floor_div_int64(x : Int64, y : Int64) -> Result[Int64, String] {
+fn floor_div_int64(x : Int64, y : Int64) -> Int64!String {
   if y == 0L {
-    return Err("division by zero")
+    raise "division by zero"
   }
   let r = x.to_double() / y.to_double()
-  Ok(floor(r).to_int64())
+  floor(r).to_int64()
 }
 
 test "floor_div_int64" {
-  inspect(floor_div_int64(1L, 10L), content="Ok(0)")?
-  inspect(floor_div_int64(-1L, 10L), content="Ok(-1)")?
-  inspect(floor_div_int64(9L, 10L), content="Ok(0)")?
-  inspect(floor_div_int64(-9L, 10L), content="Ok(-1)")?
-  inspect(floor_div_int64(0L, 10L), content="Ok(0)")?
-  inspect(floor_div_int64(10L, 0L), content="Err(division by zero)")?
+  inspect(floor_div_int64(1L, 10L)!!, content="Ok(0)")!
+  inspect(floor_div_int64(-1L, 10L)!!, content="Ok(-1)")!
+  inspect(floor_div_int64(9L, 10L)!!, content="Ok(0)")!
+  inspect(floor_div_int64(-9L, 10L)!!, content="Ok(-1)")!
+  inspect(floor_div_int64(0L, 10L)!!, content="Ok(0)")!
+  inspect(floor_div_int64(10L, 0L)!!, content="Err(division by zero)")!
 }
 
-fn floor_mod_int(x : Int, y : Int) -> Result[Int, String] {
-  Ok(x - floor_div_int(x, y)? * y)
+fn floor_mod_int(x : Int, y : Int) -> Int!String {
+  x - floor_div_int(x, y)! * y
 }
 
 test "floor_mod_int" {
-  inspect(floor_mod_int(1, 10), content="Ok(1)")?
-  inspect(floor_mod_int(-1, 10), content="Ok(9)")?
-  inspect(floor_mod_int(11, 10), content="Ok(1)")?
-  inspect(floor_mod_int(-11, 10), content="Ok(9)")?
-  inspect(floor_mod_int(0, 10), content="Ok(0)")?
-  inspect(floor_mod_int(10, 0), content="Err(division by zero)")?
+  inspect(floor_mod_int(1, 10)!!, content="Ok(1)")!
+  inspect(floor_mod_int(-1, 10)!!, content="Ok(9)")!
+  inspect(floor_mod_int(11, 10)!!, content="Ok(1)")!
+  inspect(floor_mod_int(-11, 10)!!, content="Ok(9)")!
+  inspect(floor_mod_int(0, 10)!!, content="Ok(0)")!
+  inspect(floor_mod_int(10, 0)!!, content="Err(division by zero)")!
 }
 
-fn floor_mod_int64(x : Int64, y : Int64) -> Result[Int64, String] {
-  Ok(x - floor_div_int64(x, y)? * y)
+fn floor_mod_int64(x : Int64, y : Int64) -> Int64!String {
+  x - floor_div_int64(x, y)! * y
 }
 
 test "floor_mod_int64" {
-  inspect(floor_mod_int64(1L, 10L), content="Ok(1)")?
-  inspect(floor_mod_int64(-1L, 10L), content="Ok(9)")?
-  inspect(floor_mod_int64(11L, 10L), content="Ok(1)")?
-  inspect(floor_mod_int64(-11L, 10L), content="Ok(9)")?
-  inspect(floor_mod_int64(0L, 10L), content="Ok(0)")?
-  inspect(floor_mod_int64(10L, 0L), content="Err(division by zero)")?
+  inspect(floor_mod_int64(1L, 10L)!!, content="Ok(1)")!
+  inspect(floor_mod_int64(-1L, 10L)!!, content="Ok(9)")!
+  inspect(floor_mod_int64(11L, 10L)!!, content="Ok(1)")!
+  inspect(floor_mod_int64(-11L, 10L)!!, content="Ok(9)")!
+  inspect(floor_mod_int64(0L, 10L)!!, content="Ok(0)")!
+  inspect(floor_mod_int64(10L, 0L)!!, content="Err(division by zero)")!
 }

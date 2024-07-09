@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn test_parse(
-  input : String,
-  ~loc : SourceLoc = _
-) -> @json.JsonValue!String {
+fn test_parse(input : String, ~loc : SourceLoc = _) -> @json.JsonValue!String {
   let v = parse(input)
   match v {
     Ok(v) => v
-    Err(err) => raise ("Parse failed, \(loc), \(err)")
-  }  
+    Err(err) => {
+      raise "Parse failed, \(loc), \(err)"
+    }
+  }
 }
 
 //region objects
@@ -136,10 +135,7 @@ test "parses empty arrays" {
 
 test "parses array values" {
   let json = test_parse("[1]")!
-  @test.eq(
-    json,
-    @json.JsonValue::Array([@json.JsonValue::Number(1.0)]),
-  )!
+  @test.eq(json, @json.JsonValue::Array([@json.JsonValue::Number(1.0)]))!
 }
 
 test "parses multiple array values" {
@@ -305,7 +301,6 @@ test "parses NaN" {
     _ => false
   }
   @test.is_true(ok)!
-  
 }
 
 test "parses signed NaN" {
@@ -334,10 +329,7 @@ test "parses bare hexadecimal number" {
 
 test "parses bare long hexadecimal number" {
   let json = test_parse("-0x0123456789abcdefABCDEF")!
-  @test.eq(
-    json,
-    @json.JsonValue::Number(-0x0123456789abcdefABCDEF.0),
-  )!
+  @test.eq(json, @json.JsonValue::Number(-0x0123456789abcdefABCDEF.0))!
 }
 //endregion
 

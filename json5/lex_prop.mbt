@@ -63,7 +63,7 @@ fn lex_ident(
     }
   }
 
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some('\\') => {
         flush(ctx.offset - 1)
