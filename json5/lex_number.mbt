@@ -16,7 +16,7 @@ fn lex_decimal_integer(
   ctx : ParseContext,
   ~start : Int
 ) -> Result[Double, ParseError] {
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some('.') => return lex_decimal_point(ctx, ~start)
       Some('e' | 'E') => return lex_decimal_exponent(ctx, ~start)
@@ -69,7 +69,7 @@ fn lex_decimal_fraction(
   ctx : ParseContext,
   ~start : Int
 ) -> Result[Double, ParseError] {
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some('e' | 'E') => return lex_decimal_exponent(ctx, ~start)
       Some(c) => {
@@ -121,7 +121,7 @@ fn lex_decimal_exponent_integer(
   ctx : ParseContext,
   ~start : Int
 ) -> Result[Double, ParseError] {
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some(c) => {
         if c >= '0' && c <= '9' {

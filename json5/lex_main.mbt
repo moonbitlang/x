@@ -16,7 +16,7 @@ fn lex_value(
   ctx : ParseContext,
   ~allow_rbracket : Bool = false
 ) -> Result[Token, ParseError] {
-  for ; ; {
+  for {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
       Some('/') => {
