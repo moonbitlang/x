@@ -57,11 +57,13 @@ test "parses special character property names" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::of([
-        ("$_", @json.JsonValue::Number(1.0)),
-        ("_$", @json.JsonValue::Number(2.0)),
-        ("a\u200C", @json.JsonValue::Number(3.0)),
-      ]),
+      Map::of(
+        [
+          ("$_", @json.JsonValue::Number(1.0)),
+          ("_$", @json.JsonValue::Number(2.0)),
+          ("a\u200C", @json.JsonValue::Number(3.0)),
+        ],
+      ),
     ),
   )!
 }
@@ -81,11 +83,13 @@ test "parses escaped property names" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::of([
-        ("ab", @json.JsonValue::Number(1.0)),
-        ("$_", @json.JsonValue::Number(2.0)),
-        ("_$", @json.JsonValue::Number(3.0)),
-      ]),
+      Map::of(
+        [
+          ("ab", @json.JsonValue::Number(1.0)),
+          ("$_", @json.JsonValue::Number(2.0)),
+          ("_$", @json.JsonValue::Number(3.0)),
+        ],
+      ),
     ),
   )!
 }
@@ -105,10 +109,12 @@ test "parses multiple properties" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::of([
-        ("abc", @json.JsonValue::Number(1.0)),
-        ("def", @json.JsonValue::Number(2.0)),
-      ]),
+      Map::of(
+        [
+          ("abc", @json.JsonValue::Number(1.0)),
+          ("def", @json.JsonValue::Number(2.0)),
+        ],
+      ),
     ),
   )!
 }
@@ -118,14 +124,16 @@ test "parses nested objects" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::of([
-        (
-          "a",
-          @json.JsonValue::Object(
-            Map::of([("b", @json.JsonValue::Number(2.0))]),
+      Map::of(
+        [
+          (
+            "a",
+            @json.JsonValue::Object(
+              Map::of([("b", @json.JsonValue::Number(2.0))]),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     ),
   )!
 }

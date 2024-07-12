@@ -77,9 +77,9 @@ pub fn to_bytes(self : UUID) -> Bytes {
 }
 
 test "bytes" {
-  let buf = Bytes::of([
-    201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185,
-  ])
+  let buf = Bytes::of(
+    [201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185],
+  )
   inspect(from_bytes(buf)!.to_bytes(), content="苉棻僟ꅌꊺऄ맥")! // XXX: this is a terrible Show
   inspect(from_bytes(Bytes::make(15))!!, content="Err(requires 16 bytes)")!
   inspect(from_bytes(Bytes::make(17))!!, content="Err(requires 16 bytes)")!
