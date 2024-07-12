@@ -14,7 +14,7 @@ For instance, `from_array` creates a stack from an array.
 ```moonbit
 let st = Stack::new()
 let st2 = Stack::from_array([1, 2, 3]) // Stack::[1, 2, 3]
-let st3 = Stack::[1, 2, 3] // Stack::[1, 2, 3]
+let st3 = Stack::of([1, 2, 3]) // Stack::[1, 2, 3]
 ```
 
 To clear the elements of the stack, use the `clear` method.
@@ -28,7 +28,7 @@ st.clear()
 Use `length` to get the number of elements in the stack. The `is_empty` method can be used to check if the stack is empty.
 
 ```moonbit
-let st = Stack::[1, 2, 3]
+let st = Stack::of([1, 2, 3])
 st.length() // 3
 st.is_empty() // false
 ```
@@ -56,7 +56,7 @@ st.pop_exn() // panic
 If you don't want to remove the element, you can use the `peek` method and the unsafe version `peek_exn`.
 
 ```moonbit
-let st = Stack::[1, 2, 3]
+let st = Stack::of([1, 2, 3])
 st.peek() // Some(1)
 st.peek_exn() // 1
 ```
@@ -64,7 +64,7 @@ st.peek_exn() // 1
 If the result of `pop` is not needed, you can use the `drop` method.
 
 ```moonbit
-let st = Stack::[1, 2, 3]
+let st = Stack::of([1, 2, 3])
 st.drop()
 // st = [2, 3]
 ```
@@ -74,7 +74,7 @@ st.drop()
 To traverse the stack, use the `iter` method.
 
 ```moonbit
-let st = Stack::[1, 2, 3]
+let st = Stack::of([1, 2, 3])
 let mut sum = 0
 st.each(fn(x) { sum += x }) // sum = 6
 ```
@@ -84,6 +84,6 @@ st.each(fn(x) { sum += x }) // sum = 6
 You can convert the stack to an array using the `to_array` method.
 
 ```moonbit
-let st = Stack::[1, 2, 3]
+let st = Stack::of([1, 2, 3])
 st.to_array() // [1, 2, 3]
 ```

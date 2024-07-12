@@ -107,7 +107,7 @@ test "to_string" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let s1 = Stack::from_stack(s)
 /// println(s1) // output: Stack::[3, 2, 1]
 /// ```
@@ -126,7 +126,7 @@ test "from_stack" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// s.clear()
 /// println(s) // Stack::[]
 /// ```
@@ -146,7 +146,7 @@ test "clear" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3].return_with_clear()
+/// let s = Stack::of([1, 2, 3]).return_with_clear()
 /// println(s) // Stack::[]
 /// ```
 pub fn return_with_clear[T](self : Stack[T]) -> Stack[T] {
@@ -205,7 +205,7 @@ test "push_list" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let s1 : Stack[Int] = Stack::new()
 /// s1.push_stack(s)
 /// println(s1) // Stack::[1, 2, 3]
@@ -248,7 +248,7 @@ test "push_array" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let s1 : Stack[Int] = Stack::new()
 /// println(s.pop()) // Some(1)
 /// println(s) // Stack::[2, 3]
@@ -282,7 +282,7 @@ test "pop" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let s1 : Stack[Int] = Stack::new()
 /// println(s.pop_exn()) // 1
 /// println(s) // Stack::[2, 3]
@@ -313,7 +313,7 @@ test "pop_exn" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// s.drop()
 /// println(s) // Stack::[2, 3]
 /// ```
@@ -340,7 +340,7 @@ test "drop" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let r = s.drop_result() // Ok(())
 /// ```
 pub fn drop_result[T](self : Stack[T]) -> Result[Unit, Unit] {
@@ -419,7 +419,7 @@ test "peek_exn" {
 /// # Example
 ///
 /// ```
-/// println(Stack::[1, 2, 3].is_empty()) // false
+/// println(Stack::of([1, 2, 3]).is_empty()) // false
 /// println(Stack::new().is_empty()) // true
 /// ```
 pub fn is_empty[T](self : Stack[T]) -> Bool {
@@ -441,7 +441,7 @@ pub fn length[T](self : Stack[T]) -> Int {
 /// 
 /// # Example
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// s.each(fn(i) { println(i) })'
 /// ```
 pub fn each[T](self : Stack[T], f : (T) -> Unit) -> Unit {
@@ -470,7 +470,7 @@ test "iter" {
 /// 
 /// # Example
 /// ```
-/// let s = Stack::[1, 2, 3]
+/// let s = Stack::of([1, 2, 3])
 /// let sum = s.fold(~init=0, fn(acc, i) { acc + i })
 /// println(sum) // 6
 /// ```
@@ -489,7 +489,7 @@ test "fold" {
 /// # Example
 ///
 /// ```
-/// println(Stack::[1, 2, 3].to_list()) // @immut/list.List::[1, 2, 3]
+/// println(Stack::of([1, 2, 3]).to_list()) // @immut/list.List::[1, 2, 3]
 /// ```
 pub fn to_list[T](self : Stack[T]) -> @immut/list.List[T] {
   self.elements
@@ -504,7 +504,7 @@ test "to_list" {
 /// # Example
 ///
 /// ```
-/// println(Stack::[1, 2, 3].to_array()) // [1, 2, 3]
+/// println(Stack::of([1, 2, 3]).to_array()) // [1, 2, 3]
 /// ```
 pub fn to_array[T : Default](self : Stack[T]) -> Array[T] {
   self.elements.to_array()
@@ -522,7 +522,7 @@ test "to_array" {
 /// # Example
 ///
 /// ```
-/// println(Stack::[2, 4, 6].equal(Stack::[2, 4, 6])) // true
+/// println(Stack::of([2, 4, 6]).equal(Stack::of([2, 4, 6]))) // true
 /// ```
 pub fn equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {
