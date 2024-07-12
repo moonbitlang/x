@@ -60,8 +60,7 @@ pub fn Stack::from_array[T](array : Array[T]) -> Stack[T] {
 }
 
 test "from_array" {
-  let f = Stack::from_array
-  let s = f([1, 2, 3])
+  let s = Stack::from_array([1, 2, 3])
   inspect(s, content="Stack::[1, 2, 3]")!
   inspect(s.len, content="3")!
 }
