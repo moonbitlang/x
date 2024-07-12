@@ -305,7 +305,7 @@ fn validate_time(h : Int, m : Int, s : Int, ns : Int) -> Bool {
   let valid_second = validate_second(s)
   let valid_nano = validate_nano(ns)
   let zero = h == 24 && m == 0 && s == 0 && ns == 0
-  valid_hour && valid_minute && valid_second && valid_nano || zero
+  (valid_hour && valid_minute && valid_second && valid_nano) || zero
 }
 
 fn validate_hour(h : Int) -> Bool {

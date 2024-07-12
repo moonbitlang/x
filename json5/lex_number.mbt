@@ -162,7 +162,7 @@ fn lex_hexadecimal(
 ) -> Result[Double, ParseError] {
   match read_char(ctx) {
     Some(c) => {
-      if c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' {
+      if (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') {
         let n = lex_hexadecimal_integer(ctx, hex_digit_to_int(c))?
         return Ok(if neg { -n } else { n })
       }
@@ -180,7 +180,8 @@ fn lex_hexadecimal_integer(
   for n = n.to_double() {
     match read_char(ctx) {
       Some(c) => {
-        if c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' {
+        if (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <=
+        'F') {
           continue n * 16.0 + hex_digit_to_int(c).to_double()
         }
         ctx.offset -= 1

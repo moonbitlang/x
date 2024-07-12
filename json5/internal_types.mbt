@@ -24,7 +24,7 @@ fn ParseContext::make(input : String) -> ParseContext {
 
 priv type CharClass Array[(Char, Char)]
 
-fn CharClass::from_array(array : Array[(Char, Char)]) -> CharClass {
+fn CharClass::of(array : Array[(Char, Char)]) -> CharClass {
   CharClass(array)
 }
 

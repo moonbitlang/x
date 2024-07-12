@@ -368,7 +368,7 @@ fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
 }
 
 fn check_leap_year(year : Int) -> Bool {
-  year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+  (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
 fn calc_days_in_month(year : Int, month : Int) -> Int {
