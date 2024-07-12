@@ -15,12 +15,12 @@ impl Stack {
   each[T](Self[T], (T) -> Unit) -> Unit
   equal[T : Eq](Self[T], Self[T]) -> Bool
   fold[T, U](Self[T], ~init : U, (U, T) -> U) -> U
-  from_array[T](Array[T]) -> Self[T]
   from_list[T](@list.List[T]) -> Self[T]
   from_stack[T](Self[T]) -> Self[T]
   is_empty[T](Self[T]) -> Bool
   length[T](Self[T]) -> Int
   new[T]() -> Self[T]
+  of[T](Array[T]) -> Self[T]
   op_equal[T : Eq](Self[T], Self[T]) -> Bool
   peek[T](Self[T]) -> T?
   peek_exn[T](Self[T]) -> T
