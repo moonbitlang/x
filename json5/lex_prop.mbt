@@ -28,8 +28,8 @@ fn lex_property_name(ctx : ParseContext) -> Result[Token, ParseError] {
       lex_assert_char(ctx, 'u')?
       let c = lex_hex_digits(ctx, 4)?
       let c = Char::from_int(c)
-      if c == '$' || c == '_' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' ||
-      c > '\x7f' && non_ascii_id_start.contains(c) {
+      if c == '$' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+      (c > '\x7f' && non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
         let s = lex_ident(ctx, ctx.offset, ~buffer)?
@@ -39,9 +39,9 @@ fn lex_property_name(ctx : ParseContext) -> Result[Token, ParseError] {
       }
     }
     Some(c) => {
-      if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c > '\x7f' && non_ascii_id_start.contains(
+      if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c > '\x7f' && non_ascii_id_start.contains(
         c,
-      ) {
+      )) {
         let s = lex_ident(ctx, ctx.offset - 1)?
         return Ok(String(s))
       }
@@ -70,8 +70,10 @@ fn lex_ident(
         lex_assert_char(ctx, 'u')?
         let c = lex_hex_digits(ctx, 4)?
         let c = Char::from_int(c)
-        if c == '$' || c == '_' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' ||
-        c >= '0' && c <= '9' || c > '\x7f' && non_ascii_id_continue.contains(c) {
+        if c == '$' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') || (c > '\x7f' && non_ascii_id_continue.contains(
+          c,
+        )) {
           buffer.add_char(c)
           start = ctx.offset
           continue
@@ -83,8 +85,8 @@ fn lex_ident(
       }
       Some('$' | '_') => continue
       Some(c) => {
-        if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' ||
-        c > '\x7f' && non_ascii_id_continue.contains(c) {
+        if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <=
+        '9') || (c > '\x7f' && non_ascii_id_continue.contains(c)) {
           continue
         }
         ctx.offset -= 1

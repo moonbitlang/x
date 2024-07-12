@@ -115,10 +115,10 @@ fn validate_offset(h : Int, m : Int, s : Int) -> Unit!String {
   if s < -59 || s > 59 {
     raise invalid_offset_err
   }
-  if h > 0 && (m < 0 || s < 0) || h < 0 && (m > 0 || s > 0) {
+  if (h > 0 && (m < 0 || s < 0)) || (h < 0 && (m > 0 || s > 0)) {
     raise invalid_offset_err
   }
-  if m > 0 && s < 0 || m < 0 && s > 0 {
+  if (m > 0 && s < 0) || (m < 0 && s > 0) {
     raise invalid_offset_err
   }
   if h.abs() == 18 && (m != 0 || s != 0) {

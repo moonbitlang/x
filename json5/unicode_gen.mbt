@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // This is a generated file. Do not edit.
-let non_ascii_whitespace : CharClass = CharClass::[
+let non_ascii_whitespace : CharClass = CharClass::of([
   ('\u00A0', '\u00A0'),
   ('\u1680', '\u1680'),
   ('\u2000', '\u200A'),
@@ -22,9 +22,9 @@ let non_ascii_whitespace : CharClass = CharClass::[
   ('\u205F', '\u205F'),
   ('\u3000', '\u3000'),
   ('\uFEFF', '\uFEFF'),
-]
+])
 
-let non_ascii_id_start : CharClass = CharClass::[
+let non_ascii_id_start : CharClass = CharClass::of([
   ('\u00AA', '\u00AA'),
   ('\u00B5', '\u00B5'),
   ('\u00BA', '\u00BA'),
@@ -611,9 +611,9 @@ let non_ascii_id_start : CharClass = CharClass::[
   ('\u{2B820}', '\u{2CEA1}'),
   ('\u{2CEB0}', '\u{2EBE0}'),
   ('\u{2F800}', '\u{2FA1D}'),
-]
+])
 
-let non_ascii_id_continue : CharClass = CharClass::[
+let non_ascii_id_continue : CharClass = CharClass::of([
   ('\u00AA', '\u00AA'),
   ('\u00B5', '\u00B5'),
   ('\u00BA', '\u00BA'),
@@ -1302,4 +1302,4 @@ let non_ascii_id_continue : CharClass = CharClass::[
   ('\u{2CEB0}', '\u{2EBE0}'),
   ('\u{2F800}', '\u{2FA1D}'),
   ('\u{E0100}', '\u{E01EF}'),
-]
+])

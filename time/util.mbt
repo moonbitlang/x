@@ -155,7 +155,7 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64!String {
   let abs_y = y.abs()
   if abs_x.lor(abs_y).lsr(31) != 0L {
     // bits that greater than 2^31 might cause overflow
-    if y != 0L && r / y != x || x == Int64::min_value() && y == -1L {
+    if (y != 0L && r / y != x) || (x == Int64::min_value() && y == -1L) {
       raise int64_overflow_err
     }
   }

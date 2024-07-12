@@ -45,7 +45,7 @@ fn parse_value2(
 }
 
 fn parse_object(ctx : ParseContext) -> Result[@json.JsonValue, ParseError] {
-  let map = Map::[]
+  let map = Map::of([])
   for {
     let tok = lex_property_name(ctx)?
     match tok {

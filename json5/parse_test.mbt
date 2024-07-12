@@ -25,14 +25,14 @@ fn test_parse(input : String, ~loc : SourceLoc = _) -> @json.JsonValue!String {
 //region objects
 test "parses empty objects" {
   let json = test_parse("{}")!
-  @test.eq(json, @json.JsonValue::Object(Map::[]))!
+  @test.eq(json, @json.JsonValue::Object(Map::of([])))!
 }
 
 test "parses double string property names" {
   let json = test_parse("{\"a\":1}")!
   @test.eq(
     json,
-    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
+    @json.JsonValue::Object(Map::of([("a", @json.JsonValue::Number(1.0))])),
   )!
 }
 
@@ -40,7 +40,7 @@ test "parses single string property names" {
   let json = test_parse("{a:1}")!
   @test.eq(
     json,
-    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
+    @json.JsonValue::Object(Map::of([("a", @json.JsonValue::Number(1.0))])),
   )!
 }
 
@@ -48,7 +48,7 @@ test "parses unquoted property names" {
   let json = test_parse("{a:1}")!
   @test.eq(
     json,
-    @json.JsonValue::Object(Map::[("a", @json.JsonValue::Number(1.0))]),
+    @json.JsonValue::Object(Map::of([("a", @json.JsonValue::Number(1.0))])),
   )!
 }
 
@@ -57,11 +57,11 @@ test "parses special character property names" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::[
+      Map::of([
         ("$_", @json.JsonValue::Number(1.0)),
         ("_$", @json.JsonValue::Number(2.0)),
         ("a\u200C", @json.JsonValue::Number(3.0)),
-      ],
+      ]),
     ),
   )!
 }
@@ -71,7 +71,7 @@ test "parses unicode property names" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::[("ùńîċõďë", @json.JsonValue::Number(9.0))],
+      Map::of([("ùńîċõďë", @json.JsonValue::Number(9.0))]),
     ),
   )!
 }
@@ -81,11 +81,11 @@ test "parses escaped property names" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::[
+      Map::of([
         ("ab", @json.JsonValue::Number(1.0)),
         ("$_", @json.JsonValue::Number(2.0)),
         ("_$", @json.JsonValue::Number(3.0)),
-      ],
+      ]),
     ),
   )!
 }
@@ -94,7 +94,9 @@ test "preserves __proto__ property names" {
   let json = test_parse("{\"__proto__\":1}")!
   @test.eq(
     json,
-    @json.JsonValue::Object(Map::[("__proto__", @json.JsonValue::Number(1.0))]),
+    @json.JsonValue::Object(
+      Map::of([("__proto__", @json.JsonValue::Number(1.0))]),
+    ),
   )!
 }
 
@@ -103,10 +105,10 @@ test "parses multiple properties" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::[
+      Map::of([
         ("abc", @json.JsonValue::Number(1.0)),
         ("def", @json.JsonValue::Number(2.0)),
-      ],
+      ]),
     ),
   )!
 }
@@ -116,12 +118,14 @@ test "parses nested objects" {
   @test.eq(
     json,
     @json.JsonValue::Object(
-      Map::[
+      Map::of([
         (
           "a",
-          @json.JsonValue::Object(Map::[("b", @json.JsonValue::Number(2.0))]),
+          @json.JsonValue::Object(
+            Map::of([("b", @json.JsonValue::Number(2.0))]),
+          ),
         ),
-      ],
+      ]),
     ),
   )!
 }
@@ -370,23 +374,23 @@ test "parses escaped characters" {
 //region comments
 test "parses single-line comments" {
   let json = test_parse("{//comment\n}")!
-  @test.eq(json, @json.JsonValue::Object(Map::[]))!
+  @test.eq(json, @json.JsonValue::Object(Map::of([])))!
 }
 
 test "parses single-line comments at end of input" {
   let json = test_parse("{}//comment")!
-  @test.eq(json, @json.JsonValue::Object(Map::[]))!
+  @test.eq(json, @json.JsonValue::Object(Map::of([])))!
 }
 
 test "parses multi-line comments" {
   let json = test_parse("{/*comment\n** */}")!
-  @test.eq(json, @json.JsonValue::Object(Map::[]))!
+  @test.eq(json, @json.JsonValue::Object(Map::of([])))!
 }
 //endregion
 
 //region whitespace
 test "parses whitespace" {
   let json = test_parse("{\t\u000b\u000c \u00A0\uFEFF\n\r\u2028\u2029\u2003}")!
-  @test.eq(json, @json.JsonValue::Object(Map::[]))!
+  @test.eq(json, @json.JsonValue::Object(Map::of([])))!
 }
 //endregion
