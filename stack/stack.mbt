@@ -52,11 +52,29 @@ test "from_list" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::[1, 2, 3]
-/// println(s) // Stack::[3, 2, 1]
+/// let s = Stack::from_array([1, 2, 3])
+/// println(s) // Stack::from_array([3, 2, 1])
 /// ```
-pub fn Stack::of[T](array : Array[T]) -> Stack[T] {
+pub fn Stack::from_array[T](array : Array[T]) -> Stack[T] {
   { elements: @immut/list.List::from_array(array), len: array.length() }
+}
+
+test "from_array" {
+  let s = Stack::of([1, 2, 3])
+  inspect(s, content="Stack::[1, 2, 3]")!
+  inspect(s.len, content="3")!
+}
+
+/// Create a stack based on all elements in array.
+///
+/// # Example
+///
+/// ```
+/// let s = Stack::of([1, 2, 3])
+/// println(s) // Stack::of([3, 2, 1])
+/// ```
+pub fn Stack::of[T](array : FixedArray[T]) -> Stack[T] {
+  { elements: @immut/list.List::of(array), len: array.length() }
 }
 
 test "of" {
