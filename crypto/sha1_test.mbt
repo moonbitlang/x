@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+fn sha1(data: Bytes) -> Bytes{
+  @crypto.sha1(data)
+}
+
+fn bytes_to_hex_string(data:Bytes) -> String {
+  @crypto.bytes_to_hex_string(data)
+}
+
 test "sha1" {
   let a = "The quick brown fox jumps over the lazy dog"
   inspect(
