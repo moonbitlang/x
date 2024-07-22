@@ -66,7 +66,7 @@ pub fn from_bytes(bytes : Bytes) -> UUID!String {
 /// The UUID as a 16-byte string.
 pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
-  let rv = Bytes::make(16)
+  let rv = Bytes::new(16)
   for i = 0; i < 8; i = i + 1 {
     rv[i] = self.hi.lsr((7 - i) * 8).to_byte()
   }
@@ -80,9 +80,19 @@ test "bytes" {
   let buf = Bytes::of(
     [201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185],
   )
-  inspect(from_bytes(buf)!.to_bytes(), content="苉棻僟ꅌꊺऄ맥")! // XXX: this is a terrible Show
-  inspect(from_bytes(Bytes::make(15))!!, content="Err(requires 16 bytes)")!
-  inspect(from_bytes(Bytes::make(17))!!, content="Err(requires 16 bytes)")!
+  inspect!(from_bytes!(buf).to_bytes(), content="苉棻僟ꅌꊺऄ맥") // XXX: this is a terrible Show
+  inspect!(
+    from_bytes(Bytes::new(15))!!,
+    content=
+      #|Err("requires 16 bytes")
+    ,
+  )
+  inspect!(
+    from_bytes(Bytes::new(17))!!,
+    content=
+      #|Err("requires 16 bytes")
+    ,
+  )
 }
 
 fn hex_char_to_int64(c : Char) -> Int64!String {
@@ -114,7 +124,7 @@ pub fn from_hex(hex : String) -> UUID!String {
     if c == '-' {
       continue hi, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)!
+      let d = hex_char_to_int64!(c)
       continue hi.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -128,7 +138,7 @@ pub fn from_hex(hex : String) -> UUID!String {
     if c == '-' {
       continue lo, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)!
+      let d = hex_char_to_int64!(c)
       continue lo.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -155,7 +165,7 @@ let size : Int = (segments.fold_left(fn { acc, x => acc + x }, init=0) + segment
 
 pub fn to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
-  let rv = Bytes::make(size)
+  let rv = Bytes::new(size)
   for v = self.lo, c = size - 1, i = size - 1, d = segments.length() - 1 {
     let s = segments[d] * 2
     if s == 0 {
@@ -172,19 +182,27 @@ pub fn to_string(self : UUID) -> String {
   }
 }
 
+pub impl Show for UUID with output(self : UUID, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
 test "from_hex" {
   let hex = "13cb501c-1234-5678-9034-abcdef937e20"
-  inspect(from_hex(hex)!, content=hex)!
-  inspect(
-    from_hex("12345678-1234-1234-1234-ABCDEF098765")!,
+  inspect!(from_hex!(hex), content=hex)
+  inspect!(
+    from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
-  )!
-  inspect(
+  )
+  inspect!(
     from_hex("13cb")!!,
-    content="Err(not enough hexadecimal in UUID string)",
-  )!
-  inspect(
+    content=
+      #|Err("not enough hexadecimal in UUID string")
+    ,
+  )
+  inspect!(
     from_hex("13cb501c-99a8-c889-3234")!!,
-    content="Err(not enough hexadecimal in UUID string)",
-  )!
+    content=
+      #|Err("not enough hexadecimal in UUID string")
+    ,
+  )
 }

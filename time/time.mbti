@@ -177,6 +177,7 @@ type Weekday
 impl Weekday {
   debug_write(Self, Buffer) -> Unit
   op_equal(Self, Self) -> Bool
+  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -248,4 +249,19 @@ impl ZonedDateTime {
 // Traits
 
 // Extension Methods
+impl Show for Duration
+
+impl Show for Period
+
+impl Show for PlainDate
+
+impl Show for PlainDateTime
+
+impl Show for PlainTime
+
+impl Show for Zone
+
+impl Show for ZoneOffset
+
+impl Show for ZonedDateTime
 

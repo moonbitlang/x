@@ -13,68 +13,123 @@
 // limitations under the License.
 
 test "of" {
-  inspect(ZoneOffset::of()!!, content="Ok(Z)")!
-  inspect(ZoneOffset::of(hours=8)!!, content="Ok(+08:00)")!
-  inspect(ZoneOffset::of(hours=-8)!!, content="Ok(-08:00)")!
-  inspect(ZoneOffset::of(hours=18)!!, content="Ok(+18:00)")!
-  inspect(ZoneOffset::of(hours=-18)!!, content="Ok(-18:00)")!
-  inspect(
-    ZoneOffset::of(hours=1, minutes=30, seconds=30)!!,
+  inspect!(@time.ZoneOffset::of()!!, content="Ok(Z)")
+  inspect!(@time.ZoneOffset::of(hours=8)!!, content="Ok(+08:00)")
+  inspect!(@time.ZoneOffset::of(hours=-8)!!, content="Ok(-08:00)")
+  inspect!(@time.ZoneOffset::of(hours=18)!!, content="Ok(+18:00)")
+  inspect!(@time.ZoneOffset::of(hours=-18)!!, content="Ok(-18:00)")
+  inspect!(
+    @time.ZoneOffset::of(hours=1, minutes=30, seconds=30)!!,
     content="Ok(+01:30:30)",
-  )!
-  inspect(ZoneOffset::of(hours=19)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(hours=-19)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(minutes=60)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(minutes=-60)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(seconds=60)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(seconds=-60)!!, content="Err(Invalid offset)")!
-  inspect(
-    ZoneOffset::of(hours=1, minutes=-30, seconds=-30)!!,
-    content="Err(Invalid offset)",
-  )!
-  inspect(
-    ZoneOffset::of(hours=-1, minutes=30, seconds=30)!!,
-    content="Err(Invalid offset)",
-  )!
-  inspect(
-    ZoneOffset::of(minutes=-30, seconds=30)!!,
-    content="Err(Invalid offset)",
-  )!
-  inspect(
-    ZoneOffset::of(minutes=30, seconds=-30)!!,
-    content="Err(Invalid offset)",
-  )!
-  inspect(ZoneOffset::of(hours=18, minutes=1)!!, content="Err(Invalid offset)")!
-  inspect(ZoneOffset::of(hours=-18, seconds=1)!!, content="Err(Invalid offset)")!
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=19)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=-19)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(minutes=60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(minutes=-60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(seconds=60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(seconds=-60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=1, minutes=-30, seconds=-30)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=-1, minutes=30, seconds=30)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(minutes=-30, seconds=30)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(minutes=30, seconds=-30)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=18, minutes=1)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::of(hours=-18, seconds=1)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
 }
 
 test "from_seconds" {
-  inspect(ZoneOffset::from_seconds(8 * 60 * 60)!!, content="Ok(+08:00)")!
-  inspect(ZoneOffset::from_seconds(0)!!, content="Ok(Z)")!
-  inspect(ZoneOffset::from_seconds(18 * 60 * 60)!!, content="Ok(+18:00)")!
-  inspect(ZoneOffset::from_seconds(-18 * 60 * 60)!!, content="Ok(-18:00)")!
-  inspect(
-    ZoneOffset::from_seconds(19 * 60 * 60)!!,
-    content="Err(Invalid offset)",
-  )!
-  inspect(
-    ZoneOffset::from_seconds(-19 * 60 * 60)!!,
-    content="Err(Invalid offset)",
-  )!
+  inspect!(@time.ZoneOffset::from_seconds(8 * 60 * 60)!!, content="Ok(+08:00)")
+  inspect!(@time.ZoneOffset::from_seconds(0)!!, content="Ok(Z)")
+  inspect!(@time.ZoneOffset::from_seconds(18 * 60 * 60)!!, content="Ok(+18:00)")
+  inspect!(
+    @time.ZoneOffset::from_seconds(-18 * 60 * 60)!!,
+    content="Ok(-18:00)",
+  )
+  inspect!(
+    @time.ZoneOffset::from_seconds(19 * 60 * 60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
+  inspect!(
+    @time.ZoneOffset::from_seconds(-19 * 60 * 60)!!,
+    content=
+      #|Err("Invalid offset")
+    ,
+  )
 }
 
 test "utc" {
-  inspect(utc_offset, content="Z")!
-  inspect(utc_offset.id(), content="Z")!
-  inspect(utc_offset.seconds(), content="0")!
-  inspect(utc_offset.is_dst(), content="false")!
+  inspect!(@time.utc_offset, content="Z")
+  inspect!(@time.utc_offset.id(), content="Z")
+  inspect!(@time.utc_offset.seconds(), content="0")
+  inspect!(@time.utc_offset.is_dst(), content="false")
 }
 
 test "compare" {
-  let o1 = ZoneOffset::from_seconds(10)!
-  let o2 = ZoneOffset::from_seconds(-10)!
-  inspect(o1 > o2, content="false")!
-  inspect(o1 == o2, content="false")!
-  inspect(o1 < o2, content="true")!
-  inspect(o1 == o1, content="true")!
+  let o1 = @time.ZoneOffset::from_seconds!(10)
+  let o2 = @time.ZoneOffset::from_seconds!(-10)
+  inspect!(o1 > o2, content="false")
+  inspect!(o1 == o2, content="false")
+  inspect!(o1 < o2, content="true")
+  inspect!(o1 == o1, content="true")
 }

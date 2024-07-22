@@ -29,8 +29,8 @@ pub fn PlainDateTime::of(
   ~nanosecond : Int = 0
 ) -> PlainDateTime!String {
   {
-    date: PlainDate::of(year, month, day)!,
-    time: PlainTime::of(hour, minute, second, nanosecond)!,
+    date: PlainDate::of!(year, month, day),
+    time: PlainTime::of!(hour, minute, second, nanosecond),
   }
 }
 
@@ -44,12 +44,12 @@ pub fn PlainDateTime::from_unix_second(
     raise invalid_date_time_err
   }
   let sec = second + offset.seconds().to_int64()
-  let unix_day = floor_div_int64(sec, seconds_per_day)!
-  let seconds_of_day = floor_mod_int64(sec, seconds_per_day)!
-  let date = PlainDate::from_unix_day(unix_day)!
-  let time = PlainTime::from_nanosecond_of_day(
+  let unix_day = floor_div_int64!(sec, seconds_per_day)
+  let seconds_of_day = floor_mod_int64!(sec, seconds_per_day)
+  let date = PlainDate::from_unix_day!(unix_day)
+  let time = PlainTime::from_nanosecond_of_day!(
     seconds_of_day * nanoseconds_per_second + nanosecond.to_int64(),
-  )!
+  )
   { date, time }
 }
 
@@ -65,8 +65,8 @@ pub fn PlainDateTime::from_string(str : String) -> PlainDateTime!String {
   if split.length() != 2 {
     raise invalid_date_time_err
   }
-  let date = PlainDate::from_string(split[0])!
-  let time = PlainTime::from_string(split[1])!
+  let date = PlainDate::from_string!(split[0])
+  let time = PlainTime::from_string!(split[1])
   { date, time }
 }
 
@@ -77,6 +77,13 @@ pub fn to_string(self : PlainDateTime) -> String {
   buf.write_char('T')
   buf.write_string(self.time.to_string())
   buf.to_string()
+}
+
+pub impl Show for PlainDateTime with output(
+  self : PlainDateTime,
+  logger : Logger
+) -> Unit {
+  logger.write_string(self.to_string())
 }
 
 /// Returns the era of this datetime.
@@ -161,22 +168,22 @@ pub fn nanosecond(self : PlainDateTime) -> Int {
 
 /// Adds specified years to this datetime, and returns a new datetime.
 pub fn add_years(self : PlainDateTime, years : Int64) -> PlainDateTime!String {
-  { ..self, date: self.date.add_years(years)! }
+  { ..self, date: self.date.add_years!(years) }
 }
 
 /// Adds specified months to this datetime, and returns a new datetime.
 pub fn add_months(self : PlainDateTime, months : Int64) -> PlainDateTime!String {
-  { ..self, date: self.date.add_months(months)! }
+  { ..self, date: self.date.add_months!(months) }
 }
 
 /// Adds specified weeks to this datetime, and returns a new datetime.
 pub fn add_weeks(self : PlainDateTime, weeks : Int64) -> PlainDateTime!String {
-  { ..self, date: self.date.add_weeks(weeks)! }
+  { ..self, date: self.date.add_weeks!(weeks) }
 }
 
 /// Adds specified days to this datetime, and returns a new datetime.
 pub fn add_days(self : PlainDateTime, days : Int64) -> PlainDateTime!String {
-  { ..self, date: self.date.add_days(days)! }
+  { ..self, date: self.date.add_days!(days) }
 }
 
 /// Adds a period of date to this datetime, and returns a new datetime.
@@ -184,7 +191,7 @@ pub fn add_period(
   self : PlainDateTime,
   period : Period
 ) -> PlainDateTime!String {
-  { ..self, date: self.date.add_period(period)! }
+  { ..self, date: self.date.add_period!(period) }
 }
 
 /// Adds specified hours to this datetime, and returns a new datetime.
@@ -192,7 +199,7 @@ pub fn add_hours(self : PlainDateTime, hours : Int64) -> PlainDateTime!String {
   if hours == 0L {
     return self
   }
-  self.overflowing_add(h=hours)!
+  self.overflowing_add!(h=hours)
 }
 
 /// Adds specified minutes to this datetime, and returns a new datetime.
@@ -203,7 +210,7 @@ pub fn add_minutes(
   if minutes == 0L {
     return self
   }
-  self.overflowing_add(m=minutes)!
+  self.overflowing_add!(m=minutes)
 }
 
 /// Adds specified seconds to this datetime, and returns a new datetime.
@@ -214,7 +221,7 @@ pub fn add_seconds(
   if seconds == 0L {
     return self
   }
-  self.overflowing_add(s=seconds)!
+  self.overflowing_add!(s=seconds)
 }
 
 /// Adds specified nanoseconds to this datetime, and returns a new datetime.
@@ -225,7 +232,7 @@ pub fn add_nanoseconds(
   if nanoseconds == 0L {
     return self
   }
-  self.overflowing_add(ns=nanoseconds)!
+  self.overflowing_add!(ns=nanoseconds)
 }
 
 /// Adds a duration of time to this datetime, and returns a new datetime.
@@ -236,22 +243,22 @@ pub fn add_duration(
   if duration.is_zero() {
     return self
   }
-  self.overflowing_add(s=duration.secs, ns=duration.nanos.to_int64())!
+  self.overflowing_add!(s=duration.secs, ns=duration.nanos.to_int64())
 }
 
 /// Returns a new datetime with the specified year.
 pub fn with_year(self : PlainDateTime, year : Int) -> PlainDateTime!String {
-  { ..self, date: self.date.with_year(year)! }
+  { ..self, date: self.date.with_year!(year) }
 }
 
 /// Returns a new datetime with the specified month.
 pub fn with_month(self : PlainDateTime, month : Int) -> PlainDateTime!String {
-  { ..self, date: self.date.with_month(month)! }
+  { ..self, date: self.date.with_month!(month) }
 }
 
 /// Returns a new datetime with the specified day of month.
 pub fn with_day(self : PlainDateTime, day : Int) -> PlainDateTime!String {
-  { ..self, date: self.date.with_day(day)! }
+  { ..self, date: self.date.with_day!(day) }
 }
 
 /// Returns a new datetime with the specified ordinal day of year.
@@ -259,22 +266,22 @@ pub fn with_ordinal(
   self : PlainDateTime,
   ordinal : Int
 ) -> PlainDateTime!String {
-  { ..self, date: self.date.with_ordinal(ordinal)! }
+  { ..self, date: self.date.with_ordinal!(ordinal) }
 }
 
 /// Returns a new datetime with the specified hour.
 pub fn with_hour(self : PlainDateTime, hour : Int) -> PlainDateTime!String {
-  { ..self, time: self.time.with_hour(hour)! }
+  { ..self, time: self.time.with_hour!(hour) }
 }
 
 /// Returns a new datetime with the specified minute.
 pub fn with_minute(self : PlainDateTime, minute : Int) -> PlainDateTime!String {
-  { ..self, time: self.time.with_minute(minute)! }
+  { ..self, time: self.time.with_minute!(minute) }
 }
 
 /// Returns a new datetime with the specified second.
 pub fn with_second(self : PlainDateTime, second : Int) -> PlainDateTime!String {
-  { ..self, time: self.time.with_second(second)! }
+  { ..self, time: self.time.with_second!(second) }
 }
 
 /// Returns a new datetime with the specified nanosecond.
@@ -282,7 +289,7 @@ pub fn with_nanosecond(
   self : PlainDateTime,
   nanosecond : Int
 ) -> PlainDateTime!String {
-  { ..self, time: self.time.with_nanosecond(nanosecond)! }
+  { ..self, time: self.time.with_nanosecond!(nanosecond) }
 }
 
 /// Returns the date part of this datetime.
@@ -317,15 +324,15 @@ fn overflowing_add(
     nanoseconds_per_day
   let current_nanos = self.time.nanosecond_of_day()
   let mut total_nanos = current_nanos + nanos_to_add
-  let total_days = days_to_add + floor_div_int64(
+  let total_days = days_to_add + floor_div_int64!(
       total_nanos, nanoseconds_per_day,
-    )!
-  total_nanos = floor_mod_int64(total_nanos, nanoseconds_per_day)!
+    )
+  total_nanos = floor_mod_int64!(total_nanos, nanoseconds_per_day)
   let time = if current_nanos == total_nanos {
     self.time
   } else {
-    PlainTime::from_nanosecond_of_day(total_nanos)!
+    PlainTime::from_nanosecond_of_day!(total_nanos)
   }
-  date = date.add_days(total_days)!
+  date = date.add_days!(total_days)
   { date, time }
 }

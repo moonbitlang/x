@@ -24,7 +24,7 @@ pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset] }
 
 /// Creates a time zone with fixed offset from time zone id and offset seconds.
 pub fn fixed_zone(id : String, offset_seconds : Int) -> Zone!String {
-  let offset = ZoneOffset::from_seconds(offset_seconds)!
+  let offset = ZoneOffset::from_seconds!(offset_seconds)
   Zone::{ id, offsets: [offset] }
 }
 
@@ -36,6 +36,10 @@ pub fn is_fixed(self : Zone) -> Bool {
 /// Returns the zone id.
 pub fn to_string(self : Zone) -> String {
   self.id
+}
+
+pub impl Show for Zone with output(self : Zone, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
 }
 
 fn lookup_offset(self : Zone, _secs : Int64) -> ZoneOffset {

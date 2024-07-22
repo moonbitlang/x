@@ -90,6 +90,7 @@ jobs:
           git diff --exit-code
 
   coverage-check-bleeding:
+    if: false
     runs-on: macos-14
     continue-on-error: true
     steps:
