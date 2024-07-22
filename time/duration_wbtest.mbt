@@ -50,11 +50,13 @@ test "add_hours" {
   )
   inspect!(
     Duration::zero().add_hours(Int64::max_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
   inspect!(
     Duration::zero().add_hours(Int64::min_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
 }
 
@@ -72,11 +74,13 @@ test "add_minutes" {
   )
   inspect!(
     Duration::zero().add_minutes(Int64::max_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
   inspect!(
     Duration::zero().add_minutes(Int64::min_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
 }
 
@@ -123,13 +127,15 @@ test "add_nanoseconds" {
     Duration::of!(seconds=Int64::max_value()).add_nanoseconds(
       Int64::max_value(),
     )!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
   inspect!(
     Duration::of!(seconds=Int64::min_value()).add_nanoseconds(
       Int64::min_value(),
     )!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
 }
 
@@ -150,6 +156,10 @@ test "op_add" {
   inspect!((p1 + p2)!!, content="Ok(PT0S)")
   inspect!((p1 + p1)!!, content="Ok(PT2H2M2.000002S)")
   inspect!((p2 + p2)!!, content="Ok(PT-2H-2M-2.000002S)")
-  inspect!((p1 + p3)!!, content="Err(Int64 overflow)")
-  inspect!((p2 + p4)!!, content="Err(Int64 overflow)")
+  inspect!((p1 + p3)!!, content=
+    #|Err("Int64 overflow")
+  )
+  inspect!((p2 + p4)!!, content=
+    #|Err("Int64 overflow")
+  )
 }

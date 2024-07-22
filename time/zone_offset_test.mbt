@@ -22,35 +22,53 @@ test "of" {
     @time.ZoneOffset::of(hours=1, minutes=30, seconds=30)!!,
     content="Ok(+01:30:30)",
   )
-  inspect!(@time.ZoneOffset::of(hours=19)!!, content="Err(Invalid offset)")
-  inspect!(@time.ZoneOffset::of(hours=-19)!!, content="Err(Invalid offset)")
-  inspect!(@time.ZoneOffset::of(minutes=60)!!, content="Err(Invalid offset)")
-  inspect!(@time.ZoneOffset::of(minutes=-60)!!, content="Err(Invalid offset)")
-  inspect!(@time.ZoneOffset::of(seconds=60)!!, content="Err(Invalid offset)")
-  inspect!(@time.ZoneOffset::of(seconds=-60)!!, content="Err(Invalid offset)")
+  inspect!(@time.ZoneOffset::of(hours=19)!!, content=
+    #|Err("Invalid offset")
+  )
+  inspect!(@time.ZoneOffset::of(hours=-19)!!, content=
+    #|Err("Invalid offset")
+  )
+  inspect!(@time.ZoneOffset::of(minutes=60)!!, content=
+    #|Err("Invalid offset")
+  )
+  inspect!(@time.ZoneOffset::of(minutes=-60)!!, content=
+    #|Err("Invalid offset")
+  )
+  inspect!(@time.ZoneOffset::of(seconds=60)!!, content=
+    #|Err("Invalid offset")
+  )
+  inspect!(@time.ZoneOffset::of(seconds=-60)!!, content=
+    #|Err("Invalid offset")
+  )
   inspect!(
     @time.ZoneOffset::of(hours=1, minutes=-30, seconds=-30)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::of(hours=-1, minutes=30, seconds=30)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::of(minutes=-30, seconds=30)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::of(minutes=30, seconds=-30)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::of(hours=18, minutes=1)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::of(hours=-18, seconds=1)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
 }
 
@@ -64,11 +82,13 @@ test "from_seconds" {
   )
   inspect!(
     @time.ZoneOffset::from_seconds(19 * 60 * 60)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
   inspect!(
     @time.ZoneOffset::from_seconds(-19 * 60 * 60)!!,
-    content="Err(Invalid offset)",
+    content=
+      #|Err("Invalid offset")
   )
 }
 

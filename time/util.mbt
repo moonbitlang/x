@@ -104,13 +104,25 @@ fn split(s : String, delimiter : Char) -> Array[String] {
 }
 
 test "split" {
-  inspect!(split("2000-01-01", '-'), content="[2000, 01, 01]")
-  inspect!(split("-01-01", '-'), content="[, 01, 01]")
-  inspect!(split("12-31", '-'), content="[12, 31]")
-  inspect!(split("-01", '-'), content="[, 01]")
-  inspect!(split("-", '-'), content="[, ]")
+  inspect!(split("2000-01-01", '-'), content=
+    #|["2000", "01", "01"]
+  )
+  inspect!(split("-01-01", '-'), content=
+    #|["", "01", "01"]
+  )
+  inspect!(split("12-31", '-'), content=
+    #|["12", "31"]
+  )
+  inspect!(split("-01", '-'), content=
+    #|["", "01"]
+  )
+  inspect!(split("-", '-'), content=
+    #|["", ""]
+  )
   inspect!(split("", '-'), content="[]")
-  inspect!(split("0", '-'), content="[0]")
+  inspect!(split("0", '-'), content=
+    #|["0"]
+  )
 }
 
 let int_overflow_err = "Int overflow"
@@ -166,16 +178,24 @@ test "checked_add_int" {
   inspect!(checked_add_int(1, 1)!!, content="Ok(2)")
   inspect!(checked_add_int(1, -1)!!, content="Ok(0)")
   inspect!(checked_add_int(-1, -1)!!, content="Ok(-2)")
-  inspect!(checked_add_int(Int::max_value(), 1)!!, content="Err(Int overflow)")
-  inspect!(checked_add_int(Int::min_value(), -1)!!, content="Err(Int overflow)")
+  inspect!(checked_add_int(Int::max_value(), 1)!!, content=
+    #|Err("Int overflow")
+  )
+  inspect!(checked_add_int(Int::min_value(), -1)!!, content=
+    #|Err("Int overflow")
+  )
 }
 
 test "checked_mul_int" {
   inspect!(checked_mul_int(2, 3)!!, content="Ok(6)")
   inspect!(checked_mul_int(2, -3)!!, content="Ok(-6)")
   inspect!(checked_mul_int(-2, -3)!!, content="Ok(6)")
-  inspect!(checked_mul_int(Int::max_value(), 2)!!, content="Err(Int overflow)")
-  inspect!(checked_mul_int(Int::min_value(), 2)!!, content="Err(Int overflow)")
+  inspect!(checked_mul_int(Int::max_value(), 2)!!, content=
+    #|Err("Int overflow")
+  )
+  inspect!(checked_mul_int(Int::min_value(), 2)!!, content=
+    #|Err("Int overflow")
+  )
 }
 
 test "checked_add_int64" {
@@ -184,11 +204,13 @@ test "checked_add_int64" {
   inspect!(checked_add_int64(-1L, -1L)!!, content="Ok(-2)")
   inspect!(
     checked_add_int64(1L, Int64::max_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
   inspect!(
     checked_add_int64(-1L, Int64::min_value())!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
 }
 
@@ -198,11 +220,13 @@ test "checked_mul_int64" {
   inspect!(checked_mul_int64(-2L, -3L)!!, content="Ok(6)")
   inspect!(
     checked_mul_int64(Int64::max_value(), 2L)!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
   inspect!(
     checked_mul_int64(Int64::min_value(), 2L)!!,
-    content="Err(Int64 overflow)",
+    content=
+      #|Err("Int64 overflow")
   )
 }
 
@@ -233,7 +257,9 @@ test "floor_div_int" {
   inspect!(floor_div_int(9, 10)!!, content="Ok(0)")
   inspect!(floor_div_int(-9, 10)!!, content="Ok(-1)")
   inspect!(floor_div_int(0, 10)!!, content="Ok(0)")
-  inspect!(floor_div_int(10, 0)!!, content="Err(division by zero)")
+  inspect!(floor_div_int(10, 0)!!, content=
+    #|Err("division by zero")
+  )
 }
 
 fn floor_div_int64(x : Int64, y : Int64) -> Int64!String {
@@ -250,7 +276,9 @@ test "floor_div_int64" {
   inspect!(floor_div_int64(9L, 10L)!!, content="Ok(0)")
   inspect!(floor_div_int64(-9L, 10L)!!, content="Ok(-1)")
   inspect!(floor_div_int64(0L, 10L)!!, content="Ok(0)")
-  inspect!(floor_div_int64(10L, 0L)!!, content="Err(division by zero)")
+  inspect!(floor_div_int64(10L, 0L)!!, content=
+    #|Err("division by zero")
+  )
 }
 
 fn floor_mod_int(x : Int, y : Int) -> Int!String {
@@ -263,7 +291,9 @@ test "floor_mod_int" {
   inspect!(floor_mod_int(11, 10)!!, content="Ok(1)")
   inspect!(floor_mod_int(-11, 10)!!, content="Ok(9)")
   inspect!(floor_mod_int(0, 10)!!, content="Ok(0)")
-  inspect!(floor_mod_int(10, 0)!!, content="Err(division by zero)")
+  inspect!(floor_mod_int(10, 0)!!, content=
+    #|Err("division by zero")
+  )
 }
 
 fn floor_mod_int64(x : Int64, y : Int64) -> Int64!String {
@@ -276,5 +306,7 @@ test "floor_mod_int64" {
   inspect!(floor_mod_int64(11L, 10L)!!, content="Ok(1)")
   inspect!(floor_mod_int64(-11L, 10L)!!, content="Ok(9)")
   inspect!(floor_mod_int64(0L, 10L)!!, content="Ok(0)")
-  inspect!(floor_mod_int64(10L, 0L)!!, content="Err(division by zero)")
+  inspect!(floor_mod_int64(10L, 0L)!!, content=
+    #|Err("division by zero")
+  )
 }

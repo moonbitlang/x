@@ -19,8 +19,12 @@ test "of" {
     @time.PlainTime::of(23, 59, 59, 999_999_999)!!,
     content="Ok(23:59:59.999999999)",
   )
-  inspect!(@time.PlainTime::of(24, 0, 0, 1)!!, content="Err(Invalid time)")
-  inspect!(@time.PlainTime::of(-1, 0, 0, 0)!!, content="Err(Invalid time)")
+  inspect!(@time.PlainTime::of(24, 0, 0, 1)!!, content=
+    #|Err("Invalid time")
+  )
+  inspect!(@time.PlainTime::of(-1, 0, 0, 0)!!, content=
+    #|Err("Invalid time")
+  )
 }
 
 test "from_string" {
@@ -36,23 +40,31 @@ test "from_string" {
     @time.PlainTime::from_string("01:00:00.0000123")!!,
     content="Ok(01:00:00.0000123)",
   )
-  inspect!(@time.PlainTime::from_string("1:00")!!, content="Err(Invalid time)")
-  inspect!(@time.PlainTime::from_string("10:0")!!, content="Err(Invalid time)")
+  inspect!(@time.PlainTime::from_string("1:00")!!, content=
+    #|Err("Invalid time")
+  )
+  inspect!(@time.PlainTime::from_string("10:0")!!, content=
+    #|Err("Invalid time")
+  )
   inspect!(
     @time.PlainTime::from_string("100000")!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::from_string("123:00:00")!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::from_string("10:00:00.123zzz")!!,
-    content="Err(invalid syntax)",
+    content=
+      #|Err("invalid syntax")
   )
   inspect!(
     @time.PlainTime::from_string("z1:00:00")!!,
-    content="Err(invalid syntax)",
+    content=
+      #|Err("invalid syntax")
   )
 }
 
@@ -89,11 +101,13 @@ test "from_second_of_day" {
   inspect!(@time.PlainTime::from_second_of_day(12345)!!, content="Ok(03:25:45)")
   inspect!(
     @time.PlainTime::from_second_of_day(-1)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::from_second_of_day(86401)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
@@ -112,11 +126,13 @@ test "from_nanosecond_of_day" {
   )
   inspect!(
     @time.PlainTime::from_nanosecond_of_day(-1L)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::from_nanosecond_of_day(86400000000001L)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
@@ -191,15 +207,18 @@ test "with_hour" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour(-1)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour(24)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour(25)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
@@ -222,11 +241,13 @@ test "with_minute" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_minute(-1)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_minute(60)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
@@ -249,11 +270,13 @@ test "with_second" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_second(-1)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_second(60)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
@@ -276,11 +299,13 @@ test "with_nanosecond" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_nanosecond(-1)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_nanosecond(1_000_000_000)!!,
-    content="Err(Invalid time)",
+    content=
+      #|Err("Invalid time")
   )
 }
 
