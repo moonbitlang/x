@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn sha1(data: Bytes) -> Bytes{
-  @crypto.sha1(data)
-}
+let sha1 = @crypto.sha1
 
-fn bytes_to_hex_string(data:Bytes) -> String {
-  @crypto.bytes_to_hex_string(data)
-}
+let bytes_to_hex_string = @crypto.bytes_to_hex_string
 
 test "sha1" {
   let a = "The quick brown fox jumps over the lazy dog"

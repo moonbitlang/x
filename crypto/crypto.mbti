@@ -5,6 +5,8 @@ fn bytes_to_hex_string(Bytes) -> String
 
 fn sha1(Bytes) -> Bytes
 
+fn md5(Bytes) -> Bytes
+
 // Types and methods
 
 // Traits

@@ -13,16 +13,14 @@
 // limitations under the License.
 //
 //
-//
 // An MD5 implementation based on
-// [RFC1321]   https://www.ietf.org/rfc/rfc1321.txt
-// [md5-0.7.0] https://docs.rs/md5/0.7.0/src/md5/lib.rs.html
-// [Rivest]    https://people.csail.mit.edu/rivest/Md5.c
+// [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
+// [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
+// [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html
 //
 //
 //! Security Notice
-//! MD5 should be considered cryptographically broken  
-//! and unsuitable for further use. 
+//! MD5 is considered cryptographically broken and unsuitable for further use. 
 //! Collision attacks against MD5 are both practical and trivial, 
 //! and theoretical attacks against MD5 have been found.
 
@@ -41,10 +39,6 @@ fn MD5Context::make() -> MD5Context {
     count: [0, 0],
     buffer: Bytes::make(64, b'\x00'),
   }
-}
-
-fn MD5Context::consume(self : MD5Context, data : Bytes) -> Unit {
-  md5_update(self, data)
 }
 
 fn MD5Context::compute(self : MD5Context) -> Bytes {
@@ -82,6 +76,11 @@ fn MD5Context::compute(self : MD5Context) -> Bytes {
 }
 
 // no macros, nor inline. basic md5 functions
+// four auxiliary functions
+//          F(X,Y,Z) = XY v not(X) Z
+//          G(X,Y,Z) = XZ v Y not(Z)
+//          H(X,Y,Z) = X xor Y xor Z
+//          I(X,Y,Z) = Y xor (X v not(Z))
 fn MD5Context::f(x : UInt, y : UInt, z : UInt) -> UInt {
   (x & y) | (x.lnot() & z)
 }
@@ -99,9 +98,10 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
 }
 
 fn u8_to_u32(x : Bytes, i : Int) -> UInt {
-  x[i].to_int().to_uint() | x[i + 1].to_int().to_uint().lsl(8) | x[i + 2].to_int().to_uint().lsl(
-    16,
-  ) | x[i + 3].to_int().to_uint().lsl(24)
+  x[i    ].to_int().to_uint()         | 
+  x[i + 1].to_int().to_uint().lsl(8)  | 
+  x[i + 2].to_int().to_uint().lsl(16) | 
+  x[i + 3].to_int().to_uint().lsl(24)
 }
 
 fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
@@ -145,7 +145,7 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
     _c : Ref[UInt],
     _d : Ref[UInt],
     k : Int,
-    s : Int, // calculate via floor(2^32 * |sin(i + 1)|) for i in 0..63
+    s : Int, // calculate w/ floor(2^32 * |sin(i + 1)|) for i in 0..63
     ac : UInt
   ) -> Unit {
     _a.val = _b.val + rotate_left_u(
@@ -235,24 +235,17 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   state[3] += d.val
 }
 
-// Compute the MD5 digest of some bytes.
+/// Compute the MD5 digest of some `data`
 pub fn md5(data : Bytes) -> Bytes {
   let ctx = MD5Context::make()
-  consume(ctx, data)
+  md5_update(ctx, data)
   ctx.compute()
 }
 
-test {
+test "md5_wb" {
   let hash = md5("The quick brown fox jumps over the lazy dog".to_bytes())
   inspect!(
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",
-  )
-  let hash = md5(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_bytes(),
-  )
-  inspect!(
-    bytes_to_hex_string(hash),
-    content="28a4570fd742bc88258e159f8773d9c8",
   )
 }
