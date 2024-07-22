@@ -26,19 +26,29 @@ test "from_string" {
     content="Ok(P-10Y-2M-3D)",
   )
   inspect!(@time.Period::from_string("P2M3D10Y")!!, content="Ok(P2M3D)")
-  inspect!(@time.Period::from_string("10Y")!!, content=
-    #|Err("Invalid period")
+  inspect!(
+    @time.Period::from_string("10Y")!!,
+    content=
+      #|Err("Invalid period")
+    ,
   )
-  inspect!(@time.Period::from_string("10Y0M")!!, content=
-    #|Err("Invalid period")
+  inspect!(
+    @time.Period::from_string("10Y0M")!!,
+    content=
+      #|Err("Invalid period")
+    ,
   )
   inspect!(
     @time.Period::from_string("P10YT3H")!!,
     content=
       #|Err("Invalid period")
+    ,
   )
-  inspect!(@time.Period::from_string("P2.5Y")!!, content=
-    #|Err("Invalid period")
+  inspect!(
+    @time.Period::from_string("P2.5Y")!!,
+    content=
+      #|Err("Invalid period")
+    ,
   )
 }
 
@@ -127,11 +137,17 @@ test "op_add" {
   inspect!((p1 + p2)!!, content="Ok(P0D)")
   inspect!((p1 + p1)!!, content="Ok(P2Y4M6D)")
   inspect!((p2 + p2)!!, content="Ok(P-2Y-4M-6D)")
-  inspect!((p1 + p3)!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    (p1 + p3)!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
-  inspect!((p2 + p4)!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    (p2 + p4)!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
 }
 
@@ -151,11 +167,17 @@ test "op_sub" {
   inspect!((p1 - p1)!!, content="Ok(P0D)")
   inspect!((p1 - p2)!!, content="Ok(P2Y4M6D)")
   inspect!((p2 - p1)!!, content="Ok(P-2Y-4M-6D)")
-  inspect!((p3 - p2)!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    (p3 - p2)!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
-  inspect!((p4 - p1)!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    (p4 - p1)!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
 }
 
@@ -165,11 +187,17 @@ test "multiply" {
   inspect!(p.multiply(1)!!, content="Ok(P1Y2M3D)")
   inspect!(p.multiply(-1)!!, content="Ok(P-1Y-2M-3D)")
   inspect!(p.multiply(2)!!, content="Ok(P2Y4M6D)")
-  inspect!(p.multiply(Int::max_value())!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    p.multiply(Int::max_value())!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
-  inspect!(p.multiply(Int::min_value())!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    p.multiply(Int::min_value())!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
 }
 
@@ -189,7 +217,10 @@ test "negated" {
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!(p.negated()!!, content=
-    #|Err("Int overflow")
+  inspect!(
+    p.negated()!!,
+    content=
+      #|Err("Int overflow")
+    ,
   )
 }

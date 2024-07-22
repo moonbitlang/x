@@ -27,11 +27,13 @@ test "from_string" {
     @time.Duration::from_string("PT0.000.45S")!!,
     content=
       #|Err("Invalid duration")
+    ,
   )
   inspect!(
     @time.Duration::from_string("P1Y2M3DT4H5M6S")!!,
     content=
       #|Err("Invalid duration")
+    ,
   )
 }
 
@@ -82,11 +84,13 @@ test "add_seconds" {
     @time.Duration::of!(seconds=1L).add_seconds(Int64::max_value())!!,
     content=
       #|Err("Int64 overflow")
+    ,
   )
   inspect!(
     @time.Duration::of!(seconds=-1L).add_seconds(Int64::min_value())!!,
     content=
       #|Err("Int64 overflow")
+    ,
   )
 }
 
@@ -100,7 +104,10 @@ test "with_nanoseconds" {
   let d = @time.Duration::of!(nanoseconds=1000L)
   inspect!(d.with_nanoseconds(1000)!!, content="Ok(PT0.000001S)")
   inspect!(d.with_nanoseconds(2000)!!, content="Ok(PT0.000002S)")
-  inspect!(d.with_nanoseconds(1_000_000_000)!!, content=
-    #|Err("Invalid duration")
+  inspect!(
+    d.with_nanoseconds(1_000_000_000)!!,
+    content=
+      #|Err("Invalid duration")
+    ,
   )
 }

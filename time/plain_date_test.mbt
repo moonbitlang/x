@@ -20,17 +20,29 @@ test "of" {
   inspect!(@time.PlainDate::of(-1, 1, 1)!!, content="Ok(-0001-01-01)")
   inspect!(@time.PlainDate::of(-2000, 2, 29)!!, content="Ok(-2000-02-29)")
   inspect!(@time.PlainDate::of(-9999, 1, 1)!!, content="Ok(-9999-01-01)")
-  inspect!(@time.PlainDate::of(2001, 2, 29)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::of(2001, 2, 29)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(@time.PlainDate::of(2001, 1, 32)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::of(2001, 1, 32)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(@time.PlainDate::of(10000, 1, 1)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::of(10000, 1, 1)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(@time.PlainDate::of(10000, 1, 1)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::of(10000, 1, 1)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 
@@ -58,21 +70,25 @@ test "from_year_ord" {
     @time.PlainDate::from_year_ord(2001, 366)!!,
     content=
       #|Err("Invalid date")
+    ,
   )
   inspect!(
     @time.PlainDate::from_year_ord(-2001, 366)!!,
     content=
       #|Err("Invalid date")
+    ,
   )
   inspect!(
     @time.PlainDate::from_year_ord(10000, 365)!!,
     content=
       #|Err("Invalid date")
+    ,
   )
   inspect!(
     @time.PlainDate::from_year_ord(-10000, 365)!!,
     content=
       #|Err("Invalid date")
+    ,
   )
 }
 
@@ -97,22 +113,31 @@ test "from_string" {
     @time.PlainDate::from_string("10000-01-01")!!,
     content=
       #|Err("Invalid date")
+    ,
   )
   inspect!(
     @time.PlainDate::from_string("-10000-01-01")!!,
     content=
       #|Err("Invalid date")
+    ,
   )
   inspect!(
     @time.PlainDate::from_string("-01-01")!!,
     content=
       #|Err("Invalid date")
+    ,
   )
-  inspect!(@time.PlainDate::from_string("12-31")!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::from_string("12-31")!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(@time.PlainDate::from_string("-01")!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    @time.PlainDate::from_string("-01")!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 
@@ -243,11 +268,17 @@ test "add_years" {
   inspect!(d.add_years(7999L)!!, content="Ok(9999-02-28)")
   inspect!(d.add_years(-2001L)!!, content="Ok(-0001-02-28)")
   inspect!(d.add_years(-9999L)!!, content="Ok(-7999-02-28)")
-  inspect!(d.add_years(8000L)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_years(8000L)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.add_years(Int64::max_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_years(Int64::max_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
   inspect!(d.add_years(Int64::min_value())!!, content="Ok(2000-02-29)")
 }
@@ -261,14 +292,23 @@ test "add_months" {
   inspect!(d.add_months(12L)!!, content="Ok(2001-02-28)")
   inspect!(d.add_months(24L)!!, content="Ok(2002-02-28)")
   inspect!(d.add_months(12L * -2000L)!!, content="Ok(0000-02-29)")
-  inspect!(d.add_months(12L * 8000L)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_months(12L * 8000L)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.add_months(Int64::max_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_months(Int64::max_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
-  inspect!(d.add_months(Int64::min_value())!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_months(Int64::min_value())!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_months(0L)!!, content="Ok(-2000-02-29)")
@@ -278,14 +318,23 @@ test "add_months" {
   inspect!(d.add_months(12L)!!, content="Ok(-1999-02-28)")
   inspect!(d.add_months(24L)!!, content="Ok(-1998-02-28)")
   inspect!(d.add_months(12L * 10000L)!!, content="Ok(8000-02-29)")
-  inspect!(d.add_months(12L * -8000L)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_months(12L * -8000L)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.add_months(Int64::max_value())!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_months(Int64::max_value())!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.add_months(Int64::min_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_months(Int64::min_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
 }
 
@@ -296,11 +345,17 @@ test "add_weeks" {
   inspect!(d.add_weeks(-1L)!!, content="Ok(2000-02-22)")
   inspect!(d.add_weeks(3L)!!, content="Ok(2000-03-21)")
   inspect!(d.add_weeks(-3L)!!, content="Ok(2000-02-08)")
-  inspect!(d.add_weeks(Int64::max_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_weeks(Int64::max_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
-  inspect!(d.add_weeks(Int64::min_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_weeks(Int64::min_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_weeks(0L)!!, content="Ok(-2000-02-29)")
@@ -308,11 +363,17 @@ test "add_weeks" {
   inspect!(d.add_weeks(-1L)!!, content="Ok(-2000-02-22)")
   inspect!(d.add_weeks(3L)!!, content="Ok(-2000-03-21)")
   inspect!(d.add_weeks(-3L)!!, content="Ok(-2000-02-08)")
-  inspect!(d.add_weeks(Int64::max_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_weeks(Int64::max_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
-  inspect!(d.add_weeks(Int64::min_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_weeks(Int64::min_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
 }
 
@@ -323,11 +384,17 @@ test "add_days" {
   inspect!(d.add_days(-1L)!!, content="Ok(2000-02-28)")
   inspect!(d.add_days(365L)!!, content="Ok(2001-02-28)")
   inspect!(d.add_days(-365L)!!, content="Ok(1999-03-01)")
-  inspect!(d.add_days(Int64::max_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_days(Int64::max_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
-  inspect!(d.add_days(Int64::min_value())!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_days(Int64::min_value())!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_days(0L)!!, content="Ok(-2000-02-29)")
@@ -335,11 +402,17 @@ test "add_days" {
   inspect!(d.add_days(-1L)!!, content="Ok(-2000-02-28)")
   inspect!(d.add_days(365L)!!, content="Ok(-1999-02-28)")
   inspect!(d.add_days(-365L)!!, content="Ok(-2001-03-01)")
-  inspect!(d.add_days(Int64::max_value())!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.add_days(Int64::max_value())!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.add_days(Int64::min_value())!!, content=
-    #|Err("Int64 overflow")
+  inspect!(
+    d.add_days(Int64::min_value())!!,
+    content=
+      #|Err("Int64 overflow")
+    ,
   )
 }
 
@@ -362,11 +435,17 @@ test "with_year" {
   inspect!(d.with_year(0)!!, content="Ok(0000-02-29)")
   inspect!(d.with_year(9999)!!, content="Ok(9999-02-28)")
   inspect!(d.with_year(-9999)!!, content="Ok(-9999-02-28)")
-  inspect!(d.with_year(10000)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_year(10000)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.with_year(-10000)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_year(-10000)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 
@@ -375,11 +454,17 @@ test "with_month" {
   inspect!(d.with_month(1)!!, content="Ok(2000-01-31)")
   inspect!(d.with_month(2)!!, content="Ok(2000-02-29)")
   inspect!(d.with_month(4)!!, content="Ok(2000-04-30)")
-  inspect!(d.with_month(0)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_month(0)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.with_month(13)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_month(13)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 
@@ -387,11 +472,17 @@ test "with_day" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_day(29)!!, content="Ok(2000-02-29)")
   inspect!(d.with_day(1)!!, content="Ok(2000-02-01)")
-  inspect!(d.with_day(0)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_day(0)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.with_day(30)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_day(30)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 
@@ -399,11 +490,17 @@ test "with_ordinal" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_ordinal(1)!!, content="Ok(2000-01-01)")
   inspect!(d.with_ordinal(366)!!, content="Ok(2000-12-31)")
-  inspect!(d.with_ordinal(0)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_ordinal(0)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
-  inspect!(d.with_ordinal(367)!!, content=
-    #|Err("Invalid date")
+  inspect!(
+    d.with_ordinal(367)!!,
+    content=
+      #|Err("Invalid date")
+    ,
   )
 }
 

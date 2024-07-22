@@ -81,11 +81,17 @@ test "bytes" {
     [201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185],
   )
   inspect!(from_bytes!(buf).to_bytes(), content="苉棻僟ꅌꊺऄ맥") // XXX: this is a terrible Show
-  inspect!(from_bytes(Bytes::new(15))!!, content=
-    #|Err("requires 16 bytes")
+  inspect!(
+    from_bytes(Bytes::new(15))!!,
+    content=
+      #|Err("requires 16 bytes")
+    ,
   )
-  inspect!(from_bytes(Bytes::new(17))!!, content=
-    #|Err("requires 16 bytes")
+  inspect!(
+    from_bytes(Bytes::new(17))!!,
+    content=
+      #|Err("requires 16 bytes")
+    ,
   )
 }
 
@@ -191,10 +197,12 @@ test "from_hex" {
     from_hex("13cb")!!,
     content=
       #|Err("not enough hexadecimal in UUID string")
+    ,
   )
   inspect!(
     from_hex("13cb501c-99a8-c889-3234")!!,
     content=
       #|Err("not enough hexadecimal in UUID string")
+    ,
   )
 }
