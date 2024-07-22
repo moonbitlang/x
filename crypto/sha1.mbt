@@ -20,7 +20,7 @@ pub fn sha1(input : Bytes) -> Bytes {
   if new_length - old_length < 9 {
     new_length += 64
   }
-  let bytes = Bytes::make(new_length)
+  let bytes = Bytes::new(new_length)
   Bytes::blit(bytes, 0, input, 0, old_length)
   bytes[old_length] = (0x80).to_byte()
   for i = new_length - 8; i < new_length; i = i + 1 {
@@ -69,7 +69,7 @@ pub fn sha1(input : Bytes) -> Bytes {
     }
   }
   // Digest
-  let result = Bytes::make(20)
+  let result = Bytes::new(20)
   for i = 0; i < 5; i = i + 1 {
     result[i * 4 + 3] = h[4 - i].lsr(24).to_byte()
     result[i * 4 + 2] = h[4 - i].lsr(16).to_byte()

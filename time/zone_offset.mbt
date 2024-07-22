@@ -40,10 +40,10 @@ pub fn ZoneOffset::of(
   ~minutes : Int = 0,
   ~seconds : Int = 0
 ) -> ZoneOffset!String {
-  validate_offset(hours, minutes, seconds)!
+  validate_offset!(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() + minutes * seconds_per_minute.to_int() +
     seconds
-  ZoneOffset::from_seconds(secs)!
+  ZoneOffset::from_seconds!(secs)
 }
 
 /// Creates a offset from seconds.
@@ -60,6 +60,10 @@ pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!String {
 /// Returns the offset id.
 pub fn to_string(self : ZoneOffset) -> String {
   self.id
+}
+
+pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : Logger) {
+  logger.write_string(self.to_string())
 }
 
 pub fn op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
