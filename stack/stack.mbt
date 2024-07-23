@@ -500,7 +500,7 @@ pub fn to_list[T](self : Stack[T]) -> @immut/list.T[T] {
 }
 
 test "to_list" {
-  inspect!(Stack::of([3, 2, 1]).to_list(), content="List::[3, 2, 1]")
+  inspect!(Stack::of([3, 2, 1]).to_list(), content="@list.of([3, 2, 1])")
 }
 
 /// Convert stack to array.
