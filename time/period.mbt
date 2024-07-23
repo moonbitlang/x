@@ -17,7 +17,7 @@ struct Period {
   years : Int
   months : Int
   days : Int
-} derive(Debug, Eq, Compare)
+} derive(Eq, Compare)
 
 /// Creates a Period from years, months, and days.
 pub fn Period::of(

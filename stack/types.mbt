@@ -15,4 +15,4 @@
 struct Stack[T] {
   mut elements : @immut/list.T[T]
   mut len : Int
-} derive(Debug, Default)
+} derive(Default)
