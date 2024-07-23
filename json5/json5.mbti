@@ -13,8 +13,8 @@ pub enum ParseError {
   InvalidIdentEscape(Position)
 }
 impl ParseError {
-  debug_write(Self, Buffer) -> Unit
   op_equal(Self, Self) -> Bool
+  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -23,8 +23,9 @@ pub struct Position {
   pub column : Int
 }
 impl Position {
-  debug_write(Self, Buffer) -> Unit
   op_equal(Self, Self) -> Bool
+  output(Self, Logger) -> Unit
+  to_string(Self) -> String
 }
 
 // Traits
