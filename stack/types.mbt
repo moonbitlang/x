@@ -13,6 +13,6 @@
 // limitations under the License.
 
 struct Stack[T] {
-  mut elements : @immut/list.List[T]
+  mut elements : @immut/list.T[T]
   mut len : Int
 } derive(Debug, Default)
