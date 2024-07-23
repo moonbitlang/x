@@ -44,7 +44,6 @@ impl Period {
   add_years(Self, Int) -> Self!String
   compare(Self, Self) -> Int
   days(Self) -> Int
-  debug_write(Self, Buffer) -> Unit
   from_string(String) -> Self!String
   is_neg(Self) -> Bool
   is_zero(Self) -> Bool
@@ -175,7 +174,6 @@ impl PlainTime {
 
 type Weekday
 impl Weekday {
-  debug_write(Self, Buffer) -> Unit
   op_equal(Self, Self) -> Bool
   output(Self, Logger) -> Unit
   to_string(Self) -> String

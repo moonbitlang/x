@@ -15,14 +15,14 @@
 pub struct Position {
   line : Int // 1-based
   column : Int // 0-based
-} derive(Eq, Debug)
+} derive(Eq, Show)
 
 pub enum ParseError {
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-} derive(Eq, Debug)
+} derive(Eq)
 
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
@@ -34,4 +34,8 @@ pub fn ParseError::to_string(self : ParseError) -> String {
     ParseError::InvalidIdentEscape({ line, column }) =>
       "Invalid escape sequence in identifier at line \(line), column \(column)"
   }
+}
+
+pub fn ParseError::output(self : ParseError, logger : Logger) -> Unit {
+  logger.write_string(ParseError::to_string(self))
 }

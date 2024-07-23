@@ -21,7 +21,7 @@ pub enum Variant {
   RFC4122(Version)
   ReservedMicrosoft
   ReservedFuture
-} derive(Debug, Show)
+} derive(Show)
 
 /// The UUID version number.
 ///
@@ -34,7 +34,7 @@ pub enum Version {
   V4
   V5
   Unknown(Int)
-} derive(Debug, Show)
+} derive(Show)
 
 fn Version::from_int64(int : Int64) -> Version {
   match int {
