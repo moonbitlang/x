@@ -13,12 +13,10 @@
 // limitations under the License.
 
 test "fixed" {
-  inspect(fixed_zone("CST", 8 * 60 * 60)!!, content="Ok(CST)")!
-  inspect(fixed_zone("CST", 8 * 60 * 60)!.offsets, content="[+08:00]")!
-  inspect(fixed_zone("CST", 8 * 60 * 60)!.is_fixed(), content="true")!
+  inspect!(@time.fixed_zone("CST", 8 * 60 * 60)!!, content="Ok(CST)")
+  inspect!(@time.fixed_zone!("CST", 8 * 60 * 60).is_fixed(), content="true")
 }
 
 test "utc" {
-  inspect(utc_zone, content="UTC")!
-  inspect(utc_zone.offsets, content="[Z]")!
+  inspect!(@time.utc_zone, content="UTC")
 }

@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
+
 // An MD5 message-digest algorithm implementation based on
 // [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
 // [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
 // [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html 
-struct MD5Context {
+priv struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   count : FixedArray[UInt]
   buffer : Bytes
@@ -90,10 +90,9 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
 }
 
 fn u8_to_u32(x : Bytes, i : Int) -> UInt {
-  x[i    ].to_int().to_uint()         | 
-  x[i + 1].to_int().to_uint().lsl(8)  | 
-  x[i + 2].to_int().to_uint().lsl(16) | 
-  x[i + 3].to_int().to_uint().lsl(24)
+  x[i].to_int().to_uint() | x[i + 1].to_int().to_uint().lsl(8) | x[i + 2].to_int().to_uint().lsl(
+    16,
+  ) | x[i + 3].to_int().to_uint().lsl(24)
 }
 
 fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
@@ -226,7 +225,6 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   state[2] += c.val
   state[3] += d.val
 }
-
 
 /// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.

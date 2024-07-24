@@ -25,7 +25,7 @@ pub enum Variant {
   ReservedFuture
 }
 impl Variant {
-  debug_write(Self, Buffer) -> Unit
+  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -38,11 +38,12 @@ pub enum Version {
   Unknown(Int)
 }
 impl Version {
-  debug_write(Self, Buffer) -> Unit
+  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
 // Traits
 
 // Extension Methods
+impl Show for UUID
 

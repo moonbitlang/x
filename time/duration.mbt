@@ -25,12 +25,12 @@ pub fn Duration::of(
   ~seconds : Int64 = 0L,
   ~nanoseconds : Int64 = 0L
 ) -> Duration!String {
-  let hours_sec = checked_mul_int64(hours, seconds_per_hour)!
-  let minutes_sec = checked_mul_int64(minutes, seconds_per_minute)!
-  let mut secs = checked_add_int64(
-    checked_add_int64(hours_sec, minutes_sec)!,
+  let hours_sec = checked_mul_int64!(hours, seconds_per_hour)
+  let minutes_sec = checked_mul_int64!(minutes, seconds_per_minute)
+  let mut secs = checked_add_int64!(
+    checked_add_int64!(hours_sec, minutes_sec),
     seconds,
-  )!
+  )
   let nanos = (nanoseconds % nanoseconds_per_second).to_int()
   secs += nanoseconds / nanoseconds_per_second
   { secs, nanos }
@@ -64,11 +64,11 @@ pub fn Duration::from_string(str : String) -> Duration!String {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' =>
         buf.write_char(str[i])
       'H' => {
-        hours = @strconv.parse(buf.to_string())!
+        hours = @strconv.parse!(buf.to_string())
         buf.reset()
       }
       'M' => {
-        minutes = @strconv.parse(buf.to_string())!
+        minutes = @strconv.parse!(buf.to_string())
         buf.reset()
       }
       'S' => {
@@ -79,7 +79,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
         }
         if splits.length() > 0 && splits[0] != "" {
           let secs_str = splits[0]
-          seconds = @strconv.parse(secs_str)!
+          seconds = @strconv.parse!(secs_str)
         }
         if splits.length() > 1 && splits[1] != "" {
           let mut nanos_str = splits[1]
@@ -87,7 +87,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
           if seconds < 0L {
             nanos_str = "-" + nanos_str
           }
-          nanoseconds = @strconv.parse(nanos_str)!
+          nanoseconds = @strconv.parse!(nanos_str)
         }
         break
       }
@@ -96,7 +96,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
       }
     }
   }
-  Duration::of(~hours, ~minutes, ~seconds, ~nanoseconds)!
+  Duration::of!(~hours, ~minutes, ~seconds, ~nanoseconds)
 }
 
 /// Returns a string representation of this duration using ISO 8601 representation.
@@ -138,6 +138,10 @@ pub fn to_string(self : Duration) -> String {
   buf.to_string()
 }
 
+pub impl Show for Duration with output(self : Duration, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
 /// Returns the number of seconds in this duration.
 pub fn seconds(self : Duration) -> Int64 {
   self.secs
@@ -163,10 +167,10 @@ pub fn add_hours(self : Duration, hours : Int64) -> Duration!String {
   if hours == 0L {
     return self
   }
-  let secs = checked_add_int64(
+  let secs = checked_add_int64!(
     self.secs,
-    checked_mul_int64(hours, seconds_per_hour)!,
-  )!
+    checked_mul_int64!(hours, seconds_per_hour),
+  )
   { ..self, secs, }
 }
 
@@ -175,10 +179,10 @@ pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!String {
   if minutes == 0L {
     return self
   }
-  let secs = checked_add_int64(
+  let secs = checked_add_int64!(
     self.secs,
-    checked_mul_int64(minutes, seconds_per_minute)!,
-  )!
+    checked_mul_int64!(minutes, seconds_per_minute),
+  )
   { ..self, secs, }
 }
 
@@ -187,7 +191,7 @@ pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!String {
   if seconds == 0L {
     return self
   }
-  let secs = checked_add_int64(self.secs, seconds)!
+  let secs = checked_add_int64!(self.secs, seconds)
   { ..self, secs, }
 }
 
@@ -196,12 +200,12 @@ pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!String 
   if nanoseconds == 0L {
     return self
   }
-  let seconds = checked_add_int64(
+  let seconds = checked_add_int64!(
     self.secs,
     nanoseconds / nanoseconds_per_second,
-  )!
+  )
   let nanoseconds = nanoseconds % nanoseconds_per_second
-  Duration::of(~seconds, ~nanoseconds)!
+  Duration::of!(~seconds, ~nanoseconds)
 }
 
 /// Adds other duration to this duration, and returns a new duration.
@@ -210,18 +214,18 @@ pub fn add_duration(self : Duration, other : Duration) -> Duration!String {
     return self
   }
   let mut nanos = self.nanos.to_int64() + other.nanos.to_int64()
-  let mut secs = checked_add_int64(self.secs, other.secs)!
-  secs = checked_add_int64(secs, nanos / nanoseconds_per_second)!
+  let mut secs = checked_add_int64!(self.secs, other.secs)
+  secs = checked_add_int64!(secs, nanos / nanoseconds_per_second)
   nanos = nanos % nanoseconds_per_second
   if nanos < 0L {
     secs -= 1L
     nanos += nanoseconds_per_second
   }
-  create(secs, nanos.to_int())!
+  create!(secs, nanos.to_int())
 }
 
 pub fn op_add(self : Duration, other : Duration) -> Duration!String {
-  self.add_duration(other)!
+  self.add_duration!(other)
 }
 
 /// Returns a new duration with the specified amount of seconds.
@@ -237,7 +241,7 @@ pub fn with_nanoseconds(self : Duration, nanoseconds : Int) -> Duration!String {
   if nanoseconds == self.nanos {
     return self
   }
-  create(self.secs, nanoseconds)!
+  create!(self.secs, nanoseconds)
 }
 
 /// Converts this duration to the total length in nanoseconds.
