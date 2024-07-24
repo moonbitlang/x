@@ -11,19 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// An MD5 implementation based on
+// 
+// An MD5 message-digest algorithm implementation based on
 // [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
 // [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
-// [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html
-//
-//
-//! Security Notice
-//! MD5 is considered cryptographically broken and unsuitable for further use. 
-//! Collision attacks against MD5 are both practical and trivial, 
-//! and theoretical attacks against MD5 have been found.
-
+// [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html 
 struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   count : FixedArray[UInt]
@@ -140,16 +132,16 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   let d = Ref::new(state[3])
   fn t(
     op : (UInt, UInt, UInt) -> UInt,
-    _a : Ref[UInt],
-    _b : Ref[UInt],
-    _c : Ref[UInt],
-    _d : Ref[UInt],
+    state_a : Ref[UInt],
+    state_b : Ref[UInt],
+    state_c : Ref[UInt],
+    state_d : Ref[UInt],
     k : Int,
     s : Int, // calculate w/ floor(2^32 * |sin(i + 1)|) for i in 0..63
     ac : UInt
   ) -> Unit {
-    _a.val = _b.val + rotate_left_u(
-        _a.val + op(_b.val, _c.val, _d.val) + input[k] + ac,
+    state_a.val = state_b.val + rotate_left_u(
+        state_a.val + op(state_b.val, state_c.val, state_d.val) + input[k] + ac,
         s,
       )
   }
@@ -235,7 +227,10 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   state[3] += d.val
 }
 
-/// Compute the MD5 digest of some `data`
+
+/// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
+/// - Note that MD5 is considered _cryptographically broken_.
+/// Unless mandated, more secure alternatives should be preferred.
 pub fn md5(data : Bytes) -> Bytes {
   let ctx = MD5Context::make()
   md5_update(ctx, data)
