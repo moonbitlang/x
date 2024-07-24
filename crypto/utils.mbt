@@ -21,7 +21,7 @@ pub fn bytes_to_hex_string(input : Bytes) -> String {
     let low = byte.to_int().land(0xf)
     let high_char = to_hex_char(high)
     let low_char = to_hex_char(low)
-    ret = ret + high_char + low_char
+    ret = high_char + low_char + ret
   }
   ret
 }
