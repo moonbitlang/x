@@ -120,10 +120,6 @@ fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   }
 }
 
-fn rotate_left_u(x : UInt, n : Int) -> UInt {
-  x.lsl(n).lor(x.lsr(32 - n))
-}
-
 fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   let a = Ref::new(state[0])
   let b = Ref::new(state[1])

@@ -3,6 +3,12 @@ package moonbitlang/x/crypto
 // Values
 fn bytes_to_hex_string(Bytes) -> String
 
+fn chacha20(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes
+
+fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes
+
+fn chahca12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes
+
 fn md5(Bytes) -> Bytes
 
 fn sha1(Bytes) -> Bytes
