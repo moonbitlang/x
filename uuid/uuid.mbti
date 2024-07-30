@@ -25,7 +25,6 @@ pub enum Variant {
   ReservedFuture
 }
 impl Variant {
-  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -38,7 +37,6 @@ pub enum Version {
   Unknown(Int)
 }
 impl Version {
-  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -46,4 +44,8 @@ impl Version {
 
 // Extension Methods
 impl Show for UUID
+
+impl Show for Variant
+
+impl Show for Version
 

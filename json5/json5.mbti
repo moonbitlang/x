@@ -24,11 +24,11 @@ pub struct Position {
 }
 impl Position {
   op_equal(Self, Self) -> Bool
-  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
 // Traits
 
 // Extension Methods
+impl Show for Position
 

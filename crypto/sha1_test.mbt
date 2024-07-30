@@ -22,7 +22,7 @@ test "sha1" {
   )
   let a = []
   for i = 0; i < 1000; i = i + 1 {
-    a.push(i)
+    a.push(i.to_byte())
   }
   inspect!(
     @crypto.bytes_to_hex_string(@crypto.sha1(Bytes::from_array(a))),
@@ -30,7 +30,7 @@ test "sha1" {
   )
   let a = []
   for i = 0; i < 8192; i = i + 1 {
-    a.push(i / 3)
+    a.push((i / 3).to_byte())
   }
   inspect!(
     @crypto.bytes_to_hex_string(@crypto.sha1(Bytes::from_array(a))),
@@ -38,7 +38,7 @@ test "sha1" {
   )
   let a = []
   for i = 0; i < 8190; i = i + 1 {
-    a.push(i / 5)
+    a.push((i / 5).to_byte())
   }
   inspect!(
     @crypto.bytes_to_hex_string(@crypto.sha1(Bytes::from_array(a))),
@@ -46,7 +46,7 @@ test "sha1" {
   )
   let a = []
   for i = 0; i < 8182; i = i + 1 {
-    a.push(i / 7)
+    a.push((i / 7).to_byte())
   }
   inspect!(
     @crypto.bytes_to_hex_string(@crypto.sha1(Bytes::from_array(a))),
@@ -54,7 +54,7 @@ test "sha1" {
   )
   let a = []
   for i = 0; i < 8172; i = i + 1 {
-    a.push(i / 11)
+    a.push((i / 11).to_byte())
   }
   inspect!(
     @crypto.bytes_to_hex_string(@crypto.sha1(Bytes::from_array(a))),
