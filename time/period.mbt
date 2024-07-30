@@ -60,9 +60,7 @@ pub fn Period::from_string(str : String) -> Period!String {
         buf.reset()
         break
       }
-      _ => {
-        raise invalid_period_err
-      }
+      _ => raise invalid_period_err
     }
   }
   Period::of(~years, ~months, ~days)

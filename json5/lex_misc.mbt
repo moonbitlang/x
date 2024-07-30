@@ -33,12 +33,12 @@ fn read_char(ctx : ParseContext) -> Char? {
   }
 }
 
-fn lex_skip_whitespace(ctx : ParseContext) -> Result[Unit, ParseError] {
+fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
   for {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
       Some('/') => {
-        lex_comment(ctx)?
+        lex_comment!(ctx)
         continue
       }
       Some(c) => {
@@ -46,69 +46,69 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Result[Unit, ParseError] {
           continue
         }
         ctx.offset -= 1
-        return Ok(())
+        return ()
       }
-      None => return Ok(())
+      None => return ()
     }
   }
 }
 
-fn lex_after_array_value(ctx : ParseContext) -> Result[Token, ParseError] {
-  lex_skip_whitespace(ctx)?
+fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
+  lex_skip_whitespace!(ctx)
   match read_char(ctx) {
-    Some(']') => Ok(Token::RBracket)
-    Some(',') => Ok(Token::Comma)
-    Some(_) => Err(invalid_char(ctx, shift=-1))
-    None => Err(InvalidEof)
+    Some(']') => Token::RBracket
+    Some(',') => Token::Comma
+    Some(_) => raise invalid_char(ctx, shift=-1)
+    None => raise InvalidEof
   }
 }
 
-fn lex_after_property_name(ctx : ParseContext) -> Result[Token, ParseError] {
-  lex_skip_whitespace(ctx)?
+fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
+  lex_skip_whitespace!(ctx)
   match read_char(ctx) {
-    Some(':') => Ok(Token::Colon)
-    Some(_) => Err(invalid_char(ctx, shift=-1))
-    None => Err(InvalidEof)
+    Some(':') => Token::Colon
+    Some(_) => raise invalid_char(ctx, shift=-1)
+    None => raise InvalidEof
   }
 }
 
-fn lex_after_object_value(ctx : ParseContext) -> Result[Token, ParseError] {
-  lex_skip_whitespace(ctx)?
+fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
+  lex_skip_whitespace!(ctx)
   match read_char(ctx) {
-    Some('}') => Ok(Token::RBrace)
-    Some(',') => Ok(Token::Comma)
-    Some(_) => Err(invalid_char(ctx, shift=-1))
-    None => Err(InvalidEof)
+    Some('}') => Token::RBrace
+    Some(',') => Token::Comma
+    Some(_) => raise invalid_char(ctx, shift=-1)
+    None => raise InvalidEof
   }
 }
 
-fn lex_assert_char(ctx : ParseContext, c : Char) -> Result[Unit, ParseError] {
+fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
   match read_char(ctx) {
-    Some(c2) => if c == c2 { Ok(()) } else { Err(invalid_char(ctx, shift=-1)) }
-    None => Err(InvalidEof)
+    Some(c2) => if c == c2 { () } else { raise invalid_char(ctx, shift=-1) }
+    None => raise InvalidEof
   }
 }
 
-fn lex_infinity(ctx : ParseContext) -> Result[Unit, ParseError] {
-  lex_assert_char(ctx, 'n')?
-  lex_assert_char(ctx, 'f')?
-  lex_assert_char(ctx, 'i')?
-  lex_assert_char(ctx, 'n')?
-  lex_assert_char(ctx, 'i')?
-  lex_assert_char(ctx, 't')?
-  lex_assert_char(ctx, 'y')
+fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
+  lex_assert_char!(ctx, 'n')
+  lex_assert_char!(ctx, 'f')
+  lex_assert_char!(ctx, 'i')
+  lex_assert_char!(ctx, 'n')
+  lex_assert_char!(ctx, 'i')
+  lex_assert_char!(ctx, 't')
+  lex_assert_char!(ctx, 'y')
 }
 
-fn lex_comment(ctx : ParseContext) -> Result[Unit, ParseError] {
+fn lex_comment(ctx : ParseContext) -> Unit!ParseError {
   match read_char(ctx) {
     Some('/') =>
       for {
         match read_char(ctx) {
           Some('\n' | '\r' | '\u2028' | '\u2029') => {
             ctx.offset -= 1
-            return Ok(())
+            return ()
           }
-          None => return Ok(())
+          None => return ()
           _ => ()
         }
       }
@@ -117,14 +117,14 @@ fn lex_comment(ctx : ParseContext) -> Result[Unit, ParseError] {
         match read_char(ctx) {
           Some('*') =>
             match read_char(ctx) {
-              Some('/') => return Ok(())
+              Some('/') => return ()
               _ => ()
             }
-          None => return Err(InvalidEof)
+          None => raise InvalidEof
           _ => ()
         }
       }
-    Some(_) => return Err(invalid_char(ctx, shift=-1))
-    None => return Err(InvalidEof)
+    Some(_) => raise invalid_char(ctx, shift=-1)
+    None => raise InvalidEof
   }
 }

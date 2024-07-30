@@ -13,12 +13,10 @@
 // limitations under the License.
 
 fn test_parse(input : String, ~loc : SourceLoc = _) -> @json.JsonValue!String {
-  let v = @json5.parse(input)
+  let v = @json5.parse?(input)
   match v {
     Ok(v) => v
-    Err(err) => {
-      raise "Parse failed, \(loc), \(err)"
-    }
+    Err(err) => raise "Parse failed, \(loc), \(err)"
   }
 }
 

@@ -175,7 +175,6 @@ impl PlainTime {
 type Weekday
 impl Weekday {
   op_equal(Self, Self) -> Bool
-  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
@@ -256,6 +255,8 @@ impl Show for PlainDate
 impl Show for PlainDateTime
 
 impl Show for PlainTime
+
+impl Show for Weekday
 
 impl Show for Zone
 
