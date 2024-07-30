@@ -12,42 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn lex_property_name(ctx : ParseContext) -> Result[Token, ParseError] {
-  lex_skip_whitespace(ctx)?
+fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
+  lex_skip_whitespace!(ctx)
   match read_char(ctx) {
-    Some('}') => Ok(RBrace)
+    Some('}') => RBrace
     Some('\'' | '"' as c) => {
-      let s = lex_string(ctx, c)?
-      Ok(String(s))
+      let s = lex_string!(ctx, c)
+      (String(s))
     }
     Some('$' | '_') => {
-      let s = lex_ident(ctx, ctx.offset - 1)?
-      Ok(String(s))
+      let s = lex_ident!(ctx, ctx.offset - 1)
+      (String(s))
     }
     Some('\\') => {
-      lex_assert_char(ctx, 'u')?
-      let c = lex_hex_digits(ctx, 4)?
+      lex_assert_char!(ctx, 'u')
+      let c = lex_hex_digits!(ctx, 4)
       let c = Char::from_int(c)
       if c == '$' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
       (c > '\x7f' && non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
-        let s = lex_ident(ctx, ctx.offset, ~buffer)?
-        Ok(String(s))
+        let s = lex_ident!(ctx, ctx.offset, ~buffer)
+        (String(s))
       } else {
-        Err(InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)))
+        raise (InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)))
       }
     }
     Some(c) => {
       if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c > '\x7f' && non_ascii_id_start.contains(
         c,
       )) {
-        let s = lex_ident(ctx, ctx.offset - 1)?
-        return Ok(String(s))
+        let s = lex_ident!(ctx, ctx.offset - 1)
+        return (String(s))
       }
-      Err(invalid_char(ctx, shift=-1))
+      raise (invalid_char(ctx, shift=-1))
     }
-    None => Err(InvalidEof)
+    None => raise (InvalidEof)
   }
 }
 
@@ -55,7 +55,7 @@ fn lex_ident(
   ctx : ParseContext,
   start : Int,
   ~buffer : StringBuilder = StringBuilder::make()
-) -> Result[String, ParseError] {
+) -> String!ParseError {
   let mut start = start
   fn flush(end : Int) {
     if start > 0 && end > start {
@@ -67,8 +67,8 @@ fn lex_ident(
     match read_char(ctx) {
       Some('\\') => {
         flush(ctx.offset - 1)
-        lex_assert_char(ctx, 'u')?
-        let c = lex_hex_digits(ctx, 4)?
+        lex_assert_char!(ctx, 'u')
+        let c = lex_hex_digits!(ctx, 4)
         let c = Char::from_int(c)
         if c == '$' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
         (c >= '0' && c <= '9') || (c > '\x7f' && non_ascii_id_continue.contains(
@@ -78,9 +78,8 @@ fn lex_ident(
           start = ctx.offset
           continue
         } else {
-          return Err(
-            InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)),
-          )
+          raise 
+            InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6))
         }
       }
       Some('$' | '_') => continue
@@ -96,5 +95,5 @@ fn lex_ident(
     }
   }
   flush(ctx.offset)
-  Ok(buffer.to_string())
+  (buffer.to_string())
 }
