@@ -189,9 +189,9 @@ test "zipWith" {
   inspect!(result, content="[6, 8, 10, 12]")
 }
 
-/// - chahca8: round = 4
-/// - chahca12: round = 6
-/// - chahca20: round = 10
+/// - chacha8: round = 4
+/// - chacha12: round = 6
+/// - chacha20: round = 10
 fn chachaBlock(
   key : FixedArray[UInt],
   count : UInt,
@@ -309,7 +309,7 @@ pub fn chacha8(
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
-pub fn chahca12(
+pub fn chacha12(
   key : FixedArray[UInt],
   counter : UInt,
   block : Bytes,
@@ -349,21 +349,20 @@ fn chacha(
   if block.length() == 0 {
     return Bytes::new(0)
   }
-  fn takeToFixedArray(b : Bytes, len : Int) -> FixedArray[Int] {
-    let result = FixedArray::make(len, 0)
+  fn takeToFixedArray(b : Bytes, len : Int) -> FixedArray[Byte] {
+    let result = FixedArray::make(len, b'0')
     for i = 0; i < len; i = i + 1 {
-      result[i] = b[i].to_int()
+      result[i] = b[i]
     }
     result
   }
 
-  /// Input state is ensured to < 256 (by [takeToFixedArray])
   fn zipWith(
-    op : (Int, Int) -> Int,
-    state1 : FixedArray[Int],
-    state2 : FixedArray[Int]
+    op : (Byte, Byte) -> Byte,
+    state1 : FixedArray[Byte],
+    state2 : FixedArray[Byte]
   ) -> Bytes {
-    let result = Array::make(state1.length(), 0)
+    let result = Array::make(state1.length(), b'0')
     for i = 0; i < state1.length(); i = i + 1 {
       result[i] = op(state1[i], state2[i])
     }
@@ -393,7 +392,7 @@ fn chacha(
   let pad = stateToBytes(keyStream)
   let len = if block.length() < 64 { block.length() } else { 64 }
   let maskedBlock = zipWith(
-    Int::lxor,
+    Byte::lxor,
     takeToFixedArray(pad, len),
     takeToFixedArray(block, len),
   )
