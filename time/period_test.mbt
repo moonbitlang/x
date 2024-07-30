@@ -21,10 +21,7 @@ test "of" {
 
 test "from_string" {
   inspect!(@time.Period::from_string?("P10Y2M3D"), content="Ok(P10Y2M3D)")
-  inspect!(
-    @time.Period::from_string?("P-10Y-2M-3D"),
-    content="Ok(P-10Y-2M-3D)",
-  )
+  inspect!(@time.Period::from_string?("P-10Y-2M-3D"), content="Ok(P-10Y-2M-3D)")
   inspect!(@time.Period::from_string?("P2M3D10Y"), content="Ok(P2M3D)")
   inspect!(
     @time.Period::from_string?("10Y"),
@@ -134,17 +131,17 @@ test "op_add" {
     days=Int::min_value(),
   )
   inspect!(p1.op_add?(@time.Period::zero()), content="Ok(P1Y2M3D)")
-  inspect!((p1.op_add?(p2)), content="Ok(P0D)")
-  inspect!((p1.op_add?(p1)), content="Ok(P2Y4M6D)")
-  inspect!((p2.op_add?(p2)), content="Ok(P-2Y-4M-6D)")
+  inspect!(p1.op_add?(p2), content="Ok(P0D)")
+  inspect!(p1.op_add?(p1), content="Ok(P2Y4M6D)")
+  inspect!(p2.op_add?(p2), content="Ok(P-2Y-4M-6D)")
   inspect!(
-    (p1.op_add?(p3)),
+    p1.op_add?(p3),
     content=
       #|Err("Int overflow")
     ,
   )
   inspect!(
-    (p2.op_add?(p4)),
+    p2.op_add?(p4),
     content=
       #|Err("Int overflow")
     ,
@@ -164,17 +161,17 @@ test "op_sub" {
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!((p1.op_sub?(p1)), content="Ok(P0D)")
-  inspect!((p1.op_sub?(p2)), content="Ok(P2Y4M6D)")
-  inspect!((p2.op_sub?(p1)), content="Ok(P-2Y-4M-6D)")
+  inspect!(p1.op_sub?(p1), content="Ok(P0D)")
+  inspect!(p1.op_sub?(p2), content="Ok(P2Y4M6D)")
+  inspect!(p2.op_sub?(p1), content="Ok(P-2Y-4M-6D)")
   inspect!(
-    (p3.op_sub?(p2)),
+    p3.op_sub?(p2),
     content=
       #|Err("Int overflow")
     ,
   )
   inspect!(
-    (p4.op_sub?(p1)),
+    p4.op_sub?(p1),
     content=
       #|Err("Int overflow")
     ,

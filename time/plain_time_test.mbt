@@ -130,10 +130,7 @@ test "from_second_of_day" {
 }
 
 test "from_nanosecond_of_day" {
-  inspect!(
-    @time.PlainTime::from_nanosecond_of_day?(0L),
-    content="Ok(00:00:00)",
-  )
+  inspect!(@time.PlainTime::from_nanosecond_of_day?(0L), content="Ok(00:00:00)")
   inspect!(
     @time.PlainTime::from_nanosecond_of_day?(86400000000000L),
     content="Ok(24:00:00)",

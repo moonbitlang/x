@@ -100,10 +100,7 @@ test "from_seconds" {
   inspect!(@time.ZoneOffset::from_seconds?(8 * 60 * 60), content="Ok(+08:00)")
   inspect!(@time.ZoneOffset::from_seconds?(0), content="Ok(Z)")
   inspect!(@time.ZoneOffset::from_seconds?(18 * 60 * 60), content="Ok(+18:00)")
-  inspect!(
-    @time.ZoneOffset::from_seconds?(-18 * 60 * 60),
-    content="Ok(-18:00)",
-  )
+  inspect!(@time.ZoneOffset::from_seconds?(-18 * 60 * 60), content="Ok(-18:00)")
   inspect!(
     @time.ZoneOffset::from_seconds?(19 * 60 * 60),
     content=

@@ -50,18 +50,12 @@ test "from_year_ord" {
   inspect!(@time.PlainDate::from_year_ord?(0, 1), content="Ok(0000-01-01)")
   inspect!(@time.PlainDate::from_year_ord?(1, 365), content="Ok(0001-12-31)")
   inspect!(@time.PlainDate::from_year_ord?(-1, 365), content="Ok(-0001-12-31)")
-  inspect!(
-    @time.PlainDate::from_year_ord?(2000, 366),
-    content="Ok(2000-12-31)",
-  )
+  inspect!(@time.PlainDate::from_year_ord?(2000, 366), content="Ok(2000-12-31)")
   inspect!(
     @time.PlainDate::from_year_ord?(-2000, 366),
     content="Ok(-2000-12-31)",
   )
-  inspect!(
-    @time.PlainDate::from_year_ord?(9999, 365),
-    content="Ok(9999-12-31)",
-  )
+  inspect!(@time.PlainDate::from_year_ord?(9999, 365), content="Ok(9999-12-31)")
   inspect!(
     @time.PlainDate::from_year_ord?(-9999, 365),
     content="Ok(-9999-12-31)",

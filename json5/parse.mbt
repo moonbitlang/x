@@ -28,16 +28,13 @@ fn parse_value(ctx : ParseContext) -> @json.JsonValue!ParseError {
   parse_value2!(ctx, tok)
 }
 
-fn parse_value2(
-  ctx : ParseContext,
-  tok : Token
-) -> @json.JsonValue!ParseError {
+fn parse_value2(ctx : ParseContext, tok : Token) -> @json.JsonValue!ParseError {
   match tok {
-    Null => (Null)
-    True => (True)
-    False => (False)
-    Number(n) => (Number(n))
-    String(s) => (String(s))
+    Null => Null
+    True => True
+    False => False
+    Number(n) => Number(n)
+    String(s) => String(s)
     LBrace => parse_object!(ctx)
     LBracket => parse_array!(ctx)
     _ => abort("unreachable")
@@ -69,7 +66,7 @@ fn parse_object(ctx : ParseContext) -> @json.JsonValue!ParseError {
       _ => abort("unreachable")
     }
   }
-  (Object(map))
+  Object(map)
 }
 
 fn parse_array(ctx : ParseContext) -> @json.JsonValue!ParseError {
@@ -89,5 +86,5 @@ fn parse_array(ctx : ParseContext) -> @json.JsonValue!ParseError {
       }
     }
   }
-  (Array(vec))
+  Array(vec)
 }

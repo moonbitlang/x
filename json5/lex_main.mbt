@@ -76,7 +76,7 @@ fn lex_value(
             }
             raise invalid_char(ctx, shift=-1)
           }
-          None => raise (InvalidEof)
+          None => raise InvalidEof
         }
       Some('.') => {
         let n = lex_decimal_point_leading!(ctx, start=ctx.offset - 1)
@@ -103,16 +103,14 @@ fn lex_value(
         let n = lex_string!(ctx, '"')
         return String(n)
       }
-      Some('\'') => {
-        return String(lex_string!(ctx, '\'')) 
-      }
+      Some('\'') => return String(lex_string!(ctx, '\''))
       Some(c) => {
         if c > '\x7f' && non_ascii_whitespace.contains(c) {
           continue
         }
-        raise (invalid_char(ctx, shift=-1))
+        raise invalid_char(ctx, shift=-1)
       }
-      None => raise (InvalidEof)
+      None => raise InvalidEof
     }
   }
 }

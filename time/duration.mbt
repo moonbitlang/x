@@ -91,9 +91,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
         }
         break
       }
-      _ => {
-        raise invalid_duration_err
-      }
+      _ => raise invalid_duration_err
     }
   }
   Duration::of!(~hours, ~minutes, ~seconds, ~nanoseconds)

@@ -18,11 +18,11 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
     Some('}') => RBrace
     Some('\'' | '"' as c) => {
       let s = lex_string!(ctx, c)
-      (String(s))
+      String(s)
     }
     Some('$' | '_') => {
       let s = lex_ident!(ctx, ctx.offset - 1)
-      (String(s))
+      String(s)
     }
     Some('\\') => {
       lex_assert_char!(ctx, 'u')
@@ -33,9 +33,9 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
         let s = lex_ident!(ctx, ctx.offset, ~buffer)
-        (String(s))
+        String(s)
       } else {
-        raise (InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)))
+        raise InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6))
       }
     }
     Some(c) => {
@@ -43,11 +43,11 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         c,
       )) {
         let s = lex_ident!(ctx, ctx.offset - 1)
-        return (String(s))
+        return String(s)
       }
-      raise (invalid_char(ctx, shift=-1))
+      raise invalid_char(ctx, shift=-1)
     }
-    None => raise (InvalidEof)
+    None => raise InvalidEof
   }
 }
 
@@ -78,8 +78,9 @@ fn lex_ident(
           start = ctx.offset
           continue
         } else {
-          raise 
-            InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6))
+          raise InvalidIdentEscape(
+            offset_to_position(ctx.input, ctx.offset - 6),
+          )
         }
       }
       Some('$' | '_') => continue
@@ -95,5 +96,5 @@ fn lex_ident(
     }
   }
   flush(ctx.offset)
-  (buffer.to_string())
+  buffer.to_string()
 }

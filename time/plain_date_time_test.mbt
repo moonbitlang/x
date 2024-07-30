@@ -29,10 +29,7 @@ test "of" {
     ),
     content="Ok(2000-01-01T01:02:03.0000004)",
   )
-  inspect!(
-    @time.PlainDateTime::of?(0, 1, 1),
-    content="Ok(0000-01-01T00:00:00)",
-  )
+  inspect!(@time.PlainDateTime::of?(0, 1, 1), content="Ok(0000-01-01T00:00:00)")
   inspect!(
     @time.PlainDateTime::of?(
       9999,
