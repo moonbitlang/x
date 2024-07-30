@@ -50,7 +50,7 @@ fn MD5Context::compute(self : MD5Context) -> Bytes {
   md5_update(self, bytes_slice)
   let mut j = 0
   for i = 0; i < 14; i = i + 1 {
-    input[i] = u8_to_u32(self.buffer, j)
+    input[i] = u8_to_u32le(self.buffer, i=j)
     j += 4
   }
   md5_transform(self.state, input)
@@ -89,12 +89,6 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
   y ^ (x | z.lnot())
 }
 
-fn u8_to_u32(x : Bytes, i : Int) -> UInt {
-  x[i].to_int().to_uint() | x[i + 1].to_int().to_uint().lsl(8) | x[i + 2].to_int().to_uint().lsl(
-    16,
-  ) | x[i + 3].to_int().to_uint().lsl(24)
-}
-
 fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   let input = FixedArray::make(16, 0U)
   let mut idx = (ctx.count[0].lsr(3) & 0x3f).to_int()
@@ -111,7 +105,7 @@ fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
     if idx == 0x40 {
       let mut j = 0
       for k = 0; k < 16; k = k + 1 {
-        input[k] = u8_to_u32(ctx.buffer, j)
+        input[k] = u8_to_u32le(ctx.buffer, i=j)
         j += 4
       }
       md5_transform(ctx.state, input)
@@ -135,7 +129,7 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
     s : Int, // calculate w/ floor(2^32 * |sin(i + 1)|) for i in 0..63
     ac : UInt
   ) -> Unit {
-    state_a.val = state_b.val + rotate_left_u(
+    state_a.val = state_b.val + urotate_left(
         state_a.val + op(state_b.val, state_c.val, state_d.val) + input[k] + ac,
         s,
       )

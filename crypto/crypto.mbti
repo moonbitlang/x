@@ -1,6 +1,12 @@
 package moonbitlang/x/crypto
 
 // Values
+fn arr_u8_to_u32be(Array[Byte], ~i : Int = ..) -> UInt
+
+fn byte_array_to_bytes(Array[Byte]) -> Bytes
+
+fn bytes_to_byte_array(Bytes) -> Array[Byte]
+
 fn bytes_to_hex_string(Bytes) -> String
 
 fn chacha12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!String
@@ -12,6 +18,14 @@ fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!String
 fn md5(Bytes) -> Bytes
 
 fn sha1(Bytes) -> Bytes
+
+fn sm3(Bytes) -> Array[UInt]
+
+fn u8_to_u32be(Bytes, ~i : Int = ..) -> UInt
+
+fn u8_to_u32le(Bytes, ~i : Int = ..) -> UInt
+
+fn uints_to_hex_string(Array[UInt]) -> String
 
 // Types and methods
 
