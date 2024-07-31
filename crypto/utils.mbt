@@ -47,3 +47,11 @@ fn to_hex_char(n : Int) -> String {
     _ => abort("invalid hex digit")
   }
 }
+
+fn rotate_left(x : Int, n : Int) -> Int {
+  x.lsl(n).lor(x.lsr(32 - n))
+}
+
+fn rotate_left_u(x : UInt, n : Int) -> UInt {
+  x.lsl(n) | x.lsr(32 - n)
+}

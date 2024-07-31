@@ -78,7 +78,3 @@ pub fn sha1(input : Bytes) -> Bytes {
   }
   result
 }
-
-fn rotate_left(x : Int, n : Int) -> Int {
-  x.lsl(n).lor(x.lsr(32 - n))
-}
