@@ -188,6 +188,7 @@ fn sum(self : SM3Context, ~data : Array[Byte] = []) -> Array[UInt] {
   self.update(Ref::new(msg))
 }
 
+/// Compute the SM3 digest of some `data`
 pub fn sm3(data : Bytes) -> Array[UInt] {
   let bytes_data = bytes_to_byte_array(data)
   let ctx = SM3Context::make()

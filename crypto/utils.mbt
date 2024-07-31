@@ -48,7 +48,7 @@ pub fn uints_to_hex_string(input : Array[UInt]) -> String {
 }
 
 fn urotate_left(x : UInt, n : Int) -> UInt {
-  x.lsl(n).lor(x.lsr(32 - n))
+  rotate_left_u(x, n)
 }
 
 fn uint32(x : Byte) -> UInt {
