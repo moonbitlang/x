@@ -15,105 +15,102 @@
 fn lex_value(
   ctx : ParseContext,
   ~allow_rbracket : Bool = false
-) -> Result[Token, ParseError] {
+) -> Token!ParseError {
   for {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
       Some('/') => {
-        lex_comment(ctx)?
+        lex_comment!(ctx)
         continue
       }
-      Some('{') => return Ok(LBrace)
-      Some('[') => return Ok(LBracket)
+      Some('{') => return LBrace
+      Some('[') => return LBracket
       Some(']') =>
         if allow_rbracket {
-          return Ok(RBracket)
+          return RBracket
         } else {
-          return Err(invalid_char(ctx, shift=-1))
+          raise invalid_char(ctx, shift=-1)
         }
       Some('n') => {
-        lex_assert_char(ctx, 'u')?
-        lex_assert_char(ctx, 'l')?
-        lex_assert_char(ctx, 'l')?
-        return Ok(Null)
+        lex_assert_char!(ctx, 'u')
+        lex_assert_char!(ctx, 'l')
+        lex_assert_char!(ctx, 'l')
+        return Null
       }
       Some('t') => {
-        lex_assert_char(ctx, 'r')?
-        lex_assert_char(ctx, 'u')?
-        lex_assert_char(ctx, 'e')?
-        return Ok(True)
+        lex_assert_char!(ctx, 'r')
+        lex_assert_char!(ctx, 'u')
+        lex_assert_char!(ctx, 'e')
+        return True
       }
       Some('f') => {
-        lex_assert_char(ctx, 'a')?
-        lex_assert_char(ctx, 'l')?
-        lex_assert_char(ctx, 's')?
-        lex_assert_char(ctx, 'e')?
-        return Ok(False)
+        lex_assert_char!(ctx, 'a')
+        lex_assert_char!(ctx, 'l')
+        lex_assert_char!(ctx, 's')
+        lex_assert_char!(ctx, 'e')
+        return False
       }
       Some('-' | '+' as c) =>
         match read_char(ctx) {
           Some('I') => {
-            lex_infinity(ctx)?
-            return Ok(Number(Double::inf(if c == '-' { -1 } else { 1 })))
+            lex_infinity!(ctx)
+            return Number(Double::inf(if c == '-' { -1 } else { 1 }))
           }
           Some('N') => {
-            lex_assert_char(ctx, 'a')?
-            lex_assert_char(ctx, 'N')?
-            return Ok(Number(Double::nan()))
+            lex_assert_char!(ctx, 'a')
+            lex_assert_char!(ctx, 'N')
+            return Number(Double::nan())
           }
           Some('0') => {
-            let n = lex_zero(ctx, neg=c == '-', start=ctx.offset - 2)?
-            return Ok(Number(n))
+            let n = lex_zero!(ctx, neg=c == '-', start=ctx.offset - 2)
+            return Number(n)
           }
           Some('.') => {
-            let n = lex_decimal_point_leading(ctx, start=ctx.offset - 2)?
-            return Ok(Number(n))
+            let n = lex_decimal_point_leading!(ctx, start=ctx.offset - 2)
+            return Number(n)
           }
           Some(c2) => {
             if c2 >= '1' && c2 <= '9' {
-              let n = lex_decimal_integer(ctx, start=ctx.offset - 2)?
-              return Ok(Number(n))
+              let n = lex_decimal_integer!(ctx, start=ctx.offset - 2)
+              return Number(n)
             }
-            return Err(invalid_char(ctx, shift=-1))
+            raise invalid_char(ctx, shift=-1)
           }
-          None => return Err(InvalidEof)
+          None => raise InvalidEof
         }
       Some('.') => {
-        let n = lex_decimal_point_leading(ctx, start=ctx.offset - 1)?
-        return Ok(Number(n))
+        let n = lex_decimal_point_leading!(ctx, start=ctx.offset - 1)
+        return Number(n)
       }
       Some('0') => {
-        let n = lex_zero(ctx, neg=false, start=ctx.offset - 1)?
-        return Ok(Number(n))
+        let n = lex_zero!(ctx, neg=false, start=ctx.offset - 1)
+        return Number(n)
       }
       Some('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') => {
-        let n = lex_decimal_integer(ctx, start=ctx.offset - 1)?
-        return Ok(Number(n))
+        let n = lex_decimal_integer!(ctx, start=ctx.offset - 1)
+        return Number(n)
       }
       Some('I') => {
-        lex_infinity(ctx)?
-        return Ok(Number(Double::inf(1)))
+        lex_infinity!(ctx)
+        return Number(Double::inf(1))
       }
       Some('N') => {
-        lex_assert_char(ctx, 'a')?
-        lex_assert_char(ctx, 'N')?
-        return Ok(Number(Double::nan()))
+        lex_assert_char!(ctx, 'a')
+        lex_assert_char!(ctx, 'N')
+        return Number(Double::nan())
       }
       Some('"') => {
-        let s = lex_string(ctx, '"')?
-        return Ok(String(s))
+        let n = lex_string!(ctx, '"')
+        return String(n)
       }
-      Some('\'') => {
-        let s = lex_string(ctx, '\'')?
-        return Ok(String(s))
-      }
+      Some('\'') => return String(lex_string!(ctx, '\''))
       Some(c) => {
         if c > '\x7f' && non_ascii_whitespace.contains(c) {
           continue
         }
-        return Err(invalid_char(ctx, shift=-1))
+        raise invalid_char(ctx, shift=-1)
       }
-      None => return Err(InvalidEof)
+      None => raise InvalidEof
     }
   }
 }

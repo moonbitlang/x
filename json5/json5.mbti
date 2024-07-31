@@ -3,7 +3,7 @@ package moonbitlang/x/json5
 alias @moonbitlang/core/json as @json
 
 // Values
-fn parse(String) -> Result[@json.JsonValue, ParseError]
+fn parse(String) -> @json.JsonValue!ParseError
 
 // Types and methods
 pub enum ParseError {
@@ -24,11 +24,11 @@ pub struct Position {
 }
 impl Position {
   op_equal(Self, Self) -> Bool
-  output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
 // Traits
 
 // Extension Methods
+impl Show for Position
 

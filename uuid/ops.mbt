@@ -24,7 +24,7 @@ pub fn compare(self : UUID, other : UUID) -> Int {
 }
 
 pub fn hash(self : UUID) -> Int {
-  self.lo.hash().lxor(self.hi.hash())
+  Hash::hash(self.lo).lxor(Hash::hash(self.hi))
 }
 
 test "ops" {
