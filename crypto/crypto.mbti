@@ -9,11 +9,11 @@ fn bytes_to_byte_array(Bytes) -> Array[Byte]
 
 fn bytes_to_hex_string(Bytes) -> String
 
-fn chacha12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!String
+fn chacha12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!Error
 
-fn chacha20(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!String
+fn chacha20(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!Error
 
-fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!String
+fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!Error
 
 fn md5(Bytes) -> Bytes
 

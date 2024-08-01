@@ -1,9 +1,9 @@
 package moonbitlang/x/uuid
 
 // Values
-fn from_bytes(Bytes) -> UUID!String
+fn from_bytes(Bytes) -> UUID!Error
 
-fn from_hex(String) -> UUID!String
+fn from_hex(String) -> UUID!Error
 
 // Types and methods
 type UUID

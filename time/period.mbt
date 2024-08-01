@@ -34,10 +34,10 @@ pub fn Period::zero() -> Period {
 }
 
 /// Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
-pub fn Period::from_string(str : String) -> Period!String {
+pub fn Period::from_string(str : String) -> Period!Error {
   // TODO: better parsing impl
   if str[0] != 'P' {
-    raise invalid_period_err
+    fail!(invalid_period_err)
   }
   let buf = Buffer::new(size_hint=0)
   let mut years = 0
@@ -60,7 +60,7 @@ pub fn Period::from_string(str : String) -> Period!String {
         buf.reset()
         break
       }
-      _ => raise invalid_period_err
+      _ => fail!(invalid_period_err)
     }
   }
   Period::of(~years, ~months, ~days)
@@ -108,7 +108,7 @@ pub fn days(self : Period) -> Int {
 }
 
 /// Adds specified years to this period, and returns a new period.
-pub fn add_years(self : Period, years : Int) -> Period!String {
+pub fn add_years(self : Period, years : Int) -> Period!Error {
   if years == 0 {
     return self
   }
@@ -117,7 +117,7 @@ pub fn add_years(self : Period, years : Int) -> Period!String {
 }
 
 /// Adds specified weeks to this period, and returns a new period.
-pub fn add_weeks(self : Period, weeks : Int) -> Period!String {
+pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
   if weeks == 0 {
     return self
   }
@@ -126,7 +126,7 @@ pub fn add_weeks(self : Period, weeks : Int) -> Period!String {
 }
 
 /// Adds specified months to this period, and returns a new period.
-pub fn add_months(self : Period, months : Int) -> Period!String {
+pub fn add_months(self : Period, months : Int) -> Period!Error {
   if months == 0 {
     return self
   }
@@ -135,7 +135,7 @@ pub fn add_months(self : Period, months : Int) -> Period!String {
 }
 
 /// Adds specified days to this period, and returns a new period.
-pub fn add_days(self : Period, days : Int) -> Period!String {
+pub fn add_days(self : Period, days : Int) -> Period!Error {
   if days == 0 {
     return self
   }
@@ -144,7 +144,7 @@ pub fn add_days(self : Period, days : Int) -> Period!String {
 }
 
 /// Adds other period to this period, and returns a new period.
-pub fn add_period(self : Period, other : Period) -> Period!String {
+pub fn add_period(self : Period, other : Period) -> Period!Error {
   if other.is_zero() {
     return self
   }
@@ -153,16 +153,16 @@ pub fn add_period(self : Period, other : Period) -> Period!String {
   )
 }
 
-pub fn op_add(self : Period, other : Period) -> Period!String {
+pub fn op_add(self : Period, other : Period) -> Period!Error {
   self.add_period!(other)
 }
 
-pub fn op_sub(self : Period, other : Period) -> Period!String {
+pub fn op_sub(self : Period, other : Period) -> Period!Error {
   self.add_period!(other.negated!())
 }
 
 /// Returns a new period with all elements in this period multiplied by the specified value.
-pub fn multiply(self : Period, n : Int) -> Period!String {
+pub fn multiply(self : Period, n : Int) -> Period!Error {
   if n == 0 {
     return Period::zero()
   }
@@ -176,7 +176,7 @@ pub fn multiply(self : Period, n : Int) -> Period!String {
 }
 
 /// Returns a new period with all elements in this period negated.
-pub fn negated(self : Period) -> Period!String {
+pub fn negated(self : Period) -> Period!Error {
   self.multiply!(-1)
 }
 

@@ -143,50 +143,68 @@ test "split" {
   )
 }
 
-let int_overflow_err = "Int overflow"
+pub type! IntError String
 
-let int64_overflow_err = "Int64 overflow"
+fn int_overflow_err[T]() -> T!IntError {
+  raise IntError("Int overflow")
+}
+
+fn int64_overflow_err[T]() -> T!IntError {
+  raise IntError("Int64 overflow")
+}
+
+pub impl Show for IntError with output(self, logger) {
+  match self {
+    IntError(msg) => Show::output(msg, logger)
+  }
+}
+
+pub impl Eq for IntError with op_equal(self : IntError, other : IntError) -> Bool {
+  match (self, other) {
+    (IntError(msg1), IntError(msg2)) => msg1 == msg2
+  }
+}
 
 /// FIXME: use checked_add method of Int
-fn checked_add_int(x : Int, y : Int) -> Int!String {
+fn checked_add_int(x : Int, y : Int) -> Int!IntError {
   let r = x.to_int64() + y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
-    raise int_overflow_err
+    int_overflow_err!()
   } else {
     r.to_int()
   }
 }
 
 /// FIXME: use checked_mul method of Int
-fn checked_mul_int(x : Int, y : Int) -> Int!String {
+fn checked_mul_int(x : Int, y : Int) -> Int!IntError {
   let r = x.to_int64() * y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
-    raise int_overflow_err
+    int_overflow_err!()
   } else {
     r.to_int()
   }
 }
 
 /// FIXME: use checked_add method of Int64
-fn checked_add_int64(x : Int64, y : Int64) -> Int64!String {
+fn checked_add_int64(x : Int64, y : Int64) -> Int64!IntError {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
   if x.lxor(r).land(y.lxor(r)) < 0L {
-    raise int64_overflow_err
+    int64_overflow_err!()
   } else {
     r
   }
 }
 
 /// FIXME: use checked_mul method of Int64
-fn checked_mul_int64(x : Int64, y : Int64) -> Int64!String {
+fn checked_mul_int64(x : Int64, y : Int64) -> Int64!IntError {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
   if abs_x.lor(abs_y).lsr(31) != 0L {
     // bits that greater than 2^31 might cause overflow
     if (y != 0L && r / y != x) || (x == Int64::min_value() && y == -1L) {
-      raise int64_overflow_err
+      int64_overflow_err!()
     }
   }
   r
@@ -277,9 +295,9 @@ fn floor(x : Double) -> Double {
   }
 }
 
-fn floor_div_int(x : Int, y : Int) -> Int!String {
+fn floor_div_int(x : Int, y : Int) -> Int!IntError {
   if y == 0 {
-    raise "division by zero"
+    raise IntError("division by zero")
   }
   let r = x.to_double() / y.to_double()
   floor(r).to_int()
@@ -299,9 +317,9 @@ test "floor_div_int" {
   )
 }
 
-fn floor_div_int64(x : Int64, y : Int64) -> Int64!String {
+fn floor_div_int64(x : Int64, y : Int64) -> Int64!IntError {
   if y == 0L {
-    raise "division by zero"
+    raise IntError("division by zero")
   }
   let r = x.to_double() / y.to_double()
   floor(r).to_int64()
@@ -321,7 +339,7 @@ test "floor_div_int64" {
   )
 }
 
-fn floor_mod_int(x : Int, y : Int) -> Int!String {
+fn floor_mod_int(x : Int, y : Int) -> Int!IntError {
   x - floor_div_int!(x, y) * y
 }
 
@@ -339,7 +357,7 @@ test "floor_mod_int" {
   )
 }
 
-fn floor_mod_int64(x : Int64, y : Int64) -> Int64!String {
+fn floor_mod_int64(x : Int64, y : Int64) -> Int64!IntError {
   x - floor_div_int64!(x, y) * y
 }
 

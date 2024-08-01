@@ -29,7 +29,7 @@ pub fn date_time(
   ~minute : Int = 0,
   ~second : Int = 0,
   ~zone : Zone = utc_zone
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   ZonedDateTime::of!(year, month, day, ~hour, ~minute, ~second, ~zone)
 }
 
@@ -39,7 +39,7 @@ pub fn unix(
   second : Int64,
   ~nanosecond : Int = 0,
   ~zone : Zone = utc_zone
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   ZonedDateTime::from_unix_second!(second, ~nanosecond, ~zone)
 }
 
@@ -53,7 +53,7 @@ pub fn ZonedDateTime::of(
   ~minute : Int = 0,
   ~second : Int = 0,
   ~zone : Zone = utc_zone
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   let datetime = PlainDateTime::of!(year, month, day, ~hour, ~minute, ~second)
   create_from_plain(datetime, zone)
 }
@@ -73,7 +73,7 @@ pub fn ZonedDateTime::from_unix_second(
   second : Int64,
   ~nanosecond : Int = 0,
   ~zone : Zone = utc_zone
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second!(second, nanosecond, offset)
   { datetime, zone, offset }
@@ -210,27 +210,27 @@ pub fn offset(self : ZonedDateTime) -> ZoneOffset {
 }
 
 /// Adds specified years to this datetime, and returns a new datetime.
-pub fn add_years(self : ZonedDateTime, years : Int64) -> ZonedDateTime!String {
+pub fn add_years(self : ZonedDateTime, years : Int64) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_years!(years), self.zone)
 }
 
 /// Adds specified months to this datetime, and returns a new datetime.
-pub fn add_months(self : ZonedDateTime, months : Int64) -> ZonedDateTime!String {
+pub fn add_months(self : ZonedDateTime, months : Int64) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_months!(months), self.zone)
 }
 
 /// Adds specified weeks to this datetime, and returns a new datetime.
-pub fn add_weeks(self : ZonedDateTime, weeks : Int64) -> ZonedDateTime!String {
+pub fn add_weeks(self : ZonedDateTime, weeks : Int64) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_weeks!(weeks), self.zone)
 }
 
 /// Adds specified days to this datetime, and returns a new datetime.
-pub fn add_days(self : ZonedDateTime, days : Int64) -> ZonedDateTime!String {
+pub fn add_days(self : ZonedDateTime, days : Int64) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_days!(days), self.zone)
 }
 
 /// Adds specified hours to this datetime, and returns a new datetime.
-pub fn add_hours(self : ZonedDateTime, hours : Int64) -> ZonedDateTime!String {
+pub fn add_hours(self : ZonedDateTime, hours : Int64) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_hours!(hours), self.zone)
 }
 
@@ -238,7 +238,7 @@ pub fn add_hours(self : ZonedDateTime, hours : Int64) -> ZonedDateTime!String {
 pub fn add_minutes(
   self : ZonedDateTime,
   minutes : Int64
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_minutes!(minutes), self.zone)
 }
 
@@ -246,7 +246,7 @@ pub fn add_minutes(
 pub fn add_seconds(
   self : ZonedDateTime,
   seconds : Int64
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_seconds!(seconds), self.zone)
 }
 
@@ -254,22 +254,22 @@ pub fn add_seconds(
 pub fn add_nanoseconds(
   self : ZonedDateTime,
   nanoseconds : Int64
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_nanoseconds!(nanoseconds), self.zone)
 }
 
 /// Returns a new datetime with the specified year.
-pub fn with_year(self : ZonedDateTime, year : Int) -> ZonedDateTime!String {
+pub fn with_year(self : ZonedDateTime, year : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_year!(year), self.zone)
 }
 
 /// Returns a new datetime with the specified month.
-pub fn with_month(self : ZonedDateTime, month : Int) -> ZonedDateTime!String {
+pub fn with_month(self : ZonedDateTime, month : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_month!(month), self.zone)
 }
 
 /// Returns a new datetime with the specified day of the month.
-pub fn with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!String {
+pub fn with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_day!(day), self.zone)
 }
 
@@ -277,22 +277,22 @@ pub fn with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!String {
 pub fn with_ordinal(
   self : ZonedDateTime,
   ordinal : Int
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_ordinal!(ordinal), self.zone)
 }
 
 /// Returns a new datetime with the specified hour.
-pub fn with_hour(self : ZonedDateTime, hour : Int) -> ZonedDateTime!String {
+pub fn with_hour(self : ZonedDateTime, hour : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_hour!(hour), self.zone)
 }
 
 /// Returns a new datetime with the specified minute.
-pub fn with_minute(self : ZonedDateTime, minute : Int) -> ZonedDateTime!String {
+pub fn with_minute(self : ZonedDateTime, minute : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_minute!(minute), self.zone)
 }
 
 /// Returns a new datetime with the specified second.
-pub fn with_second(self : ZonedDateTime, second : Int) -> ZonedDateTime!String {
+pub fn with_second(self : ZonedDateTime, second : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_second!(second), self.zone)
 }
 
@@ -300,7 +300,7 @@ pub fn with_second(self : ZonedDateTime, second : Int) -> ZonedDateTime!String {
 pub fn with_nanosecond(
   self : ZonedDateTime,
   nanosecond : Int
-) -> ZonedDateTime!String {
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_nanosecond!(nanosecond), self.zone)
 }
 

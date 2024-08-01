@@ -13,24 +13,24 @@
 // limitations under the License.
 
 test "from_string" {
-  inspect!(@time.Duration::from_string?("PT0S"), content="Ok(PT0S)")
+  inspect!(@time.Duration::from_string!("PT0S"), content="Ok(PT0S)")
   inspect!(
-    @time.Duration::from_string?("PT1H2M3.456789S"),
+    @time.Duration::from_string!("PT1H2M3.456789S"),
     content="Ok(PT1H2M3.456789S)",
   )
   inspect!(
-    @time.Duration::from_string?("PT-1H-2M-3.456789S"),
+    @time.Duration::from_string!("PT-1H-2M-3.456789S"),
     content="Ok(PT-1H-2M-3.456789S)",
   )
-  inspect!(@time.Duration::from_string?("PT0.45S"), content="Ok(PT0.45S)")
+  inspect!(@time.Duration::from_string!("PT0.45S"), content="Ok(PT0.45S)")
   inspect!(
-    @time.Duration::from_string?("PT0.000.45S"),
+    @time.Duration::from_string!("PT0.000.45S"),
     content=
       #|Err("Invalid duration")
     ,
   )
   inspect!(
-    @time.Duration::from_string?("P1Y2M3DT4H5M6S"),
+    @time.Duration::from_string!("P1Y2M3DT4H5M6S"),
     content=
       #|Err("Invalid duration")
     ,
@@ -69,25 +69,25 @@ test "is_neg" {
 }
 
 test "add_seconds" {
-  inspect!(@time.Duration::zero().add_seconds?(0L), content="Ok(PT0S)")
-  inspect!(@time.Duration::zero().add_seconds?(1L), content="Ok(PT1S)")
-  inspect!(@time.Duration::zero().add_seconds?(-1L), content="Ok(PT-1S)")
+  inspect!(@time.Duration::zero().add_seconds!(0L), content="Ok(PT0S)")
+  inspect!(@time.Duration::zero().add_seconds!(1L), content="Ok(PT1S)")
+  inspect!(@time.Duration::zero().add_seconds!(-1L), content="Ok(PT-1S)")
   inspect!(
-    @time.Duration::zero().add_seconds?(Int64::max_value()),
+    @time.Duration::zero().add_seconds!(Int64::max_value()),
     content="Ok(PT2562047788015215H30M7S)",
   )
   inspect!(
-    @time.Duration::zero().add_seconds?(Int64::min_value()),
+    @time.Duration::zero().add_seconds!(Int64::min_value()),
     content="Ok(PT-2562047788015215H-30M-8S)",
   )
   inspect!(
-    @time.Duration::of!(seconds=1L).add_seconds?(Int64::max_value()),
+    @time.Duration::of!(seconds=1L).add_seconds!(Int64::max_value()),
     content=
       #|Err("Int64 overflow")
     ,
   )
   inspect!(
-    @time.Duration::of!(seconds=-1L).add_seconds?(Int64::min_value()),
+    @time.Duration::of!(seconds=-1L).add_seconds!(Int64::min_value()),
     content=
       #|Err("Int64 overflow")
     ,
@@ -102,10 +102,10 @@ test "with_seconds" {
 
 test "with_nanoseconds" {
   let d = @time.Duration::of!(nanoseconds=1000L)
-  inspect!(d.with_nanoseconds?(1000), content="Ok(PT0.000001S)")
-  inspect!(d.with_nanoseconds?(2000), content="Ok(PT0.000002S)")
+  inspect!(d.with_nanoseconds!(1000), content="Ok(PT0.000001S)")
+  inspect!(d.with_nanoseconds!(2000), content="Ok(PT0.000002S)")
   inspect!(
-    d.with_nanoseconds?(1_000_000_000),
+    d.with_nanoseconds!(1_000_000_000),
     content=
       #|Err("Invalid duration")
     ,
