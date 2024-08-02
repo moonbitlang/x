@@ -128,9 +128,7 @@ pub fn PlainTime::from_second_of_day(second : Int) -> PlainTime!Error {
 }
 
 /// Creates a PlainTime from the total nanoseconds of the day.
-pub fn PlainTime::from_nanosecond_of_day(
-  nanosecond : Int64
-) -> PlainTime!Error {
+pub fn PlainTime::from_nanosecond_of_day(nanosecond : Int64) -> PlainTime!Error {
   if nanosecond < 0L || nanosecond > nanoseconds_per_day {
     fail!(invalid_time_err)
   }

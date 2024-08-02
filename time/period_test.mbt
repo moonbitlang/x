@@ -25,27 +25,19 @@ test "from_string" {
   inspect!(@time.Period::from_string!("P2M3D10Y"), content="P2M3D")
   inspect!(
     @time.Period::from_string?("10Y"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("10Y0M"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("P10YT3H"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("P2.5Y"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -134,18 +126,8 @@ test "op_add" {
   inspect!(p1.op_add!(p2), content="P0D")
   inspect!(p1.op_add!(p1), content="P2Y4M6D")
   inspect!(p2.op_add!(p2), content="P-2Y-4M-6D")
-  inspect!(
-    p1.op_add?(p3),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
-  inspect!(
-    p2.op_add?(p4),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
+  inspect!(p1.op_add?(p3), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(p2.op_add?(p4), content="Err(moonbitlang/core/builtin.Failure)")
 }
 
 test "op_sub" {
@@ -164,18 +146,8 @@ test "op_sub" {
   inspect!(p1.op_sub!(p1), content="P0D")
   inspect!(p1.op_sub!(p2), content="P2Y4M6D")
   inspect!(p2.op_sub!(p1), content="P-2Y-4M-6D")
-  inspect!(
-    p3.op_sub?(p2),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
-  inspect!(
-    p4.op_sub?(p1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
+  inspect!(p3.op_sub?(p2), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(p4.op_sub?(p1), content="Err(moonbitlang/core/builtin.Failure)")
 }
 
 test "multiply" {
@@ -186,15 +158,11 @@ test "multiply" {
   inspect!(p.multiply!(2), content="P2Y4M6D")
   inspect!(
     p.multiply?(Int::max_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     p.multiply?(Int::min_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -214,10 +182,5 @@ test "negated" {
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!(
-    p.negated?(),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
+  inspect!(p.negated?(), content="Err(moonbitlang/core/builtin.Failure)")
 }

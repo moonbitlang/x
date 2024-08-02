@@ -50,15 +50,11 @@ test "add_hours" {
   )
   inspect!(
     Duration::zero().add_hours?(Int64::max_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     Duration::zero().add_hours?(Int64::min_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -76,25 +72,18 @@ test "add_minutes" {
   )
   inspect!(
     Duration::zero().add_minutes?(Int64::max_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     Duration::zero().add_minutes?(Int64::min_value()),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
 test "add_nanoseconds" {
   inspect!(Duration::zero().add_nanoseconds!(0L), content="PT0S")
   inspect!(Duration::zero().add_nanoseconds!(1L), content="PT0.000000001S")
-  inspect!(
-    Duration::zero().add_nanoseconds!(-1L),
-    content="PT-0.000000001S",
-  )
+  inspect!(Duration::zero().add_nanoseconds!(-1L), content="PT-0.000000001S")
   inspect!(
     Duration::zero().add_nanoseconds!(nanoseconds_per_second),
     content="PT1S",
@@ -131,17 +120,13 @@ test "add_nanoseconds" {
     Duration::of!(seconds=Int64::max_value()).add_nanoseconds?(
       Int64::max_value(),
     ),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     Duration::of!(seconds=Int64::min_value()).add_nanoseconds?(
       Int64::min_value(),
     ),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -162,16 +147,6 @@ test "op_add" {
   inspect!(p1.op_add!(p2), content="PT0S")
   inspect!(p1.op_add!(p1), content="PT2H2M2.000002S")
   inspect!(p2.op_add!(p2), content="PT-2H-2M-2.000002S")
-  inspect!(
-    p1.op_add?(p3),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
-  inspect!(
-    p2.op_add?(p4),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
-  )
+  inspect!(p1.op_add?(p3), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(p2.op_add?(p4), content="Err(moonbitlang/core/builtin.Failure)")
 }

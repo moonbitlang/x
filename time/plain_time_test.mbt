@@ -21,15 +21,11 @@ test "of" {
   )
   inspect!(
     @time.PlainTime::of?(24, 0, 0, 1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of?(-1, 0, 0, 0),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -48,39 +44,27 @@ test "from_string" {
   )
   inspect!(
     @time.PlainTime::from_string?("1:00"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_string?("10:0"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_string?("100000"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_string?("123:00:00"),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_string?("10:00:00.123zzz"),
-    content=
-      "Err(moonbitlang/core/strconv.StrConvError)"
-    ,
+    content="Err(moonbitlang/core/strconv.StrConvError)",
   )
   inspect!(
     @time.PlainTime::from_string?("z1:00:00"),
-    content=
-      "Err(moonbitlang/core/strconv.StrConvError)"
-    ,
+    content="Err(moonbitlang/core/strconv.StrConvError)",
   )
 }
 
@@ -117,15 +101,11 @@ test "from_second_of_day" {
   inspect!(@time.PlainTime::from_second_of_day!(12345), content="03:25:45")
   inspect!(
     @time.PlainTime::from_second_of_day?(-1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_second_of_day?(86401),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -141,15 +121,11 @@ test "from_nanosecond_of_day" {
   )
   inspect!(
     @time.PlainTime::from_nanosecond_of_day?(-1L),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::from_nanosecond_of_day?(86400000000001L),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -224,21 +200,15 @@ test "with_hour" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour?(-1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour?(24),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour?(25),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -261,15 +231,11 @@ test "with_minute" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_minute?(-1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_minute?(60),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -292,15 +258,11 @@ test "with_second" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_second?(-1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_second?(60),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -323,15 +285,11 @@ test "with_nanosecond" {
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_nanosecond?(-1),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_nanosecond?(1_000_000_000),
-    content=
-      "Err(moonbitlang/core/builtin.Failure)"
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 

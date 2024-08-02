@@ -274,10 +274,7 @@ pub fn with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!Error {
 }
 
 /// Returns a new datetime with the specified ordinal day of the year.
-pub fn with_ordinal(
-  self : ZonedDateTime,
-  ordinal : Int
-) -> ZonedDateTime!Error {
+pub fn with_ordinal(self : ZonedDateTime, ordinal : Int) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_ordinal!(ordinal), self.zone)
 }
 
