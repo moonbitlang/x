@@ -210,13 +210,13 @@ test "add_weeks" {
   inspect!(
     d.add_weeks?(Int64::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     d.add_weeks?(Int64::min_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -231,7 +231,7 @@ test "add_days" {
   inspect!(
     d.add_days?(Int64::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(

@@ -137,13 +137,13 @@ test "op_add" {
   inspect!(
     p1.op_add?(p3),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     p2.op_add?(p4),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -167,13 +167,13 @@ test "op_sub" {
   inspect!(
     p3.op_sub?(p2),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     p4.op_sub?(p1),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -187,13 +187,13 @@ test "multiply" {
   inspect!(
     p.multiply?(Int::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     p.multiply?(Int::min_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -217,7 +217,7 @@ test "negated" {
   inspect!(
     p.negated?(),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }

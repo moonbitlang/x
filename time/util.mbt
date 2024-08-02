@@ -143,30 +143,16 @@ test "split" {
   )
 }
 
-pub type! IntError String
-
-fn int_overflow_err[T]() -> T!IntError {
-  raise IntError("Int overflow")
+fn int_overflow_err[T]() -> T!Error {
+  raise Failure("Int overflow")
 }
 
-fn int64_overflow_err[T]() -> T!IntError {
-  raise IntError("Int64 overflow")
-}
-
-pub impl Show for IntError with output(self, logger) {
-  match self {
-    IntError(msg) => Show::output(msg, logger)
-  }
-}
-
-pub impl Eq for IntError with op_equal(self : IntError, other : IntError) -> Bool {
-  match (self, other) {
-    (IntError(msg1), IntError(msg2)) => msg1 == msg2
-  }
+fn int64_overflow_err[T]() -> T!Error {
+  raise Failure("Int64 overflow")
 }
 
 /// FIXME: use checked_add method of Int
-fn checked_add_int(x : Int, y : Int) -> Int!IntError {
+fn checked_add_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() + y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
     int_overflow_err!()
@@ -176,7 +162,7 @@ fn checked_add_int(x : Int, y : Int) -> Int!IntError {
 }
 
 /// FIXME: use checked_mul method of Int
-fn checked_mul_int(x : Int, y : Int) -> Int!IntError {
+fn checked_mul_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() * y.to_int64()
   if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
     int_overflow_err!()
@@ -186,7 +172,7 @@ fn checked_mul_int(x : Int, y : Int) -> Int!IntError {
 }
 
 /// FIXME: use checked_add method of Int64
-fn checked_add_int64(x : Int64, y : Int64) -> Int64!IntError {
+fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
   if x.lxor(r).land(y.lxor(r)) < 0L {
@@ -197,7 +183,7 @@ fn checked_add_int64(x : Int64, y : Int64) -> Int64!IntError {
 }
 
 /// FIXME: use checked_mul method of Int64
-fn checked_mul_int64(x : Int64, y : Int64) -> Int64!IntError {
+fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
@@ -217,13 +203,13 @@ test "checked_add_int" {
   inspect!(
     checked_add_int?(Int::max_value(), 1),
     content=
-      #|Err("Int overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     checked_add_int?(Int::min_value(), -1),
     content=
-      #|Err("Int overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -235,13 +221,13 @@ test "checked_mul_int" {
   inspect!(
     checked_mul_int?(Int::max_value(), 2),
     content=
-      #|Err("Int overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     checked_mul_int?(Int::min_value(), 2),
     content=
-      #|Err("Int overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -253,13 +239,13 @@ test "checked_add_int64" {
   inspect!(
     checked_add_int64?(1L, Int64::max_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     checked_add_int64?(-1L, Int64::min_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -271,13 +257,13 @@ test "checked_mul_int64" {
   inspect!(
     checked_mul_int64?(Int64::max_value(), 2L),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     checked_mul_int64?(Int64::min_value(), 2L),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -295,9 +281,9 @@ fn floor(x : Double) -> Double {
   }
 }
 
-fn floor_div_int(x : Int, y : Int) -> Int!IntError {
+fn floor_div_int(x : Int, y : Int) -> Int!Error {
   if y == 0 {
-    raise IntError("division by zero")
+    raise Failure("division by zero")
   }
   let r = x.to_double() / y.to_double()
   floor(r).to_int()
@@ -312,14 +298,14 @@ test "floor_div_int" {
   inspect!(
     floor_div_int?(10, 0),
     content=
-      #|Err("division by zero")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
 
-fn floor_div_int64(x : Int64, y : Int64) -> Int64!IntError {
+fn floor_div_int64(x : Int64, y : Int64) -> Int64!Error {
   if y == 0L {
-    raise IntError("division by zero")
+    fail!("division by zero")
   }
   let r = x.to_double() / y.to_double()
   floor(r).to_int64()
@@ -334,12 +320,12 @@ test "floor_div_int64" {
   inspect!(
     floor_div_int64?(10L, 0L),
     content=
-      #|Err("division by zero")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
 
-fn floor_mod_int(x : Int, y : Int) -> Int!IntError {
+fn floor_mod_int(x : Int, y : Int) -> Int!Error {
   x - floor_div_int!(x, y) * y
 }
 
@@ -352,12 +338,12 @@ test "floor_mod_int" {
   inspect!(
     floor_mod_int?(10, 0),
     content=
-      #|Err("division by zero")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
 
-fn floor_mod_int64(x : Int64, y : Int64) -> Int64!IntError {
+fn floor_mod_int64(x : Int64, y : Int64) -> Int64!Error {
   x - floor_div_int64!(x, y) * y
 }
 
@@ -370,7 +356,7 @@ test "floor_mod_int64" {
   inspect!(
     floor_mod_int64?(10L, 0L),
     content=
-      #|Err("division by zero")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }

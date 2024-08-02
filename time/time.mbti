@@ -35,8 +35,6 @@ impl Duration {
   zero() -> Self
 }
 
-pub type! IntError String
-
 type Period
 impl Period {
   add_days(Self, Int) -> Self!Error
@@ -248,11 +246,7 @@ impl ZonedDateTime {
 // Traits
 
 // Extension Methods
-impl Eq for IntError
-
 impl Show for Duration
-
-impl Show for IntError
 
 impl Show for Period
 

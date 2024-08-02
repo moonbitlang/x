@@ -83,13 +83,13 @@ test "add_seconds" {
   inspect!(
     @time.Duration::of!(seconds=1L).add_seconds?(Int64::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     @time.Duration::of!(seconds=-1L).add_seconds?(Int64::min_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }

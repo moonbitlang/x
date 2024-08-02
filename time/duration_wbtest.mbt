@@ -51,13 +51,13 @@ test "add_hours" {
   inspect!(
     Duration::zero().add_hours?(Int64::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     Duration::zero().add_hours?(Int64::min_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -77,13 +77,13 @@ test "add_minutes" {
   inspect!(
     Duration::zero().add_minutes?(Int64::max_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     Duration::zero().add_minutes?(Int64::min_value()),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -132,7 +132,7 @@ test "add_nanoseconds" {
       Int64::max_value(),
     ),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
@@ -140,7 +140,7 @@ test "add_nanoseconds" {
       Int64::min_value(),
     ),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -165,13 +165,13 @@ test "op_add" {
   inspect!(
     p1.op_add?(p3),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
     p2.op_add?(p4),
     content=
-      "Err(moonbitlang/x/time.IntError)"
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
