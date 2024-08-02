@@ -60,6 +60,18 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: upgrade-core
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          rm -rf "$HOME/.moon/lib/core"
+          git clone --depth 1 https://github.com/moonbitlang/core.git "$HOME/.moon/lib/core"
+          (cd "$HOME/.moon/lib/core" && moon bundle --target=wasm)
+          (cd "$HOME/.moon/lib/core" && moon bundle --target=js)
+          (cd "$HOME/.moon/lib/core" && moon bundle --target=wasm-gc)
+          find "$HOME/.moon"
+          find "$HOME/.moon/lib"
+          find "$HOME/.moon/lib/core"
+
       - name: install on windows
         if: ${{ matrix.os.name == 'windows-latest' }}
         run: |
