@@ -78,6 +78,15 @@ jobs:
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/windows_moon_setup.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
+      - name: upgrade-core on windows
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: |
+          Remove-Item -Recurse -Force "C:\Users\runneradmin\.moon\lib\core"
+          git clone --depth 1 https://github.com/moonbitlang/core.git "C:\Users\runneradmin\.moon\lib\core"
+          (cd "C:\Users\runneradmin\.moon\lib\core" && moon bundle --target=wasm)
+          (cd "C:\Users\runneradmin\.moon\lib\core" && moon bundle --target=js)
+          (cd "C:\Users\runneradmin\.moon\lib\core" && moon bundle --target=wasm-gc)
+
       - name: moon version
         run: |
           moon version --all
