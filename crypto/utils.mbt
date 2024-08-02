@@ -73,6 +73,23 @@ pub fn arr_u8_to_u32be(x : Array[Byte], ~i : Int = 0) -> UInt {
   )
 }
 
+pub fn u32_to_u8be(x : UInt) -> Array[Byte] {
+  let b = Array::make(4, b'\x00')
+  b[0] = x.lsr(24).to_byte()
+  b[1] = x.lsr(16).to_byte()
+  b[2] = x.lsr(8).to_byte()
+  b[3] = x.to_byte()
+  b
+}
+
+pub fn arr_u32_to_u8be(x : Array[UInt]) -> Bytes {
+  let temp : Array[Byte] = []
+  for index = 0; index < x.length(); index = index + 1 {
+    temp.append(u32_to_u8be(x[index]))
+  }
+  Bytes::from_array(temp)
+}
+
 pub fn byte_array_to_bytes(s : Array[Byte]) -> Bytes {
   let bytes = Bytes::make(s.length(), b'\x00')
   for index = 0; index < s.length(); index = index + 1 {

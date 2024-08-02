@@ -16,13 +16,14 @@
 // - [GM/T 0004-2012]    https://www.oscca.gov.cn/sca/xxgk/2010-12/17/1002389/files/302a3ada057c4a73830536d03e683110.pdf
 // SM3 is as secure as SHA256, providing similar performance. https://doi.org/10.3390/electronics8091033
 
-priv struct SM3Context {
+struct SM3Context {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
   mut msg : Array[Byte]
 }
 
-fn SM3Context::make() -> SM3Context {
+/// Instantiate a SM3 context
+pub fn SM3Context::make() -> SM3Context {
   {
     reg: [
       0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
@@ -93,7 +94,7 @@ fn pad(self : SM3Context) -> Array[Byte] {
   return self.msg
 }
 
-fn update(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
+fn transform(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
   let mut a = self.reg[0]
@@ -171,35 +172,56 @@ fn update(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
   return t_arr
 }
 
-fn compute(self : SM3Context, data : Array[Byte]) -> Unit {
+fn sm3_update(self : SM3Context, data : Array[Byte]) -> Unit {
   self.len += data.length().to_int64().to_uint64() * 8UL
   let msg = self.msg + data
   let block_num = msg.length() / 64
   let len = msg.length() - block_num * 64
-  let _ = self.update(Ref::new(msg))
+  let _ = self.transform(Ref::new(msg))
   let new_msg = Array::make(len, b'\x00')
   msg.blit_to(new_msg, ~len, src_offset=block_num * 64)
   self.msg = new_msg
 }
 
-fn sum(self : SM3Context, ~data : Array[Byte] = []) -> Array[UInt] {
-  self.compute(data)
-  let msg = self.pad()
-  self.update(Ref::new(msg))
+/// update the state of given context from new `data` 
+pub fn update(self : SM3Context, data : Bytes) -> Unit {
+  self.sm3_update(data.to_array())
 }
 
-/// Compute the SM3 digest of some `data`
-pub fn sm3(data : Bytes) -> Array[UInt] {
+/// compute SM3 digest from given context
+pub fn compute(self : SM3Context) -> Bytes {
+  let msg = self.pad()
+  arr_u32_to_u8be(self.transform(Ref::new(msg)))
+}
+
+pub fn sm3_compute(self : SM3Context, ~data : Array[Byte] = []) -> Array[UInt] {
+  self.sm3_update(data)
+  let msg = self.pad()
+  self.transform(Ref::new(msg))
+}
+
+/// Compute the SM3 digest in `UInt[]` of some `data`
+pub fn sm3_u32(data : Bytes) -> Array[UInt] {
   let bytes_data = bytes_to_byte_array(data)
   let ctx = SM3Context::make()
-  let _ = ctx.compute(bytes_data)
-  ctx.sum()
+  let _ = ctx.sm3_update(bytes_data)
+  ctx.sm3_compute()
+}
+
+/// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
+pub fn sm3sum(data : Bytes) -> Bytes {
+  arr_u32_to_u8be(sm3_u32(data))
+}
+
+/// an alias of `SM3Context::compute()`
+pub fn finalize(self : SM3Context) -> Bytes {
+  self.compute()
 }
 
 test {
   inspect!(
     uints_to_hex_string(
-      sm3(
+      sm3_u32(
         b"\x61\x62\x63", // abc in utf-8
       ),
     ),
@@ -207,11 +229,26 @@ test {
   )
   inspect!(
     uints_to_hex_string(
-      sm3(
+      sm3_u32(
         // abcd * 16 in utf-8
         b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
       ),
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+  )
+  @test.eq!(
+    bytes_to_hex_string(sm3sum(b"\x61\x62\x63")),
+    uints_to_hex_string(sm3_u32(b"\x61\x62\x63")),
+  )
+  let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
+  let ctx = SM3Context::make()
+  ctx.update(b"\x61")
+  ctx.update(b"\x62")
+  ctx.update(b"\x63")
+  @test.eq!(hash1, bytes_to_hex_string(ctx.compute()))
+  println(
+    uints_to_hex_string(
+      sm3_u32("The quick brown fox jumps over the lazy dog".to_bytes()),
+    ),
   )
 }
