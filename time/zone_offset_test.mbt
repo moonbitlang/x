@@ -13,104 +13,104 @@
 // limitations under the License.
 
 test "of" {
-  inspect!(@time.ZoneOffset::of!(), content="Ok(Z)")
-  inspect!(@time.ZoneOffset::of!(hours=8), content="Ok(+08:00)")
-  inspect!(@time.ZoneOffset::of!(hours=-8), content="Ok(-08:00)")
-  inspect!(@time.ZoneOffset::of!(hours=18), content="Ok(+18:00)")
-  inspect!(@time.ZoneOffset::of!(hours=-18), content="Ok(-18:00)")
+  inspect!(@time.ZoneOffset::of!(), content="Z")
+  inspect!(@time.ZoneOffset::of!(hours=8), content="+08:00")
+  inspect!(@time.ZoneOffset::of!(hours=-8), content="-08:00")
+  inspect!(@time.ZoneOffset::of!(hours=18), content="+18:00")
+  inspect!(@time.ZoneOffset::of!(hours=-18), content="-18:00")
   inspect!(
     @time.ZoneOffset::of!(hours=1, minutes=30, seconds=30),
-    content="Ok(+01:30:30)",
+    content="+01:30:30",
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=19),
+    @time.ZoneOffset::of?(hours=19),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=-19),
+    @time.ZoneOffset::of?(hours=-19),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(minutes=60),
+    @time.ZoneOffset::of?(minutes=60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(minutes=-60),
+    @time.ZoneOffset::of?(minutes=-60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(seconds=60),
+    @time.ZoneOffset::of?(seconds=60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(seconds=-60),
+    @time.ZoneOffset::of?(seconds=-60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=1, minutes=-30, seconds=-30),
+    @time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=-1, minutes=30, seconds=30),
+    @time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(minutes=-30, seconds=30),
+    @time.ZoneOffset::of?(minutes=-30, seconds=30),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(minutes=30, seconds=-30),
+    @time.ZoneOffset::of?(minutes=30, seconds=-30),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=18, minutes=1),
+    @time.ZoneOffset::of?(hours=18, minutes=1),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::of!(hours=-18, seconds=1),
+    @time.ZoneOffset::of?(hours=-18, seconds=1),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
 
 test "from_seconds" {
-  inspect!(@time.ZoneOffset::from_seconds!(8 * 60 * 60), content="Ok(+08:00)")
-  inspect!(@time.ZoneOffset::from_seconds!(0), content="Ok(Z)")
-  inspect!(@time.ZoneOffset::from_seconds!(18 * 60 * 60), content="Ok(+18:00)")
-  inspect!(@time.ZoneOffset::from_seconds!(-18 * 60 * 60), content="Ok(-18:00)")
+  inspect!(@time.ZoneOffset::from_seconds!(8 * 60 * 60), content="+08:00")
+  inspect!(@time.ZoneOffset::from_seconds!(0), content="Z")
+  inspect!(@time.ZoneOffset::from_seconds!(18 * 60 * 60), content="+18:00")
+  inspect!(@time.ZoneOffset::from_seconds!(-18 * 60 * 60), content="-18:00")
   inspect!(
-    @time.ZoneOffset::from_seconds!(19 * 60 * 60),
+    @time.ZoneOffset::from_seconds?(19 * 60 * 60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    @time.ZoneOffset::from_seconds!(-19 * 60 * 60),
+    @time.ZoneOffset::from_seconds?(-19 * 60 * 60),
     content=
-      #|Err("Invalid offset")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }

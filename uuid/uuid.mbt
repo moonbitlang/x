@@ -84,15 +84,15 @@ test "bytes" {
   )
   inspect!(from_bytes!(buf).to_bytes(), content="苉棻僟ꅌꊺऄ맥") // XXX: this is a terrible Show
   inspect!(
-    from_bytes!(Bytes::new(15)),
+    from_bytes?(Bytes::new(15)),
     content=
-      #|Err("requires 16 bytes")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    from_bytes!(Bytes::new(17)),
+    from_bytes?(Bytes::new(17)),
     content=
-      #|Err("requires 16 bytes")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }
@@ -196,15 +196,15 @@ test "from_hex" {
     content="12345678-1234-1234-1234-abcdef098765",
   )
   inspect!(
-    from_hex!("13cb"),
+    from_hex?("13cb"),
     content=
-      #|Err("not enough hexadecimal in UUID string")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
   inspect!(
-    from_hex!("13cb501c-99a8-c889-3234"),
+    from_hex?("13cb501c-99a8-c889-3234"),
     content=
-      #|Err("not enough hexadecimal in UUID string")
+      "Err(moonbitlang/core/builtin.Failure)"
     ,
   )
 }

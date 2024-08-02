@@ -15,132 +15,132 @@
 test "of" {
   inspect!(
     Duration::of!(hours=1L, minutes=2L, seconds=3L, nanoseconds=456789L),
-    content="Ok(PT1H2M3.000456789S)",
+    content="PT1H2M3.000456789S",
   )
   inspect!(
     Duration::of!(seconds=-1L, nanoseconds=1000L),
-    content="Ok(PT-0.999999S)",
+    content="PT-0.999999S",
   )
   inspect!(
     Duration::of!(seconds=-1L, nanoseconds=999_999_999L),
-    content="Ok(PT-0.000000001S)",
+    content="PT-0.000000001S",
   )
   inspect!(
     Duration::of!(hours=-1L, seconds=-10L, nanoseconds=2000000L),
-    content="Ok(PT-1H-9.998S)",
+    content="PT-1H-9.998S",
   )
   inspect!(
     Duration::of!(nanoseconds=-20L * nanoseconds_per_second - 2L),
-    content="Ok(PT-20.000000002S)",
+    content="PT-20.000000002S",
   )
-  inspect!(Duration::of!(nanoseconds=-200L), content="Ok(PT-0.0000002S)")
+  inspect!(Duration::of!(nanoseconds=-200L), content="PT-0.0000002S")
 }
 
 test "add_hours" {
-  inspect!(Duration::zero().add_hours!(0L), content="Ok(PT0S)")
-  inspect!(Duration::zero().add_hours!(1L), content="Ok(PT1H)")
-  inspect!(Duration::zero().add_hours!(-1L), content="Ok(PT-1H)")
+  inspect!(Duration::zero().add_hours!(0L), content="PT0S")
+  inspect!(Duration::zero().add_hours!(1L), content="PT1H")
+  inspect!(Duration::zero().add_hours!(-1L), content="PT-1H")
   inspect!(
     Duration::zero().add_hours!(Int64::max_value() / seconds_per_hour),
-    content="Ok(PT2562047788015215H)",
+    content="PT2562047788015215H",
   )
   inspect!(
     Duration::zero().add_hours!(Int64::min_value() / seconds_per_hour),
-    content="Ok(PT-2562047788015215H)",
+    content="PT-2562047788015215H",
   )
   inspect!(
-    Duration::zero().add_hours!(Int64::max_value()),
+    Duration::zero().add_hours?(Int64::max_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
   inspect!(
-    Duration::zero().add_hours!(Int64::min_value()),
+    Duration::zero().add_hours?(Int64::min_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
 }
 
 test "add_minutes" {
-  inspect!(Duration::zero().add_minutes!(0L), content="Ok(PT0S)")
-  inspect!(Duration::zero().add_minutes!(1L), content="Ok(PT1M)")
-  inspect!(Duration::zero().add_minutes!(-1L), content="Ok(PT-1M)")
+  inspect!(Duration::zero().add_minutes!(0L), content="PT0S")
+  inspect!(Duration::zero().add_minutes!(1L), content="PT1M")
+  inspect!(Duration::zero().add_minutes!(-1L), content="PT-1M")
   inspect!(
     Duration::zero().add_minutes!(Int64::max_value() / seconds_per_minute),
-    content="Ok(PT2562047788015215H30M)",
+    content="PT2562047788015215H30M",
   )
   inspect!(
     Duration::zero().add_minutes!(Int64::min_value() / seconds_per_minute),
-    content="Ok(PT-2562047788015215H-30M)",
+    content="PT-2562047788015215H-30M",
   )
   inspect!(
-    Duration::zero().add_minutes!(Int64::max_value()),
+    Duration::zero().add_minutes?(Int64::max_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
   inspect!(
-    Duration::zero().add_minutes!(Int64::min_value()),
+    Duration::zero().add_minutes?(Int64::min_value()),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
 }
 
 test "add_nanoseconds" {
-  inspect!(Duration::zero().add_nanoseconds!(0L), content="Ok(PT0S)")
-  inspect!(Duration::zero().add_nanoseconds!(1L), content="Ok(PT0.000000001S)")
+  inspect!(Duration::zero().add_nanoseconds!(0L), content="PT0S")
+  inspect!(Duration::zero().add_nanoseconds!(1L), content="PT0.000000001S")
   inspect!(
     Duration::zero().add_nanoseconds!(-1L),
-    content="Ok(PT-0.000000001S)",
+    content="PT-0.000000001S",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(nanoseconds_per_second),
-    content="Ok(PT1S)",
+    content="PT1S",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(-nanoseconds_per_second),
-    content="Ok(PT-1S)",
+    content="PT-1S",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(nanoseconds_per_minute),
-    content="Ok(PT1M)",
+    content="PT1M",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(-nanoseconds_per_minute),
-    content="Ok(PT-1M)",
+    content="PT-1M",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(nanoseconds_per_hour),
-    content="Ok(PT1H)",
+    content="PT1H",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(-nanoseconds_per_hour),
-    content="Ok(PT-1H)",
+    content="PT-1H",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(Int64::max_value()),
-    content="Ok(PT2562047H47M16.854775807S)",
+    content="PT2562047H47M16.854775807S",
   )
   inspect!(
     Duration::zero().add_nanoseconds!(Int64::min_value()),
-    content="Ok(PT-2562047H-47M-16.854775808S)",
+    content="PT-2562047H-47M-16.854775808S",
   )
   inspect!(
-    Duration::of!(seconds=Int64::max_value()).add_nanoseconds!(
+    Duration::of!(seconds=Int64::max_value()).add_nanoseconds?(
       Int64::max_value(),
     ),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
   inspect!(
-    Duration::of!(seconds=Int64::min_value()).add_nanoseconds!(
+    Duration::of!(seconds=Int64::min_value()).add_nanoseconds?(
       Int64::min_value(),
     ),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
 }
@@ -158,20 +158,20 @@ test "op_add" {
     nanoseconds=max_nanosecond.to_int64(),
   )
   let p4 = Duration::of!(seconds=Int64::min_value())
-  inspect!(p1.op_add!(Duration::zero()), content="Ok(PT1H1M1.000001S)")
-  inspect!(p1.op_add!(p2), content="Ok(PT0S)")
-  inspect!(p1.op_add!(p1), content="Ok(PT2H2M2.000002S)")
-  inspect!(p2.op_add!(p2), content="Ok(PT-2H-2M-2.000002S)")
+  inspect!(p1.op_add!(Duration::zero()), content="PT1H1M1.000001S")
+  inspect!(p1.op_add!(p2), content="PT0S")
+  inspect!(p1.op_add!(p1), content="PT2H2M2.000002S")
+  inspect!(p2.op_add!(p2), content="PT-2H-2M-2.000002S")
   inspect!(
-    p1.op_add!(p3),
+    p1.op_add?(p3),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
   inspect!(
-    p2.op_add!(p4),
+    p2.op_add?(p4),
     content=
-      #|Err("Int64 overflow")
+      "Err(moonbitlang/x/time.IntError)"
     ,
   )
 }
