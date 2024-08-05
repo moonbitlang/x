@@ -26,7 +26,7 @@ pub enum ParseErrorData {
 
 type! ParseError ParseErrorData
 
-fn parse_error[X](data: ParseErrorData) -> X!ParseError {
+fn parse_error[X](data : ParseErrorData) -> X!ParseError {
   raise ParseError(data)
 }
 

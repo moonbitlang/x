@@ -1,11 +1,11 @@
 package moonbitlang/x/time
 
 // Values
-fn date_time(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> ZonedDateTime!Error
+fn date_time(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> ZonedDateTime!
 
-fn fixed_zone(String, Int) -> Zone!Error
+fn fixed_zone(String, Int) -> Zone!
 
-fn unix(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> ZonedDateTime!Error
+fn unix(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> ZonedDateTime!
 
 let utc_offset : ZoneOffset
 
@@ -14,46 +14,46 @@ let utc_zone : Zone
 // Types and methods
 type Duration
 impl Duration {
-  add_duration(Self, Self) -> Self!Error
-  add_hours(Self, Int64) -> Self!Error
-  add_minutes(Self, Int64) -> Self!Error
-  add_nanoseconds(Self, Int64) -> Self!Error
-  add_seconds(Self, Int64) -> Self!Error
+  add_duration(Self, Self) -> Self!
+  add_hours(Self, Int64) -> Self!
+  add_minutes(Self, Int64) -> Self!
+  add_nanoseconds(Self, Int64) -> Self!
+  add_seconds(Self, Int64) -> Self!
   compare(Self, Self) -> Int
-  from_string(String) -> Self!Error
+  from_string(String) -> Self!
   is_neg(Self) -> Bool
   is_zero(Self) -> Bool
   nanoseconds(Self) -> Int
-  of(~hours : Int64 = .., ~minutes : Int64 = .., ~seconds : Int64 = .., ~nanoseconds : Int64 = ..) -> Self!Error
-  op_add(Self, Self) -> Self!Error
+  of(~hours : Int64 = .., ~minutes : Int64 = .., ~seconds : Int64 = .., ~nanoseconds : Int64 = ..) -> Self!
+  op_add(Self, Self) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int64
   to_nanoseconds(Self) -> Int64
   to_string(Self) -> String
-  with_nanoseconds(Self, Int) -> Self!Error
+  with_nanoseconds(Self, Int) -> Self!
   with_seconds(Self, Int64) -> Self
   zero() -> Self
 }
 
 type Period
 impl Period {
-  add_days(Self, Int) -> Self!Error
-  add_months(Self, Int) -> Self!Error
-  add_period(Self, Self) -> Self!Error
-  add_weeks(Self, Int) -> Self!Error
-  add_years(Self, Int) -> Self!Error
+  add_days(Self, Int) -> Self!
+  add_months(Self, Int) -> Self!
+  add_period(Self, Self) -> Self!
+  add_weeks(Self, Int) -> Self!
+  add_years(Self, Int) -> Self!
   compare(Self, Self) -> Int
   days(Self) -> Int
-  from_string(String) -> Self!Error
+  from_string(String) -> Self!
   is_neg(Self) -> Bool
   is_zero(Self) -> Bool
   months(Self) -> Int
-  multiply(Self, Int) -> Self!Error
-  negated(Self) -> Self!Error
+  multiply(Self, Int) -> Self!
+  negated(Self) -> Self!
   of(~years : Int = .., ~months : Int = .., ~days : Int = ..) -> Self
-  op_add(Self, Self) -> Self!Error
+  op_add(Self, Self) -> Self!
   op_equal(Self, Self) -> Bool
-  op_sub(Self, Self) -> Self!Error
+  op_sub(Self, Self) -> Self!
   to_string(Self) -> String
   to_total_months(Self) -> Int64
   with_days(Self, Int) -> Self
@@ -65,11 +65,11 @@ impl Period {
 
 type PlainDate
 impl PlainDate {
-  add_days(Self, Int64) -> Self!Error
-  add_months(Self, Int64) -> Self!Error
-  add_period(Self, Period) -> Self!Error
-  add_weeks(Self, Int64) -> Self!Error
-  add_years(Self, Int64) -> Self!Error
+  add_days(Self, Int64) -> Self!
+  add_months(Self, Int64) -> Self!
+  add_period(Self, Period) -> Self!
+  add_weeks(Self, Int64) -> Self!
+  add_years(Self, Int64) -> Self!
   compare(Self, Self) -> Int
   day(Self) -> Int
   days_in_month(Self) -> Int
@@ -77,38 +77,38 @@ impl PlainDate {
   days_in_year(Self) -> Int
   era(Self) -> String
   era_year(Self) -> Int
-  from_string(String) -> Self!Error
-  from_unix_day(Int64) -> Self!Error
-  from_year_ord(Int, Int) -> Self!Error
+  from_string(String) -> Self!
+  from_unix_day(Int64) -> Self!
+  from_year_ord(Int, Int) -> Self!
   in_leap_year(Self) -> Bool
   month(Self) -> Int
   months_in_year(Self) -> Int
-  of(Int, Int, Int) -> Self!Error
+  of(Int, Int, Int) -> Self!
   op_equal(Self, Self) -> Bool
   ordinal(Self) -> Int
   to_string(Self) -> String
   to_unix_day(Self) -> Int64
-  until(Self, Self) -> Period!Error
+  until(Self, Self) -> Period!
   weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!Error
-  with_month(Self, Int) -> Self!Error
-  with_ordinal(Self, Int) -> Self!Error
-  with_year(Self, Int) -> Self!Error
+  with_day(Self, Int) -> Self!
+  with_month(Self, Int) -> Self!
+  with_ordinal(Self, Int) -> Self!
+  with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
 
 type PlainDateTime
 impl PlainDateTime {
-  add_days(Self, Int64) -> Self!Error
-  add_duration(Self, Duration) -> Self!Error
-  add_hours(Self, Int64) -> Self!Error
-  add_minutes(Self, Int64) -> Self!Error
-  add_months(Self, Int64) -> Self!Error
-  add_nanoseconds(Self, Int64) -> Self!Error
-  add_period(Self, Period) -> Self!Error
-  add_seconds(Self, Int64) -> Self!Error
-  add_weeks(Self, Int64) -> Self!Error
-  add_years(Self, Int64) -> Self!Error
+  add_days(Self, Int64) -> Self!
+  add_duration(Self, Duration) -> Self!
+  add_hours(Self, Int64) -> Self!
+  add_minutes(Self, Int64) -> Self!
+  add_months(Self, Int64) -> Self!
+  add_nanoseconds(Self, Int64) -> Self!
+  add_period(Self, Period) -> Self!
+  add_seconds(Self, Int64) -> Self!
+  add_weeks(Self, Int64) -> Self!
+  add_years(Self, Int64) -> Self!
   compare(Self, Self) -> Int
   day(Self) -> Int
   days_in_month(Self) -> Int
@@ -116,15 +116,15 @@ impl PlainDateTime {
   days_in_year(Self) -> Int
   era(Self) -> String
   era_year(Self) -> Int
-  from_string(String) -> Self!Error
-  from_unix_second(Int64, Int, ZoneOffset) -> Self!Error
+  from_string(String) -> Self!
+  from_unix_second(Int64, Int, ZoneOffset) -> Self!
   hour(Self) -> Int
   in_leap_year(Self) -> Bool
   minute(Self) -> Int
   month(Self) -> Int
   months_in_year(Self) -> Int
   nanosecond(Self) -> Int
-  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~nanosecond : Int = ..) -> Self!Error
+  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~nanosecond : Int = ..) -> Self!
   op_equal(Self, Self) -> Bool
   ordinal(Self) -> Int
   second(Self) -> Int
@@ -133,43 +133,43 @@ impl PlainDateTime {
   to_string(Self) -> String
   to_unix_second(Self) -> Int64
   weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!Error
-  with_hour(Self, Int) -> Self!Error
-  with_minute(Self, Int) -> Self!Error
-  with_month(Self, Int) -> Self!Error
-  with_nanosecond(Self, Int) -> Self!Error
-  with_ordinal(Self, Int) -> Self!Error
-  with_second(Self, Int) -> Self!Error
-  with_year(Self, Int) -> Self!Error
+  with_day(Self, Int) -> Self!
+  with_hour(Self, Int) -> Self!
+  with_minute(Self, Int) -> Self!
+  with_month(Self, Int) -> Self!
+  with_nanosecond(Self, Int) -> Self!
+  with_ordinal(Self, Int) -> Self!
+  with_second(Self, Int) -> Self!
+  with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
 
 type PlainTime
 impl PlainTime {
-  add_duration(Self, Duration) -> Self!Error
-  add_hours(Self, Int64) -> Self!Error
-  add_minutes(Self, Int64) -> Self!Error
-  add_nanoseconds(Self, Int64) -> Self!Error
-  add_seconds(Self, Int64) -> Self!Error
+  add_duration(Self, Duration) -> Self!
+  add_hours(Self, Int64) -> Self!
+  add_minutes(Self, Int64) -> Self!
+  add_nanoseconds(Self, Int64) -> Self!
+  add_seconds(Self, Int64) -> Self!
   at_date(Self, PlainDate) -> PlainDateTime
   compare(Self, Self) -> Int
-  from_nanosecond_of_day(Int64) -> Self!Error
-  from_second_of_day(Int) -> Self!Error
-  from_string(String) -> Self!Error
+  from_nanosecond_of_day(Int64) -> Self!
+  from_second_of_day(Int) -> Self!
+  from_string(String) -> Self!
   hour(Self) -> Int
   minute(Self) -> Int
   nanosecond(Self) -> Int
   nanosecond_of_day(Self) -> Int64
-  of(Int, Int, Int, Int) -> Self!Error
+  of(Int, Int, Int, Int) -> Self!
   op_equal(Self, Self) -> Bool
   second(Self) -> Int
   second_of_day(Self) -> Int
   to_string(Self) -> String
-  until(Self, Self) -> Duration!Error
-  with_hour(Self, Int) -> Self!Error
-  with_minute(Self, Int) -> Self!Error
-  with_nanosecond(Self, Int) -> Self!Error
-  with_second(Self, Int) -> Self!Error
+  until(Self, Self) -> Duration!
+  with_hour(Self, Int) -> Self!
+  with_minute(Self, Int) -> Self!
+  with_nanosecond(Self, Int) -> Self!
+  with_second(Self, Int) -> Self!
 }
 
 type Weekday
@@ -188,10 +188,10 @@ impl Zone {
 type ZoneOffset
 impl ZoneOffset {
   compare(Self, Self) -> Int
-  from_seconds(Int) -> Self!Error
+  from_seconds(Int) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
-  of(~hours : Int = .., ~minutes : Int = .., ~seconds : Int = ..) -> Self!Error
+  of(~hours : Int = .., ~minutes : Int = .., ~seconds : Int = ..) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String
@@ -199,14 +199,14 @@ impl ZoneOffset {
 
 type ZonedDateTime
 impl ZonedDateTime {
-  add_days(Self, Int64) -> Self!Error
-  add_hours(Self, Int64) -> Self!Error
-  add_minutes(Self, Int64) -> Self!Error
-  add_months(Self, Int64) -> Self!Error
-  add_nanoseconds(Self, Int64) -> Self!Error
-  add_seconds(Self, Int64) -> Self!Error
-  add_weeks(Self, Int64) -> Self!Error
-  add_years(Self, Int64) -> Self!Error
+  add_days(Self, Int64) -> Self!
+  add_hours(Self, Int64) -> Self!
+  add_minutes(Self, Int64) -> Self!
+  add_months(Self, Int64) -> Self!
+  add_nanoseconds(Self, Int64) -> Self!
+  add_seconds(Self, Int64) -> Self!
+  add_weeks(Self, Int64) -> Self!
+  add_years(Self, Int64) -> Self!
   day(Self) -> Int
   days_in_month(Self) -> Int
   days_in_week(Self) -> Int
@@ -214,14 +214,14 @@ impl ZonedDateTime {
   era(Self) -> String
   era_year(Self) -> Int
   from_plain_datetime(PlainDateTime, ~zone : Zone = ..) -> Self
-  from_unix_second(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> Self!Error
+  from_unix_second(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> Self!
   hour(Self) -> Int
   in_leap_year(Self) -> Bool
   minute(Self) -> Int
   month(Self) -> Int
   months_in_year(Self) -> Int
   nanosecond(Self) -> Int
-  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> Self!Error
+  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> Self!
   offset(Self) -> ZoneOffset
   ordinal(Self) -> Int
   second(Self) -> Int
@@ -231,14 +231,14 @@ impl ZonedDateTime {
   to_string(Self) -> String
   to_unix_second(Self) -> Int64
   weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!Error
-  with_hour(Self, Int) -> Self!Error
-  with_minute(Self, Int) -> Self!Error
-  with_month(Self, Int) -> Self!Error
-  with_nanosecond(Self, Int) -> Self!Error
-  with_ordinal(Self, Int) -> Self!Error
-  with_second(Self, Int) -> Self!Error
-  with_year(Self, Int) -> Self!Error
+  with_day(Self, Int) -> Self!
+  with_hour(Self, Int) -> Self!
+  with_minute(Self, Int) -> Self!
+  with_month(Self, Int) -> Self!
+  with_nanosecond(Self, Int) -> Self!
+  with_ordinal(Self, Int) -> Self!
+  with_second(Self, Int) -> Self!
+  with_year(Self, Int) -> Self!
   year(Self) -> Int
   zone(Self) -> Zone
 }
