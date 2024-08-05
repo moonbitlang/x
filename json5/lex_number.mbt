@@ -39,9 +39,9 @@ fn lex_decimal_point_leading(
         return lex_decimal_fraction!(ctx, ~start)
       }
       ctx.offset -= 1
-      raise invalid_char(ctx)
+      invalid_char!(ctx)
     }
-    None => raise InvalidEof
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -83,9 +83,9 @@ fn lex_decimal_exponent(ctx : ParseContext, ~start : Int) -> Double!ParseError {
         return lex_decimal_exponent_integer!(ctx, ~start)
       }
       ctx.offset -= 1
-      raise invalid_char(ctx)
+      invalid_char!(ctx)
     }
-    None => raise InvalidEof
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -99,9 +99,9 @@ fn lex_decimal_exponent_sign(
         return lex_decimal_exponent_integer!(ctx, ~start)
       }
       ctx.offset -= 1
-      raise invalid_char(ctx)
+      invalid_char!(ctx)
     }
-    None => raise InvalidEof
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -131,7 +131,7 @@ fn lex_zero(ctx : ParseContext, ~neg : Bool, ~start : Int) -> Double!ParseError 
     Some(c) => {
       if c >= '0' && c <= '9' {
         ctx.offset -= 1
-        raise invalid_char(ctx)
+        invalid_char!(ctx)
       }
       ctx.offset -= 1
       return lex_number_end!(ctx, start, ctx.offset)
@@ -148,9 +148,9 @@ fn lex_hexadecimal(ctx : ParseContext, ~neg : Bool) -> Double!ParseError {
         return if neg { -n } else { n }
       }
       ctx.offset -= 1
-      raise invalid_char(ctx)
+      invalid_char!(ctx)
     }
-    None => raise InvalidEof
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -178,6 +178,6 @@ fn lex_number_end(
   let s = ctx.input.substring(~start, ~end)
   match @strconv.parse_double?(s) {
     Ok(d) => d
-    Err(_) => raise InvalidNumber(offset_to_position(ctx.input, start), s)
+    Err(_) => parse_error!(InvalidNumber(offset_to_position(ctx.input, start), s))
   }
 }

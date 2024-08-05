@@ -27,9 +27,9 @@ fn offset_to_position(input : String, offset : Int) -> Position {
   return Position::{ line, column }
 }
 
-fn invalid_char(ctx : ParseContext, ~shift : Int = 0) -> ParseError {
+fn invalid_char[X](ctx : ParseContext, ~shift : Int = 0) -> X!ParseError {
   let offset = ctx.offset + shift
-  InvalidChar(offset_to_position(ctx.input, offset), ctx.input[offset])
+  parse_error!(InvalidChar(offset_to_position(ctx.input, offset), ctx.input[offset]))
 }
 
 fn hex_digit_to_int(c : Char) -> Int {
