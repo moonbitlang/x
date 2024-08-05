@@ -27,39 +27,39 @@ test "validate_time" {
 
 test "add_nanoseconds" {
   let time = PlainTime::of!(0, 0, 00, 1000)
-  inspect!(time.add_nanoseconds?(-1L), content="Ok(00:00:00.000000999)")
-  inspect!(time.add_nanoseconds?(0L), content="Ok(00:00:00.000001)")
-  inspect!(time.add_nanoseconds?(1L), content="Ok(00:00:00.000001001)")
-  inspect!(time.add_nanoseconds?(123456789L), content="Ok(00:00:00.123457789)")
+  inspect!(time.add_nanoseconds!(-1L), content="00:00:00.000000999")
+  inspect!(time.add_nanoseconds!(0L), content="00:00:00.000001")
+  inspect!(time.add_nanoseconds!(1L), content="00:00:00.000001001")
+  inspect!(time.add_nanoseconds!(123456789L), content="00:00:00.123457789")
   inspect!(
-    time.add_nanoseconds?(Int64::min_value()),
-    content="Ok(00:12:43.145225192)",
+    time.add_nanoseconds!(Int64::min_value()),
+    content="00:12:43.145225192",
   )
   inspect!(
-    time.add_nanoseconds?(Int64::max_value()),
-    content="Ok(23:47:16.854776807)",
+    time.add_nanoseconds!(Int64::max_value()),
+    content="23:47:16.854776807",
   )
   inspect!(
-    time.add_nanoseconds?(nanoseconds_per_day),
-    content="Ok(00:00:00.000001)",
+    time.add_nanoseconds!(nanoseconds_per_day),
+    content="00:00:00.000001",
   )
 }
 
 test "add_duration" {
   let time = PlainTime::of!(12, 0, 0, 0)
   inspect!(
-    time.add_duration?(
+    time.add_duration!(
       Duration::of!(hours=1L, minutes=30L, seconds=30L, nanoseconds=1_000_000L),
     ),
-    content="Ok(13:30:30.001)",
+    content="13:30:30.001",
   )
   inspect!(
-    time.add_duration?(
+    time.add_duration!(
       Duration::of!(minutes=-29L, seconds=-29L, nanoseconds=-999_000_000L),
     ),
-    content="Ok(11:30:30.001)",
+    content="11:30:30.001",
   )
-  inspect!(time.add_duration?(Duration::zero()), content="Ok(12:00:00)")
+  inspect!(time.add_duration!(Duration::zero()), content="12:00:00")
 }
 
 test "at_date" {

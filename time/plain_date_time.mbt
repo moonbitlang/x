@@ -27,7 +27,7 @@ pub fn PlainDateTime::of(
   ~minute : Int = 0,
   ~second : Int = 0,
   ~nanosecond : Int = 0
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   {
     date: PlainDate::of!(year, month, day),
     time: PlainTime::of!(hour, minute, second, nanosecond),
@@ -39,9 +39,9 @@ pub fn PlainDateTime::from_unix_second(
   second : Int64,
   nanosecond : Int,
   offset : ZoneOffset
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if not(validate_nano(nanosecond)) {
-    raise invalid_date_time_err
+    fail!(invalid_date_time_err)
   }
   let sec = second + offset.seconds().to_int64()
   let unix_day = floor_div_int64!(sec, seconds_per_day)
@@ -59,11 +59,11 @@ pub fn to_unix_second(self : PlainDateTime) -> Int64 {
 }
 
 /// Creates a PlainTime from a string, like '2008-08-08T20:00:00'.
-pub fn PlainDateTime::from_string(str : String) -> PlainDateTime!String {
+pub fn PlainDateTime::from_string(str : String) -> PlainDateTime!Error {
   // TODO: better parsing implementation
   let split = split(str, 'T')
   if split.length() != 2 {
-    raise invalid_date_time_err
+    fail!(invalid_date_time_err)
   }
   let date = PlainDate::from_string!(split[0])
   let time = PlainTime::from_string!(split[1])
@@ -167,35 +167,32 @@ pub fn nanosecond(self : PlainDateTime) -> Int {
 }
 
 /// Adds specified years to this datetime, and returns a new datetime.
-pub fn add_years(self : PlainDateTime, years : Int64) -> PlainDateTime!String {
+pub fn add_years(self : PlainDateTime, years : Int64) -> PlainDateTime!Error {
   { ..self, date: self.date.add_years!(years) }
 }
 
 /// Adds specified months to this datetime, and returns a new datetime.
-pub fn add_months(self : PlainDateTime, months : Int64) -> PlainDateTime!String {
+pub fn add_months(self : PlainDateTime, months : Int64) -> PlainDateTime!Error {
   { ..self, date: self.date.add_months!(months) }
 }
 
 /// Adds specified weeks to this datetime, and returns a new datetime.
-pub fn add_weeks(self : PlainDateTime, weeks : Int64) -> PlainDateTime!String {
+pub fn add_weeks(self : PlainDateTime, weeks : Int64) -> PlainDateTime!Error {
   { ..self, date: self.date.add_weeks!(weeks) }
 }
 
 /// Adds specified days to this datetime, and returns a new datetime.
-pub fn add_days(self : PlainDateTime, days : Int64) -> PlainDateTime!String {
+pub fn add_days(self : PlainDateTime, days : Int64) -> PlainDateTime!Error {
   { ..self, date: self.date.add_days!(days) }
 }
 
 /// Adds a period of date to this datetime, and returns a new datetime.
-pub fn add_period(
-  self : PlainDateTime,
-  period : Period
-) -> PlainDateTime!String {
+pub fn add_period(self : PlainDateTime, period : Period) -> PlainDateTime!Error {
   { ..self, date: self.date.add_period!(period) }
 }
 
 /// Adds specified hours to this datetime, and returns a new datetime.
-pub fn add_hours(self : PlainDateTime, hours : Int64) -> PlainDateTime!String {
+pub fn add_hours(self : PlainDateTime, hours : Int64) -> PlainDateTime!Error {
   if hours == 0L {
     return self
   }
@@ -206,7 +203,7 @@ pub fn add_hours(self : PlainDateTime, hours : Int64) -> PlainDateTime!String {
 pub fn add_minutes(
   self : PlainDateTime,
   minutes : Int64
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if minutes == 0L {
     return self
   }
@@ -217,7 +214,7 @@ pub fn add_minutes(
 pub fn add_seconds(
   self : PlainDateTime,
   seconds : Int64
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if seconds == 0L {
     return self
   }
@@ -228,7 +225,7 @@ pub fn add_seconds(
 pub fn add_nanoseconds(
   self : PlainDateTime,
   nanoseconds : Int64
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if nanoseconds == 0L {
     return self
   }
@@ -239,7 +236,7 @@ pub fn add_nanoseconds(
 pub fn add_duration(
   self : PlainDateTime,
   duration : Duration
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if duration.is_zero() {
     return self
   }
@@ -247,40 +244,37 @@ pub fn add_duration(
 }
 
 /// Returns a new datetime with the specified year.
-pub fn with_year(self : PlainDateTime, year : Int) -> PlainDateTime!String {
+pub fn with_year(self : PlainDateTime, year : Int) -> PlainDateTime!Error {
   { ..self, date: self.date.with_year!(year) }
 }
 
 /// Returns a new datetime with the specified month.
-pub fn with_month(self : PlainDateTime, month : Int) -> PlainDateTime!String {
+pub fn with_month(self : PlainDateTime, month : Int) -> PlainDateTime!Error {
   { ..self, date: self.date.with_month!(month) }
 }
 
 /// Returns a new datetime with the specified day of month.
-pub fn with_day(self : PlainDateTime, day : Int) -> PlainDateTime!String {
+pub fn with_day(self : PlainDateTime, day : Int) -> PlainDateTime!Error {
   { ..self, date: self.date.with_day!(day) }
 }
 
 /// Returns a new datetime with the specified ordinal day of year.
-pub fn with_ordinal(
-  self : PlainDateTime,
-  ordinal : Int
-) -> PlainDateTime!String {
+pub fn with_ordinal(self : PlainDateTime, ordinal : Int) -> PlainDateTime!Error {
   { ..self, date: self.date.with_ordinal!(ordinal) }
 }
 
 /// Returns a new datetime with the specified hour.
-pub fn with_hour(self : PlainDateTime, hour : Int) -> PlainDateTime!String {
+pub fn with_hour(self : PlainDateTime, hour : Int) -> PlainDateTime!Error {
   { ..self, time: self.time.with_hour!(hour) }
 }
 
 /// Returns a new datetime with the specified minute.
-pub fn with_minute(self : PlainDateTime, minute : Int) -> PlainDateTime!String {
+pub fn with_minute(self : PlainDateTime, minute : Int) -> PlainDateTime!Error {
   { ..self, time: self.time.with_minute!(minute) }
 }
 
 /// Returns a new datetime with the specified second.
-pub fn with_second(self : PlainDateTime, second : Int) -> PlainDateTime!String {
+pub fn with_second(self : PlainDateTime, second : Int) -> PlainDateTime!Error {
   { ..self, time: self.time.with_second!(second) }
 }
 
@@ -288,7 +282,7 @@ pub fn with_second(self : PlainDateTime, second : Int) -> PlainDateTime!String {
 pub fn with_nanosecond(
   self : PlainDateTime,
   nanosecond : Int
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   { ..self, time: self.time.with_nanosecond!(nanosecond) }
 }
 
@@ -312,7 +306,7 @@ fn overflowing_add(
   ~m : Int64 = 0L,
   ~s : Int64 = 0L,
   ~ns : Int64 = 0L
-) -> PlainDateTime!String {
+) -> PlainDateTime!Error {
   if h == 0L && m == 0L && s == 0L && ns == 0L {
     return self
   }

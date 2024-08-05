@@ -296,9 +296,9 @@ pub fn chacha8(
   counter : UInt,
   block : Bytes,
   ~nonce : UInt = 0
-) -> Bytes!String {
+) -> Bytes!Error {
   if key.length() != 8 {
-    raise "Invalid key length -- key must be 8 32-bit unsigned integers"
+    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 4, nonce)
 }
@@ -314,9 +314,9 @@ pub fn chacha12(
   counter : UInt,
   block : Bytes,
   ~nonce : UInt = 0
-) -> Bytes!String {
+) -> Bytes!Error {
   if key.length() != 8 {
-    raise "Invalid key length -- key must be 8 32-bit unsigned integers"
+    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 6, nonce)
 }
@@ -332,9 +332,9 @@ pub fn chacha20(
   counter : UInt,
   block : Bytes,
   ~nonce : UInt = 0
-) -> Bytes!String {
+) -> Bytes!Error {
   if key.length() != 8 {
-    raise "Invalid key length -- key must be 8 32-bit unsigned integers"
+    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 10, nonce)
 }

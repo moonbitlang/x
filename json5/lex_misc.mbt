@@ -58,8 +58,8 @@ fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
   match read_char(ctx) {
     Some(']') => Token::RBracket
     Some(',') => Token::Comma
-    Some(_) => raise invalid_char(ctx, shift=-1)
-    None => raise InvalidEof
+    Some(_) => invalid_char!(ctx, shift=-1)
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -67,8 +67,8 @@ fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
   lex_skip_whitespace!(ctx)
   match read_char(ctx) {
     Some(':') => Token::Colon
-    Some(_) => raise invalid_char(ctx, shift=-1)
-    None => raise InvalidEof
+    Some(_) => invalid_char!(ctx, shift=-1)
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -77,15 +77,15 @@ fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
   match read_char(ctx) {
     Some('}') => Token::RBrace
     Some(',') => Token::Comma
-    Some(_) => raise invalid_char(ctx, shift=-1)
-    None => raise InvalidEof
+    Some(_) => invalid_char!(ctx, shift=-1)
+    None => parse_error!(InvalidEof)
   }
 }
 
 fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
   match read_char(ctx) {
-    Some(c2) => if c == c2 { () } else { raise invalid_char(ctx, shift=-1) }
-    None => raise InvalidEof
+    Some(c2) => if c == c2 { () } else { invalid_char!(ctx, shift=-1) }
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -120,11 +120,11 @@ fn lex_comment(ctx : ParseContext) -> Unit!ParseError {
               Some('/') => return ()
               _ => ()
             }
-          None => raise InvalidEof
+          None => parse_error!(InvalidEof)
           _ => ()
         }
       }
-    Some(_) => raise invalid_char(ctx, shift=-1)
-    None => raise InvalidEof
+    Some(_) => invalid_char!(ctx, shift=-1)
+    None => parse_error!(InvalidEof)
   }
 }

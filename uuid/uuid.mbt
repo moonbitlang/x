@@ -45,9 +45,9 @@ struct UUID {
 ///
 /// The produced UUID is not RFC-4122 compliant; see also `as_version()`.
 ///
-pub fn from_bytes(bytes : Bytes) -> UUID!String {
+pub fn from_bytes(bytes : Bytes) -> UUID!Error {
   if bytes.length() != 16 {
-    raise "requires 16 bytes"
+    fail!("requires 16 bytes")
   }
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
@@ -85,19 +85,15 @@ test "bytes" {
   inspect!(from_bytes!(buf).to_bytes(), content="苉棻僟ꅌꊺऄ맥") // XXX: this is a terrible Show
   inspect!(
     from_bytes?(Bytes::new(15)),
-    content=
-      #|Err("requires 16 bytes")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     from_bytes?(Bytes::new(17)),
-    content=
-      #|Err("requires 16 bytes")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
-fn hex_char_to_int64(c : Char) -> Int64!String {
+fn hex_char_to_int64(c : Char) -> Int64!Error {
   let d = if '0' <= c && c <= '9' {
     c.to_int() - '0'.to_int()
   } else if 'a' <= c && c <= 'f' {
@@ -105,7 +101,7 @@ fn hex_char_to_int64(c : Char) -> Int64!String {
   } else if 'A' <= c && c <= 'F' {
     c.to_int() - 'A'.to_int() + 10
   } else {
-    raise "invalid syntax"
+    fail!("invalid syntax")
   }
   d.to_int64()
 }
@@ -115,12 +111,12 @@ fn hex_char_to_int64(c : Char) -> Int64!String {
 /// This function ignores dashes (`-`) in the given string. The remaining
 /// letters must be exactly 32 hexadecimals, or an error will be raised.
 ///
-pub fn from_hex(hex : String) -> UUID!String {
+pub fn from_hex(hex : String) -> UUID!Error {
   // XXX: ideally we should use strconv here, but we don't have sufficient
   // tooling around String yet
   let (hi, i) = for hi = 0L, i = 0, n = 0; n < 16; {
     if i >= hex.length() {
-      raise "not enough hexadecimal in UUID string"
+      fail!("not enough hexadecimal in UUID string")
     }
     let c = hex[i]
     if c == '-' {
@@ -134,7 +130,7 @@ pub fn from_hex(hex : String) -> UUID!String {
   }
   let (lo, i) = for lo = 0L, i = i, n = 0; n < 16; {
     if i >= hex.length() {
-      raise "not enough hexadecimal in UUID string"
+      fail!("not enough hexadecimal in UUID string")
     }
     let c = hex[i]
     if c == '-' {
@@ -149,7 +145,7 @@ pub fn from_hex(hex : String) -> UUID!String {
   if i == hex.length() {
     { hi, lo }
   } else {
-    raise "badly formed hexadecimal UUID string"
+    fail!("badly formed hexadecimal UUID string")
   }
 }
 
@@ -195,16 +191,9 @@ test "from_hex" {
     from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
   )
-  inspect!(
-    from_hex?("13cb"),
-    content=
-      #|Err("not enough hexadecimal in UUID string")
-    ,
-  )
+  inspect!(from_hex?("13cb"), content="Err(moonbitlang/core/builtin.Failure)")
   inspect!(
     from_hex?("13cb501c-99a8-c889-3234"),
-    content=
-      #|Err("not enough hexadecimal in UUID string")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }

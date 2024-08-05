@@ -6,16 +6,20 @@ alias @moonbitlang/core/json as @json
 fn parse(String) -> @json.JsonValue!ParseError
 
 // Types and methods
-pub enum ParseError {
+type ParseError
+impl ParseError {
+  output(Self, Logger) -> Unit
+  to_string(Self) -> String
+}
+
+pub enum ParseErrorData {
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 }
-impl ParseError {
+impl ParseErrorData {
   op_equal(Self, Self) -> Bool
-  output(Self, Logger) -> Unit
-  to_string(Self) -> String
 }
 
 pub struct Position {

@@ -20,32 +20,24 @@ test "of" {
 }
 
 test "from_string" {
-  inspect!(@time.Period::from_string?("P10Y2M3D"), content="Ok(P10Y2M3D)")
-  inspect!(@time.Period::from_string?("P-10Y-2M-3D"), content="Ok(P-10Y-2M-3D)")
-  inspect!(@time.Period::from_string?("P2M3D10Y"), content="Ok(P2M3D)")
+  inspect!(@time.Period::from_string!("P10Y2M3D"), content="P10Y2M3D")
+  inspect!(@time.Period::from_string!("P-10Y-2M-3D"), content="P-10Y-2M-3D")
+  inspect!(@time.Period::from_string!("P2M3D10Y"), content="P2M3D")
   inspect!(
     @time.Period::from_string?("10Y"),
-    content=
-      #|Err("Invalid period")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("10Y0M"),
-    content=
-      #|Err("Invalid period")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("P10YT3H"),
-    content=
-      #|Err("Invalid period")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     @time.Period::from_string?("P2.5Y"),
-    content=
-      #|Err("Invalid period")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
@@ -73,30 +65,30 @@ test "is_neg" {
 
 test "add_years" {
   let p = @time.Period::of(years=10)
-  inspect!(p.add_years?(0), content="Ok(P10Y)")
-  inspect!(p.add_years?(1), content="Ok(P11Y)")
-  inspect!(p.add_years?(-1), content="Ok(P9Y)")
+  inspect!(p.add_years!(0), content="P10Y")
+  inspect!(p.add_years!(1), content="P11Y")
+  inspect!(p.add_years!(-1), content="P9Y")
 }
 
 test "add_months" {
   let p = @time.Period::of(months=10)
-  inspect!(p.add_months?(0), content="Ok(P10M)")
-  inspect!(p.add_months?(1), content="Ok(P11M)")
-  inspect!(p.add_months?(-1), content="Ok(P9M)")
+  inspect!(p.add_months!(0), content="P10M")
+  inspect!(p.add_months!(1), content="P11M")
+  inspect!(p.add_months!(-1), content="P9M")
 }
 
 test "add_weeks" {
   let p = @time.Period::of(days=10)
-  inspect!(p.add_weeks?(0), content="Ok(P10D)")
-  inspect!(p.add_weeks?(1), content="Ok(P17D)")
-  inspect!(p.add_weeks?(-1), content="Ok(P3D)")
+  inspect!(p.add_weeks!(0), content="P10D")
+  inspect!(p.add_weeks!(1), content="P17D")
+  inspect!(p.add_weeks!(-1), content="P3D")
 }
 
 test "add_days" {
   let p = @time.Period::of(days=10)
-  inspect!(p.add_days?(0), content="Ok(P10D)")
-  inspect!(p.add_days?(1), content="Ok(P11D)")
-  inspect!(p.add_days?(-1), content="Ok(P9D)")
+  inspect!(p.add_days!(0), content="P10D")
+  inspect!(p.add_days!(1), content="P11D")
+  inspect!(p.add_days!(-1), content="P9D")
 }
 
 test "with_years" {
@@ -130,22 +122,12 @@ test "op_add" {
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!(p1.op_add?(@time.Period::zero()), content="Ok(P1Y2M3D)")
-  inspect!(p1.op_add?(p2), content="Ok(P0D)")
-  inspect!(p1.op_add?(p1), content="Ok(P2Y4M6D)")
-  inspect!(p2.op_add?(p2), content="Ok(P-2Y-4M-6D)")
-  inspect!(
-    p1.op_add?(p3),
-    content=
-      #|Err("Int overflow")
-    ,
-  )
-  inspect!(
-    p2.op_add?(p4),
-    content=
-      #|Err("Int overflow")
-    ,
-  )
+  inspect!(p1.op_add!(@time.Period::zero()), content="P1Y2M3D")
+  inspect!(p1.op_add!(p2), content="P0D")
+  inspect!(p1.op_add!(p1), content="P2Y4M6D")
+  inspect!(p2.op_add!(p2), content="P-2Y-4M-6D")
+  inspect!(p1.op_add?(p3), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(p2.op_add?(p4), content="Err(moonbitlang/core/builtin.Failure)")
 }
 
 test "op_sub" {
@@ -161,63 +143,44 @@ test "op_sub" {
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!(p1.op_sub?(p1), content="Ok(P0D)")
-  inspect!(p1.op_sub?(p2), content="Ok(P2Y4M6D)")
-  inspect!(p2.op_sub?(p1), content="Ok(P-2Y-4M-6D)")
-  inspect!(
-    p3.op_sub?(p2),
-    content=
-      #|Err("Int overflow")
-    ,
-  )
-  inspect!(
-    p4.op_sub?(p1),
-    content=
-      #|Err("Int overflow")
-    ,
-  )
+  inspect!(p1.op_sub!(p1), content="P0D")
+  inspect!(p1.op_sub!(p2), content="P2Y4M6D")
+  inspect!(p2.op_sub!(p1), content="P-2Y-4M-6D")
+  inspect!(p3.op_sub?(p2), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(p4.op_sub?(p1), content="Err(moonbitlang/core/builtin.Failure)")
 }
 
 test "multiply" {
   let p = @time.Period::of(years=1, months=2, days=3)
-  inspect!(p.multiply?(0), content="Ok(P0D)")
-  inspect!(p.multiply?(1), content="Ok(P1Y2M3D)")
-  inspect!(p.multiply?(-1), content="Ok(P-1Y-2M-3D)")
-  inspect!(p.multiply?(2), content="Ok(P2Y4M6D)")
+  inspect!(p.multiply!(0), content="P0D")
+  inspect!(p.multiply!(1), content="P1Y2M3D")
+  inspect!(p.multiply!(-1), content="P-1Y-2M-3D")
+  inspect!(p.multiply!(2), content="P2Y4M6D")
   inspect!(
     p.multiply?(Int::max_value()),
-    content=
-      #|Err("Int overflow")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
   inspect!(
     p.multiply?(Int::min_value()),
-    content=
-      #|Err("Int overflow")
-    ,
+    content="Err(moonbitlang/core/builtin.Failure)",
   )
 }
 
 test "negated" {
   let p = @time.Period::of(years=1, months=1, days=1)
-  inspect!(p.negated?(), content="Ok(P-1Y-1M-1D)")
+  inspect!(p.negated!(), content="P-1Y-1M-1D")
   inspect!(p.negated!().negated!() == p, content="true")
   let p = @time.Period::of(
     years=Int::max_value(),
     months=Int::max_value(),
     days=Int::max_value(),
   )
-  inspect!(p.negated?(), content="Ok(P-2147483647Y-2147483647M-2147483647D)")
+  inspect!(p.negated!(), content="P-2147483647Y-2147483647M-2147483647D")
   inspect!(p.negated!().negated!() == p, content="true")
   let p = @time.Period::of(
     years=Int::min_value(),
     months=Int::min_value(),
     days=Int::min_value(),
   )
-  inspect!(
-    p.negated?(),
-    content=
-      #|Err("Int overflow")
-    ,
-  )
+  inspect!(p.negated?(), content="Err(moonbitlang/core/builtin.Failure)")
 }

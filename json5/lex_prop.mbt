@@ -35,7 +35,9 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         let s = lex_ident!(ctx, ctx.offset, ~buffer)
         String(s)
       } else {
-        raise InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6))
+        parse_error!(
+          InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)),
+        )
       }
     }
     Some(c) => {
@@ -45,9 +47,9 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         let s = lex_ident!(ctx, ctx.offset - 1)
         return String(s)
       }
-      raise invalid_char(ctx, shift=-1)
+      invalid_char!(ctx, shift=-1)
     }
-    None => raise InvalidEof
+    None => parse_error!(InvalidEof)
   }
 }
 
@@ -78,8 +80,8 @@ fn lex_ident(
           start = ctx.offset
           continue
         } else {
-          raise InvalidIdentEscape(
-            offset_to_position(ctx.input, ctx.offset - 6),
+          parse_error!(
+            InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)),
           )
         }
       }

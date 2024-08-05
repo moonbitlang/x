@@ -28,7 +28,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
           flush(ctx.offset - 1)
           break
         }
-      Some('\n' | '\r') => raise invalid_char(ctx, shift=-1)
+      Some('\n' | '\r') => invalid_char!(ctx, shift=-1)
       Some('\\') => {
         flush(ctx.offset - 1)
         match read_char(ctx) {
@@ -47,7 +47,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
               Some(c) => {
                 ctx.offset -= 1
                 if c >= '0' && c <= '9' {
-                  raise invalid_char(ctx)
+                  invalid_char!(ctx)
                 }
               }
             }
@@ -63,16 +63,16 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
           }
           Some(c) => {
             if c >= '1' && c <= '9' {
-              raise invalid_char(ctx, shift=-1)
+              invalid_char!(ctx, shift=-1)
             }
             buf.add_char(c)
           }
-          None => raise InvalidEof
+          None => parse_error!(InvalidEof)
         }
         start = ctx.offset
       }
       Some(_) => continue
-      None => raise InvalidEof
+      None => parse_error!(InvalidEof)
     }
   }
   buf.to_string()
@@ -86,19 +86,19 @@ fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int!ParseError {
         if c >= 'A' {
           let d = c.to_int().land((32).lnot()) - 'A'.to_int() + 10
           if d > 15 {
-            raise invalid_char(ctx, shift=-1)
+            invalid_char!(ctx, shift=-1)
           }
           r = r.lsl(4).lor(d)
         } else if c >= '0' {
           let d = c.to_int() - '0'.to_int()
           if d > 9 {
-            raise invalid_char(ctx, shift=-1)
+            invalid_char!(ctx, shift=-1)
           }
           r = r.lsl(4).lor(d)
         } else {
-          raise invalid_char(ctx, shift=-1)
+          invalid_char!(ctx, shift=-1)
         }
-      None => raise InvalidEof
+      None => parse_error!(InvalidEof)
     }
   }
   r

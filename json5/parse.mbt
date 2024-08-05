@@ -19,7 +19,7 @@ pub fn parse(input : String) -> @json.JsonValue!ParseError {
   if ctx.offset >= ctx.end_offset {
     val
   } else {
-    raise invalid_char(ctx)
+    invalid_char!(ctx)
   }
 }
 

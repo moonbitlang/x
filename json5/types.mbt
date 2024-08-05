@@ -17,21 +17,27 @@ pub struct Position {
   column : Int // 0-based
 } derive(Eq, Show)
 
-pub enum ParseError {
+pub enum ParseErrorData {
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 } derive(Eq)
 
+type! ParseError ParseErrorData
+
+fn parse_error[X](data : ParseErrorData) -> X!ParseError {
+  raise ParseError(data)
+}
+
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
-    ParseError::InvalidChar({ line, column }, c) =>
+    ParseError(InvalidChar({ line, column }, c)) =>
       "Invalid character \(c) at line \(line), column \(column)"
-    ParseError::InvalidEof => "Unexpected end of file"
-    ParseError::InvalidNumber({ line, column }, s) =>
+    ParseError(InvalidEof) => "Unexpected end of file"
+    ParseError(InvalidNumber({ line, column }, s)) =>
       "Invalid number \(s) at line \(line), column \(column)"
-    ParseError::InvalidIdentEscape({ line, column }) =>
+    ParseError(InvalidIdentEscape({ line, column })) =>
       "Invalid escape sequence in identifier at line \(line), column \(column)"
   }
 }

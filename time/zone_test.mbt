@@ -13,7 +13,7 @@
 // limitations under the License.
 
 test "fixed" {
-  inspect!(@time.fixed_zone?("CST", 8 * 60 * 60), content="Ok(CST)")
+  inspect!(@time.fixed_zone!("CST", 8 * 60 * 60), content="CST")
   inspect!(@time.fixed_zone!("CST", 8 * 60 * 60).is_fixed(), content="true")
 }
 

@@ -24,7 +24,7 @@ pub fn Duration::of(
   ~minutes : Int64 = 0L,
   ~seconds : Int64 = 0L,
   ~nanoseconds : Int64 = 0L
-) -> Duration!String {
+) -> Duration!Error {
   let hours_sec = checked_mul_int64!(hours, seconds_per_hour)
   let minutes_sec = checked_mul_int64!(minutes, seconds_per_minute)
   let mut secs = checked_add_int64!(
@@ -36,9 +36,9 @@ pub fn Duration::of(
   { secs, nanos }
 }
 
-fn create(secs : Int64, nanos : Int) -> Duration!String {
+fn create(secs : Int64, nanos : Int) -> Duration!Error {
   if nanos < min_nanosecond || nanos > max_nanosecond {
-    raise invalid_duration_err
+    fail!(invalid_duration_err)
   }
   { secs, nanos }
 }
@@ -49,10 +49,10 @@ pub fn Duration::zero() -> Duration {
 }
 
 /// Parses a ISO 8601 format string like `PT[n]H[n]M[n].[n]S`.
-pub fn Duration::from_string(str : String) -> Duration!String {
+pub fn Duration::from_string(str : String) -> Duration!Error {
   // TODO: better parsing impl
   if str.substring(end=2) != "PT" {
-    raise invalid_duration_err
+    fail!(invalid_duration_err)
   }
   let mut hours = 0L
   let mut minutes = 0L
@@ -75,7 +75,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
         let s = buf.to_string()
         let splits = split(s, '.')
         if splits.is_empty() || splits.length() > 2 {
-          raise invalid_duration_err
+          fail!(invalid_duration_err)
         }
         if splits.length() > 0 && splits[0] != "" {
           let secs_str = splits[0]
@@ -91,7 +91,7 @@ pub fn Duration::from_string(str : String) -> Duration!String {
         }
         break
       }
-      _ => raise invalid_duration_err
+      _ => fail!(invalid_duration_err)
     }
   }
   Duration::of!(~hours, ~minutes, ~seconds, ~nanoseconds)
@@ -161,7 +161,7 @@ pub fn is_neg(self : Duration) -> Bool {
 }
 
 /// Adds specified hours to this duration, and returns a new duration.
-pub fn add_hours(self : Duration, hours : Int64) -> Duration!String {
+pub fn add_hours(self : Duration, hours : Int64) -> Duration!Error {
   if hours == 0L {
     return self
   }
@@ -173,7 +173,7 @@ pub fn add_hours(self : Duration, hours : Int64) -> Duration!String {
 }
 
 /// Adds specified minutes to this duration, and returns a new duration.
-pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!String {
+pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!Error {
   if minutes == 0L {
     return self
   }
@@ -185,7 +185,7 @@ pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!String {
 }
 
 /// Adds specified seconds to this duration, and returns a new duration.
-pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!String {
+pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!Error {
   if seconds == 0L {
     return self
   }
@@ -194,7 +194,7 @@ pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!String {
 }
 
 /// Adds specified nanoseconds to this duration, and returns a new duration.
-pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!String {
+pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!Error {
   if nanoseconds == 0L {
     return self
   }
@@ -207,7 +207,7 @@ pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!String 
 }
 
 /// Adds other duration to this duration, and returns a new duration.
-pub fn add_duration(self : Duration, other : Duration) -> Duration!String {
+pub fn add_duration(self : Duration, other : Duration) -> Duration!Error {
   if other.is_zero() {
     return self
   }
@@ -222,7 +222,7 @@ pub fn add_duration(self : Duration, other : Duration) -> Duration!String {
   create!(secs, nanos.to_int())
 }
 
-pub fn op_add(self : Duration, other : Duration) -> Duration!String {
+pub fn op_add(self : Duration, other : Duration) -> Duration!Error {
   self.add_duration!(other)
 }
 
@@ -235,7 +235,7 @@ pub fn with_seconds(self : Duration, seconds : Int64) -> Duration {
 }
 
 /// Returns a new duration with the specified nanosecond of second.
-pub fn with_nanoseconds(self : Duration, nanoseconds : Int) -> Duration!String {
+pub fn with_nanoseconds(self : Duration, nanoseconds : Int) -> Duration!Error {
   if nanoseconds == self.nanos {
     return self
   }
