@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Currently we only support chacha8 as the source of randomness.
+/// Currently we only support [chacha8] as the source of randomness.
 struct Rand {
   src : ChaCha8
 }
@@ -26,13 +26,12 @@ pub fn Rand::new(
 }
 
 fn Rand::next(self : Rand) -> UInt64 {
-  try {
-    self.src.state.next!()
-  } catch {
-    _ => {
-      self.src.state.refill()
-      self.src.state.next()!!.unwrap()
+  for {
+    let x = self.src.state.next()
+    if x.1 {
+      return x.0
     }
+    self.src.state.refill()
   }
 }
 

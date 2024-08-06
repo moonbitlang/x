@@ -1,3 +1,17 @@
+// Copyright 2024 International Digital Economy Academy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 struct ChaCha8 {
   state : State
 }
@@ -8,7 +22,7 @@ fn ChaCha8::new(seed : Bytes) -> ChaCha8 {
   c
 }
 
-struct State {
+priv struct State {
   mut buffer : FixedArray[UInt64] // size=[32]
   mut seed : FixedArray[UInt64] // size=[4]
   mut i : UInt
@@ -34,13 +48,13 @@ let chunk = 32U
 
 let chachaReseed = 4
 
-fn State::next(self : State) -> UInt64!String {
+fn State::next(self : State) -> (UInt64, Bool) {
   let i = self.i
   if i >= self.n {
-    raise "next not available: needs refill"
+    return (0, false)
   }
   self.i = i + 1
-  self.buffer[i.to_int() & 31]
+  (self.buffer[i.to_int() & 31], true)
 }
 
 fn bytesToUInt64(b : Bytes) -> UInt64 {
@@ -51,8 +65,8 @@ fn bytesToUInt64(b : Bytes) -> UInt64 {
   result
 }
 
-test "bytesToUInt64 with all zeros" {
-  let bytes = Bytes::new(2)
+test "bytesToUInt64" {
+  let bytes = Bytes::new(8)
   for i = 0; i < 2; i = i + 1 {
     bytes[i] = i.to_byte()
   }
@@ -83,8 +97,6 @@ fn State::init(self : State, seed : Bytes) -> Unit {
   self.init64(arr)
 }
 
-// func block_generic(seed *[4]uint64, buf *[32]uint64, counter uint32) {
-//  b := (*[16][4]uint32)(unsafe.Pointer(buf))
 fn State::init64(self : State, seed : FixedArray[UInt64]) -> Unit {
   self.seed = seed
   // convert FixedArray[UInt64] size=[32] to FixedArray[FixedArray[UInt]] size=[16][4]
@@ -98,17 +110,14 @@ fn State::init64(self : State, seed : FixedArray[UInt64]) -> Unit {
     buffer[i][2] = lo.lsr(32).to_uint()
     buffer[i][3] = lo.to_uint()
   }
-  // buffer is changed in chacha_block
+  // [buffer] is changed in chacha_block
   chacha_block(self.seed, buffer, 0)
   // concat 2 u32 to u64 and store in self.buffer
   for i = 0; i < 16; i = i + 1 {
     for j = 0; j < 4; j = j + 2 {
       let lo = buffer[i][j]
-      // println("hi: \(hi)")
       let hi = buffer[i][j + 1]
-      // println("lo: \(lo)")
       let u64 : UInt64 = (hi.to_uint64() << 32) | lo.to_uint64()
-      // println("u64: \(u64)")
       self.buffer[i * 2 + j / 2] = u64
     }
   }
@@ -160,13 +169,12 @@ fn State::reseed(self : State) -> Unit {
   let seed = FixedArray::make(4, 0UL)
   for i = 0; i < 4; i = i + 1 {
     for {
-      try {
-        let x = self.next!()
-        seed[i] = x
+      let x = self.next()
+      if x.1 {
+        seed[i] = x.0
         break
-      } catch {
-        _ => self.refill()
       }
+      self.refill()
     }
   }
   self.init64(seed)
@@ -361,17 +369,19 @@ test "output" {
   let seed = string_to_bytes(seed_string)
   let res = Array::new(capacity=372)
   s.init(seed)
-  for i = 0; i < 372; i = i + 1 {
-    try {
-      let x = s.next!()
-      res.push(x)
-    } catch {
-      _ => {
-        s.refill()
-        let x = s.next!()
-        res.push(x)
+  fn uint64(s : State) -> UInt64 {
+    for {
+      let x = s.next()
+      if x.1 {
+        return x.0
       }
+      s.refill()
     }
+  }
+
+  for i = 0; i < 372; i = i + 1 {
+    let x = uint64(s)
+    res.push(x)
   }
   let expected = [
     13219109469176600229UL, 1252193259764759612UL, 10098646897834928252UL, 9142445797040479446UL,
