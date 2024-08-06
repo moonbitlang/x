@@ -4,6 +4,8 @@ package moonbitlang/x/num
 
 // Types and methods
 
+// Type aliases
+
 // Traits
 pub trait Num {
   from_int(Int) -> Self

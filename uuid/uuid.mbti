@@ -40,6 +40,8 @@ impl Version {
   to_string(Self) -> String
 }
 
+// Type aliases
+
 // Traits
 
 // Extension Methods

@@ -31,6 +31,8 @@ impl Position {
   to_string(Self) -> String
 }
 
+// Type aliases
+
 // Traits
 
 // Extension Methods
