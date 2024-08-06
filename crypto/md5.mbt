@@ -16,7 +16,7 @@
 // [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
 // [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
 // [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html 
-priv struct MD5Context {
+struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   count : FixedArray[UInt]
   buffer : Bytes
@@ -24,7 +24,18 @@ priv struct MD5Context {
 
 let padding : Bytes = Bytes::make(64, b'\x00')
 
-fn MD5Context::make() -> MD5Context {
+/// update the state of given context from new `data` 
+pub fn MD5Context::update(self : MD5Context, data : Bytes) -> Unit {
+  md5_update(self, data)
+}
+
+/// an alias of `MD5Context::compute()`
+pub fn MD5Context::finalize(self : MD5Context) -> Bytes {
+  self.md5_compute()
+}
+
+/// Instantiate a MD5 context
+pub fn MD5Context::new() -> MD5Context {
   padding[0] = b'\x80'
   {
     state: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476],
@@ -33,7 +44,8 @@ fn MD5Context::make() -> MD5Context {
   }
 }
 
-fn MD5Context::compute(self : MD5Context) -> Bytes {
+/// compute MD5 digest from given context
+fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   let input = FixedArray::make(16, 0U)
   let idx = (self.count[0].lsr(3) & 0x3f).to_int()
   input[14] = self.count[0]
@@ -220,9 +232,9 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
 pub fn md5(data : Bytes) -> Bytes {
-  let ctx = MD5Context::make()
+  let ctx = MD5Context::new()
   md5_update(ctx, data)
-  ctx.compute()
+  ctx.md5_compute()
 }
 
 test "md5_wb" {
@@ -231,4 +243,16 @@ test "md5_wb" {
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",
   )
+}
+
+test {
+  let ctx = MD5Context::new()
+  md5_update(ctx, b"\x61")
+  md5_update(ctx, b"\x62")
+  md5_update(ctx, b"\x63")
+  let res1 = bytes_to_hex_string(ctx.md5_compute())
+  let ctx = MD5Context::new()
+  md5_update(ctx, b"\x61\x62\x63")
+  let res2 = bytes_to_hex_string(ctx.md5_compute())
+  @test.eq!(res1, res2)
 }

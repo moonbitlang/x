@@ -16,20 +16,23 @@
 // - [GM/T 0004-2012]    https://www.oscca.gov.cn/sca/xxgk/2010-12/17/1002389/files/302a3ada057c4a73830536d03e683110.pdf
 // SM3 is as secure as SHA256, providing similar performance. https://doi.org/10.3390/electronics8091033
 
-priv struct SM3Context {
+struct SM3Context {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
-  mut msg : Array[Byte]
+  mut buf : Bytes
+  mut buf_index : Int
 }
 
-fn SM3Context::make() -> SM3Context {
+/// Instantiate a SM3 context
+pub fn SM3Context::new() -> SM3Context {
   {
     reg: [
       0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
       0xB0FB0E4E,
     ],
     len: 0,
-    msg: [],
+    buf: Bytes::new(64),
+    buf_index: 0,
   }
 }
 
@@ -77,23 +80,32 @@ fn SM3Context::p_1(x : UInt) -> UInt {
   x ^ urotate_left(x, 15) ^ urotate_left(x, 23)
 }
 
-fn pad(self : SM3Context) -> Array[Byte] {
-  self.msg.push(b'\x80')
-  while self.msg.length() % 64 != 56 {
-    self.msg.push(b'\x00')
+fn pad(self : SM3Context) -> Bytes {
+  let mut cnt = self.buf_index
+  self.len += 8UL * cnt.to_int64().to_uint64()
+  self.buf[cnt] = b'\x80'
+  cnt += 1
+  if cnt > 56 {
+    let temp_arr = Bytes::new(128)
+    temp_arr.blit(0, self.buf, 0, cnt)
+    self.buf = temp_arr
   }
-  self.msg.push(self.len.lsr(56).to_byte())
-  self.msg.push(self.len.lsr(48).to_byte())
-  self.msg.push(self.len.lsr(40).to_byte())
-  self.msg.push(self.len.lsr(32).to_byte())
-  self.msg.push(self.len.lsr(24).to_byte())
-  self.msg.push(self.len.lsr(16).to_byte())
-  self.msg.push(self.len.lsr(8).to_byte())
-  self.msg.push(self.len.lsr(0).to_byte())
-  return self.msg
+  while cnt % 64 != 56 {
+    self.buf[cnt] = b'\x00'
+    cnt += 1
+  }
+  self.buf[cnt] = self.len.lsr(56).to_byte()
+  self.buf[cnt + 1] = self.len.lsr(48).to_byte()
+  self.buf[cnt + 2] = self.len.lsr(40).to_byte()
+  self.buf[cnt + 3] = self.len.lsr(32).to_byte()
+  self.buf[cnt + 4] = self.len.lsr(24).to_byte()
+  self.buf[cnt + 5] = self.len.lsr(16).to_byte()
+  self.buf[cnt + 6] = self.len.lsr(8).to_byte()
+  self.buf[cnt + 7] = self.len.lsr(0).to_byte()
+  return self.buf
 }
 
-fn update(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
+fn transform(self : SM3Context, data : Bytes, ~offset : Int = 0) -> Array[UInt] {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
   let mut a = self.reg[0]
@@ -104,66 +116,61 @@ fn update(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
   let mut f = self.reg[5]
   let mut g = self.reg[6]
   let mut h = self.reg[7]
-  while data.val.length() >= 64 {
-    for index = 0; index < 16; index = index + 1 {
-      w_0[index] = arr_u8_to_u32be(data.val, i=4 * index)
-    }
-    for index = 16; index < 68; index = index + 1 {
-      w_0[index] = p_1(
-          w_0[index - 16] ^ w_0[index - 9] ^ urotate_left(w_0[index - 3], 15),
-        ) ^ urotate_left(w_0[index - 13], 7) ^ w_0[index - 6]
-    }
-    for index = 0; index < 64; index = index + 1 {
-      w_1[index] = w_0[index] ^ w_0[index + 4]
-    }
-    let mut a1 = a
-    let mut b1 = b
-    let mut c1 = c
-    let mut d1 = d
-    let mut e1 = e
-    let mut f1 = f
-    let mut g1 = g
-    let mut h1 = h
-    for index = 0; index < 16; index = index + 1 {
-      let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
-      let ss_2 = ss_1 ^ urotate_left(a1, 12)
-      let tt_1 = ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
-      let tt_2 = gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
-      d1 = c1
-      c1 = urotate_left(b1, 9)
-      b1 = a1
-      a1 = tt_1
-      h1 = g1
-      g1 = urotate_left(f1, 19)
-      f1 = e1
-      e1 = p_0(tt_2)
-    }
-    for index = 16; index < 64; index = index + 1 {
-      let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
-      let ss_2 = ss_1 ^ urotate_left(a1, 12)
-      let tt_1 = ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
-      let tt_2 = gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
-      d1 = c1
-      c1 = urotate_left(b1, 9)
-      b1 = a1
-      a1 = tt_1
-      h1 = g1
-      g1 = urotate_left(f1, 19)
-      f1 = e1
-      e1 = p_0(tt_2)
-    }
-    a = a ^ a1
-    b = b ^ b1
-    c = c ^ c1
-    d = d ^ d1
-    e = e ^ e1
-    f = f ^ f1
-    g = g ^ g1
-    h = h ^ h1
-    let t_arr = Array::make(data.val.length() - 64, b'\x00')
-    data.val.blit_to(t_arr, len=data.val.length() - 64, src_offset=64)
-    data.val = t_arr
+  for index = 0; index < 16; index = index + 1 {
+    w_0[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
   }
+  for index = 16; index < 68; index = index + 1 {
+    w_0[index] = p_1(
+        w_0[index - 16] ^ w_0[index - 9] ^ urotate_left(w_0[index - 3], 15),
+      ) ^ urotate_left(w_0[index - 13], 7) ^ w_0[index - 6]
+  }
+  for index = 0; index < 64; index = index + 1 {
+    w_1[index] = w_0[index] ^ w_0[index + 4]
+  }
+  let mut a1 = a
+  let mut b1 = b
+  let mut c1 = c
+  let mut d1 = d
+  let mut e1 = e
+  let mut f1 = f
+  let mut g1 = g
+  let mut h1 = h
+  for index = 0; index < 16; index = index + 1 {
+    let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
+    let ss_2 = ss_1 ^ urotate_left(a1, 12)
+    let tt_1 = ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    d1 = c1
+    c1 = urotate_left(b1, 9)
+    b1 = a1
+    a1 = tt_1
+    h1 = g1
+    g1 = urotate_left(f1, 19)
+    f1 = e1
+    e1 = p_0(tt_2)
+  }
+  for index = 16; index < 64; index = index + 1 {
+    let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
+    let ss_2 = ss_1 ^ urotate_left(a1, 12)
+    let tt_1 = ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    d1 = c1
+    c1 = urotate_left(b1, 9)
+    b1 = a1
+    a1 = tt_1
+    h1 = g1
+    g1 = urotate_left(f1, 19)
+    f1 = e1
+    e1 = p_0(tt_2)
+  }
+  a = a ^ a1
+  b = b ^ b1
+  c = c ^ c1
+  d = d ^ d1
+  e = e ^ e1
+  f = f ^ f1
+  g = g ^ g1
+  h = h ^ h1
   let t_arr : Array[UInt] = [a, b, c, d, e, f, g, h]
   for index = 0; index < 8; index = index + 1 {
     self.reg[index] = t_arr[index]
@@ -171,35 +178,73 @@ fn update(self : SM3Context, data : Ref[Array[Byte]]) -> Array[UInt] {
   return t_arr
 }
 
-fn compute(self : SM3Context, data : Array[Byte]) -> Unit {
-  self.len += data.length().to_int64().to_uint64() * 8UL
-  let msg = self.msg + data
-  let block_num = msg.length() / 64
-  let len = msg.length() - block_num * 64
-  let _ = self.update(Ref::new(msg))
-  let new_msg = Array::make(len, b'\x00')
-  msg.blit_to(new_msg, ~len, src_offset=block_num * 64)
-  self.msg = new_msg
+fn sm3_update(self : SM3Context, data : Iter[Byte]) -> Unit {
+  data.each(
+    fn(b) {
+      self.buf[self.buf_index] = b
+      self.buf_index += 1
+      if self.buf_index == 64 {
+        self.buf_index = 0
+        self.len += 512UL
+        let _ = self.transform(self.buf)
+
+      }
+    },
+  )
 }
 
-fn sum(self : SM3Context, ~data : Array[Byte] = []) -> Array[UInt] {
-  self.compute(data)
+/// update the state of given context from new `data` 
+pub fn update(self : SM3Context, data : Bytes) -> Unit {
+  self.sm3_update(bytes_to_iter(data))
+}
+
+pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
+  self.sm3_update(data)
+}
+
+fn sm3_compute(
+  self : SM3Context,
+  ~data : Iter[Byte] = Iter::empty()
+) -> Array[UInt] {
+  self.sm3_update(data)
   let msg = self.pad()
-  self.update(Ref::new(msg))
+  if msg.length() > 64 {
+    let _ = self.transform(msg)
+    self.transform(msg, offset=64)
+  } else {
+    self.transform(msg)
+  }
 }
 
-/// Compute the SM3 digest of some `data`
-pub fn sm3(data : Bytes) -> Array[UInt] {
-  let bytes_data = bytes_to_byte_array(data)
-  let ctx = SM3Context::make()
-  let _ = ctx.compute(bytes_data)
-  ctx.sum()
+/// Compute the SM3 digest in `UInt[]` of some `data`
+fn sm3_u32_from_iter(data : Iter[Byte]) -> Array[UInt] {
+  let ctx = SM3Context::new()
+  let _ = ctx.sm3_update(data)
+  ctx.sm3_compute()
+}
+
+fn sm3_u32(data : Bytes) -> Array[UInt] {
+  sm3_u32_from_iter(bytes_to_iter(data))
+}
+
+/// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
+pub fn sm3(data : Bytes) -> Bytes {
+  arr_u32_to_u8be(sm3_u32(data))
+}
+
+pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
+  arr_u32_to_u8be(sm3_u32_from_iter(data))
+}
+
+/// an alias of `SM3Context::compute()`
+pub fn finalize(self : SM3Context) -> Bytes {
+  arr_u32_to_u8be(self.sm3_compute())
 }
 
 test {
   inspect!(
     uints_to_hex_string(
-      sm3(
+      sm3_u32(
         b"\x61\x62\x63", // abc in utf-8
       ),
     ),
@@ -207,11 +252,21 @@ test {
   )
   inspect!(
     uints_to_hex_string(
-      sm3(
+      sm3_u32(
         // abcd * 16 in utf-8
         b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
       ),
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
+  @test.eq!(
+    bytes_to_hex_string(sm3(b"\x61\x62\x63")),
+    uints_to_hex_string(sm3_u32(b"\x61\x62\x63")),
+  )
+  let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
+  let ctx = SM3Context::new()
+  ctx.update(b"\x61")
+  ctx.update(b"\x62")
+  ctx.update(b"\x63")
+  @test.eq!(hash1, bytes_to_hex_string(ctx.finalize()))
 }

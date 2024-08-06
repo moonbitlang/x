@@ -13,7 +13,7 @@
 // limitations under the License.
 
 fn sm3test(s : String) -> String {
-  @crypto.uints_to_hex_string(@crypto.sm3(s.to_bytes()))
+  @crypto.bytes_to_hex_string(@crypto.sm3(s.to_bytes()))
 }
 
 // testcases from GM/T 0004-2012
