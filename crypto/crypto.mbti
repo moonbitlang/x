@@ -29,6 +29,8 @@ fn uints_to_hex_string(Array[UInt]) -> String
 
 // Types and methods
 
+// Type aliases
+
 // Traits
 
 // Extension Methods

@@ -37,6 +37,8 @@ impl Stack {
   to_string[T : Show](Self[T]) -> String
 }
 
+// Type aliases
+
 // Traits
 
 // Extension Methods

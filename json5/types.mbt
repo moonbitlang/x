@@ -33,12 +33,12 @@ fn parse_error[X](data : ParseErrorData) -> X!ParseError {
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
     ParseError(InvalidChar({ line, column }, c)) =>
-      "Invalid character \(c) at line \(line), column \(column)"
+      "Invalid character \{c} at line \{line}, column \{column}"
     ParseError(InvalidEof) => "Unexpected end of file"
     ParseError(InvalidNumber({ line, column }, s)) =>
-      "Invalid number \(s) at line \(line), column \(column)"
+      "Invalid number \{s} at line \{line}, column \{column}"
     ParseError(InvalidIdentEscape({ line, column })) =>
-      "Invalid escape sequence in identifier at line \(line), column \(column)"
+      "Invalid escape sequence in identifier at line \{line}, column \{column}"
   }
 }
 
