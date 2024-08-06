@@ -31,11 +31,11 @@ pub fn MD5Context::update(self : MD5Context, data : Bytes) -> Unit {
 
 /// an alias of `MD5Context::compute()`
 pub fn MD5Context::finalize(self : MD5Context) -> Bytes {
-  self.compute()
+  self.md5_compute()
 }
 
 /// Instantiate a MD5 context
-pub fn MD5Context::make() -> MD5Context {
+pub fn MD5Context::new() -> MD5Context {
   padding[0] = b'\x80'
   {
     state: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476],
@@ -45,7 +45,7 @@ pub fn MD5Context::make() -> MD5Context {
 }
 
 /// compute MD5 digest from given context
-pub fn MD5Context::compute(self : MD5Context) -> Bytes {
+fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   let input = FixedArray::make(16, 0U)
   let idx = (self.count[0].lsr(3) & 0x3f).to_int()
   input[14] = self.count[0]
@@ -231,14 +231,14 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
 /// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
-pub fn md5sum(data : Bytes) -> Bytes {
-  let ctx = MD5Context::make()
+pub fn md5(data : Bytes) -> Bytes {
+  let ctx = MD5Context::new()
   md5_update(ctx, data)
-  ctx.compute()
+  ctx.md5_compute()
 }
 
 test "md5_wb" {
-  let hash = md5sum("The quick brown fox jumps over the lazy dog".to_bytes())
+  let hash = md5("The quick brown fox jumps over the lazy dog".to_bytes())
   inspect!(
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",
@@ -246,13 +246,13 @@ test "md5_wb" {
 }
 
 test {
-  let ctx = MD5Context::make()
+  let ctx = MD5Context::new()
   md5_update(ctx, b"\x61")
   md5_update(ctx, b"\x62")
   md5_update(ctx, b"\x63")
-  let res1 = bytes_to_hex_string(ctx.compute())
-  let ctx = MD5Context::make()
+  let res1 = bytes_to_hex_string(ctx.md5_compute())
+  let ctx = MD5Context::new()
   md5_update(ctx, b"\x61\x62\x63")
-  let res2 = bytes_to_hex_string(ctx.compute())
+  let res2 = bytes_to_hex_string(ctx.md5_compute())
   @test.eq!(res1, res2)
 }

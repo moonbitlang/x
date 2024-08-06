@@ -1,13 +1,7 @@
 package moonbitlang/x/crypto
 
 // Values
-fn arr_u32_to_u8be(Array[UInt]) -> Bytes
-
-fn arr_u8_to_u32be(Array[Byte], ~i : Int = ..) -> UInt
-
 fn bytes_to_hex_string(Bytes) -> String
-
-fn bytes_to_iter(Bytes) -> Iter[Byte]
 
 fn chacha12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
 
@@ -15,38 +9,28 @@ fn chacha20(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
 
 fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
 
-fn md5sum(Bytes) -> Bytes
-
-fn rotate_left(Int, Int) -> Int
+fn md5(Bytes) -> Bytes
 
 fn sha1(Bytes) -> Bytes
 
-fn sm3sum(Bytes) -> Bytes
+fn sm3(Bytes) -> Bytes
 
-fn sm3sum_from_iter(Iter[Byte]) -> Bytes
-
-fn u32_to_u8be(UInt) -> Array[Byte]
-
-fn u8_to_u32be(Bytes, ~i : Int = ..) -> UInt
-
-fn u8_to_u32le(Bytes, ~i : Int = ..) -> UInt
+fn sm3_from_iter(Iter[Byte]) -> Bytes
 
 fn uints_to_hex_string(Array[UInt]) -> String
 
 // Types and methods
 type MD5Context
 impl MD5Context {
-  compute(Self) -> Bytes
   finalize(Self) -> Bytes
-  make() -> Self
+  new() -> Self
   update(Self, Bytes) -> Unit
 }
 
 type SM3Context
 impl SM3Context {
-  compute(Self) -> Bytes
   finalize(Self) -> Bytes
-  make() -> Self
+  new() -> Self
   update(Self, Bytes) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }

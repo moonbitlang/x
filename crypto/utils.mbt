@@ -60,7 +60,7 @@ fn uint32(x : Byte) -> UInt {
 /// convert 4 bytes a byte sequence to a UInt in little endian
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-pub fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
+fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
   uint32(x[i]) | uint32(x[i + 1]).lsl(8) | uint32(x[i + 2]).lsl(16) | uint32(
     x[i + 3],
   ).lsl(24)
@@ -69,23 +69,32 @@ pub fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
 /// convert 4 bytes of a byte sequence to a UInt in big endian 
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-pub fn u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
-  uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
-    x[i + 3],
-  )
-}
+
+// fn u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
+//   uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
+//     x[i + 3],
+//   )
+// }
 
 /// convert 4 bytes of a byte array to a UInt in big endian 
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-pub fn arr_u8_to_u32be(x : Array[Byte], ~i : Int = 0) -> UInt {
+
+// fn arr_u8_to_u32be(x : Array[Byte], ~i : Int = 0) -> UInt {
+//   uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
+//     x[i + 3],
+//   )
+// }
+
+fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
   uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
     x[i + 3],
   )
 }
 
 /// convert a UInt to 4 bytes
-pub fn u32_to_u8be(x : UInt) -> Array[Byte] {
+
+fn u32_to_u8be(x : UInt) -> Array[Byte] {
   let b = Array::make(4, b'\x00')
   b[0] = x.lsr(24).to_byte()
   b[1] = x.lsr(16).to_byte()
@@ -95,7 +104,8 @@ pub fn u32_to_u8be(x : UInt) -> Array[Byte] {
 }
 
 /// convert an array of UInt to Bytes in big endian
-pub fn arr_u32_to_u8be(x : Array[UInt]) -> Bytes {
+
+fn arr_u32_to_u8be(x : Array[UInt]) -> Bytes {
   let temp : Bytes = Bytes::make(x.length() * 4, b'\x00')
   for index = 0; index < x.length(); index = index + 1 {
     let u8 = u32_to_u8be(x[index])
@@ -108,7 +118,8 @@ pub fn arr_u32_to_u8be(x : Array[UInt]) -> Bytes {
 }
 
 /// rotate a Int `x` left by `n` bit(s)
-pub fn rotate_left(x : Int, n : Int) -> Int {
+
+fn rotate_left(x : Int, n : Int) -> Int {
   x.lsl(n).lor(x.lsr(32 - n))
 }
 
@@ -118,10 +129,11 @@ fn rotate_left_u(x : UInt, n : Int) -> UInt {
 }
 
 /// temp function for convert bytes_to_iter in absence of `Bytes::iter()`.
-pub fn bytes_to_iter(data : Bytes) -> Iter[Byte] {
+
+fn bytes_to_iter(data : Bytes, ~length : Int = data.length()) -> Iter[Byte] {
   Iter::new(
     fn(yield) {
-      for i = 0, len = data.length(); i < len; i = i + 1 {
+      for i = 0, len = length; i < len; i = i + 1 {
         if yield(data[i]) == IterEnd {
           break IterEnd
         }
