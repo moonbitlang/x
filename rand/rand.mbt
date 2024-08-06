@@ -44,8 +44,7 @@ test "next" {
 
 /// [int] Return a non-negative pseudo-random 31-bit integer as an Int.
 pub fn Rand::int(self : Rand) -> Int {
-  // (self.next().to_uint() << 1 >> 1).to_int()
-  (self.next().to_uint() << 1).lsr(1).to_int()
+  self.next().lsr(33).to_int()
 }
 
 /// [int64] returns a non-negative pseudo-random 63-bit integer as an Int64
@@ -74,9 +73,8 @@ test "UInt64" {
 
 /// [double64] returns a pseudo-random 64-bit Double in the range [0.0, 1.0)
 pub fn Rand::double64(self : Rand) -> Double {
-  Double::convert_uint64((self.next() << 11).lsr(11)) / Double::convert_uint64(
-    1UL << 53,
-  )
+  Double::convert_uint64((self.next() << 11).lsr(11)) /
+  Double::convert_uint64(1UL << 53)
 }
 
 test "double64" {
@@ -139,11 +137,11 @@ test "umul128: handles zero correctly" {
   @test.eq!(lo, 0UL)
 }
 
-/// [uint64n] returns, as a Uint64, a pseudo-random number in the half-open interval [0,n)
+/// [uint64N] returns, as a Uint64, a pseudo-random number in the half-open interval [0,n)
 /// @alert unsafe "Panics if n is 0"
-pub fn Rand::uint64n(self : Rand, n : UInt64) -> UInt64 {
+pub fn Rand::uint64N(self : Rand, n : UInt64) -> UInt64 {
   if n == 0 {
-    abort("Rand::uint64n: n must > 0")
+    abort("Rand::uint64N: n must > 0")
   }
   // n is a power of 2, mask to get the unbiased result.
   if (n & (n - 1)) == 0 {
@@ -160,51 +158,51 @@ pub fn Rand::uint64n(self : Rand, n : UInt64) -> UInt64 {
   t.0
 }
 
-test "uint64n" {
+test "uint64N" {
   let r = Rand::new()
-  let n = r.uint64n(10UL)
+  let n = r.uint64N(10UL)
   inspect!(n, content="7")
-  let n = r.uint64n(10UL)
+  let n = r.uint64N(10UL)
   inspect!(n, content="0")
-  let n = r.uint64n(10UL)
+  let n = r.uint64N(10UL)
   inspect!(n, content="5")
 }
 
-/// [uint32n] returns a non-negative pseudo-random 32-bit integer in the range [0, n)
+/// [uintN] returns a non-negative pseudo-random 32-bit integer in the range [0, n)
 /// @alert unsafe "Panics if n is 0"
-pub fn Rand::uint32n(self : Rand, n : UInt) -> UInt {
+pub fn Rand::uintN(self : Rand, n : UInt) -> UInt {
   if n == 0 {
-    abort("Rand::uint32n: n must > 0")
+    abort("Rand::uintN: n must > 0")
   }
-  self.uint64n(n.to_uint64()).to_uint()
+  self.uint64N(n.to_uint64()).to_uint()
 }
 
-test "uint32n" {
+test "uintN" {
   let r = Rand::new()
-  let n = r.uint32n(10U)
+  let n = r.uintN(10U)
   inspect!(n, content="7")
-  let n = r.uint32n(10U)
+  let n = r.uintN(10U)
   inspect!(n, content="0")
-  let n = r.uint32n(10U)
+  let n = r.uintN(10U)
   inspect!(n, content="5")
 }
 
-/// [int64n] returns a non-negative pseudo-random 63-bit integer in the range [0, n)
+/// [int64N] returns a non-negative pseudo-random 63-bit integer in the range [0, n)
 /// @alert unsafe "Panics if n is 0"
-pub fn Rand::int64n(self : Rand, n : Int64) -> Int64 {
+pub fn Rand::int64N(self : Rand, n : Int64) -> Int64 {
   if n <= 0 {
-    abort("Rand::int64n: n must be positive")
+    abort("Rand::int64N: n must be positive")
   }
-  self.uint64n(n.to_uint64()).to_int64()
+  self.uint64N(n.to_uint64()).to_int64()
 }
 
-/// [int32n] returns a non-negative pseudo-random 31-bit integer in the range [0, n)
+/// [intN] returns a non-negative pseudo-random 31-bit integer in the range [0, n)
 /// @alert unsafe "Panics if n is 0"
-pub fn Rand::int32n(self : Rand, n : Int) -> Int {
+pub fn Rand::intN(self : Rand, n : Int) -> Int {
   if n <= 0 {
-    abort("Rand::int32n: n must be positive")
+    abort("Rand::intN: n must be positive")
   }
-  self.uint32n(n.to_uint()).to_int()
+  self.uintN(n.to_uint()).to_int()
 }
 
 pub fn Rand::shuffle(self : Rand, n : Int, swap : (Int, Int) -> Unit) -> Unit {
@@ -212,7 +210,7 @@ pub fn Rand::shuffle(self : Rand, n : Int, swap : (Int, Int) -> Unit) -> Unit {
     abort("Rand::shuffle: invalid argument n")
   }
   for i = n - 1; i > 0; i = i - 1 {
-    let j = self.int32n(i + 1)
+    let j = self.intN(i + 1)
     swap(i, j)
   }
 }
