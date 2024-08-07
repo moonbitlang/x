@@ -234,7 +234,7 @@ fn sm3_compute(
 
 /// Compute the SM3 digest from given SM3Context
 pub fn finalize(self : SM3Context) -> Bytes {
-  arr_u32_to_u8be(self.sm3_compute())
+  arr_u32_to_u8be(self.sm3_compute().iter())
 }
 
 /// Compute the SM3 digest in `UInt[]` of some `data`
@@ -252,11 +252,11 @@ fn sm3_u32(data : Bytes) -> FixedArray[UInt] {
 
 /// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : Bytes) -> Bytes {
-  arr_u32_to_u8be(sm3_u32(data))
+  arr_u32_to_u8be(sm3_u32(data).iter())
 }
 
 pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
-  arr_u32_to_u8be(sm3_u32_from_iter(data))
+  arr_u32_to_u8be(sm3_u32_from_iter(data).iter())
 }
 
 test {
@@ -264,7 +264,7 @@ test {
     uints_to_hex_string(
       sm3_u32(
         b"\x61\x62\x63", // abc in utf-8
-      ),
+      ).iter(),
     ),
     content="66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0",
   )
@@ -273,13 +273,13 @@ test {
       sm3_u32(
         // abcd * 16 in utf-8
         b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
-      ),
+      ).iter(),
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
   @test.eq!(
     bytes_to_hex_string(sm3(b"\x61\x62\x63")),
-    uints_to_hex_string(sm3_u32(b"\x61\x62\x63")),
+    uints_to_hex_string(sm3_u32(b"\x61\x62\x63").iter()),
   )
   let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
   let ctx = SM3Context::new()
