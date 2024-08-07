@@ -105,7 +105,11 @@ fn pad(self : SM3Context) -> Bytes {
   return self.buf
 }
 
-fn transform(self : SM3Context, data : Bytes, ~offset : Int = 0) -> Array[UInt] {
+fn transform(
+  self : SM3Context,
+  data : Bytes,
+  ~offset : Int = 0
+) -> FixedArray[UInt] {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
   let mut a = self.reg[0]
@@ -171,14 +175,14 @@ fn transform(self : SM3Context, data : Bytes, ~offset : Int = 0) -> Array[UInt] 
   f = f ^ f1
   g = g ^ g1
   h = h ^ h1
-  let t_arr : Array[UInt] = [a, b, c, d, e, f, g, h]
+  let t_arr : FixedArray[UInt] = [a, b, c, d, e, f, g, h]
   for index = 0; index < 8; index = index + 1 {
     self.reg[index] = t_arr[index]
   }
   return t_arr
 }
 
-fn sm3_update(self : SM3Context, data : Iter[Byte]) -> Unit {
+pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
   data.each(
     fn(b) {
       self.buf[self.buf_index] = b
@@ -195,18 +199,30 @@ fn sm3_update(self : SM3Context, data : Iter[Byte]) -> Unit {
 
 /// update the state of given context from new `data` 
 pub fn update(self : SM3Context, data : Bytes) -> Unit {
-  self.sm3_update(bytes_to_iter(data))
-}
+  let mut offset = 0
+  while offset < data.length() {
+    let min_len = if 64 - self.buf_index >= data.length() - offset {
+      data.length() - offset
+    } else {
+      64 - self.buf_index
+    }
+    self.buf.blit(self.buf_index, data, offset, min_len)
+    self.buf_index += min_len
+    if self.buf_index == 64 {
+      self.len += 512UL
+      self.buf_index = 0
+      let _ = self.transform(self.buf)
 
-pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
-  self.sm3_update(data)
+    }
+    offset += min_len
+  }
 }
 
 fn sm3_compute(
   self : SM3Context,
   ~data : Iter[Byte] = Iter::empty()
-) -> Array[UInt] {
-  self.sm3_update(data)
+) -> FixedArray[UInt] {
+  self.update_from_iter(data)
   let msg = self.pad()
   if msg.length() > 64 {
     let _ = self.transform(msg)
@@ -216,29 +232,31 @@ fn sm3_compute(
   }
 }
 
+/// Compute the SM3 digest from given SM3Context
+pub fn finalize(self : SM3Context) -> Bytes {
+  arr_u32_to_u8be(self.sm3_compute().iter())
+}
+
 /// Compute the SM3 digest in `UInt[]` of some `data`
-fn sm3_u32_from_iter(data : Iter[Byte]) -> Array[UInt] {
+fn sm3_u32_from_iter(data : Iter[Byte]) -> FixedArray[UInt] {
   let ctx = SM3Context::new()
-  let _ = ctx.sm3_update(data)
+  let _ = ctx.update_from_iter(data)
   ctx.sm3_compute()
 }
 
-fn sm3_u32(data : Bytes) -> Array[UInt] {
-  sm3_u32_from_iter(bytes_to_iter(data))
+fn sm3_u32(data : Bytes) -> FixedArray[UInt] {
+  let ctx = SM3Context::new()
+  let _ = ctx.update(data)
+  ctx.sm3_compute()
 }
 
 /// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : Bytes) -> Bytes {
-  arr_u32_to_u8be(sm3_u32(data))
+  arr_u32_to_u8be(sm3_u32(data).iter())
 }
 
 pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
-  arr_u32_to_u8be(sm3_u32_from_iter(data))
-}
-
-/// an alias of `SM3Context::compute()`
-pub fn finalize(self : SM3Context) -> Bytes {
-  arr_u32_to_u8be(self.sm3_compute())
+  arr_u32_to_u8be(sm3_u32_from_iter(data).iter())
 }
 
 test {
@@ -246,7 +264,7 @@ test {
     uints_to_hex_string(
       sm3_u32(
         b"\x61\x62\x63", // abc in utf-8
-      ),
+      ).iter(),
     ),
     content="66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0",
   )
@@ -255,13 +273,13 @@ test {
       sm3_u32(
         // abcd * 16 in utf-8
         b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
-      ),
+      ).iter(),
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
   @test.eq!(
     bytes_to_hex_string(sm3(b"\x61\x62\x63")),
-    uints_to_hex_string(sm3_u32(b"\x61\x62\x63")),
+    uints_to_hex_string(sm3_u32(b"\x61\x62\x63").iter()),
   )
   let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
   let ctx = SM3Context::new()
@@ -269,4 +287,21 @@ test {
   ctx.update(b"\x62")
   ctx.update(b"\x63")
   @test.eq!(hash1, bytes_to_hex_string(ctx.finalize()))
+  let ctx = SM3Context::new()
+  let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
+  for i = 0; i < data.length(); i = i + 1 {
+    ctx.update(Bytes::make(1, data[i]))
+  }
+  @test.eq!(
+    bytes_to_hex_string(ctx.finalize()),
+    "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+  )
+  let ctx = SM3Context::new()
+  for i = 0; i < data.length(); i = i + 4 {
+    ctx.update_from_iter(bytes_to_iter(b"\x61\x62\x63\x64"))
+  }
+  @test.eq!(
+    bytes_to_hex_string(ctx.finalize()),
+    "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+  )
 }

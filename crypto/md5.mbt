@@ -127,105 +127,90 @@ fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
 }
 
 fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
-  let a = Ref::new(state[0])
-  let b = Ref::new(state[1])
-  let c = Ref::new(state[2])
-  let d = Ref::new(state[3])
-  fn t(
-    op : (UInt, UInt, UInt) -> UInt,
-    state_a : Ref[UInt],
-    state_b : Ref[UInt],
-    state_c : Ref[UInt],
-    state_d : Ref[UInt],
-    k : Int,
-    s : Int, // calculate w/ floor(2^32 * |sin(i + 1)|) for i in 0..63
-    ac : UInt
-  ) -> Unit {
-    state_a.val = state_b.val + urotate_left(
-        state_a.val + op(state_b.val, state_c.val, state_d.val) + input[k] + ac,
-        s,
-      )
-  }
+  let mut a = state[0]
+  let mut b = state[1]
+  let mut c = state[2]
+  let mut d = state[3]
 
   // Round 1
   // s[ 0..15] := { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22 }
-  t(f, a, b, c, d, 0, 7, 0xd76aa478)
-  t(f, d, a, b, c, 1, 12, 0xe8c7b756)
-  t(f, c, d, a, b, 2, 17, 0x242070db)
-  t(f, b, c, d, a, 3, 22, 0xc1bdceee)
-  t(f, a, b, c, d, 4, 7, 0xf57c0faf)
-  t(f, d, a, b, c, 5, 12, 0x4787c62a)
-  t(f, c, d, a, b, 6, 17, 0xa8304613)
-  t(f, b, c, d, a, 7, 22, 0xfd469501)
-  t(f, a, b, c, d, 8, 7, 0x698098d8)
-  t(f, d, a, b, c, 9, 12, 0x8b44f7af)
-  t(f, c, d, a, b, 10, 17, 0xffff5bb1)
-  t(f, b, c, d, a, 11, 22, 0x895cd7be)
-  t(f, a, b, c, d, 12, 7, 0x6b901122)
-  t(f, d, a, b, c, 13, 12, 0xfd987193)
-  t(f, c, d, a, b, 14, 17, 0xa679438e)
-  t(f, b, c, d, a, 15, 22, 0x49b40821)
+  a = b + rotate_left_u(a + f(b, c, d) + input[0] + 0xd76aa478, 7)
+  d = a + rotate_left_u(d + f(a, b, c) + input[1] + 0xe8c7b756, 12)
+  c = d + rotate_left_u(c + f(d, a, b) + input[2] + 0x242070db, 17)
+  b = c + rotate_left_u(b + f(c, d, a) + input[3] + 0xc1bdceee, 22)
+  a = b + rotate_left_u(a + f(b, c, d) + input[4] + 0xf57c0faf, 7)
+  d = a + rotate_left_u(d + f(a, b, c) + input[5] + 0x4787c62a, 12)
+  c = d + rotate_left_u(c + f(d, a, b) + input[6] + 0xa8304613, 17)
+  b = c + rotate_left_u(b + f(c, d, a) + input[7] + 0xfd469501, 22)
+  a = b + rotate_left_u(a + f(b, c, d) + input[8] + 0x698098d8, 7)
+  d = a + rotate_left_u(d + f(a, b, c) + input[9] + 0x8b44f7af, 12)
+  c = d + rotate_left_u(c + f(d, a, b) + input[10] + 0xffff5bb1, 17)
+  b = c + rotate_left_u(b + f(c, d, a) + input[11] + 0x895cd7be, 22)
+  a = b + rotate_left_u(a + f(b, c, d) + input[12] + 0x6b901122, 7)
+  d = a + rotate_left_u(d + f(a, b, c) + input[13] + 0xfd987193, 12)
+  c = d + rotate_left_u(c + f(d, a, b) + input[14] + 0xa679438e, 17)
+  b = c + rotate_left_u(b + f(c, d, a) + input[15] + 0x49b40821, 22)
 
   // Round 2
   // s[16..31] := { 5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20 }
-  t(g, a, b, c, d, 1, 5, 0xf61e2562)
-  t(g, d, a, b, c, 6, 9, 0xc040b340)
-  t(g, c, d, a, b, 11, 14, 0x265e5a51)
-  t(g, b, c, d, a, 0, 20, 0xe9b6c7aa)
-  t(g, a, b, c, d, 5, 5, 0xd62f105d)
-  t(g, d, a, b, c, 10, 9, 0x02441453)
-  t(g, c, d, a, b, 15, 14, 0xd8a1e681)
-  t(g, b, c, d, a, 4, 20, 0xe7d3fbc8)
-  t(g, a, b, c, d, 9, 5, 0x21e1cde6)
-  t(g, d, a, b, c, 14, 9, 0xc33707d6)
-  t(g, c, d, a, b, 3, 14, 0xf4d50d87)
-  t(g, b, c, d, a, 8, 20, 0x455a14ed)
-  t(g, a, b, c, d, 13, 5, 0xa9e3e905)
-  t(g, d, a, b, c, 2, 9, 0xfcefa3f8)
-  t(g, c, d, a, b, 7, 14, 0x676f02d9)
-  t(g, b, c, d, a, 12, 20, 0x8d2a4c8a)
+  a = b + rotate_left_u(a + g(b, c, d) + input[1] + 0xf61e2562, 5)
+  d = a + rotate_left_u(d + g(a, b, c) + input[6] + 0xc040b340, 9)
+  c = d + rotate_left_u(c + g(d, a, b) + input[11] + 0x265e5a51, 14)
+  b = c + rotate_left_u(b + g(c, d, a) + input[0] + 0xe9b6c7aa, 20)
+  a = b + rotate_left_u(a + g(b, c, d) + input[5] + 0xd62f105d, 5)
+  d = a + rotate_left_u(d + g(a, b, c) + input[10] + 0x02441453, 9)
+  c = d + rotate_left_u(c + g(d, a, b) + input[15] + 0xd8a1e681, 14)
+  b = c + rotate_left_u(b + g(c, d, a) + input[4] + 0xe7d3fbc8, 20)
+  a = b + rotate_left_u(a + g(b, c, d) + input[9] + 0x21e1cde6, 5)
+  d = a + rotate_left_u(d + g(a, b, c) + input[14] + 0xc33707d6, 9)
+  c = d + rotate_left_u(c + g(d, a, b) + input[3] + 0xf4d50d87, 14)
+  b = c + rotate_left_u(b + g(c, d, a) + input[8] + 0x455a14ed, 20)
+  a = b + rotate_left_u(a + g(b, c, d) + input[13] + 0xa9e3e905, 5)
+  d = a + rotate_left_u(d + g(a, b, c) + input[2] + 0xfcefa3f8, 9)
+  c = d + rotate_left_u(c + g(d, a, b) + input[7] + 0x676f02d9, 14)
+  b = c + rotate_left_u(b + g(c, d, a) + input[12] + 0x8d2a4c8a, 20)
 
   // Round 3
   // s[32..47] := { 4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23 }
-  t(h, a, b, c, d, 5, 4, 0xfffa3942)
-  t(h, d, a, b, c, 8, 11, 0x8771f681)
-  t(h, c, d, a, b, 11, 16, 0x6d9d6122)
-  t(h, b, c, d, a, 14, 23, 0xfde5380c)
-  t(h, a, b, c, d, 1, 4, 0xa4beea44)
-  t(h, d, a, b, c, 4, 11, 0x4bdecfa9)
-  t(h, c, d, a, b, 7, 16, 0xf6bb4b60)
-  t(h, b, c, d, a, 10, 23, 0xbebfbc70)
-  t(h, a, b, c, d, 13, 4, 0x289b7ec6)
-  t(h, d, a, b, c, 0, 11, 0xeaa127fa)
-  t(h, c, d, a, b, 3, 16, 0xd4ef3085)
-  t(h, b, c, d, a, 6, 23, 0x04881d05)
-  t(h, a, b, c, d, 9, 4, 0xd9d4d039)
-  t(h, d, a, b, c, 12, 11, 0xe6db99e5)
-  t(h, c, d, a, b, 15, 16, 0x1fa27cf8)
-  t(h, b, c, d, a, 2, 23, 0xc4ac5665)
+  a = b + rotate_left_u(a + h(b, c, d) + input[5] + 0xfffa3942, 4)
+  d = a + rotate_left_u(d + h(a, b, c) + input[8] + 0x8771f681, 11)
+  c = d + rotate_left_u(c + h(d, a, b) + input[11] + 0x6d9d6122, 16)
+  b = c + rotate_left_u(b + h(c, d, a) + input[14] + 0xfde5380c, 23)
+  a = b + rotate_left_u(a + h(b, c, d) + input[1] + 0xa4beea44, 4)
+  d = a + rotate_left_u(d + h(a, b, c) + input[4] + 0x4bdecfa9, 11)
+  c = d + rotate_left_u(c + h(d, a, b) + input[7] + 0xf6bb4b60, 16)
+  b = c + rotate_left_u(b + h(c, d, a) + input[10] + 0xbebfbc70, 23)
+  a = b + rotate_left_u(a + h(b, c, d) + input[13] + 0x289b7ec6, 4)
+  d = a + rotate_left_u(d + h(a, b, c) + input[0] + 0xeaa127fa, 11)
+  c = d + rotate_left_u(c + h(d, a, b) + input[3] + 0xd4ef3085, 16)
+  b = c + rotate_left_u(b + h(c, d, a) + input[6] + 0x04881d05, 23)
+  a = b + rotate_left_u(a + h(b, c, d) + input[9] + 0xd9d4d039, 4)
+  d = a + rotate_left_u(d + h(a, b, c) + input[12] + 0xe6db99e5, 11)
+  c = d + rotate_left_u(c + h(d, a, b) + input[15] + 0x1fa27cf8, 16)
+  b = c + rotate_left_u(b + h(c, d, a) + input[2] + 0xc4ac5665, 23)
 
   // Round 4
   // s[48..63] := { 6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21 }
-  t(i, a, b, c, d, 0, 6, 0xf4292244)
-  t(i, d, a, b, c, 7, 10, 0x432aff97)
-  t(i, c, d, a, b, 14, 15, 0xab9423a7)
-  t(i, b, c, d, a, 5, 21, 0xfc93a039)
-  t(i, a, b, c, d, 12, 6, 0x655b59c3)
-  t(i, d, a, b, c, 3, 10, 0x8f0ccc92)
-  t(i, c, d, a, b, 10, 15, 0xffeff47d)
-  t(i, b, c, d, a, 1, 21, 0x85845dd1)
-  t(i, a, b, c, d, 8, 6, 0x6fa87e4f)
-  t(i, d, a, b, c, 15, 10, 0xfe2ce6e0)
-  t(i, c, d, a, b, 6, 15, 0xa3014314)
-  t(i, b, c, d, a, 13, 21, 0x4e0811a1)
-  t(i, a, b, c, d, 4, 6, 0xf7537e82)
-  t(i, d, a, b, c, 11, 10, 0xbd3af235)
-  t(i, c, d, a, b, 2, 15, 0x2ad7d2bb)
-  t(i, b, c, d, a, 9, 21, 0xeb86d391)
-  state[0] += a.val
-  state[1] += b.val
-  state[2] += c.val
-  state[3] += d.val
+  a = b + rotate_left_u(a + i(b, c, d) + input[0] + 0xf4292244, 6)
+  d = a + rotate_left_u(d + i(a, b, c) + input[7] + 0x432aff97, 10)
+  c = d + rotate_left_u(c + i(d, a, b) + input[14] + 0xab9423a7, 15)
+  b = c + rotate_left_u(b + i(c, d, a) + input[5] + 0xfc93a039, 21)
+  a = b + rotate_left_u(a + i(b, c, d) + input[12] + 0x655b59c3, 6)
+  d = a + rotate_left_u(d + i(a, b, c) + input[3] + 0x8f0ccc92, 10)
+  c = d + rotate_left_u(c + i(d, a, b) + input[10] + 0xffeff47d, 15)
+  b = c + rotate_left_u(b + i(c, d, a) + input[1] + 0x85845dd1, 21)
+  a = b + rotate_left_u(a + i(b, c, d) + input[8] + 0x6fa87e4f, 6)
+  d = a + rotate_left_u(d + i(a, b, c) + input[15] + 0xfe2ce6e0, 10)
+  c = d + rotate_left_u(c + i(d, a, b) + input[6] + 0xa3014314, 15)
+  b = c + rotate_left_u(b + i(c, d, a) + input[13] + 0x4e0811a1, 21)
+  a = b + rotate_left_u(a + i(b, c, d) + input[4] + 0xf7537e82, 6)
+  d = a + rotate_left_u(d + i(a, b, c) + input[11] + 0xbd3af235, 10)
+  c = d + rotate_left_u(c + i(d, a, b) + input[2] + 0x2ad7d2bb, 15)
+  b = c + rotate_left_u(b + i(c, d, a) + input[9] + 0xeb86d391, 21)
+  state[0] += a
+  state[1] += b
+  state[2] += c
+  state[3] += d
 }
 
 /// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
