@@ -35,17 +35,15 @@ pub fn bytes_to_hex_string(input : Bytes) -> String {
 fn uint_to_hex_string(input : UInt) -> String {
   let ret = FixedArray::make(8, "0")
   let mut mut_input = input
-  let mut i = 7
-  for cnt = 0; cnt < 8; cnt = cnt + 1 {
-    ret[i] = hex_digits[(mut_input & 0xf).to_int()]
+  for cnt = 7; cnt >= 0; cnt = cnt - 1 {
+    ret[cnt] = hex_digits[(mut_input & 0xf).to_int()]
     mut_input = mut_input.lsr(4)
-    i -= 1
   }
   ret.fold_left(String::op_add, init="")
 }
 
 /// print a sequence of uint in hex representation
-pub fn uints_to_hex_string(input : Array[UInt]) -> String {
+pub fn uints_to_hex_string(input : FixedArray[UInt]) -> String {
   input.map(uint_to_hex_string).fold_left(String::op_add, init="")
 }
 
@@ -94,8 +92,8 @@ fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
 
 /// convert a UInt to 4 bytes
 
-fn u32_to_u8be(x : UInt) -> Array[Byte] {
-  let b = Array::make(4, b'\x00')
+fn u32_to_u8be(x : UInt) -> FixedArray[Byte] {
+  let b = FixedArray::make(4, b'\x00')
   b[0] = x.lsr(24).to_byte()
   b[1] = x.lsr(16).to_byte()
   b[2] = x.lsr(8).to_byte()
@@ -105,7 +103,7 @@ fn u32_to_u8be(x : UInt) -> Array[Byte] {
 
 /// convert an array of UInt to Bytes in big endian
 
-fn arr_u32_to_u8be(x : Array[UInt]) -> Bytes {
+fn arr_u32_to_u8be(x : FixedArray[UInt]) -> Bytes {
   let temp : Bytes = Bytes::make(x.length() * 4, b'\x00')
   for index = 0; index < x.length(); index = index + 1 {
     let u8 = u32_to_u8be(x[index])

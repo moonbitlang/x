@@ -17,7 +17,7 @@ fn sm3(Bytes) -> Bytes
 
 fn sm3_from_iter(Iter[Byte]) -> Bytes
 
-fn uints_to_hex_string(Array[UInt]) -> String
+fn uints_to_hex_string(FixedArray[UInt]) -> String
 
 // Types and methods
 type MD5Context

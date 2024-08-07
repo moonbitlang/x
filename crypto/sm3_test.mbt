@@ -16,8 +16,8 @@ fn sm3test(s : String) -> String {
   @crypto.bytes_to_hex_string(@crypto.sm3(s.to_bytes()))
 }
 
-// testcases from GM/T 0004-2012
-test "sm3_default" {
+// additional
+test "sm3-additional" {
   @test.eq!(
     sm3test(""),
     "1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b",
