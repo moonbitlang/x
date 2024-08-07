@@ -20,6 +20,8 @@ impl Rand {
   uintN(Self, UInt) -> UInt
 }
 
+// Type aliases
+
 // Traits
 
 // Extension Methods
