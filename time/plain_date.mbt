@@ -313,9 +313,9 @@ pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
 /// Adds a period to this date, and returns a new date.
 pub fn add_period(self : PlainDate, period : Period) -> PlainDate!Error {
   let mut d = self
-  d = d.add_months!(period.to_total_months()).add_days!(
-    period.days().to_int64(),
-  )
+  d = d
+    .add_months!(period.to_total_months())
+    .add_days!(period.days().to_int64())
   d
 }
 

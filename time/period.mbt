@@ -148,9 +148,10 @@ pub fn add_period(self : Period, other : Period) -> Period!Error {
   if other.is_zero() {
     return self
   }
-  self.add_years!(other.years()).add_months!(other.months()).add_days!(
-    other.days(),
-  )
+  self
+  .add_years!(other.years())
+  .add_months!(other.months())
+  .add_days!(other.days())
 }
 
 pub fn op_add(self : Period, other : Period) -> Period!Error {

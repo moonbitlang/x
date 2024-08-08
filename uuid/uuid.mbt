@@ -149,9 +149,9 @@ pub fn from_hex(hex : String) -> UUID!Error {
   }
 }
 
-let hex_table : Array[Int] = "0123456789abcdef".to_array().map(
-  fn { c => c.to_int() },
-)
+let hex_table : Array[Int] = "0123456789abcdef"
+  .to_array()
+  .map(fn { c => c.to_int() })
 
 let dash : Int = '-'.to_int()
 
