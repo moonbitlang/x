@@ -34,11 +34,12 @@ pub fn sha1(input : Bytes) -> Bytes {
     let words = FixedArray::make(80, 0)
     for i = 0; i < 16; i = i + 1 {
       let slice_start = chunk * bytes_per_chunk + i * 4
-      words[i] = bytes[slice_start].to_int().lsl(24).lor(
-        bytes[slice_start + 1].to_int().lsl(16),
-      ).lor(bytes[slice_start + 2].to_int().lsl(8)).lor(
-        bytes[slice_start + 3].to_int(),
-      )
+      words[i] = bytes[slice_start]
+        .to_int()
+        .lsl(24)
+        .lor(bytes[slice_start + 1].to_int().lsl(16))
+        .lor(bytes[slice_start + 2].to_int().lsl(8))
+        .lor(bytes[slice_start + 3].to_int())
     }
     for i = 16; i < 80; i = i + 1 {
       words[i] = rotate_left(

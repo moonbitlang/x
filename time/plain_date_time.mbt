@@ -55,7 +55,9 @@ pub fn PlainDateTime::from_unix_second(
 
 /// Converts this datetime to the elapsed seconds since the unix epoch.
 pub fn to_unix_second(self : PlainDateTime) -> Int64 {
-  self.date.to_unix_day() * seconds_per_day + self.time.second_of_day().to_int64()
+  self.date.to_unix_day() * seconds_per_day + self.time
+  .second_of_day()
+  .to_int64()
 }
 
 /// Creates a PlainTime from a string, like '2008-08-08T20:00:00'.

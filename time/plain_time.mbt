@@ -69,9 +69,9 @@ pub fn PlainTime::to_string(self : PlainTime) -> String {
   buf.write_string(add_prefix_zero(self.second.to_string(), 2))
   if self.nanosecond > 0 {
     buf.write_char('.')
-    let nanos_str = (self.nanosecond.to_int64() + nanoseconds_per_second).to_string().substring(
-      start=1,
-    )
+    let nanos_str = (self.nanosecond.to_int64() + nanoseconds_per_second)
+      .to_string()
+      .substring(start=1)
     buf.write_string(remove_suffix_zero(nanos_str))
   }
   buf.to_string()

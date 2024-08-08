@@ -1,9 +1,7 @@
 package moonbitlang/x/json5
 
-alias @moonbitlang/core/json as @json
-
 // Values
-fn parse(String) -> @json.JsonValue!ParseError
+fn parse(String) -> Json!ParseError
 
 // Types and methods
 type ParseError
