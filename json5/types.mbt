@@ -24,7 +24,7 @@ pub enum ParseErrorData {
   InvalidIdentEscape(Position)
 } derive(Eq)
 
-type! ParseError ParseErrorData
+pub type! ParseError ParseErrorData
 
 fn parse_error[X](data : ParseErrorData) -> X!ParseError {
   raise ParseError(data)
