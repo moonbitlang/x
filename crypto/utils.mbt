@@ -117,7 +117,6 @@ fn rotate_left_u(x : UInt, n : Int) -> UInt {
 }
 
 /// temp function for convert bytes_to_iter in absence of `Bytes::iter()`.
-
 fn bytes_to_iter(data : Bytes, ~length : Int = data.length()) -> Iter[Byte] {
   Iter::new(
     fn(yield) {
