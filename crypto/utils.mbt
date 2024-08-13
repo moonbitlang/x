@@ -59,9 +59,10 @@ fn uint32(x : Byte) -> UInt {
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
 fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
-  uint32(x[i]) | uint32(x[i + 1]).lsl(8) | uint32(x[i + 2]).lsl(16) | uint32(
-    x[i + 3],
-  ).lsl(24)
+  uint32(x[i]) |
+  uint32(x[i + 1]).lsl(8) |
+  uint32(x[i + 2]).lsl(16) |
+  uint32(x[i + 3]).lsl(24)
 }
 
 /// convert 4 bytes of a byte sequence to a UInt in big endian 
@@ -85,9 +86,10 @@ fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
 // }
 
 fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
-  uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
-    x[i + 3],
-  )
+  uint32(x[i]).lsl(24) |
+  uint32(x[i + 1]).lsl(16) |
+  uint32(x[i + 2]).lsl(8) |
+  uint32(x[i + 3])
 }
 
 /// convert an array of UInt to Bytes in big endian

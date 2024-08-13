@@ -361,8 +361,8 @@ let max_ordinal = 366
 
 let days_per_400_years : Int64 = 400L * 365L + 97L
 
-let days_zero_year_to_unix_epoch : Int64 = 5L * days_per_400_years - (30L * 365L +
-  7L)
+let days_zero_year_to_unix_epoch : Int64 = 5L * days_per_400_years -
+  (30L * 365L + 7L)
 
 fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
   let mut d = day
@@ -486,7 +486,7 @@ fn validate_day(year : Int, month : Int, day : Int) -> Bool {
 }
 
 fn validate_ordinal(year : Int, ordinal : Int) -> Bool {
-  ordinal >= min_ordinal && ordinal <= max_ordinal && ordinal <= calc_days_in_year(
-    year,
-  )
+  ordinal >= min_ordinal &&
+  ordinal <= max_ordinal &&
+  ordinal <= calc_days_in_year(year)
 }

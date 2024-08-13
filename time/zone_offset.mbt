@@ -41,7 +41,8 @@ pub fn ZoneOffset::of(
   ~seconds : Int = 0
 ) -> ZoneOffset!Error {
   validate_offset!(hours, minutes, seconds)
-  let secs = hours * seconds_per_hour.to_int() + minutes * seconds_per_minute.to_int() +
+  let secs = hours * seconds_per_hour.to_int() +
+    minutes * seconds_per_minute.to_int() +
     seconds
   ZoneOffset::from_seconds!(secs)
 }
@@ -95,7 +96,9 @@ fn create_id(secs : Int) -> String {
   }
   let abs_secs = secs.abs()
   let offset_hours = abs_secs / seconds_per_hour.to_int()
-  let offset_mins = abs_secs % seconds_per_hour.to_int() / seconds_per_minute.to_int()
+  let offset_mins = abs_secs %
+    seconds_per_hour.to_int() /
+    seconds_per_minute.to_int()
   let offset_secs = abs_secs % seconds_per_minute.to_int()
   let buf = Buffer::new(size_hint=9)
   buf.write_char(if secs < 0 { '-' } else { '+' })

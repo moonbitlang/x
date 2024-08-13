@@ -103,7 +103,8 @@ pub fn nanosecond(self : PlainTime) -> Int {
 
 /// Returns the total seconds of this time.
 pub fn second_of_day(self : PlainTime) -> Int {
-  let sec = self.hour * seconds_per_hour.to_int() + self.minute * seconds_per_minute.to_int() +
+  let sec = self.hour * seconds_per_hour.to_int() +
+    self.minute * seconds_per_minute.to_int() +
     self.second
   sec
 }
@@ -162,7 +163,8 @@ pub fn add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
     return self
   }
   let mins = self.hour.to_int64() * minutes_per_hour + self.minute.to_int64()
-  let new_mins = (minutes % minutes_per_day + mins + minutes_per_day) % minutes_per_day
+  let new_mins = (minutes % minutes_per_day + mins + minutes_per_day) %
+    minutes_per_day
   if mins == new_mins {
     return self
   }
@@ -182,7 +184,9 @@ pub fn add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
     return self
   }
   let secs_of_day = self.second_of_day().to_int64()
-  let new_secs_of_day = (seconds % seconds_per_day + secs_of_day + seconds_per_day) %
+  let new_secs_of_day = (
+      seconds % seconds_per_day + secs_of_day + seconds_per_day
+    ) %
     seconds_per_day
   if secs_of_day == new_secs_of_day {
     return self
@@ -207,7 +211,9 @@ pub fn add_nanoseconds(
     return self
   }
   let nanos = self.nanosecond_of_day()
-  let new_nanos = (nanoseconds % nanoseconds_per_day + nanos + nanoseconds_per_day) %
+  let new_nanos = (
+      nanoseconds % nanoseconds_per_day + nanos + nanoseconds_per_day
+    ) %
     nanoseconds_per_day
   if nanos == new_nanos {
     return self

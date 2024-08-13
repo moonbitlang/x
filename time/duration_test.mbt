@@ -25,11 +25,11 @@ test "from_string" {
   inspect!(@time.Duration::from_string!("PT0.45S"), content="PT0.45S")
   inspect!(
     @time.Duration::from_string?("PT0.000.45S"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
     @time.Duration::from_string?("P1Y2M3DT4H5M6S"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
 
@@ -78,11 +78,11 @@ test "add_seconds" {
   )
   inspect!(
     @time.Duration::of!(seconds=1L).add_seconds?(Int64::max_value()),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
     @time.Duration::of!(seconds=-1L).add_seconds?(Int64::min_value()),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
 
@@ -98,6 +98,6 @@ test "with_nanoseconds" {
   inspect!(d.with_nanoseconds!(2000), content="PT0.000002S")
   inspect!(
     d.with_nanoseconds?(1_000_000_000),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
