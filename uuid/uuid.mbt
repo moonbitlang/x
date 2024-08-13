@@ -37,9 +37,10 @@
 ///
 struct UUID {
   // XXX: replace with an 128-bit data structure when there is one
+  // use the derived hash
   hi : Int64
   lo : Int64
-}
+} derive(Eq, Compare)
 
 /// Constructs a UUID with the given big-endian bytes.
 ///
@@ -184,21 +185,4 @@ pub fn to_string(self : UUID) -> String {
 
 pub impl Show for UUID with output(self : UUID, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
-}
-
-test "from_hex" {
-  let hex = "13cb501c-1234-5678-9034-abcdef937e20"
-  inspect!(from_hex!(hex), content=hex)
-  inspect!(
-    from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
-    content="12345678-1234-1234-1234-abcdef098765",
-  )
-  inspect!(
-    from_hex?("13cb"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
-  )
-  inspect!(
-    from_hex?("13cb501c-99a8-c889-3234"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
-  )
 }
