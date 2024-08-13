@@ -85,11 +85,11 @@ test "bytes" {
   inspect!(from_bytes!(buf).to_bytes(), content="苉棻僟ꅌꊺऄ맥") // XXX: this is a terrible Show
   inspect!(
     from_bytes?(Bytes::new(15)),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
     from_bytes?(Bytes::new(17)),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
 
@@ -191,9 +191,9 @@ test "from_hex" {
     from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
   )
-  inspect!(from_hex?("13cb"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(from_hex?("13cb"), content="Err(moonbitlang/core/builtin.Failure.Failure)")
   inspect!(
     from_hex?("13cb501c-99a8-c889-3234"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
