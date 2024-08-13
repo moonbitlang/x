@@ -90,7 +90,7 @@ fn MD5Context::f(x : UInt, y : UInt, z : UInt) -> UInt {
 }
 
 fn MD5Context::g(x : UInt, y : UInt, z : UInt) -> UInt {
-  (x & z) | (y & z.lnot())
+  ((x ^ y) & z) ^ y
 }
 
 fn MD5Context::h(x : UInt, y : UInt, z : UInt) -> UInt {
