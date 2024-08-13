@@ -108,7 +108,8 @@ pub fn to_string(self : Duration) -> String {
   let hours = total_secs / seconds_per_hour
   let minutes = total_secs % seconds_per_hour / seconds_per_minute
   let seconds = total_secs % seconds_per_minute
-  let nanos_of_seconds = seconds * nanoseconds_per_second + self.nanos.to_int64()
+  let nanos_of_seconds = seconds * nanoseconds_per_second +
+    self.nanos.to_int64()
   let secs = (nanos_of_seconds / nanoseconds_per_second).abs()
   let nanos = (nanos_of_seconds % nanoseconds_per_second).abs()
   if hours != 0L {

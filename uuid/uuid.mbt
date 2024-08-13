@@ -158,8 +158,10 @@ let dash : Int = '-'.to_int()
 let segments = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
-let size : Int = (segments.fold_left(fn { acc, x => acc + x }, init=0) + segments.length() -
-  2) * 2
+let size : Int = (
+    segments.fold_left(fn { acc, x => acc + x }, init=0) + segments.length() - 2
+  ) *
+  2
 
 pub fn to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
@@ -191,7 +193,10 @@ test "from_hex" {
     from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
   )
-  inspect!(from_hex?("13cb"), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    from_hex?("13cb"),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
   inspect!(
     from_hex?("13cb501c-99a8-c889-3234"),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",

@@ -147,6 +147,12 @@ test "op_add" {
   inspect!(p1.op_add!(p2), content="PT0S")
   inspect!(p1.op_add!(p1), content="PT2H2M2.000002S")
   inspect!(p2.op_add!(p2), content="PT-2H-2M-2.000002S")
-  inspect!(p1.op_add?(p3), content="Err(moonbitlang/core/builtin.Failure.Failure)")
-  inspect!(p2.op_add?(p4), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    p1.op_add?(p3),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
+  inspect!(
+    p2.op_add?(p4),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }

@@ -55,9 +55,8 @@ pub fn PlainDateTime::from_unix_second(
 
 /// Converts this datetime to the elapsed seconds since the unix epoch.
 pub fn to_unix_second(self : PlainDateTime) -> Int64 {
-  self.date.to_unix_day() * seconds_per_day + self.time
-  .second_of_day()
-  .to_int64()
+  self.date.to_unix_day() * seconds_per_day +
+  self.time.second_of_day().to_int64()
 }
 
 /// Creates a PlainTime from a string, like '2008-08-08T20:00:00'.
@@ -313,16 +312,18 @@ fn overflowing_add(
     return self
   }
   let mut date = self.date
-  let days_to_add = h / hours_per_day + m / minutes_per_day + s / seconds_per_day +
+  let days_to_add = h / hours_per_day +
+    m / minutes_per_day +
+    s / seconds_per_day +
     ns / nanoseconds_per_day
-  let nanos_to_add = h % hours_per_day * nanoseconds_per_hour + m % minutes_per_day *
-    nanoseconds_per_minute + s % seconds_per_day * nanoseconds_per_second + ns %
-    nanoseconds_per_day
+  let nanos_to_add = h % hours_per_day * nanoseconds_per_hour +
+    m % minutes_per_day * nanoseconds_per_minute +
+    s % seconds_per_day * nanoseconds_per_second +
+    ns % nanoseconds_per_day
   let current_nanos = self.time.nanosecond_of_day()
   let mut total_nanos = current_nanos + nanos_to_add
-  let total_days = days_to_add + floor_div_int64!(
-      total_nanos, nanoseconds_per_day,
-    )
+  let total_days = days_to_add +
+    floor_div_int64!(total_nanos, nanoseconds_per_day)
   total_nanos = floor_mod_int64!(total_nanos, nanoseconds_per_day)
   let time = if current_nanos == total_nanos {
     self.time

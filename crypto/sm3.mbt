@@ -126,7 +126,9 @@ fn transform(
   for index = 16; index < 68; index = index + 1 {
     w_0[index] = p_1(
         w_0[index - 16] ^ w_0[index - 9] ^ urotate_left(w_0[index - 3], 15),
-      ) ^ urotate_left(w_0[index - 13], 7) ^ w_0[index - 6]
+      ) ^
+      urotate_left(w_0[index - 13], 7) ^
+      w_0[index - 6]
   }
   for index = 0; index < 64; index = index + 1 {
     w_1[index] = w_0[index] ^ w_0[index + 4]

@@ -218,7 +218,10 @@ test "add_years" {
   inspect!(d.add_years!(7999L), content="9999-02-28")
   inspect!(d.add_years!(-2001L), content="-0001-02-28")
   inspect!(d.add_years!(-9999L), content="-7999-02-28")
-  inspect!(d.add_years?(8000L), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    d.add_years?(8000L),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
   inspect!(
     d.add_years?(Int64::max_value()),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
@@ -350,7 +353,10 @@ test "with_year" {
   inspect!(d.with_year!(0), content="0000-02-29")
   inspect!(d.with_year!(9999), content="9999-02-28")
   inspect!(d.with_year!(-9999), content="-9999-02-28")
-  inspect!(d.with_year?(10000), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    d.with_year?(10000),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
   inspect!(
     d.with_year?(-10000),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
@@ -362,23 +368,38 @@ test "with_month" {
   inspect!(d.with_month!(1), content="2000-01-31")
   inspect!(d.with_month!(2), content="2000-02-29")
   inspect!(d.with_month!(4), content="2000-04-30")
-  inspect!(d.with_month?(0), content="Err(moonbitlang/core/builtin.Failure.Failure)")
-  inspect!(d.with_month?(13), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    d.with_month?(0),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
+  inspect!(
+    d.with_month?(13),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 
 test "with_day" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_day!(29), content="2000-02-29")
   inspect!(d.with_day!(1), content="2000-02-01")
-  inspect!(d.with_day?(0), content="Err(moonbitlang/core/builtin.Failure.Failure)")
-  inspect!(d.with_day?(30), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    d.with_day?(0),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
+  inspect!(
+    d.with_day?(30),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 
 test "with_ordinal" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_ordinal!(1), content="2000-01-01")
   inspect!(d.with_ordinal!(366), content="2000-12-31")
-  inspect!(d.with_ordinal?(0), content="Err(moonbitlang/core/builtin.Failure.Failure)")
+  inspect!(
+    d.with_ordinal?(0),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
   inspect!(
     d.with_ordinal?(367),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
