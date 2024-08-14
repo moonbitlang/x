@@ -276,7 +276,7 @@ test {
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(sm3(b"\x61\x62\x63")),
     uints_to_hex_string(sm3_u32(b"\x61\x62\x63").iter()),
   )
@@ -285,13 +285,13 @@ test {
   ctx.update(b"\x61")
   ctx.update(b"\x62")
   ctx.update(b"\x63")
-  @test.eq!(hash1, bytes_to_hex_string(ctx.finalize()))
+  assert_eq!(hash1, bytes_to_hex_string(ctx.finalize()))
   let ctx = SM3Context::new()
   let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(Bytes::make(1, data[i]))
   }
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(ctx.finalize()),
     "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
@@ -299,7 +299,7 @@ test {
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(ctx.finalize()),
     "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )

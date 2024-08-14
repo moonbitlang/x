@@ -24,7 +24,7 @@
 /// ```moonbit
 /// let u = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
 /// let u2 = @uuid.from_bytes(Bytes.of([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
-/// // @test.eq(u, u2) should be true
+/// // assert_eq(u, u2) should be true
 /// ```
 ///
 /// Construct an RFC-4122-compliant v4 UUID:
