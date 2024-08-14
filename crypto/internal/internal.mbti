@@ -1,0 +1,44 @@
+package moonbitlang/x/crypto/internal
+
+// Values
+
+// Types and methods
+type UInt128
+impl UInt128 {
+  compare(Self, Self) -> Bool
+  complement(Self) -> Self
+  copy(Self) -> Self
+  decf(Self) -> Self
+  from_uint(UInt) -> Self
+  incf(Self) -> Self
+  land(Self, Self) -> Self
+  lnot(Self) -> Self
+  lor(Self, Self) -> Self
+  lxor(Self, Self) -> Self
+  make(UInt64, UInt64) -> Self
+  max() -> Self
+  mul64x64(UInt64, UInt64) -> Self
+  one() -> Self
+  op_add(Self, Self) -> Self
+  op_div(Self, Self) -> Self
+  op_equal(Self, Self) -> Bool
+  op_mod(Self, Self) -> Self
+  op_mul(Self, Self) -> Self
+  op_sub(Self, Self) -> Self
+  shl(Self, Int) -> Self
+  shr(Self, Int) -> Self
+  to_bytes(Self) -> Bytes
+  to_hex_string(Self) -> String
+  to_string(Self) -> String
+  wrapping_shl(Self, UInt) -> Self
+  wrapping_shr(Self, UInt) -> Self
+  zero() -> Self
+}
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+impl Show for UInt128
+
