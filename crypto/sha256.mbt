@@ -216,7 +216,7 @@ test {
     ),
     content="625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(sha256(b"\x61\x62\x63")),
     uints_to_hex_string(sha256_u32(b"\x61\x62\x63").iter()),
   )
@@ -225,13 +225,13 @@ test {
   ctx.update(b"\x61")
   ctx.update(b"\x62")
   ctx.update(b"\x63")
-  @test.eq!(hash1, bytes_to_hex_string(ctx.finalize()))
+  assert_eq!(hash1, bytes_to_hex_string(ctx.finalize()))
   let ctx = Sha256Context::new()
   let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(Bytes::make(1, data[i]))
   }
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(ctx.finalize()),
     "625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )
@@ -239,7 +239,7 @@ test {
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
-  @test.eq!(
+  assert_eq!(
     bytes_to_hex_string(ctx.finalize()),
     "625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )

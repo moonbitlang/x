@@ -239,5 +239,5 @@ test {
   let ctx = MD5Context::new()
   md5_update(ctx, b"\x61\x62\x63")
   let res2 = bytes_to_hex_string(ctx.md5_compute())
-  @test.eq!(res1, res2)
+  assert_eq!(res1, res2)
 }
