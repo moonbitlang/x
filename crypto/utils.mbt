@@ -47,10 +47,6 @@ pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
   input.map(uint_to_hex_string).fold(String::op_add, init="")
 }
 
-fn urotate_left(x : UInt, n : Int) -> UInt {
-  rotate_left_u(x, n)
-}
-
 fn uint32(x : Byte) -> UInt {
   x.to_int().to_uint()
 }
@@ -118,17 +114,6 @@ fn rotate_left_u(x : UInt, n : Int) -> UInt {
   x.lsl(n) | x.lsr(32 - n)
 }
 
-/// temp function for convert bytes_to_iter in absence of `Bytes::iter()`.
-fn bytes_to_iter(data : Bytes, ~length : Int = data.length()) -> Iter[Byte] {
-  Iter::new(
-    fn(yield) {
-      for i = 0, len = length; i < len; i = i + 1 {
-        if yield(data[i]) == IterEnd {
-          break IterEnd
-        }
-      } else {
-        IterContinue
-      }
-    },
-  )
+fn rotate_right_u(x : UInt, n : Int) -> UInt {
+  x.lsr(n) | x.lsl(32 - n)
 }

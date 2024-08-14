@@ -73,11 +73,11 @@ fn SM3Context::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
 // P_0 = X xor (X <<< 9) xor (X <<< 17)
 // P_1 = X xor (X <<< 15) xor (X <<< 23)
 fn SM3Context::p_0(x : UInt) -> UInt {
-  x ^ urotate_left(x, 9) ^ urotate_left(x, 17)
+  x ^ rotate_left_u(x, 9) ^ rotate_left_u(x, 17)
 }
 
 fn SM3Context::p_1(x : UInt) -> UInt {
-  x ^ urotate_left(x, 15) ^ urotate_left(x, 23)
+  x ^ rotate_left_u(x, 15) ^ rotate_left_u(x, 23)
 }
 
 fn pad(self : SM3Context) -> Bytes {
@@ -125,9 +125,9 @@ fn transform(
   }
   for index = 16; index < 68; index = index + 1 {
     w_0[index] = p_1(
-        w_0[index - 16] ^ w_0[index - 9] ^ urotate_left(w_0[index - 3], 15),
+        w_0[index - 16] ^ w_0[index - 9] ^ rotate_left_u(w_0[index - 3], 15),
       ) ^
-      urotate_left(w_0[index - 13], 7) ^
+      rotate_left_u(w_0[index - 13], 7) ^
       w_0[index - 6]
   }
   for index = 0; index < 64; index = index + 1 {
@@ -142,30 +142,30 @@ fn transform(
   let mut g1 = g
   let mut h1 = h
   for index = 0; index < 16; index = index + 1 {
-    let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
-    let ss_2 = ss_1 ^ urotate_left(a1, 12)
+    let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
+    let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
     let tt_1 = ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
     let tt_2 = gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
-    c1 = urotate_left(b1, 9)
+    c1 = rotate_left_u(b1, 9)
     b1 = a1
     a1 = tt_1
     h1 = g1
-    g1 = urotate_left(f1, 19)
+    g1 = rotate_left_u(f1, 19)
     f1 = e1
     e1 = p_0(tt_2)
   }
   for index = 16; index < 64; index = index + 1 {
-    let ss_1 = urotate_left(urotate_left(a1, 12) + e1 + t[index], 7)
-    let ss_2 = ss_1 ^ urotate_left(a1, 12)
+    let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
+    let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
     let tt_1 = ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
     let tt_2 = gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
-    c1 = urotate_left(b1, 9)
+    c1 = rotate_left_u(b1, 9)
     b1 = a1
     a1 = tt_1
     h1 = g1
-    g1 = urotate_left(f1, 19)
+    g1 = rotate_left_u(f1, 19)
     f1 = e1
     e1 = p_0(tt_2)
   }
@@ -239,29 +239,26 @@ pub fn finalize(self : SM3Context) -> Bytes {
   arr_u32_to_u8be(self.sm3_compute().iter())
 }
 
-/// Compute the SM3 digest in `UInt[]` of some `data`
-fn sm3_u32_from_iter(data : Iter[Byte]) -> FixedArray[UInt] {
-  let ctx = SM3Context::new()
-  let _ = ctx.update_from_iter(data)
-  ctx.sm3_compute()
-}
-
-fn sm3_u32(data : Bytes) -> FixedArray[UInt] {
-  let ctx = SM3Context::new()
-  let _ = ctx.update(data)
-  ctx.sm3_compute()
-}
-
 /// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : Bytes) -> Bytes {
-  arr_u32_to_u8be(sm3_u32(data).iter())
+  let ctx = SM3Context::new()
+  let _ = ctx.update(data)
+  arr_u32_to_u8be(ctx.sm3_compute().iter())
 }
 
 pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
-  arr_u32_to_u8be(sm3_u32_from_iter(data).iter())
+  let ctx = SM3Context::new()
+  let _ = ctx.update_from_iter(data)
+  arr_u32_to_u8be(ctx.sm3_compute().iter())
 }
 
 test {
+  fn sm3_u32(data : Bytes) -> FixedArray[UInt] {
+    let ctx = SM3Context::new()
+    let _ = ctx.update(data)
+    ctx.sm3_compute()
+  }
+
   inspect!(
     uints_to_hex_string(
       sm3_u32(
@@ -300,7 +297,7 @@ test {
   )
   let ctx = SM3Context::new()
   for i = 0; i < data.length(); i = i + 4 {
-    ctx.update_from_iter(bytes_to_iter(b"\x61\x62\x63\x64"))
+    ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
   @test.eq!(
     bytes_to_hex_string(ctx.finalize()),

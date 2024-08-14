@@ -13,6 +13,14 @@ fn md5(Bytes) -> Bytes
 
 fn sha1(Bytes) -> Bytes
 
+fn sha224(Bytes) -> Bytes
+
+fn sha224_from_iter(Iter[Byte]) -> Bytes
+
+fn sha256(Bytes) -> Bytes
+
+fn sha256_from_iter(Iter[Byte]) -> Bytes
+
 fn sm3(Bytes) -> Bytes
 
 fn sm3_from_iter(Iter[Byte]) -> Bytes
@@ -31,6 +39,14 @@ type SM3Context
 impl SM3Context {
   finalize(Self) -> Bytes
   new() -> Self
+  update(Self, Bytes) -> Unit
+  update_from_iter(Self, Iter[Byte]) -> Unit
+}
+
+type Sha256Context
+impl Sha256Context {
+  finalize(Self) -> Bytes
+  new(~reg : FixedArray[UInt] = ..) -> Self
   update(Self, Bytes) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }
