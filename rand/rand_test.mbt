@@ -14,10 +14,10 @@
 
 test "prng" {
   let r = @rand.Rand::new()
-  @test.eq!(r.uintN(10), 7)
-  @test.eq!(r.uintN(10), 0)
-  @test.eq!(r.uintN(10), 5)
-  @test.eq!(r.int(), 1064320769)
-  @test.eq!(r.double64(), 0.3318940049218405)
-  @test.eq!(r.intN(10), 0)
+  assert_eq!(r.uintN(10), 7)
+  assert_eq!(r.uintN(10), 0)
+  assert_eq!(r.uintN(10), 5)
+  assert_eq!(r.int(), 1064320769)
+  assert_eq!(r.double64(), 0.3318940049218405)
+  assert_eq!(r.intN(10), 0)
 }

@@ -39,7 +39,7 @@ test "next" {
   let r = Rand::new()
   let n = r.next()
   let exp = 13219109469176600229UL
-  @test.eq!(n, exp)
+  assert_eq!(n, exp)
 }
 
 /// [int] Return a non-negative pseudo-random 31-bit integer as an Int.
@@ -68,7 +68,7 @@ test "UInt64" {
   let r = Rand::new()
   let n = r.uint64()
   let exp = 13219109469176600229UL
-  @test.eq!(n, exp)
+  assert_eq!(n, exp)
 }
 
 /// [double64] returns a pseudo-random 64-bit Double in the range [0.0, 1.0)
@@ -112,29 +112,29 @@ fn umul128(a : UInt64, b : UInt64) -> (UInt64, UInt64) {
 
 test "umul128" {
   // let (hi, lo) = umul128(1UL << 32, 1UL << 32)
-  // @test.eq!(hi, 1UL)
-  // @test.eq!(lo, 0UL)
+  // assert_eq!(hi, 1UL)
+  // assert_eq!(lo, 0UL)
   let (hi, lo) = umul128(0x123456789ABCDEF0, 0xFEDCBA9876543210)
-  @test.eq!(hi, 1305938385386173474UL)
-  @test.eq!(lo, 2552847189736476416UL)
+  assert_eq!(hi, 1305938385386173474UL)
+  assert_eq!(lo, 2552847189736476416UL)
 }
 
 test "umul128: handles small numbers correctly" {
   let (hi, lo) = umul128(1UL, 1UL)
-  @test.eq!(hi, 0UL)
-  @test.eq!(lo, 1UL)
+  assert_eq!(hi, 0UL)
+  assert_eq!(lo, 1UL)
 }
 
 test "umul128: handles large numbers correctly" {
   let (hi, lo) = umul128(1UL, 0xFFFFFFFFFFFFFFFFUL)
-  @test.eq!(hi, 0UL)
-  @test.eq!(lo, 0xFFFFFFFFFFFFFFFFUL)
+  assert_eq!(hi, 0UL)
+  assert_eq!(lo, 0xFFFFFFFFFFFFFFFFUL)
 }
 
 test "umul128: handles zero correctly" {
   let (hi, lo) = umul128(0UL, 0UL)
-  @test.eq!(hi, 0UL)
-  @test.eq!(lo, 0UL)
+  assert_eq!(hi, 0UL)
+  assert_eq!(lo, 0UL)
 }
 
 /// [uint64N] returns, as a Uint64, a pseudo-random number in the half-open interval [0,n)
