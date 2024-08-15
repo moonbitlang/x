@@ -3,12 +3,18 @@ package moonbitlang/x/crypto/internal
 // Values
 
 // Types and methods
+type ParseRadix
+
 type UInt128
 impl UInt128 {
-  compare(Self, Self) -> Bool
+  compare(Self, Self) -> Int
   complement(Self) -> Self
   copy(Self) -> Self
   decf(Self) -> Self
+  from_bin_string(String) -> Self
+  from_hex_string(String) -> Self
+  from_oct_string(String) -> Self
+  from_string(String) -> Self
   from_uint(UInt) -> Self
   incf(Self) -> Self
   land(Self, Self) -> Self
@@ -25,6 +31,7 @@ impl UInt128 {
   op_mod(Self, Self) -> Self
   op_mul(Self, Self) -> Self
   op_sub(Self, Self) -> Self
+  output(Self, Logger) -> Unit
   shl(Self, Int) -> Self
   shr(Self, Int) -> Self
   to_bytes(Self) -> Bytes
@@ -40,5 +47,4 @@ impl UInt128 {
 // Traits
 
 // Extension Methods
-impl Show for UInt128
 

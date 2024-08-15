@@ -15,7 +15,7 @@
 struct UInt128 {
   mut high : UInt64
   mut low : UInt64
-} derive(Eq, Show)
+} derive(Eq)
 
 pub fn UInt128::zero() -> UInt128 {
   { high: 0, low: 0 }
@@ -33,12 +33,28 @@ pub fn UInt128::from_uint(x : UInt) -> UInt128 {
   { high: 0, low: x.to_uint64() }
 }
 
+pub fn UInt128::from_bin_string(s : String) -> UInt128 {
+  try_parse?(s, radix=Bin).unwrap()
+}
+
+pub fn UInt128::from_oct_string(s : String) -> UInt128 {
+  try_parse?(s, radix=Oct).unwrap()
+}
+
+pub fn UInt128::from_string(s : String) -> UInt128 {
+  try_parse?(s).unwrap()
+}
+
+pub fn UInt128::from_hex_string(s : String) -> UInt128 {
+  try_parse16?(s).unwrap()
+}
+
 pub fn UInt128::make(high : UInt64, low : UInt64) -> UInt128 {
   { high, low }
 }
 
 test {
-  @test.eq!(
+  assert_eq!(
     (UInt128::from_uint(0xffffffff) + UInt128::from_uint(0xffffffff)).to_hex_string(),
     "1fffffffe",
   )
@@ -77,15 +93,15 @@ pub fn UInt128::op_add(self : UInt128, other : UInt128) -> UInt128 {
 }
 
 test {
-  @test.eq!(
+  assert_eq!(
     UInt128::make(0, 0xffff_ffff_ffff_ffffUL) + UInt128::one(),
     { high: 0x1, low: 0 },
   )
-  @test.eq!(
+  assert_eq!(
     UInt128::make(1, 0) - UInt128::one(),
     { high: 0, low: 0xffff_ffff_ffff_ffffUL },
   )
-  @test.eq!(UInt128::max().complement(), UInt128::one())
+  assert_eq!(UInt128::max().complement(), UInt128::one())
 }
 
 /// 1+ self
@@ -97,6 +113,7 @@ pub fn UInt128::incf(self : UInt128) -> UInt128 {
   self
 }
 
+/// 1- self
 pub fn UInt128::decf(self : UInt128) -> UInt128 {
   let low = self.low - 1UL
   let borrow = (self.low.lnot() & low) >> 63
@@ -105,11 +122,11 @@ pub fn UInt128::decf(self : UInt128) -> UInt128 {
   self
 }
 
-pub fn UInt128::compare(self : UInt128, other : UInt128) -> Bool {
+pub fn UInt128::compare(self : UInt128, other : UInt128) -> Int {
   if self.high != other.high {
-    return self.high < other.high
+    return self.high.compare(other.high)
   } else {
-    return self.low < other.low
+    return self.low.compare(other.low)
   }
 }
 
@@ -182,34 +199,32 @@ pub fn UInt128::wrapping_shl(self : UInt128, shift : UInt) -> UInt128 {
 }
 
 test {
-  @test.eq!(
+  assert_eq!(
     wrapping_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 8).to_hex_string(),
     "11234567890abcdef00",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 16).to_hex_string(),
     "11234567890abcdef0000",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 32).to_hex_string(),
     "11234567890abcdef00000000",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 64).to_hex_string(),
     "1234567890abcdef0000000000000000",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "11234567890abcdef",
   )
-  @test.eq!(
+  assert_eq!(
     shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "0",
   )
 }
 
-/// right shift but w/ a modulus `shift`. e.g. x >> 128 <=> x >> 128 mod 128 = x
-/// - Has better performance than regular `>>`
 pub fn UInt128::shr(self : UInt128, shift : Int) -> UInt128 {
   if shift >= 128 {
     UInt128::zero()
@@ -218,6 +233,8 @@ pub fn UInt128::shr(self : UInt128, shift : Int) -> UInt128 {
   }
 }
 
+/// right shift but w/ a modulus `shift`. e.g. x >> 128 <=> x >> 128 mod 128 = x
+/// - Has better performance than regular `>>`
 pub fn UInt128::wrapping_shr(self : UInt128, shift : UInt) -> UInt128 {
   let mut s = shift & 127
   let p_1 = ((((s + 127) | s) & 64) >> 6).to_uint64() - 1UL
@@ -234,27 +251,27 @@ pub fn UInt128::wrapping_shr(self : UInt128, shift : UInt) -> UInt128 {
 }
 
 test {
-  @test.eq!(
+  assert_eq!(
     wrapping_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 8).to_hex_string(),
     "11234567890abcd",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 16).to_hex_string(),
     "11234567890ab",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 32).to_hex_string(),
     "112345678",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 64).to_hex_string(),
     "1",
   )
-  @test.eq!(
+  assert_eq!(
     wrapping_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "11234567890abcdef",
   )
-  @test.eq!(
+  assert_eq!(
     shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "0",
   )
@@ -283,7 +300,7 @@ pub fn op_mul(self : UInt128, other : UInt128) -> UInt128 {
 }
 
 test {
-  @test.eq!(
+  assert_eq!(
     mul64x64(2, 0xffff_ffff_ffff_ffffUL).to_hex_string(),
     "1fffffffffffffffe",
   )
@@ -303,7 +320,7 @@ fn UInt128::popcnt(self : UInt128) -> Int {
 }
 
 test {
-  @test.eq!(mul64x64(2, 0xffff_ffff_ffff_ffffUL).popcnt(), 64)
+  assert_eq!(mul64x64(2, 0xffff_ffff_ffff_ffffUL).popcnt(), 64)
 }
 
 fn u64_to_hex_string(input : UInt64) -> String {
@@ -341,6 +358,35 @@ pub fn to_hex_string(self : UInt128) -> String {
   } else {
     s
   }
+}
+
+pub fn to_string(self : UInt128) -> String {
+  if self == UInt128::zero() {
+    return "0"
+  }
+  let mut self = self
+  let s : Array[String] = []
+  while self != { high: 0, low: 0 } {
+    let d = self.div_rem(UInt128::from_uint(10U))
+    self = d.0
+    s.push(d.1.low.to_string())
+  }
+  s.fold_right(String::op_add, init="")
+}
+
+test {
+  assert_eq!(
+    UInt128::from_hex_string("ffffffffff123450ffffffffffffffff")
+    .incf()
+    .to_string(),
+    UInt128::from_string("340282366920650986175549704880212934656").to_string(),
+  )
+}
+
+pub fn output(self : UInt128, logger : Logger) -> Unit {
+  let high = self.high
+  let low = self.low
+  logger.write_string("UInt128::{high:\{high}, low: \{low}}")
 }
 
 /// all 128 bits in 16 bytes
@@ -397,8 +443,8 @@ fn trzcnt(self : UInt128) -> Int {
 }
 
 test {
-  @test.eq!(trzcnt64(16), 4)
-  @test.eq!(trzcnt64(2_199_023_256_720), 4)
+  assert_eq!(trzcnt64(16), 4)
+  assert_eq!(trzcnt64(2_199_023_256_720), 4)
 }
 
 /// count leading zero of a UInt64
@@ -439,26 +485,26 @@ fn lezcnt(self : UInt128) -> Int {
 }
 
 test {
-  @test.eq!(lezcnt64(25UL), 59) // 25 = 1_1001
-  @test.eq!(lezcnt64(67UL << lezcnt64(67UL)), 0)
+  assert_eq!(lezcnt64(25UL), 59) // 25 = 1_1001
+  assert_eq!(lezcnt64(67UL << lezcnt64(67UL)), 0)
 }
 
 // TODO: efficient `Div` that combines Divide and Conquer w/ Binary Shift
 
 test {
-  @test.eq!(
+  assert_eq!(
     ({ high: 0xffff_ffff_ffff_ffffUL, low: 0 } / { high: 0, low: 2 }).to_hex_string(),
     "7fffffffffffffff8000000000000000",
   )
-  @test.eq!(
+  assert_eq!(
     ({ high: 0xffff_ffff_ffff_ffffUL, low: 0 } /
     { high: 0xffff_ffff_ffff_ffffUL, low: 0 }).to_hex_string(),
     "1",
   )
   let d = UInt128::max() / UInt128::make(1UL, 3UL)
   let m = UInt128::max() % UInt128::make(1UL, 3UL)
-  @test.eq!(d * UInt128::make(1UL, 3UL) + m, UInt128::max())
-  @test.eq!(
+  assert_eq!(d * UInt128::make(1UL, 3UL) + m, UInt128::max())
+  assert_eq!(
     (UInt128::make(0xffff_1293_8fff_1234UL, 0x4321_abcd_ef01_2530UL) /
     UInt128::from_uint(16)).to_hex_string(),
     "ffff12938fff12344321abcdef01253",
@@ -595,10 +641,73 @@ fn div128bynorm64(
   return ((q_low_1 << 32) | q_low_0, r)
 }
 
-test {
-  println(
-    { high: 0xffffffffff123450UL, low: 0xffffffffffffffffUL }
-    .incf()
-    .to_hex_string(),
-  )
+enum ParseRadix {
+  Bin
+  Oct
+  Dec
+}
+
+fn try_parse(s : String, ~radix : ParseRadix = Dec) -> UInt128!Failure {
+  let r = match radix {
+    Bin => 2
+    Oct => 8
+    Dec => 10
+  }
+  if s.is_empty() {
+    fail!("empty string")
+  } else {
+    let s = s.trim_space()
+    if s.is_empty() {
+      return fail!("blank string")
+    } else {
+      let mut s = s
+      if s[0] == '+' {
+        s = s.substring(start=1)
+      }
+      let mut v = UInt128::zero()
+      for c in s {
+        let cs = c.to_int() - '0'.to_int()
+        let prev = v.copy()
+        if cs >= 0 && cs < r {
+          v = prev * { high: 0, low: r.to_int64().to_uint64() } +
+            { high: 0, low: cs.to_int64().to_uint64() }
+        } else {
+          return fail!("trash inside string: \{c}")
+        }
+      }
+      v
+    }
+  }
+}
+
+fn try_parse16(s : String) -> UInt128!Failure {
+  if s.is_empty() {
+    fail!("empty string")
+  } else {
+    let s = s.trim_space()
+    if s.is_empty() {
+      return fail!("blank string")
+    } else {
+      let mut s = s.to_lower()
+      if s[0] == '+' {
+        s = s.substring(start=1)
+      }
+      let mut v = UInt128::zero()
+      for c in s {
+        let prev = v.copy()
+        if c >= '0' && c <= '9' {
+          let cs = c.to_int() - '0'.to_int()
+          v = prev * { high: 0, low: 16UL } +
+            { high: 0, low: cs.to_int64().to_uint64() }
+        } else if c >= 'a' && c <= 'f' {
+          let cs = c.to_int() - 87
+          v = prev * { high: 0, low: 16UL } +
+            { high: 0, low: cs.to_int64().to_uint64() }
+        } else {
+          return fail!("trash inside string: \{c}")
+        }
+      }
+      v
+    }
+  }
 }
