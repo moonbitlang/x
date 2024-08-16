@@ -3,8 +3,6 @@ package moonbitlang/x/crypto/internal
 // Values
 
 // Types and methods
-type ParseRadix
-
 type UInt128
 impl UInt128 {
   compare(Self, Self) -> Int

@@ -34,19 +34,47 @@ pub fn UInt128::from_uint(x : UInt) -> UInt128 {
 }
 
 pub fn UInt128::from_bin_string(s : String) -> UInt128 {
-  try_parse?(s, radix=Bin).unwrap()
+  try {
+    try_parse!(s, radix=Bin)
+  } catch {
+    Failure(msg) => {
+      println(msg)
+      abort("ParseError")
+    }
+  }
 }
 
 pub fn UInt128::from_oct_string(s : String) -> UInt128 {
-  try_parse?(s, radix=Oct).unwrap()
+  try {
+    try_parse!(s, radix=Oct)
+  } catch {
+    Failure(msg) => {
+      println(msg)
+      abort("ParseError")
+    }
+  }
 }
 
 pub fn UInt128::from_string(s : String) -> UInt128 {
-  try_parse?(s).unwrap()
+  try {
+    try_parse!(s, radix=Dec)
+  } catch {
+    Failure(msg) => {
+      println(msg)
+      abort("ParseError")
+    }
+  }
 }
 
 pub fn UInt128::from_hex_string(s : String) -> UInt128 {
-  try_parse16?(s).unwrap()
+  try {
+    try_parse16!(s)
+  } catch {
+    Failure(msg) => {
+      println(msg)
+      abort("ParseError")
+    }
+  }
 }
 
 pub fn UInt128::make(high : UInt64, low : UInt64) -> UInt128 {
@@ -639,7 +667,7 @@ fn div128bynorm64(
   return ((q_low_1 << 32) | q_low_0, r)
 }
 
-enum ParseRadix {
+priv enum ParseRadix {
   Bin
   Oct
   Dec
