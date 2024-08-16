@@ -30,10 +30,10 @@ impl UInt128 {
   op_equal(Self, Self) -> Bool
   op_mod(Self, Self) -> Self
   op_mul(Self, Self) -> Self
+  op_shl(Self, Int) -> Self
+  op_shr(Self, Int) -> Self
   op_sub(Self, Self) -> Self
   output(Self, Logger) -> Unit
-  shl(Self, Int) -> Self
-  shr(Self, Int) -> Self
   to_bytes(Self) -> Bytes
   to_hex_string(Self) -> String
   to_string(Self) -> String

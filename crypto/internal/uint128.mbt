@@ -173,7 +173,7 @@ pub fn UInt128::lnot(self : UInt128) -> UInt128 {
   { high: self.high.lnot(), low: self.low.lnot() }
 }
 
-pub fn UInt128::shl(self : UInt128, shift : Int) -> UInt128 {
+pub fn UInt128::op_shl(self : UInt128, shift : Int) -> UInt128 {
   if shift >= 128 {
     UInt128::zero()
   } else {
@@ -220,12 +220,12 @@ test {
     "11234567890abcdef",
   )
   assert_eq!(
-    shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
+    op_shl({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "0",
   )
 }
 
-pub fn UInt128::shr(self : UInt128, shift : Int) -> UInt128 {
+pub fn UInt128::op_shr(self : UInt128, shift : Int) -> UInt128 {
   if shift >= 128 {
     UInt128::zero()
   } else {
@@ -272,7 +272,7 @@ test {
     "11234567890abcdef",
   )
   assert_eq!(
-    shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
+    op_shr({ high: 1, low: 0x1234_5678_90ab_cdef }, 128).to_hex_string(),
     "0",
   )
 }
@@ -488,8 +488,6 @@ test {
   assert_eq!(lezcnt64(25UL), 59) // 25 = 1_1001
   assert_eq!(lezcnt64(67UL << lezcnt64(67UL)), 0)
 }
-
-// TODO: efficient `Div` that combines Divide and Conquer w/ Binary Shift
 
 test {
   assert_eq!(
