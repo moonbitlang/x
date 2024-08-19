@@ -60,11 +60,11 @@ test "from_string" {
   )
   inspect!(
     @time.PlainTime::from_string?("10:00:00.123zzz"),
-    content="Err(moonbitlang/core/strconv.StrConvError.StrConvError)",
+    content="Err(invalid syntax)",
   )
   inspect!(
     @time.PlainTime::from_string?("z1:00:00"),
-    content="Err(moonbitlang/core/strconv.StrConvError.StrConvError)",
+    content="Err(invalid syntax)",
   )
 }
 
