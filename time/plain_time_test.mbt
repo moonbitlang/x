@@ -152,8 +152,8 @@ test "add_hours" {
   inspect!(time.add_hours!(38L), content="00:00:00")
   inspect!(time.add_hours!(39L), content="01:00:00")
   inspect!(time.add_hours!(40L), content="02:00:00")
-  inspect!(time.add_hours!(Int64::min_value()), content="02:00:00")
-  inspect!(time.add_hours!(Int64::max_value()), content="17:00:00")
+  inspect!(time.add_hours!(@int64.min), content="02:00:00")
+  inspect!(time.add_hours!(@int64.max), content="17:00:00")
 }
 
 test "add_minutes" {
@@ -168,8 +168,8 @@ test "add_minutes" {
   inspect!(time.add_minutes!(1440L), content="00:30:00")
   inspect!(time.add_minutes!(2345L), content="15:35:00")
   inspect!(time.add_minutes!(2880L), content="00:30:00")
-  inspect!(time.add_minutes!(Int64::min_value()), content="06:22:00")
-  inspect!(time.add_minutes!(Int64::max_value()), content="18:37:00")
+  inspect!(time.add_minutes!(@int64.min), content="06:22:00")
+  inspect!(time.add_minutes!(@int64.max), content="18:37:00")
 }
 
 test "add_seconds" {
@@ -180,8 +180,8 @@ test "add_seconds" {
   inspect!(time.add_seconds!(30L), content="00:01:00")
   inspect!(time.add_seconds!(60L), content="00:01:30")
   inspect!(time.add_seconds!(12345678L), content="21:21:48")
-  inspect!(time.add_seconds!(Int64::min_value()), content="08:30:22")
-  inspect!(time.add_seconds!(Int64::max_value()), content="15:30:37")
+  inspect!(time.add_seconds!(@int64.min), content="08:30:22")
+  inspect!(time.add_seconds!(@int64.max), content="15:30:37")
   inspect!(time.add_seconds!(24L * 60L * 60L), content="00:00:30")
 }
 

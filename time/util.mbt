@@ -154,7 +154,7 @@ fn int64_overflow_err[T]() -> T!Error {
 /// FIXME: use checked_add method of Int
 fn checked_add_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() + y.to_int64()
-  if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
+  if r < @int.min.to_int64() || r > @int.max.to_int64() {
     int_overflow_err!()
   } else {
     r.to_int()
@@ -164,7 +164,7 @@ fn checked_add_int(x : Int, y : Int) -> Int!Error {
 /// FIXME: use checked_mul method of Int
 fn checked_mul_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() * y.to_int64()
-  if r < Int::min_value().to_int64() || r > Int::max_value().to_int64() {
+  if r < @int.min.to_int64() || r > @int.max.to_int64() {
     int_overflow_err!()
   } else {
     r.to_int()
@@ -189,7 +189,7 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   let abs_y = y.abs()
   if abs_x.lor(abs_y).lsr(31) != 0L {
     // bits that greater than 2^31 might cause overflow
-    if (y != 0L && r / y != x) || (x == Int64::min_value() && y == -1L) {
+    if (y != 0L && r / y != x) || (x == @int64.min && y == -1L) {
       int64_overflow_err!()
     }
   }
@@ -201,11 +201,11 @@ test "checked_add_int" {
   inspect!(checked_add_int?(1, -1), content="Ok(0)")
   inspect!(checked_add_int?(-1, -1), content="Ok(-2)")
   inspect!(
-    checked_add_int?(Int::max_value(), 1),
+    checked_add_int?(@int.max, 1),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    checked_add_int?(Int::min_value(), -1),
+    checked_add_int?(@int.min, -1),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -215,11 +215,11 @@ test "checked_mul_int" {
   inspect!(checked_mul_int?(2, -3), content="Ok(-6)")
   inspect!(checked_mul_int?(-2, -3), content="Ok(6)")
   inspect!(
-    checked_mul_int?(Int::max_value(), 2),
+    checked_mul_int?(@int.max, 2),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    checked_mul_int?(Int::min_value(), 2),
+    checked_mul_int?(@int.min, 2),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -229,11 +229,11 @@ test "checked_add_int64" {
   inspect!(checked_add_int64?(1L, -1L), content="Ok(0)")
   inspect!(checked_add_int64?(-1L, -1L), content="Ok(-2)")
   inspect!(
-    checked_add_int64?(1L, Int64::max_value()),
+    checked_add_int64?(1L, @int64.max),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    checked_add_int64?(-1L, Int64::min_value()),
+    checked_add_int64?(-1L, @int64.min),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -243,11 +243,11 @@ test "checked_mul_int64" {
   inspect!(checked_mul_int64?(2L, -3L), content="Ok(-6)")
   inspect!(checked_mul_int64?(-2L, -3L), content="Ok(6)")
   inspect!(
-    checked_mul_int64?(Int64::max_value(), 2L),
+    checked_mul_int64?(@int64.max, 2L),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    checked_mul_int64?(Int64::min_value(), 2L),
+    checked_mul_int64?(@int64.min, 2L),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
