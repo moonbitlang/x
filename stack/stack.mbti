@@ -26,7 +26,6 @@ impl Stack {
   peek[T](Self[T]) -> T?
   peek_exn[T](Self[T]) -> T
   pop[T](Self[T]) -> T?
-  pop_exn[T](Self[T]) -> T
   push[T](Self[T], T) -> Unit
   push_array[T](Self[T], Array[T]) -> Unit
   push_list[T](Self[T], @list.T[T]) -> Unit
@@ -35,6 +34,7 @@ impl Stack {
   to_array[T : Default](Self[T]) -> Array[T]
   to_list[T](Self[T]) -> @list.T[T]
   to_string[T : Show](Self[T]) -> String
+  unsafe_pop[T](Self[T]) -> T
 }
 
 // Type aliases

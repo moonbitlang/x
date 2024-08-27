@@ -41,19 +41,19 @@ test "add_hours" {
   inspect!(Duration::zero().add_hours!(1L), content="PT1H")
   inspect!(Duration::zero().add_hours!(-1L), content="PT-1H")
   inspect!(
-    Duration::zero().add_hours!(@int64.max / seconds_per_hour),
+    Duration::zero().add_hours!(@int64.max_value / seconds_per_hour),
     content="PT2562047788015215H",
   )
   inspect!(
-    Duration::zero().add_hours!(@int64.min / seconds_per_hour),
+    Duration::zero().add_hours!(@int64.min_value / seconds_per_hour),
     content="PT-2562047788015215H",
   )
   inspect!(
-    Duration::zero().add_hours?(@int64.max),
+    Duration::zero().add_hours?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    Duration::zero().add_hours?(@int64.min),
+    Duration::zero().add_hours?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -63,19 +63,19 @@ test "add_minutes" {
   inspect!(Duration::zero().add_minutes!(1L), content="PT1M")
   inspect!(Duration::zero().add_minutes!(-1L), content="PT-1M")
   inspect!(
-    Duration::zero().add_minutes!(@int64.max / seconds_per_minute),
+    Duration::zero().add_minutes!(@int64.max_value / seconds_per_minute),
     content="PT2562047788015215H30M",
   )
   inspect!(
-    Duration::zero().add_minutes!(@int64.min / seconds_per_minute),
+    Duration::zero().add_minutes!(@int64.min_value / seconds_per_minute),
     content="PT-2562047788015215H-30M",
   )
   inspect!(
-    Duration::zero().add_minutes?(@int64.max),
+    Duration::zero().add_minutes?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    Duration::zero().add_minutes?(@int64.min),
+    Duration::zero().add_minutes?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -109,19 +109,19 @@ test "add_nanoseconds" {
     content="PT-1H",
   )
   inspect!(
-    Duration::zero().add_nanoseconds!(@int64.max),
+    Duration::zero().add_nanoseconds!(@int64.max_value),
     content="PT2562047H47M16.854775807S",
   )
   inspect!(
-    Duration::zero().add_nanoseconds!(@int64.min),
+    Duration::zero().add_nanoseconds!(@int64.min_value),
     content="PT-2562047H-47M-16.854775808S",
   )
   inspect!(
-    Duration::of!(seconds=@int64.max).add_nanoseconds?(@int64.max),
+    Duration::of!(seconds=@int64.max_value).add_nanoseconds?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    Duration::of!(seconds=@int64.min).add_nanoseconds?(@int64.min),
+    Duration::of!(seconds=@int64.min_value).add_nanoseconds?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -135,10 +135,10 @@ test "op_add" {
     nanoseconds=-1000L,
   )
   let p3 = Duration::of!(
-    seconds=@int64.max,
+    seconds=@int64.max_value,
     nanoseconds=max_nanosecond.to_int64(),
   )
-  let p4 = Duration::of!(seconds=@int64.min)
+  let p4 = Duration::of!(seconds=@int64.min_value)
   inspect!(p1.op_add!(Duration::zero()), content="PT1H1M1.000001S")
   inspect!(p1.op_add!(p2), content="PT0S")
   inspect!(p1.op_add!(p1), content="PT2H2M2.000002S")

@@ -185,11 +185,11 @@ test "add_weeks" {
   inspect!(d.add_weeks!(3L), content="2000-03-21T00:00:00")
   inspect!(d.add_weeks!(-3L), content="2000-02-08T00:00:00")
   inspect!(
-    d.add_weeks?(@int64.max),
+    d.add_weeks?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    d.add_weeks?(@int64.min),
+    d.add_weeks?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
@@ -202,11 +202,11 @@ test "add_days" {
   inspect!(d.add_days!(365L), content="2001-02-28T00:00:00")
   inspect!(d.add_days!(-365L), content="1999-03-01T00:00:00")
   inspect!(
-    d.add_days?(@int64.max),
+    d.add_days?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    d.add_days?(@int64.min),
+    d.add_days?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }

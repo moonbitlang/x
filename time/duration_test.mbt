@@ -69,19 +69,19 @@ test "add_seconds" {
   inspect!(@time.Duration::zero().add_seconds!(1L), content="PT1S")
   inspect!(@time.Duration::zero().add_seconds!(-1L), content="PT-1S")
   inspect!(
-    @time.Duration::zero().add_seconds!(@int64.max),
+    @time.Duration::zero().add_seconds!(@int64.max_value),
     content="PT2562047788015215H30M7S",
   )
   inspect!(
-    @time.Duration::zero().add_seconds!(@int64.min),
+    @time.Duration::zero().add_seconds!(@int64.min_value),
     content="PT-2562047788015215H-30M-8S",
   )
   inspect!(
-    @time.Duration::of!(seconds=1L).add_seconds?(@int64.max),
+    @time.Duration::of!(seconds=1L).add_seconds?(@int64.max_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
-    @time.Duration::of!(seconds=-1L).add_seconds?(@int64.min),
+    @time.Duration::of!(seconds=-1L).add_seconds?(@int64.min_value),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }

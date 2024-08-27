@@ -165,7 +165,7 @@ let segments = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
 let size : Int = (
-    segments.fold_left(fn { acc, x => acc + x }, init=0) + segments.length() - 2
+    segments.fold(fn { acc, x => acc + x }, init=0) + segments.length() - 2
   ) *
   2
 
