@@ -54,7 +54,13 @@ fn lex_value(
         match read_char(ctx) {
           Some('I') => {
             lex_infinity!(ctx)
-            return Number(if c == '-' { @double.neg_infinity } else { @double.infinity })
+            return Number(
+              if c == '-' {
+                @double.neg_infinity
+              } else {
+                @double.infinity
+              },
+            )
           }
           Some('N') => {
             lex_assert_char!(ctx, 'a')

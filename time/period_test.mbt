@@ -112,8 +112,16 @@ test "with_days" {
 test "op_add" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
-  let p3 = @time.Period::of(years=@int.max_value, months=@int.max_value, days=@int.max_value)
-  let p4 = @time.Period::of(years=@int.min_value, months=@int.min_value, days=@int.min_value)
+  let p3 = @time.Period::of(
+    years=@int.max_value,
+    months=@int.max_value,
+    days=@int.max_value,
+  )
+  let p4 = @time.Period::of(
+    years=@int.min_value,
+    months=@int.min_value,
+    days=@int.min_value,
+  )
   inspect!(p1.op_add!(@time.Period::zero()), content="P1Y2M3D")
   inspect!(p1.op_add!(p2), content="P0D")
   inspect!(p1.op_add!(p1), content="P2Y4M6D")
@@ -131,8 +139,16 @@ test "op_add" {
 test "op_sub" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
-  let p3 = @time.Period::of(years=@int.max_value, months=@int.max_value, days=@int.max_value)
-  let p4 = @time.Period::of(years=@int.min_value, months=@int.min_value, days=@int.min_value)
+  let p3 = @time.Period::of(
+    years=@int.max_value,
+    months=@int.max_value,
+    days=@int.max_value,
+  )
+  let p4 = @time.Period::of(
+    years=@int.min_value,
+    months=@int.min_value,
+    days=@int.min_value,
+  )
   inspect!(p1.op_sub!(p1), content="P0D")
   inspect!(p1.op_sub!(p2), content="P2Y4M6D")
   inspect!(p2.op_sub!(p1), content="P-2Y-4M-6D")
@@ -166,10 +182,18 @@ test "negated" {
   let p = @time.Period::of(years=1, months=1, days=1)
   inspect!(p.negated!(), content="P-1Y-1M-1D")
   inspect!(p.negated!().negated!() == p, content="true")
-  let p = @time.Period::of(years=@int.max_value, months=@int.max_value, days=@int.max_value)
+  let p = @time.Period::of(
+    years=@int.max_value,
+    months=@int.max_value,
+    days=@int.max_value,
+  )
   inspect!(p.negated!(), content="P-2147483647Y-2147483647M-2147483647D")
   inspect!(p.negated!().negated!() == p, content="true")
-  let p = @time.Period::of(years=@int.min_value, months=@int.min_value, days=@int.min_value)
+  let p = @time.Period::of(
+    years=@int.min_value,
+    months=@int.min_value,
+    days=@int.min_value,
+  )
   inspect!(
     p.negated?(),
     content="Err(moonbitlang/core/builtin.Failure.Failure)",
