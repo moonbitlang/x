@@ -21,7 +21,7 @@
 /// println(s) // Stack::[]
 /// ```
 pub fn Stack::new[T]() -> Stack[T] {
-  { elements: @immut/list.T::Nil, len: 0 }
+  { elements: Nil, len: 0 }
 }
 
 test "new" {
@@ -34,7 +34,7 @@ test "new" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::from_list(@immut/list.T::[1, 2, 3])
+/// let s = Stack::from_list(@immut/list.of([1, 2, 3]))
 /// println(s) // Stack::[1, 2, 3]
 /// ```
 pub fn Stack::from_list[T](list : @immut/list.T[T]) -> Stack[T] {
@@ -42,7 +42,7 @@ pub fn Stack::from_list[T](list : @immut/list.T[T]) -> Stack[T] {
 }
 
 test "from_list" {
-  let s = Stack::from_list(@immut/list.T::of([1, 2, 3]))
+  let s = Stack::from_list(@immut/list.of([1, 2, 3]))
   inspect!(s, content="Stack::[1, 2, 3]")
   inspect!(s.len, content="3")
 }
@@ -56,7 +56,7 @@ test "from_list" {
 /// println(s) // Stack::from_array([3, 2, 1])
 /// ```
 pub fn Stack::from_array[T](array : Array[T]) -> Stack[T] {
-  { elements: @immut/list.T::from_array(array), len: array.length() }
+  { elements: @immut/list.from_array(array), len: array.length() }
 }
 
 test "from_array" {
@@ -74,7 +74,7 @@ test "from_array" {
 /// println(s) // Stack::of([3, 2, 1])
 /// ```
 pub fn Stack::of[T](array : FixedArray[T]) -> Stack[T] {
-  { elements: @immut/list.T::of(array), len: array.length() }
+  { elements: @immut/list.of(array), len: array.length() }
 }
 
 test "of" {
@@ -135,7 +135,7 @@ test "from_stack" {
 /// println(s) // Stack::[]
 /// ```
 pub fn clear[T](self : Stack[T]) -> Unit {
-  self.elements = @immut/list.T::Nil
+  self.elements = Nil
   self.len = 0
 }
 
@@ -173,7 +173,7 @@ test "return_with_clear" {
 /// println(s) // Stack::[1]
 /// ```
 pub fn push[T](self : Stack[T], x : T) -> Unit {
-  self.elements = @immut/list.T::Cons(x, self.elements)
+  self.elements = Cons(x, self.elements)
   self.len = self.len + 1
 }
 
@@ -190,7 +190,7 @@ test "push" {
 ///
 /// ```
 /// let s = Stack::new()
-/// s.push_list(@immut/list.T::[1, 2, 3])
+/// s.push_list(@immut/list.of[1, 2, 3])
 /// println(s) // Stack::[3, 2, 1]
 /// ```
 pub fn push_list[T](self : Stack[T], list : @immut/list.T[T]) -> Unit {
@@ -199,7 +199,7 @@ pub fn push_list[T](self : Stack[T], list : @immut/list.T[T]) -> Unit {
 
 test "push_list" {
   let s = Stack::new()
-  s.push_list(@immut/list.T::of([1, 2, 3]))
+  s.push_list(@immut/list.of([1, 2, 3]))
   inspect!(s, content="Stack::[3, 2, 1]")
   inspect!(s.len, content="3")
 }
@@ -260,12 +260,12 @@ test "push_array" {
 /// ```
 pub fn pop[T](self : Stack[T]) -> T? {
   match self.elements {
-    @immut/list.T::Cons(hd, tl) => {
+    Cons(hd, tl) => {
       self.elements = tl
       self.len = self.len - 1
       Some(hd)
     }
-    @immut/list.T::Nil => None
+    Nil => None
   }
 }
 
@@ -288,25 +288,25 @@ test "pop" {
 /// ```
 /// let s = Stack::of([1, 2, 3])
 /// let s1 : Stack[Int] = Stack::new()
-/// println(s.pop_exn()) // 1
+/// println(s.unsafe_pop()) // 1
 /// println(s) // Stack::[2, 3]
-/// println(s1.pop_exn()) // abort.
+/// println(s1.unsafe_pop()) // abort.
 /// ```
 /// @alert unsafe "Panic if the stack is empty."
-pub fn pop_exn[T](self : Stack[T]) -> T {
+pub fn unsafe_pop[T](self : Stack[T]) -> T {
   match self.elements {
-    @immut/list.T::Cons(hd, tl) => {
+    Cons(hd, tl) => {
       self.elements = tl
       self.len = self.len - 1
       hd
     }
-    @immut/list.T::Nil => abort("pop of empty stack")
+    Nil => abort("pop of empty stack")
   }
 }
 
-test "pop_exn" {
+test "unsafe_pop" {
   let s = Stack::of([1, 2, 3])
-  inspect!(s.pop_exn(), content="1")
+  inspect!(s.unsafe_pop(), content="1")
   inspect!(s, content="Stack::[2, 3]")
   inspect!(s.len, content="2")
 }
@@ -323,11 +323,11 @@ test "pop_exn" {
 /// ```
 pub fn drop[T](self : Stack[T]) -> Unit {
   match self.elements {
-    @immut/list.T::Cons(_hd, tl) => {
+    Cons(_hd, tl) => {
       self.elements = tl
       self.len = self.len - 1
     }
-    @immut/list.T::Nil => ()
+    Nil => ()
   }
 }
 
@@ -349,12 +349,12 @@ test "drop" {
 /// ```
 pub fn drop_result[T](self : Stack[T]) -> Result[Unit, Unit] {
   match self.elements {
-    @immut/list.T::Cons(_hd, tl) => {
+    Cons(_hd, tl) => {
       self.elements = tl
       self.len = self.len - 1
       Ok(())
     }
-    @immut/list.T::Nil => Err(())
+    Nil => Err(())
   }
 }
 
@@ -379,8 +379,8 @@ test "drop_result" {
 /// ```
 pub fn peek[T](self : Stack[T]) -> T? {
   match self.elements {
-    @immut/list.T::Cons(hd, _) => Some(hd)
-    @immut/list.T::Nil => None
+    Cons(hd, _) => Some(hd)
+    Nil => None
   }
 }
 
@@ -406,8 +406,8 @@ test "peek" {
 /// @alert unsafe "Panic if the stack is empty."
 pub fn peek_exn[T](self : Stack[T]) -> T {
   match self.elements {
-    @immut/list.T::Cons(hd, _) => hd
-    @immut/list.T::Nil => abort("top of the empty stack")
+    Cons(hd, _) => hd
+    Nil => abort("top of the empty stack")
   }
 }
 
@@ -493,7 +493,7 @@ test "fold" {
 /// # Example
 ///
 /// ```
-/// println(Stack::of([1, 2, 3]).to_list()) // @immut/list.T::[1, 2, 3]
+/// println(Stack::of([1, 2, 3]).to_list()) // @immut/list.of([1, 2, 3])
 /// ```
 pub fn to_list[T](self : Stack[T]) -> @immut/list.T[T] {
   self.elements
