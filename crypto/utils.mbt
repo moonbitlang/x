@@ -39,7 +39,7 @@ fn uint_to_hex_string(input : UInt) -> String {
     ret[cnt] = hex_digits[(mut_input & 0xf).to_int()]
     mut_input = mut_input.lsr(4)
   }
-  ret.fold_left(String::op_add, init="")
+  ret.fold(String::op_add, init="")
 }
 
 /// print a sequence of uint in hex representation

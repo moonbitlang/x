@@ -54,12 +54,12 @@ fn lex_value(
         match read_char(ctx) {
           Some('I') => {
             lex_infinity!(ctx)
-            return Number(Double::inf(if c == '-' { -1 } else { 1 }))
+            return Number(if c == '-' { @double.neg_infinity } else { @double.infinity })
           }
           Some('N') => {
             lex_assert_char!(ctx, 'a')
             lex_assert_char!(ctx, 'N')
-            return Number(Double::nan())
+            return Number(@double.not_a_number)
           }
           Some('0') => {
             let n = lex_zero!(ctx, neg=c == '-', start=ctx.offset - 2)
@@ -92,12 +92,12 @@ fn lex_value(
       }
       Some('I') => {
         lex_infinity!(ctx)
-        return Number(Double::inf(1))
+        return Number(@double.infinity)
       }
       Some('N') => {
         lex_assert_char!(ctx, 'a')
         lex_assert_char!(ctx, 'N')
-        return Number(Double::nan())
+        return Number(@double.not_a_number)
       }
       Some('"') => {
         let n = lex_string!(ctx, '"')

@@ -297,8 +297,8 @@ test "parses signed and unsigned Infinity" {
     json,
     @json.JsonValue::Array(
       [
-        @json.JsonValue::Number(@double.inf(1)),
-        @json.JsonValue::Number(@double.inf(-1)),
+        @json.JsonValue::Number(@double.infinity),
+        @json.JsonValue::Number(@double.neg_infinity),
       ],
     ),
   )
