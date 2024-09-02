@@ -72,8 +72,12 @@ fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   for i = 0; i < 4; i = i + 1 {
     digest[j] = (self.state[i] & 0xff).reinterpret_as_int().to_byte()
     digest[j + 1] = (self.state[i].lsr(8) & 0xff).reinterpret_as_int().to_byte()
-    digest[j + 2] = (self.state[i].lsr(16) & 0xff).reinterpret_as_int().to_byte()
-    digest[j + 3] = (self.state[i].lsr(24) & 0xff).reinterpret_as_int().to_byte()
+    digest[j + 2] = (self.state[i].lsr(16) & 0xff)
+      .reinterpret_as_int()
+      .to_byte()
+    digest[j + 3] = (self.state[i].lsr(24) & 0xff)
+      .reinterpret_as_int()
+      .to_byte()
     j += 4
   }
   digest
