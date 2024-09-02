@@ -36,7 +36,7 @@ fn uint_to_hex_string(input : UInt) -> String {
   let ret = FixedArray::make(8, "0")
   let mut mut_input = input
   for cnt = 7; cnt >= 0; cnt = cnt - 1 {
-    ret[cnt] = hex_digits[(mut_input & 0xf).to_int()]
+    ret[cnt] = hex_digits[(mut_input & 0xf).reinterpret_as_int()]
     mut_input = mut_input.lsr(4)
   }
   ret.fold(String::op_add, init="")
@@ -48,7 +48,7 @@ pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
 }
 
 fn uint32(x : Byte) -> UInt {
-  x.to_int().to_uint()
+  x.to_int().reinterpret_as_uint()
 }
 
 /// convert 4 bytes a byte sequence to a UInt in little endian

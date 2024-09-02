@@ -47,7 +47,7 @@ pub fn MD5Context::new() -> MD5Context {
 /// compute MD5 digest from given context
 fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   let input = FixedArray::make(16, 0U)
-  let idx = (self.count[0].lsr(3) & 0x3f).to_int()
+  let idx = (self.count[0].lsr(3) & 0x3f).reinterpret_as_int()
   input[14] = self.count[0]
   input[15] = self.count[1]
   let bytes_slice = if idx < 56 {
@@ -70,10 +70,14 @@ fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   let mut j = 0
   // u32 to u8
   for i = 0; i < 4; i = i + 1 {
-    digest[j] = (self.state[i] & 0xff).to_int().to_byte()
-    digest[j + 1] = (self.state[i].lsr(8) & 0xff).to_int().to_byte()
-    digest[j + 2] = (self.state[i].lsr(16) & 0xff).to_int().to_byte()
-    digest[j + 3] = (self.state[i].lsr(24) & 0xff).to_int().to_byte()
+    digest[j] = (self.state[i] & 0xff).reinterpret_as_int().to_byte()
+    digest[j + 1] = (self.state[i].lsr(8) & 0xff).reinterpret_as_int().to_byte()
+    digest[j + 2] = (self.state[i].lsr(16) & 0xff)
+      .reinterpret_as_int()
+      .to_byte()
+    digest[j + 3] = (self.state[i].lsr(24) & 0xff)
+      .reinterpret_as_int()
+      .to_byte()
     j += 4
   }
   digest
@@ -103,14 +107,14 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
 
 fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   let input = FixedArray::make(16, 0U)
-  let mut idx = (ctx.count[0].lsr(3) & 0x3f).to_int()
+  let mut idx = (ctx.count[0].lsr(3) & 0x3f).reinterpret_as_int()
   let length = data.length()
-  let mod_length = length.to_uint().lsl(3)
+  let mod_length = length.reinterpret_as_uint().lsl(3)
   ctx.count[0] += mod_length
   if ctx.count[0] < mod_length {
     ctx.count[1] += 1
   }
-  ctx.count[1] += length.to_uint().lsr(29)
+  ctx.count[1] += length.reinterpret_as_uint().lsr(29)
   for i = 0; i < length; i = i + 1 {
     ctx.buffer[idx] = data[i]
     idx += 1
