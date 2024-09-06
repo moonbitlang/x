@@ -32,10 +32,7 @@ fn read_file_to_string(path : @ffi.XExternString) -> @ffi.XExternString = "__moo
 ///
 /// # Note
 /// This is an unstable function call and should be used internally only.
-fn _write_string_to_file(
-  path : @ffi.XExternString,
-  content : @ffi.XExternString
-) = "__moonbit_fs_unstable" "write_string_to_file"
+fn _write_string(path : @ffi.XExternString, content : @ffi.XExternString) = "__moonbit_fs_unstable" "write_string_to_file"
 
 /// Checks if a path exists.
 ///
@@ -59,11 +56,8 @@ fn _read_to_string(path : String) -> String {
 /// # Parameters
 /// - `path`: A `String` representing the file path.
 /// - `content`: A `String` containing the content to be written to the file.
-pub fn write_string_to_string(~path : String, ~content : String) -> Unit {
-  _write_string_to_file(
-    @ffi.string_to_extern(path),
-    @ffi.string_to_extern(content),
-  )
+pub fn write_string(~path : String, ~content : String) -> Unit {
+  _write_string(@ffi.string_to_extern(path), @ffi.string_to_extern(content))
 }
 
 /// Checks if a path exists.
