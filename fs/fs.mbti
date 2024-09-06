@@ -1,0 +1,17 @@
+package moonbitlang/x/fs
+
+// Values
+fn exists(String) -> Bool
+
+fn read_to_string(String) -> String!
+
+fn write_to_string(~path : String, ~content : String) -> Unit
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+

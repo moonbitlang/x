@@ -1,0 +1,35 @@
+package moonbitlang/x/fs/internal/ffi
+
+// Values
+fn array_get(JSArray, Int) -> JSValue
+
+fn array_len(JSArray) -> Int
+
+fn jsvalue_get_string(JSValue) -> XExternString
+
+fn jsvalue_is_string(JSValue) -> Bool
+
+fn string_from_extern(XExternString) -> String
+
+fn string_to_extern(String) -> XExternString
+
+// Types and methods
+pub type XExternString
+
+pub type JSArray
+impl JSArray {
+  op_get(Self, Int) -> JSValue
+}
+
+type JSValue
+
+type XStringCreateHandle
+
+type XStringReadHandle
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+

@@ -1,9 +1,9 @@
-pub type JSArray
+pub type XJSArray
 
-pub fn array_len(arr : JSArray) -> Int = "__moonbit_fs_unstable" "array_len"
+pub fn array_len(arr : XJSArray) -> Int = "__moonbit_fs_unstable" "array_len"
 
-pub fn array_get(arr : JSArray, idx : Int) -> JSValue = "__moonbit_fs_unstable" "array_get"
+pub fn array_get(arr : XJSArray, idx : Int) -> XJSValue = "__moonbit_fs_unstable" "array_get"
 
-pub fn JSArray::op_get(self : JSArray, idx : Int) -> JSValue {
+pub fn XJSArray::op_get(self : XJSArray, idx : Int) -> XJSValue {
   return array_get(self, idx)
 }
