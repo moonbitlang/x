@@ -1,11 +1,11 @@
 package moonbitlang/x/fs
 
 // Values
-fn exists(String) -> Bool
+fn exists(~path : String) -> Bool
 
-fn read_to_string(String) -> String!
+fn read_to_string(~path : String) -> String!
 
-fn write_to_string(~path : String, ~content : String) -> Unit
+fn write_string_to_string(~path : String, ~content : String) -> Unit
 
 // Types and methods
 

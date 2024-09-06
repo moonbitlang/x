@@ -1,13 +1,13 @@
 package moonbitlang/x/fs/internal/ffi
 
 // Values
-fn array_get(JSArray, Int) -> JSValue
+fn array_get(XJSArray, Int) -> XJSValue
 
-fn array_len(JSArray) -> Int
+fn array_len(XJSArray) -> Int
 
-fn jsvalue_get_string(JSValue) -> XExternString
+fn jsvalue_get_string(XJSValue) -> XExternString
 
-fn jsvalue_is_string(JSValue) -> Bool
+fn jsvalue_is_string(XJSValue) -> Bool
 
 fn string_from_extern(XExternString) -> String
 
@@ -16,12 +16,12 @@ fn string_to_extern(String) -> XExternString
 // Types and methods
 pub type XExternString
 
-pub type JSArray
-impl JSArray {
-  op_get(Self, Int) -> JSValue
+pub type XJSArray
+impl XJSArray {
+  op_get(Self, Int) -> XJSValue
 }
 
-type JSValue
+type XJSValue
 
 type XStringCreateHandle
 

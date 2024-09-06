@@ -45,7 +45,7 @@ fn _read_to_string(path : String) -> String {
 /// # Parameters
 /// - `path`: A `String` representing the file path.
 /// - `content`: A `String` containing the content to be written to the file.
-pub fn write_to_string(~path : String, ~content : String) -> Unit {
+pub fn write_string_to_string(~path : String, ~content : String) -> Unit {
   _write_string_to_file(
     @ffi.string_to_extern(path),
     @ffi.string_to_extern(content),
@@ -59,7 +59,7 @@ pub fn write_to_string(~path : String, ~content : String) -> Unit {
 ///
 /// # Returns
 /// A boolean indicating whether the path exists.
-pub fn exists(path : String) -> Bool {
+pub fn exists(~path : String) -> Bool {
   path_exists(@ffi.string_to_extern(path))
 }
 
@@ -70,8 +70,8 @@ pub fn exists(path : String) -> Bool {
 ///
 /// # Returns
 /// A `String` containing the file contents if the file exists, otherwise raises an error.
-pub fn read_to_string(path : String) -> String! {
-  if not(exists(path)) {
+pub fn read_to_string(~path : String) -> String! {
+  if not(exists(~path)) {
     fail!("File does not exist")
   }
   _read_to_string(path)
