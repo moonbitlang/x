@@ -172,7 +172,8 @@ impl PlainTime {
   with_second(Self, Int) -> Self!
 }
 
-type Weekday
+pub enum Weekday
+
 impl Weekday {
   op_equal(Self, Self) -> Bool
   to_string(Self) -> String
