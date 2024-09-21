@@ -1,9 +1,5 @@
 {
     "import": [
         "moonbitlang/x/fs/internal/ffi"
-    ],
-    "targets": {
-        // "fs_wasm.mbt": ["wasm", "wasm-gc"],
-        // "fs_test.mbt": ["wasm", "wasm-gc"]
-    }
+    ]
 }
