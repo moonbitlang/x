@@ -36,7 +36,7 @@ fn invalid_char[X](ctx : ParseContext, ~shift : Int = 0) -> X!ParseError {
 
 fn hex_digit_to_int(c : Char) -> Int {
   if c >= 'A' {
-    c.to_int().land((32).lnot()) - 'A'.to_int() + 10
+    (c.to_int() & (32).lnot()) - 'A'.to_int() + 10
   } else {
     c.to_int() - '0'.to_int()
   }

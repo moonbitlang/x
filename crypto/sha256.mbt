@@ -86,22 +86,22 @@ fn transform(
     w[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
   }
   for index = 16; index < 64; index = index + 1 {
-    let sigma_0 = rotate_right_u(w[index - 15], 7)
-      .lxor(rotate_right_u(w[index - 15], 18))
-      .lxor(w[index - 15].shr(3))
-    let sigma_1 = rotate_right_u(w[index - 2], 17)
-      .lxor(rotate_right_u(w[index - 2], 19))
-      .lxor(w[index - 2].shr(10))
+    let sigma_0 = rotate_right_u(w[index - 15], 7) ^
+      rotate_right_u(w[index - 15], 18) ^
+      (w[index - 15] >> 3)
+    let sigma_1 = rotate_right_u(w[index - 2], 17) ^
+      rotate_right_u(w[index - 2], 19) ^
+      (w[index - 2] >> 10)
     w[index] = w[index - 16] + sigma_0 + w[index - 7] + sigma_1
   }
   for index = 0; index < 64; index = index + 1 {
-    let big_sigma_1 = rotate_right_u(e, 6)
-      .lxor(rotate_right_u(e, 11))
-      .lxor(rotate_right_u(e, 25))
+    let big_sigma_1 = rotate_right_u(e, 6) ^
+      rotate_right_u(e, 11) ^
+      rotate_right_u(e, 25)
     let t_1 = h + big_sigma_1 + gg_1(e, f, g) + sha256_t[index] + w[index]
-    let big_sigma_0 = rotate_right_u(a, 2)
-      .lxor(rotate_right_u(a, 13))
-      .lxor(rotate_right_u(a, 22))
+    let big_sigma_0 = rotate_right_u(a, 2) ^
+      rotate_right_u(a, 13) ^
+      rotate_right_u(a, 22)
     let t_2 = big_sigma_0 + ff_1(a, b, c)
     h = g
     g = f
