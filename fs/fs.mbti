@@ -1,17 +1,37 @@
 package moonbitlang/x/fs
 
 // Values
-fn exists(~path : String) -> Bool
+fn create_dir(~path : String) -> Unit
 
-fn read_to_string(~path : String) -> String!
+fn is_dir(~path : String) -> Bool!
 
-fn write_string(~path : String, ~content : String) -> Unit
+fn is_file(~path : String) -> Bool!
+
+fn path_exists(~path : String) -> Bool
+
+fn read_dir(~path : String) -> Array[String]!
+
+fn read_file_to_bytes(~path : String) -> Bytes!
+
+fn read_file_to_string(~path : String) -> String!
+
+fn remove_dir(~path : String) -> Unit!
+
+fn remove_file(~path : String) -> Unit!
+
+fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit
+
+fn write_string_to_file(~path : String, ~content : String) -> Unit
 
 // Types and methods
+pub type! IOError {
+  NotFound(String)
+}
 
 // Type aliases
 
 // Traits
 
 // Extension Methods
+impl Show for IOError
 
