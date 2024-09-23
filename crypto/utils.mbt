@@ -23,8 +23,8 @@ pub fn bytes_to_hex_string(input : Bytes) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
     let byte = input[i]
-    let high = byte.to_int().lsr(4).land(0xf)
-    let low = byte.to_int().land(0xf)
+    let high = byte.to_int().lsr(4) & 0xf
+    let low = byte.to_int() & 0xf
     let high_char = hex_digits[high]
     let low_char = hex_digits[low]
     ret = high_char + low_char + ret
@@ -106,7 +106,7 @@ fn arr_u32_to_u8be(x : Iter[UInt]) -> Bytes {
 /// rotate a Int `x` left by `n` bit(s)
 
 fn rotate_left(x : Int, n : Int) -> Int {
-  x.lsl(n).lor(x.lsr(32 - n))
+  x.lsl(n) | x.lsr(32 - n)
 }
 
 /// rotate a UInt `x` left by `n` bit(s)

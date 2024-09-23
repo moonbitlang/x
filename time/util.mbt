@@ -175,7 +175,7 @@ fn checked_mul_int(x : Int, y : Int) -> Int!Error {
 fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
-  if x.lxor(r).land(y.lxor(r)) < 0L {
+  if ((x ^ r) & (y ^ r)) < 0L {
     int64_overflow_err!()
   } else {
     r

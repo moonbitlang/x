@@ -13,5 +13,5 @@
 // limitations under the License.
 
 pub fn hash(self : UUID) -> Int {
-  Hash::hash(self.lo).lxor(Hash::hash(self.hi))
+  Hash::hash(self.lo) ^ Hash::hash(self.hi)
 }
