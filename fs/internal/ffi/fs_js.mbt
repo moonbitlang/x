@@ -14,9 +14,9 @@
 
 
 pub fn read_file_to_string(path: String) -> String {
-  read_to_string_internal(path)
+  read_file_to_string_internal(path)
 }
-extern "js" fn read_to_string_internal(path: String) -> String =
+extern "js" fn read_file_to_string_internal(path: String) -> String =
   #| function(path) {
   #|  fs = require('fs');
   #|  let content = fs.readFileSync(path, 'utf8');
@@ -36,26 +36,22 @@ extern "js" fn read_file_to_bytes_internal(path: String) -> FixedArray[Byte] =
   #|  return content;
   #| }
 
-test {
-  let a = read_file_to_bytes("1.txt").map(fn (x) { x.to_uint() })
-  println(a)
+
+pub fn write_string_to_file(path: String, content: String) -> Unit {
+  write_string_to_file_internal(path, content)
 }
 
-pub fn write_string(path: String, content: String) -> Unit {
-  write_string_internal(path, content)
-}
-
-extern "js" fn write_string_internal(path: String, content: String) =
+extern "js" fn write_string_to_file_internal(path: String, content: String) =
   #| function(path, content) {
   #|  fs = require('fs');
   #|  fs.writeFileSync(path, content, 'utf8');
   #| }
 
-pub fn write_bytes(path: String, content: Array[Byte]) -> Unit {
-  write_bytes_internal(path, FixedArray::from_array(content))
+pub fn write_bytes_to_file(path: String, content: Array[Byte]) -> Unit {
+  write_bytes_to_file_internal(path, FixedArray::from_array(content))
 }
 
-extern "js" fn write_bytes_internal(path: String, content: FixedArray[Byte]) =
+extern "js" fn write_bytes_to_file_internal(path: String, content: FixedArray[Byte]) =
   #| function(path, content) {
   #|  fs = require('fs');
   #|  fs.writeFileSync(path, Buffer.from(content));

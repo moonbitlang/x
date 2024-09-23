@@ -18,8 +18,8 @@
 /// # Parameters
 /// - `path`: A `String` representing the file path.
 /// - `content`: A `String` containing the content to be written to the file.
-pub fn write_string(~path : String, ~content : String) -> Unit {
-  @ffi.write_string((path), (content))
+pub fn write_string_to_file(~path : String, ~content : String) -> Unit {
+  @ffi.write_string_to_file((path), (content))
 }
 
 /// Writes an array of bytes to a file at the specified path.
@@ -28,8 +28,8 @@ pub fn write_string(~path : String, ~content : String) -> Unit {
 ///
 /// - `path` : The path to the file where the bytes will be written.
 /// - `content` : An array of bytes to be written to the file.
-pub fn write_bytes(~path : String, ~content : Array[Byte]) -> Unit {
-  @ffi.write_bytes(path, content)
+pub fn write_bytes_to_file(~path : String, ~content : Array[Byte]) -> Unit {
+  @ffi.write_bytes_to_file(path, content)
 }
 
 /// Checks if a path exists.
@@ -50,7 +50,7 @@ pub fn path_exists(~path : String) -> Bool {
 ///
 /// # Returns
 /// A `String` containing the file contents if the file exists, otherwise raises an error.
-pub fn read_to_string(~path : String) -> String! {
+pub fn read_file_to_string(~path : String) -> String! {
   if not(path_exists(~path)) {
     fail!("File does not exist")
   }
@@ -67,7 +67,7 @@ pub fn read_to_string(~path : String) -> String! {
 /// # Returns
 ///
 /// - An array of bytes representing the content of the file.
-pub fn read_to_bytes(~path : String) -> Array[Byte]! {
+pub fn read_file_to_bytes(~path : String) -> Array[Byte]! {
   if not(path_exists(~path)) {
     fail!("file `\{path}` does not exist")
   }
@@ -108,7 +108,10 @@ pub fn create_dir(~path : String) -> Unit {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
-pub fn is_dir(~path : String) -> Bool {
+pub fn is_dir(~path : String) -> Bool! {
+  if not(path_exists(~path)) {
+    fail!("dir `\{path}` does not exist")
+  }
   @ffi.is_dir(path)
 }
 
@@ -121,7 +124,10 @@ pub fn is_dir(~path : String) -> Bool {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
-pub fn is_file(~path : String) -> Bool {
+pub fn is_file(~path : String) -> Bool! {
+  if not(path_exists(~path)) {
+    fail!("file `\{path}` does not exist")
+  }
   @ffi.is_file(path)
 }
 
@@ -131,10 +137,7 @@ pub fn is_file(~path : String) -> Bool {
 ///
 /// - `path` : The string path to the directory that needs to be removed.
 pub fn remove_dir(~path : String) -> Unit! {
-  if not(path_exists(~path)) {
-    fail!("dir `\{path}` does not exist")
-  }
-  if not(is_dir(~path)) {
+  if not(is_dir!(~path)) {
     fail!("path `\{path}` is not a directory")
   }
   @ffi.remove_dir(path)
@@ -146,10 +149,7 @@ pub fn remove_dir(~path : String) -> Unit! {
 ///
 /// - `path` : The path to the file that needs to be removed.
 pub fn remove_file(~path : String) -> Unit! {
-  if not(path_exists(~path)) {
-    fail!("file `\{path}` does not exist")
-  }
-  if not(is_file(~path)) {
+  if not(is_file!(~path)) {
     fail!("path `\{path}` is not a file")
   }
   @ffi.remove_file(path)

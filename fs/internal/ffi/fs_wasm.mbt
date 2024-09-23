@@ -29,21 +29,21 @@ pub fn read_file_to_bytes(path : String) -> Array[Byte] {
 
 fn read_file_to_bytes_ffi(path : XExternString) -> XExternByteArray = "__moonbit_fs_unstable" "read_file_to_bytes"
 
-pub fn write_string(path : String, content : String) -> Unit {
+pub fn write_string_to_file(path : String, content : String) -> Unit {
   let path = string_to_extern(path)
   let content = string_to_extern(content)
-  write_string_ffi(path, content)
+  write_string_to_file_ffi(path, content)
 }
 
-fn write_string_ffi(path : XExternString, content : XExternString) = "__moonbit_fs_unstable" "write_string_to_file"
+fn write_string_to_file_ffi(path : XExternString, content : XExternString) = "__moonbit_fs_unstable" "write_string_to_file"
 
-pub fn write_bytes(path : String, content : Array[Byte]) -> Unit {
+pub fn write_bytes_to_file(path : String, content : Array[Byte]) -> Unit {
   let path = string_to_extern(path)
   let content = byte_array_to_extern(content)
-  write_bytes_ffi(path, content)
+  write_bytes_to_file_ffi(path, content)
 }
 
-fn write_bytes_ffi(path : XExternString, content : XExternByteArray) = "__moonbit_fs_unstable" "write_bytes_to_file"
+fn write_bytes_to_file_ffi(path : XExternString, content : XExternByteArray) = "__moonbit_fs_unstable" "write_bytes_to_file"
 
 pub fn path_exists(path : String) -> Bool {
   let path = string_to_extern(path)
