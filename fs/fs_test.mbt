@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 test "write_and_read" {
   let path = "1.txt"
   @fs.write_string_to_file(
@@ -32,16 +30,13 @@ test "write_and_read" {
   )
   @fs.remove_file!(~path)
   assert_false!(@fs.path_exists(~path))
-
   try {
     @fs.read_file_to_string!(~path) |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) => {
+    @fs.IOError::NotFound(msg) =>
       inspect!(msg, content="file `1.txt` does not exist")
-    }
     _ => return
   }
-
   let bytes = Bytes::from_array([65, 97].map(fn(x) { x.to_byte() }))
   @fs.write_bytes_to_file(~path, content=bytes)
   assert_true!(@fs.path_exists(~path))
@@ -49,13 +44,11 @@ test "write_and_read" {
   inspect!(content, content="Aa")
   @fs.remove_file!(~path)
   assert_false!(@fs.path_exists(~path))
-
   try {
     @fs.remove_file!(~path) |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) => {
+    @fs.IOError::NotFound(msg) =>
       inspect!(msg, content="file `1.txt` does not exist")
-    }
     _ => return
   }
 }
@@ -78,13 +71,11 @@ test "create_and_remove_dir" {
   assert_true!(@fs.path_exists(path="hello/1/12.txt"))
   @fs.remove_dir!(path="hello")
   assert_false!(@fs.path_exists(path="hello"))
-
   try {
     @fs.remove_dir!(path="hello") |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) => {
+    @fs.IOError::NotFound(msg) =>
       inspect!(msg, content="dir `hello` does not exist")
-    }
     _ => return
   }
 }
@@ -97,13 +88,11 @@ test "read_dir" {
       #|["fs", "num", ".git", "time", "uuid", "json5", "stack", "crypto", "target", ".github", "README.md", ".gitignore", ".mooncakes", "_typos.toml", "moon.mod.json", "licenserc.toml"]
     ,
   )
-
   try {
     @fs.read_dir!(path="fasd") |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) => {
+    @fs.IOError::NotFound(msg) =>
       inspect!(msg, content="dir `fasd` does not exist")
-    }
     _ => return
   }
 }

@@ -22,7 +22,7 @@ pub type! IOError {
 /// - `path`: A `String` representing the file path.
 /// - `content`: A `String` containing the content to be written to the file.
 pub fn write_string_to_file(~path : String, ~content : String) -> Unit {
-  @ffi.write_string_to_file((path), (content))
+  @ffi.write_string_to_file(path, content)
 }
 
 /// Writes an array of bytes to a file at the specified path.
@@ -43,7 +43,7 @@ pub fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit {
 /// # Returns
 /// A boolean indicating whether the path exists.
 pub fn path_exists(~path : String) -> Bool {
-  @ffi.path_exists((path))
+  @ffi.path_exists(path)
 }
 
 /// Reads the entire contents of a file into a string.
@@ -54,7 +54,9 @@ pub fn path_exists(~path : String) -> Bool {
 /// # Returns
 /// A `String` containing the file contents if the file exists, otherwise raises an error.
 pub fn read_file_to_string(~path : String) -> String! {
-  guard path_exists(~path) else { raise IOError::NotFound("file `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("file `\{path}` does not exist")
+  }
   @ffi.read_file_to_string(path)
 }
 
@@ -69,8 +71,10 @@ pub fn read_file_to_string(~path : String) -> String! {
 ///
 /// - An array of bytes representing the content of the file.
 pub fn read_file_to_bytes(~path : String) -> Bytes! {
-  guard path_exists(~path) else { raise IOError::NotFound("file `\{path}` does not exist") }
-  @ffi.read_file_to_bytes((path))
+  guard path_exists(~path) else {
+    raise IOError::NotFound("file `\{path}` does not exist")
+  }
+  @ffi.read_file_to_bytes(path)
 }
 
 /// Reads the contents of a directory and returns an array of filenames.
@@ -83,7 +87,9 @@ pub fn read_file_to_bytes(~path : String) -> Bytes! {
 ///
 /// - An array of strings representing the file name and directory name in the directory.
 pub fn read_dir(~path : String) -> Array[String]! {
-  guard path_exists(~path) else { raise IOError::NotFound("dir `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("dir `\{path}` does not exist")
+  }
   @ffi.read_dir(path)
 }
 
@@ -106,7 +112,9 @@ pub fn create_dir(~path : String) -> Unit {
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
 pub fn is_dir(~path : String) -> Bool! {
-  guard path_exists(~path) else { raise IOError::NotFound("dir `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("dir `\{path}` does not exist")
+  }
   @ffi.is_dir(path)
 }
 
@@ -120,7 +128,9 @@ pub fn is_dir(~path : String) -> Bool! {
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
 pub fn is_file(~path : String) -> Bool! {
-  guard path_exists(~path) else { raise IOError::NotFound("file `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("file `\{path}` does not exist")
+  }
   @ffi.is_file(path)
 }
 
@@ -130,7 +140,9 @@ pub fn is_file(~path : String) -> Bool! {
 ///
 /// - `path` : The string path to the directory that needs to be removed.
 pub fn remove_dir(~path : String) -> Unit! {
-  guard path_exists(~path) else { raise IOError::NotFound("dir `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("dir `\{path}` does not exist")
+  }
   @ffi.remove_dir(path)
 }
 
@@ -140,7 +152,8 @@ pub fn remove_dir(~path : String) -> Unit! {
 ///
 /// - `path` : The path to the file that needs to be removed.
 pub fn remove_file(~path : String) -> Unit! {
-  guard path_exists(~path) else { raise IOError::NotFound("file `\{path}` does not exist") }
+  guard path_exists(~path) else {
+    raise IOError::NotFound("file `\{path}` does not exist")
+  }
   @ffi.remove_file(path)
 }
-

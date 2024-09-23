@@ -28,7 +28,9 @@ fn begin_create_byte_array() -> XByteArrayCreateHandle = "__moonbit_fs_unstable"
 
 fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int) = "__moonbit_fs_unstable" "byte_array_append_byte"
 
-fn finish_create_byte_array(handle : XByteArrayCreateHandle) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
+fn finish_create_byte_array(
+  handle : XByteArrayCreateHandle
+) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
 
 fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
   let handle = begin_create_byte_array()

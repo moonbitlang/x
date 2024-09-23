@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-pub fn read_file_to_string(path: String) -> String {
+pub fn read_file_to_string(path : String) -> String {
   let path = string_to_extern(path)
   let content = read_file_to_string_ffi(path)
   string_from_extern(content)
@@ -66,7 +65,6 @@ pub fn create_dir(path : String) -> Unit {
 }
 
 fn create_dir_ffi(path : XExternString) = "__moonbit_fs_unstable" "create_dir"
-
 
 pub fn is_dir(path : String) -> Bool {
   let path = string_to_extern(path)

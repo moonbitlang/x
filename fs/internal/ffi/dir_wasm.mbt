@@ -16,7 +16,7 @@ priv type XStringArrayReadHandle
 
 priv type XExternStringArray
 
-fn begin_read_string_array(sa: XExternStringArray) -> XStringArrayReadHandle = "__moonbit_fs_unstable" "begin_read_string_array"
+fn begin_read_string_array(sa : XExternStringArray) -> XStringArrayReadHandle = "__moonbit_fs_unstable" "begin_read_string_array"
 
 fn string_array_read_string(handle : XStringArrayReadHandle) -> XExternString = "__moonbit_fs_unstable" "string_array_read_string"
 
