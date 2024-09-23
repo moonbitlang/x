@@ -1,13 +1,18 @@
-/// Reads the contents of a file into a string.
-///
-/// # Parameters
-/// - `path`: An `XExternString` representing the file path.
-///
-/// # Returns
-/// An `XExternString` containing the file contents.
-///
-/// # Note
-/// This is an unstable function call and should be used internally only.
+// Copyright 2024 International Digital Economy Academy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
 pub fn read_file_to_string(path: String) -> String {
   let path = string_to_extern(path)
   let content = read_file_to_string_ffi(path)
@@ -24,14 +29,6 @@ pub fn read_file_to_bytes(path : String) -> Array[Byte] {
 
 fn read_file_to_bytes_ffi(path : XExternString) -> XExternByteArray = "__moonbit_fs_unstable" "read_file_to_bytes"
 
-/// Writes a string to a file.
-///
-/// # Parameters
-/// - `path`: An `XExternString` representing the file path.
-/// - `content`: An `XExternString` containing the content to be written to the file.
-///
-/// # Note
-/// This is an unstable function call and should be used internally only.
 pub fn write_string(path : String, content : String) -> Unit {
   let path = string_to_extern(path)
   let content = string_to_extern(content)
@@ -48,16 +45,6 @@ pub fn write_bytes(path : String, content : Array[Byte]) -> Unit {
 
 fn write_bytes_ffi(path : XExternString, content : XExternByteArray) = "__moonbit_fs_unstable" "write_bytes_to_file"
 
-/// Checks if a path exists.
-///
-/// # Parameters
-/// - `path`: An `XExternString` representing the file path.
-///
-/// # Returns
-/// A boolean indicating whether the path exists.
-///
-/// # Note
-/// This is an unstable function call and should be used internally only.
 pub fn path_exists(path : String) -> Bool {
   let path = string_to_extern(path)
   path_exists_ffi(path)
