@@ -30,7 +30,7 @@ fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int) = "__moonbi
 
 fn finish_create_byte_array(handle : XByteArrayCreateHandle) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
 
-fn byte_array_to_extern(s : Array[Byte]) -> XExternByteArray {
+fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
   let handle = begin_create_byte_array()
   for i = 0; i < s.length(); i = i + 1 {
     byte_array_append_byte(handle, s[i].to_int())
@@ -38,7 +38,7 @@ fn byte_array_to_extern(s : Array[Byte]) -> XExternByteArray {
   finish_create_byte_array(handle)
 }
 
-fn byte_array_from_extern(e : XExternByteArray) -> Array[Byte] {
+fn byte_array_from_extern(e : XExternByteArray) -> Bytes {
   let buf = Array::new()
   let handle = begin_read_byte_array(e)
   while true {
@@ -50,5 +50,5 @@ fn byte_array_from_extern(e : XExternByteArray) -> Array[Byte] {
     }
   }
   finish_read_byte_array(handle)
-  buf
+  Bytes::from_array(buf)
 }

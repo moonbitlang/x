@@ -21,7 +21,7 @@ pub fn read_file_to_string(path: String) -> String {
 
 fn read_file_to_string_ffi(path : XExternString) -> XExternString = "__moonbit_fs_unstable" "read_file_to_string"
 
-pub fn read_file_to_bytes(path : String) -> Array[Byte] {
+pub fn read_file_to_bytes(path : String) -> Bytes {
   let path = string_to_extern(path)
   let content = read_file_to_bytes_ffi(path)
   byte_array_from_extern(content)
@@ -37,7 +37,7 @@ pub fn write_string_to_file(path : String, content : String) -> Unit {
 
 fn write_string_to_file_ffi(path : XExternString, content : XExternString) = "__moonbit_fs_unstable" "write_string_to_file"
 
-pub fn write_bytes_to_file(path : String, content : Array[Byte]) -> Unit {
+pub fn write_bytes_to_file(path : String, content : Bytes) -> Unit {
   let path = string_to_extern(path)
   let content = byte_array_to_extern(content)
   write_bytes_to_file_ffi(path, content)

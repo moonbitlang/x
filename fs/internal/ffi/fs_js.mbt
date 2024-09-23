@@ -24,8 +24,8 @@ extern "js" fn read_file_to_string_internal(path: String) -> String =
   #| }
 
 
-pub fn read_file_to_bytes(path : String) -> Array[Byte] {
-  Array::from_fixed_array(read_file_to_bytes_internal(path))
+pub fn read_file_to_bytes(path : String) -> Bytes {
+  Bytes::from_iter(read_file_to_bytes_internal(path).iter())
   
 }
 
@@ -47,8 +47,8 @@ extern "js" fn write_string_to_file_internal(path: String, content: String) =
   #|  fs.writeFileSync(path, content, 'utf8');
   #| }
 
-pub fn write_bytes_to_file(path: String, content: Array[Byte]) -> Unit {
-  write_bytes_to_file_internal(path, FixedArray::from_array(content))
+pub fn write_bytes_to_file(path: String, content: Bytes) -> Unit {
+  write_bytes_to_file_internal(path, FixedArray::from_iter(content.iter()))
 }
 
 extern "js" fn write_bytes_to_file_internal(path: String, content: FixedArray[Byte]) =

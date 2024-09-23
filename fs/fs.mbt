@@ -28,7 +28,7 @@ pub fn write_string_to_file(~path : String, ~content : String) -> Unit {
 ///
 /// - `path` : The path to the file where the bytes will be written.
 /// - `content` : An array of bytes to be written to the file.
-pub fn write_bytes_to_file(~path : String, ~content : Array[Byte]) -> Unit {
+pub fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit {
   @ffi.write_bytes_to_file(path, content)
 }
 
@@ -67,7 +67,7 @@ pub fn read_file_to_string(~path : String) -> String! {
 /// # Returns
 ///
 /// - An array of bytes representing the content of the file.
-pub fn read_file_to_bytes(~path : String) -> Array[Byte]! {
+pub fn read_file_to_bytes(~path : String) -> Bytes! {
   if not(path_exists(~path)) {
     fail!("file `\{path}` does not exist")
   }
