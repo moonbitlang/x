@@ -52,12 +52,12 @@ pub fn from_bytes(bytes : Bytes) -> UUID!Error {
   }
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
-    continue rv.lor(bytes[i].to_int64().lsl((7 - i) * 8)), i + 1
+    continue rv | bytes[i].to_int64().lsl((7 - i) * 8), i + 1
   } else {
     rv
   }
   let lo = for rv = 0L, i = 8; i < 16; {
-    continue rv.lor(bytes[i].to_int64().lsl((15 - i) * 8)), i + 1
+    continue rv | bytes[i].to_int64().lsl((15 - i) * 8), i + 1
   } else {
     rv
   }
@@ -129,7 +129,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
       continue hi, i + 1, n
     } else {
       let d = hex_char_to_int64!(c)
-      continue hi.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
+      continue hi | d.lsl((15 - n) * 4), i + 1, n + 1
     }
   } else {
     (hi, i)
@@ -143,7 +143,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
       continue lo, i + 1, n
     } else {
       let d = hex_char_to_int64!(c)
-      continue lo.lor(d.lsl((15 - n) * 4)), i + 1, n + 1
+      continue lo | d.lsl((15 - n) * 4), i + 1, n + 1
     }
   } else {
     (lo, i)

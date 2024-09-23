@@ -34,29 +34,27 @@ pub fn sha1(input : Bytes) -> Bytes {
     let words = FixedArray::make(80, 0)
     for i = 0; i < 16; i = i + 1 {
       let slice_start = chunk * bytes_per_chunk + i * 4
-      words[i] = bytes[slice_start]
-        .to_int()
-        .lsl(24)
-        .lor(bytes[slice_start + 1].to_int().lsl(16))
-        .lor(bytes[slice_start + 2].to_int().lsl(8))
-        .lor(bytes[slice_start + 3].to_int())
+      words[i] = bytes[slice_start].to_int().lsl(24) |
+        bytes[slice_start + 1].to_int().lsl(16) |
+        bytes[slice_start + 2].to_int().lsl(8) |
+        bytes[slice_start + 3].to_int()
     }
     for i = 16; i < 80; i = i + 1 {
       words[i] = rotate_left(
-        words[i - 3].lxor(words[i - 8]).lxor(words[i - 14]).lxor(words[i - 16]),
+        words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16],
         1,
       )
     }
     let v = h.copy()
     for i = 0; i < 80; i = i + 1 {
       let (f, k) = if i < 20 {
-        (v[1].land(v[2]).lor(v[1].lnot().land(v[3])), 0x5A827999)
+        ((v[1] & v[2]) | (v[1].lnot() & v[3]), 0x5A827999)
       } else if i < 40 {
-        (v[1].lxor(v[2].lxor(v[3])), 0x6ED9EBA1)
+        (v[1] ^ (v[2] ^ v[3]), 0x6ED9EBA1)
       } else if i < 60 {
-        (v[1].land(v[2]).lor(v[1].land(v[3])).lor(v[2].land(v[3])), 0x8F1BBCDC)
+        ((v[1] & v[2]) | (v[1] & v[3]) | (v[2] & v[3]), 0x8F1BBCDC)
       } else {
-        (v[1].lxor(v[2].lxor(v[3])), 0xCA62C1D6)
+        (v[1] ^ (v[2] ^ v[3]), 0xCA62C1D6)
       }
       let temp = rotate_left(v[0], 5) + f + v[4] + k + words[i]
       v[4] = v[3]
