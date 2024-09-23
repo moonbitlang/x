@@ -24,10 +24,17 @@ fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit
 fn write_string_to_file(~path : String, ~content : String) -> Unit
 
 // Types and methods
+pub type! IOError {
+  NotFound(String)
+}
+impl IOError {
+  to_string(Self) -> String
+}
 
 // Type aliases
 
 // Traits
 
 // Extension Methods
+impl Show for IOError
 
