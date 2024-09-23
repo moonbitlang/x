@@ -27,9 +27,6 @@ fn write_string_to_file(~path : String, ~content : String) -> Unit
 pub type! IOError {
   NotFound(String)
 }
-impl IOError {
-  to_string(Self) -> String
-}
 
 // Type aliases
 

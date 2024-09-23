@@ -33,8 +33,8 @@ test "write_and_read" {
   try {
     @fs.read_file_to_string!(~path) |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) =>
-      inspect!(msg, content="file `1.txt` does not exist")
+    @fs.IOError::NotFound(_) as e =>
+      inspect!(e, content="`1.txt` does not exist")
     _ => return
   }
   let bytes = Bytes::from_array([65, 97].map(fn(x) { x.to_byte() }))
@@ -47,8 +47,8 @@ test "write_and_read" {
   try {
     @fs.remove_file!(~path) |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) =>
-      inspect!(msg, content="file `1.txt` does not exist")
+    @fs.IOError::NotFound(_) as e =>
+      inspect!(e, content="`1.txt` does not exist")
     _ => return
   }
 }
@@ -74,8 +74,8 @@ test "create_and_remove_dir" {
   try {
     @fs.remove_dir!(path="hello") |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) =>
-      inspect!(msg, content="dir `hello` does not exist")
+    @fs.IOError::NotFound(_) as e =>
+      inspect!(e, content="`hello` does not exist")
     _ => return
   }
 }
@@ -91,8 +91,8 @@ test "read_dir" {
   try {
     @fs.read_dir!(path="fasd") |> ignore
   } catch {
-    @fs.IOError::NotFound(msg) =>
-      inspect!(msg, content="dir `fasd` does not exist")
+    @fs.IOError::NotFound(_) as e =>
+      inspect!(e, content="`fasd` does not exist")
     _ => return
   }
 }

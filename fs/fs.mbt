@@ -14,7 +14,17 @@
 
 pub type! IOError {
   NotFound(String)
-} derive(Show)
+}
+
+pub impl Show for IOError with output(self, logger) {
+  logger.write_string(self.to_string())
+}
+
+fn IOError::to_string(self : IOError) -> String {
+  match self {
+    IOError::NotFound(path) => "`\{path}` does not exist"
+  }
+}
 
 /// Writes a string to a file.
 ///
@@ -54,9 +64,7 @@ pub fn path_exists(~path : String) -> Bool {
 /// # Returns
 /// A `String` containing the file contents if the file exists, otherwise raises an error.
 pub fn read_file_to_string(~path : String) -> String! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("file `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.read_file_to_string(path)
 }
 
@@ -71,9 +79,7 @@ pub fn read_file_to_string(~path : String) -> String! {
 ///
 /// - An array of bytes representing the content of the file.
 pub fn read_file_to_bytes(~path : String) -> Bytes! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("file `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.read_file_to_bytes(path)
 }
 
@@ -87,9 +93,7 @@ pub fn read_file_to_bytes(~path : String) -> Bytes! {
 ///
 /// - An array of strings representing the file name and directory name in the directory.
 pub fn read_dir(~path : String) -> Array[String]! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("dir `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.read_dir(path)
 }
 
@@ -112,9 +116,7 @@ pub fn create_dir(~path : String) -> Unit {
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
 pub fn is_dir(~path : String) -> Bool! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("dir `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.is_dir(path)
 }
 
@@ -128,9 +130,7 @@ pub fn is_dir(~path : String) -> Bool! {
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
 pub fn is_file(~path : String) -> Bool! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("file `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.is_file(path)
 }
 
@@ -140,9 +140,7 @@ pub fn is_file(~path : String) -> Bool! {
 ///
 /// - `path` : The string path to the directory that needs to be removed.
 pub fn remove_dir(~path : String) -> Unit! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("dir `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.remove_dir(path)
 }
 
@@ -152,8 +150,6 @@ pub fn remove_dir(~path : String) -> Unit! {
 ///
 /// - `path` : The path to the file that needs to be removed.
 pub fn remove_file(~path : String) -> Unit! {
-  guard path_exists(~path) else {
-    raise IOError::NotFound("file `\{path}` does not exist")
-  }
+  guard path_exists(~path) else { raise IOError::NotFound(path) }
   @ffi.remove_file(path)
 }
