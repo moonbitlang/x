@@ -51,8 +51,8 @@ jobs:
 
       - name: moon test
         run: |
-          moon test
-          moon test --target js
+          moon test --target all
+          moon test --target all --release
 
       - name: format diff
         run: |
