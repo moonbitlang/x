@@ -90,8 +90,8 @@ fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
 
 /// convert an array of UInt to Bytes in big endian
 
-fn arr_u32_to_u8be(x : Iter[UInt]) -> Bytes {
-  let temp : Bytes = Bytes::make(x.count() * 4, b'\x00')
+fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> Bytes {
+  let temp : Bytes = Bytes::new(bits / 8)
   x.eachi(
     fn(i, d) {
       temp[i * 4 + 0] = d.lsr(24).to_byte()

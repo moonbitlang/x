@@ -236,20 +236,20 @@ fn sm3_compute(
 
 /// Compute the SM3 digest from given SM3Context
 pub fn finalize(self : SM3Context) -> Bytes {
-  arr_u32_to_u8be(self.sm3_compute().iter())
+  arr_u32_to_u8be(self.sm3_compute().iter(), 256)
 }
 
 /// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : Bytes) -> Bytes {
   let ctx = SM3Context::new()
   let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sm3_compute().iter())
+  arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
 
 pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
   let ctx = SM3Context::new()
   let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sm3_compute().iter())
+  arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
 
 test {

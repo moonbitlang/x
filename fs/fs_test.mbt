@@ -23,10 +23,12 @@ test "write_and_read" {
     ,
   )
   assert_true!(@fs.path_exists(~path))
-  let byte = @fs.read_file_to_bytes!(~path).iter().map(fn(x) { x.to_uint() })
+  let byte = @fs.read_file_to_bytes!(~path)
   inspect!(
     byte,
-    content="[116, 97, 114, 103, 101, 116, 47, 10, 46, 109, 111, 111, 110, 99, 97, 107, 101, 115, 47, 10]",
+    content=
+      #|b"\x74\x61\x72\x67\x65\x74\x2f\x0a\x2e\x6d\x6f\x6f\x6e\x63\x61\x6b\x65\x73\x2f\x0a"
+    ,
   )
   @fs.remove_file!(~path)
   assert_false!(@fs.path_exists(~path))
