@@ -20,7 +20,7 @@ pub fn sha224(data : Bytes) -> Bytes {
     ],
   )
   let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7))
+  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }
 
 pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
@@ -31,7 +31,7 @@ pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
     ],
   )
   let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7))
+  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }
 
 test {

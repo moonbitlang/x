@@ -175,20 +175,20 @@ fn sha256_compute(
 
 /// Compute the Sha256 digest from given Sha256Context
 pub fn finalize(self : Sha256Context) -> Bytes {
-  arr_u32_to_u8be(self.sha256_compute().iter())
+  arr_u32_to_u8be(self.sha256_compute().iter(), 256)
 }
 
 /// Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
 pub fn sha256(data : Bytes) -> Bytes {
   let ctx = Sha256Context::new()
   let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter())
+  arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
 
 pub fn sha256_from_iter(data : Iter[Byte]) -> Bytes {
   let ctx = Sha256Context::new()
   let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter())
+  arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
 
 test {
