@@ -52,12 +52,12 @@ pub fn from_bytes(bytes : Bytes) -> UUID!Error {
   }
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
-    continue rv | bytes[i].to_int64().lsl((7 - i) * 8), i + 1
+    continue rv | (bytes[i].to_int64() << ((7 - i) * 8)), i + 1
   } else {
     rv
   }
   let lo = for rv = 0L, i = 8; i < 16; {
-    continue rv | bytes[i].to_int64().lsl((15 - i) * 8), i + 1
+    continue rv | (bytes[i].to_int64() << ((15 - i) * 8)), i + 1
   } else {
     rv
   }
@@ -69,10 +69,10 @@ pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
   let rv = Bytes::new(16)
   for i = 0; i < 8; i = i + 1 {
-    rv[i] = self.hi.lsr((7 - i) * 8).to_byte()
+    rv[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
   }
   for i = 8; i < 16; i = i + 1 {
-    rv[i] = self.lo.lsr((15 - i) * 8).to_byte()
+    rv[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
   }
   rv
 }
@@ -129,7 +129,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
       continue hi, i + 1, n
     } else {
       let d = hex_char_to_int64!(c)
-      continue hi | d.lsl((15 - n) * 4), i + 1, n + 1
+      continue hi | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {
     (hi, i)
@@ -143,7 +143,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
       continue lo, i + 1, n
     } else {
       let d = hex_char_to_int64!(c)
-      continue lo | d.lsl((15 - n) * 4), i + 1, n + 1
+      continue lo | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {
     (lo, i)
@@ -177,8 +177,11 @@ pub fn to_string(self : UUID) -> String {
     if s == 0 {
       continue self.hi, c, i, d - 1
     } else if i > c - s {
-      rv[i - 1] = hex_table[v.land(0xfL).to_int()].to_byte()
-      continue v.lsr(4), c, i - 2, d
+      rv[i - 1] = hex_table[(v & 0xfL).to_int()].to_byte()
+      continue (v.reinterpret_as_uint64() >> 4).reinterpret_as_int64(),
+        c,
+        i - 2,
+        d
     } else if i > 0 {
       rv[i - 1] = dash.to_byte()
       continue v, i - 2, i - 2, d - 1

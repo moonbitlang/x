@@ -60,11 +60,15 @@ fn to_int64(self : Version) -> Int64 {
 
 /// Retrieves the variant of the UUID.
 pub fn variant(self : UUID) -> Variant {
-  if (self.lo & 0x8000L.lsl(48)) == 0L {
+  if (self.lo & (0x8000L << 48)) == 0L {
     ReservedNCS
-  } else if (self.lo & 0x4000L.lsl(48)) == 0L {
-    RFC4122(from_int64(self.hi.lsr(12) & 0xfL))
-  } else if (self.lo & 0x2000L.lsl(48)) == 0L {
+  } else if (self.lo & (0x4000L << 48)) == 0L {
+    RFC4122(
+      from_int64(
+        (self.hi.reinterpret_as_uint64() >> 12).reinterpret_as_int64() & 0xfL,
+      ),
+    )
+  } else if (self.lo & (0x2000L << 48)) == 0L {
     ReservedMicrosoft
   } else {
     ReservedFuture
@@ -86,12 +90,12 @@ pub fn version(self : UUID) -> Version? {
 pub fn as_version(self : UUID, version : Version) -> UUID {
   let { hi, lo } = self
   // Set the variant to RFC 4122.
-  let lo = (lo & 0xc000L.lsl(48).lnot()) | 0x8000L.lsl(48)
+  let lo = (lo & (0xc000L << 48).lnot()) | (0x8000L << 48)
   let hi = (
     // Set the version number.
       hi & 0xf000L.lnot()
     ) |
-    version.to_int64().lsl(12)
+    (version.to_int64() << 12)
   { hi, lo }
 }
 
