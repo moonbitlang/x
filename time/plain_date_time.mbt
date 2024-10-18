@@ -73,7 +73,7 @@ pub fn PlainDateTime::from_string(str : String) -> PlainDateTime!Error {
 
 /// Returns a string representing the datetime.
 pub fn to_string(self : PlainDateTime) -> String {
-  let buf = Buffer::new(size_hint=18)
+  let buf = StringBuilder::new(size_hint=18)
   buf.write_string(self.date.to_string())
   buf.write_char('T')
   buf.write_string(self.time.to_string())

@@ -23,9 +23,9 @@ pub fn bytes_to_hex_string(input : Bytes) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
     let byte = input[i]
-    let high = byte.to_int().lsr(4) & 0xf
+    let high = ((byte.to_uint() >> 4) & 0xf)
     let low = byte.to_int() & 0xf
-    let high_char = hex_digits[high]
+    let high_char = hex_digits[high.reinterpret_as_int()]
     let low_char = hex_digits[low]
     ret = high_char + low_char + ret
   }
@@ -37,7 +37,7 @@ fn uint_to_hex_string(input : UInt) -> String {
   let mut mut_input = input
   for cnt = 7; cnt >= 0; cnt = cnt - 1 {
     ret[cnt] = hex_digits[(mut_input & 0xf).reinterpret_as_int()]
-    mut_input = mut_input.lsr(4)
+    mut_input = mut_input >> 4
   }
   ret.fold(String::op_add, init="")
 }
@@ -56,9 +56,9 @@ fn uint32(x : Byte) -> UInt {
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
 fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
   uint32(x[i]) |
-  uint32(x[i + 1]).lsl(8) |
-  uint32(x[i + 2]).lsl(16) |
-  uint32(x[i + 3]).lsl(24)
+  (uint32(x[i + 1]) << 8) |
+  (uint32(x[i + 2]) << 16) |
+  (uint32(x[i + 3]) << 24)
 }
 
 /// convert 4 bytes of a byte sequence to a UInt in big endian 
@@ -82,9 +82,9 @@ fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
 // }
 
 fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
-  uint32(x[i]).lsl(24) |
-  uint32(x[i + 1]).lsl(16) |
-  uint32(x[i + 2]).lsl(8) |
+  (uint32(x[i]) << 24) |
+  (uint32(x[i + 1]) << 16) |
+  (uint32(x[i + 2]) << 8) |
   uint32(x[i + 3])
 }
 
@@ -94,9 +94,9 @@ fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> Bytes {
   let temp : Bytes = Bytes::new(bits / 8)
   x.eachi(
     fn(i, d) {
-      temp[i * 4 + 0] = d.lsr(24).to_byte()
-      temp[i * 4 + 1] = d.lsr(16).to_byte()
-      temp[i * 4 + 2] = d.lsr(8).to_byte()
+      temp[i * 4 + 0] = (d >> 24).to_byte()
+      temp[i * 4 + 1] = (d >> 16).to_byte()
+      temp[i * 4 + 2] = (d >> 8).to_byte()
       temp[i * 4 + 3] = d.to_byte()
     },
   )
@@ -106,14 +106,14 @@ fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> Bytes {
 /// rotate a Int `x` left by `n` bit(s)
 
 fn rotate_left(x : Int, n : Int) -> Int {
-  x.lsl(n) | x.lsr(32 - n)
+  (x << n) | (x.reinterpret_as_uint() >> (32 - n)).reinterpret_as_int()
 }
 
 /// rotate a UInt `x` left by `n` bit(s)
 fn rotate_left_u(x : UInt, n : Int) -> UInt {
-  x.lsl(n) | x.lsr(32 - n)
+  (x << n) | (x >> (32 - n))
 }
 
 fn rotate_right_u(x : UInt, n : Int) -> UInt {
-  x.lsr(n) | x.lsl(32 - n)
+  (x >> (n)) | (x << (32 - n))
 }
