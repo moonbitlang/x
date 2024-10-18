@@ -100,7 +100,7 @@ fn create_id(secs : Int) -> String {
     seconds_per_hour.to_int() /
     seconds_per_minute.to_int()
   let offset_secs = abs_secs % seconds_per_minute.to_int()
-  let buf = Buffer::new(size_hint=9)
+  let buf = StringBuilder::new(size_hint=9)
   buf.write_char(if secs < 0 { '-' } else { '+' })
   buf.write_string(add_prefix_zero(offset_hours.to_string(), 2))
   buf.write_char(':')

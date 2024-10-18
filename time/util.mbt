@@ -13,7 +13,7 @@
 // limitations under the License.
 
 fn add_prefix_zero(s : String, len : Int) -> String {
-  let buf = Buffer::new(size_hint=len)
+  let buf = StringBuilder::new(size_hint=len)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
   }
@@ -52,7 +52,7 @@ test "remove_prefix_zero" {
 }
 
 fn add_suffix_zero(s : String, len : Int) -> String {
-  let buf = Buffer::new(size_hint=len)
+  let buf = StringBuilder::new(size_hint=len)
   buf.write_string(s)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
@@ -90,7 +90,7 @@ fn split(s : String, delimiter : Char) -> Array[String] {
   if s.length() == 0 {
     return spl
   }
-  let buf = Buffer::new(size_hint=0)
+  let buf = StringBuilder::new(size_hint=0)
   for i = 0; i < s.length(); i = i + 1 {
     if s[i] == delimiter {
       spl.push(buf.to_string())
@@ -187,7 +187,8 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
-  if abs_x.lor(abs_y).lsr(31) != 0L {
+  if ((abs_x ^ abs_y).reinterpret_as_uint64() >> 31).reinterpret_as_int64() !=
+    0L {
     // bits that greater than 2^31 might cause overflow
     if (y != 0L && r / y != x) || (x == @int64.min_value && y == -1L) {
       int64_overflow_err!()

@@ -82,7 +82,7 @@ fn SM3Context::p_1(x : UInt) -> UInt {
 
 fn pad(self : SM3Context) -> Bytes {
   let mut cnt = self.buf_index
-  self.len += 8UL * cnt.to_int64().to_uint64()
+  self.len += 8UL * cnt.to_uint64()
   self.buf[cnt] = b'\x80'
   cnt += 1
   if cnt > 56 {
@@ -94,14 +94,14 @@ fn pad(self : SM3Context) -> Bytes {
     self.buf[cnt] = b'\x00'
     cnt += 1
   }
-  self.buf[cnt] = self.len.lsr(56).to_byte()
-  self.buf[cnt + 1] = self.len.lsr(48).to_byte()
-  self.buf[cnt + 2] = self.len.lsr(40).to_byte()
-  self.buf[cnt + 3] = self.len.lsr(32).to_byte()
-  self.buf[cnt + 4] = self.len.lsr(24).to_byte()
-  self.buf[cnt + 5] = self.len.lsr(16).to_byte()
-  self.buf[cnt + 6] = self.len.lsr(8).to_byte()
-  self.buf[cnt + 7] = self.len.lsr(0).to_byte()
+  self.buf[cnt] = (self.len >> 56).to_byte()
+  self.buf[cnt + 1] = (self.len >> 48).to_byte()
+  self.buf[cnt + 2] = (self.len >> 40).to_byte()
+  self.buf[cnt + 3] = (self.len >> 32).to_byte()
+  self.buf[cnt + 4] = (self.len >> 24).to_byte()
+  self.buf[cnt + 5] = (self.len >> 16).to_byte()
+  self.buf[cnt + 6] = (self.len >> 8).to_byte()
+  self.buf[cnt + 7] = (self.len >> 0).to_byte()
   return self.buf
 }
 

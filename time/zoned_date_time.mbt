@@ -81,7 +81,7 @@ pub fn ZonedDateTime::from_unix_second(
 
 /// Returns a string representing this datetime, like "2008-08-08T20:00:00+8:00[Asia/Beijing]"
 pub fn to_string(self : ZonedDateTime) -> String {
-  let buf = Buffer::new(size_hint=0)
+  let buf = StringBuilder::new(size_hint=0)
   buf.write_string(self.datetime.to_string())
   buf.write_string(self.offset.to_string())
   if self.zone != utc_zone {

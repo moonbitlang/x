@@ -15,7 +15,7 @@
 pub fn sha1(input : Bytes) -> Bytes {
   // Padding
   let old_length = input.length()
-  let bits = old_length.to_int64() * 8L
+  let bits = old_length.to_uint64() * 8
   let mut new_length = (old_length / 64 + 1) * 64
   if new_length - old_length < 9 {
     new_length += 64
@@ -24,7 +24,7 @@ pub fn sha1(input : Bytes) -> Bytes {
   Bytes::blit(bytes, 0, input, 0, old_length)
   bytes[old_length] = (0x80).to_byte()
   for i = new_length - 8; i < new_length; i = i + 1 {
-    bytes[i] = bits.lsr(56 - (i - (new_length - 8)) * 8).to_byte()
+    bytes[i] = (bits >> (56 - (i - (new_length - 8)) * 8)).to_byte()
   }
   // Hash
   let h = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
@@ -34,9 +34,9 @@ pub fn sha1(input : Bytes) -> Bytes {
     let words = FixedArray::make(80, 0)
     for i = 0; i < 16; i = i + 1 {
       let slice_start = chunk * bytes_per_chunk + i * 4
-      words[i] = bytes[slice_start].to_int().lsl(24) |
-        bytes[slice_start + 1].to_int().lsl(16) |
-        bytes[slice_start + 2].to_int().lsl(8) |
+      words[i] = (bytes[slice_start].to_int() << 24) |
+        (bytes[slice_start + 1].to_int() << 16) |
+        (bytes[slice_start + 2].to_int() << 8) |
         bytes[slice_start + 3].to_int()
     }
     for i = 16; i < 80; i = i + 1 {
@@ -70,9 +70,9 @@ pub fn sha1(input : Bytes) -> Bytes {
   // Digest
   let result = Bytes::make(20, b'\x00')
   for i = 0; i < 5; i = i + 1 {
-    result[i * 4 + 0] = h[i].lsr(24).to_byte()
-    result[i * 4 + 1] = h[i].lsr(16).to_byte()
-    result[i * 4 + 2] = h[i].lsr(8).to_byte()
+    result[i * 4 + 0] = (h[i].reinterpret_as_uint() >> 24).to_byte()
+    result[i * 4 + 1] = (h[i].reinterpret_as_uint() >> 16).to_byte()
+    result[i * 4 + 2] = (h[i].reinterpret_as_uint() >> 8).to_byte()
     result[i * 4 + 3] = h[i].to_byte()
   }
   result

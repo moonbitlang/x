@@ -87,7 +87,7 @@ pub fn PlainDate::from_string(str : String) -> PlainDate!Error {
 
 /// Returns a string representing the date.
 pub fn to_string(self : PlainDate) -> String {
-  let buf = Buffer::new(size_hint=11)
+  let buf = StringBuilder::new(size_hint=11)
   if self.year < 0 {
     buf.write_char('-')
   }

@@ -41,7 +41,7 @@ fn string_read_char(handle : XStringReadHandle) -> Int = "__moonbit_fs_unstable"
 fn finish_read_string(handle : XStringReadHandle) = "__moonbit_fs_unstable" "finish_read_string"
 
 fn string_from_extern(e : XExternString) -> String {
-  let buf = Buffer::new()
+  let buf = StringBuilder::new()
   let handle = begin_read_string(e)
   while true {
     let ch = string_read_char(handle)
