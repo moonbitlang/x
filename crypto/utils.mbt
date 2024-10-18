@@ -23,7 +23,7 @@ pub fn bytes_to_hex_string(input : Bytes) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
     let byte = input[i]
-    let high = ((byte.to_uint() >> 4) & 0xf)
+    let high = (byte.to_uint() >> 4) & 0xf
     let low = byte.to_int() & 0xf
     let high_char = hex_digits[high.reinterpret_as_int()]
     let low_char = hex_digits[low]
@@ -115,5 +115,5 @@ fn rotate_left_u(x : UInt, n : Int) -> UInt {
 }
 
 fn rotate_right_u(x : UInt, n : Int) -> UInt {
-  (x >> (n)) | (x << (32 - n))
+  (x >> n) | (x << (32 - n))
 }

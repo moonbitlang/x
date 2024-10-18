@@ -13,10 +13,10 @@
 // limitations under the License.
 
 fn flipWord(word : UInt) -> UInt {
-  let b0 = (word & 0xff) << (24)
-  let b1 = (word & 0xff00) << (8)
-  let b2 = (word & 0xff0000) >> (8)
-  let b3 = (word & 0xff000000) >> (24)
+  let b0 = (word & 0xff) << 24
+  let b1 = (word & 0xff00) << 8
+  let b2 = (word & 0xff0000) >> 8
+  let b3 = (word & 0xff000000) >> 24
   b0 | b1 | b2 | b3
 }
 
@@ -253,9 +253,9 @@ fn stateToBytes(state : FixedArray[UInt]) -> Bytes {
   for i = 0; i < 16; i = i + 1 {
     let word = state[i]
     result[i * 4 + 3] = word & 0xff
-    result[i * 4 + 2] = (word & 0xff00) >> (8)
-    result[i * 4 + 1] = (word & 0xff0000) >> (16)
-    result[i * 4 + 0] = (word & 0xff000000) >> (24)
+    result[i * 4 + 2] = (word & 0xff00) >> 8
+    result[i * 4 + 1] = (word & 0xff0000) >> 16
+    result[i * 4 + 0] = (word & 0xff000000) >> 24
   }
   from_array(result)
 }

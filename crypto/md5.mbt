@@ -109,7 +109,7 @@ fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   let input = FixedArray::make(16, 0U)
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let length = data.length()
-  let mod_length = length.reinterpret_as_uint() << (3)
+  let mod_length = length.reinterpret_as_uint() << 3
   ctx.count[0] += mod_length
   if ctx.count[0] < mod_length {
     ctx.count[1] += 1

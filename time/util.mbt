@@ -187,7 +187,8 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
-  if ((abs_x ^ abs_y).reinterpret_as_uint64() >> (31)).reinterpret_as_int64() != 0L {
+  if ((abs_x ^ abs_y).reinterpret_as_uint64() >> 31).reinterpret_as_int64() !=
+    0L {
     // bits that greater than 2^31 might cause overflow
     if (y != 0L && r / y != x) || (x == @int64.min_value && y == -1L) {
       int64_overflow_err!()
