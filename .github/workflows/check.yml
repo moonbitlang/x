@@ -51,8 +51,12 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all
-          moon test --target all --release
+          moon test --target wasm
+          moon test --target wasm-gc
+          moon test --target js
+          moon test --target wasm --release
+          moon test --target wasm-gc --release
+          moon test --target js --release
 
       - name: format diff
         run: |
