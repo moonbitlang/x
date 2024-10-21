@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-type Instant
-
-fn instant_now() -> Instant = "__moonbit_time_unstable" "instant_now"
-
-fn instant_elapsed_as_secs_f64(x : Instant) -> Double = "__moonbit_time_unstable" "instant_elapsed_as_secs_f64"
-
 struct Task {
   name : String
   f : () -> Unit
@@ -36,17 +30,17 @@ pub fn Task::new(name : String, f : () -> Unit, ~count : Int = 10) -> Task {
 }
 
 pub fn run(self : Task) -> TaskResult {
-  let now = instant_now()
+  let now = @ffi.instant_now()
   for i = 1; i <= self.count; i = i + 1 {
     (self.f)()
   }
-  let time = instant_elapsed_as_secs_f64(now)
+  let time = @ffi.instant_elapsed_as_secs_f64(now)
   let mut max : Double = @double.min_value
   let mut min : Double = @double.max_value
   for i = 1; i <= self.count; i = i + 1 {
-    let per_now = instant_now()
+    let per_now = @ffi.instant_now()
     (self.f)()
-    let pre_time = instant_elapsed_as_secs_f64(per_now)
+    let pre_time = @ffi.instant_elapsed_as_secs_f64(per_now)
     max = @math.maximum(max, pre_time)
     min = @math.minimum(min, pre_time)
   }

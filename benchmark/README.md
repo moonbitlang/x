@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section provides some benchmark APIs available for Moonbit's WASM backend, which are unstable and may be removed or modified at any time.
+This section provides some benchmark APIs, which are unstable and may be removed or modified at any time.
 
 ## Usage
 

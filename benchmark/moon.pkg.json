@@ -1,4 +1,5 @@
 {
     "import": [
+        "moonbitlang/x/benchmark/internal/ffi"
     ]
 }
