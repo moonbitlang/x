@@ -16,7 +16,12 @@ impl Task {
   run(Self) -> TaskResult
 }
 
-type TaskResult
+pub struct TaskResult {
+  pub task : Task
+  pub average : Double
+  pub max : Double
+  pub min : Double
+}
 impl TaskResult {
   output(Self, Logger) -> Unit
   to_string(Self) -> String
