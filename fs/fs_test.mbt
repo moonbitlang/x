@@ -83,11 +83,11 @@ test "create_and_remove_dir" {
 }
 
 test "read_dir" {
-  let dir_content = @fs.read_dir!(path=".")..sort()
+  let dir_content = @fs.read_dir!(path="./fs")..sort()
   inspect!(
     dir_content,
     content=
-      #|["fs", "num", ".git", "time", "uuid", "json5", "stack", "crypto", "target", ".github", "README.md", ".gitignore", ".mooncakes", "_typos.toml", "moon.mod.json", "licenserc.toml"]
+      #|["fs.mbt", "fs.mbti", "internal", "fs_test.mbt", "moon.pkg.json"]
     ,
   )
   try {

@@ -51,6 +51,7 @@ jobs:
 
       - name: moon test
         run: |
+          # fs don't support native backend for now
           moon test --target wasm
           moon test --target wasm-gc
           moon test --target js
