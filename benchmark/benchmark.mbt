@@ -60,7 +60,7 @@ pub fn output(self : TaskResult, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
-pub struct Criterion {
+struct Criterion {
   tasks : Array[Task]
 }
 
