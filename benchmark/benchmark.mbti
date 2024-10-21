@@ -12,8 +12,6 @@ impl Criterion {
   run(Self) -> Map[String, TaskResult]
 }
 
-type Instant
-
 type Task
 impl Task {
   new(String, () -> Unit, ~count : Int = ..) -> Self

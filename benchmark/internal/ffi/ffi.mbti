@@ -1,0 +1,16 @@
+package moonbitlang/x/benchmark/internal/ffi
+
+// Values
+fn instant_elapsed_as_secs_f64(Instant) -> Double
+
+fn instant_now() -> Instant
+
+// Types and methods
+type Instant
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+
