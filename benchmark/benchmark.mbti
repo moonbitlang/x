@@ -3,9 +3,7 @@ package moonbitlang/x/benchmark
 // Values
 
 // Types and methods
-pub struct Criterion {
-  pub tasks : Array[Task]
-}
+type Criterion
 impl Criterion {
   add(Self, Task) -> Unit
   new() -> Self

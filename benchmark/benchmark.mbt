@@ -12,19 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct Task {
-  name : String
-  f : () -> Unit
-  count : Int
-}
-
-struct TaskResult {
-  task : Task
-  average : Double
-  max : Double
-  min : Double
-}
-
 pub fn Task::new(name : String, f : () -> Unit, ~count : Int = 10) -> Task {
   { name, f, count }
 }
@@ -58,10 +45,6 @@ pub fn to_string(self : TaskResult) -> String {
 
 pub fn output(self : TaskResult, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
-}
-
-struct Criterion {
-  tasks : Array[Task]
 }
 
 pub fn Criterion::new() -> Criterion {
