@@ -18,7 +18,7 @@ struct Task {
   count : Int
 }
 
-struct TaskResult {
+pub(readonly) struct TaskResult {
   task : Task
   average : Double
   max : Double
