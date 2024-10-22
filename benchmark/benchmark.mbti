@@ -1,0 +1,35 @@
+package moonbitlang/x/benchmark
+
+// Values
+
+// Types and methods
+type Criterion
+impl Criterion {
+  add(Self, Task) -> Unit
+  new() -> Self
+  run(Self) -> Map[String, TaskResult]
+}
+
+type Task
+impl Task {
+  new(String, () -> Unit, ~count : Int = ..) -> Self
+  run(Self) -> TaskResult
+}
+
+pub(readonly) struct TaskResult {
+  pub(readonly) task : Task
+  pub(readonly) average : Double
+  pub(readonly) max : Double
+  pub(readonly) min : Double
+}
+impl TaskResult {
+  output(Self, Logger) -> Unit
+  to_string(Self) -> String
+}
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+
