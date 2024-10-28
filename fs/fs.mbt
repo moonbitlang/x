@@ -98,6 +98,7 @@ pub fn read_dir(~path : String) -> Array[String]! {
 }
 
 /// Creates a directory at the specified path.
+/// Note: nested directories are not supported for native backend
 ///
 /// # Parameters
 ///
