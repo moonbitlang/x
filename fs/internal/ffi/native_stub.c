@@ -1,10 +1,16 @@
-#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include "moonbit.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+#else
 #include <dirent.h>
 #include <unistd.h>
-#include "moonbit.h"
+#endif
 
 int path_exists(struct moonbit_bytes *path) {
     struct stat buffer;
@@ -75,6 +81,57 @@ struct moonbit_bytes* read_file_to_bytes(struct moonbit_bytes *filename) {
 }
 
 struct moonbit_ref_array* read_dir(struct moonbit_bytes* path) {
+#ifdef _WIN32
+    WIN32_FIND_DATA find_data;
+    HANDLE dir;
+    struct moonbit_ref_array *result = NULL;
+    int count = 0;
+    
+    size_t path_len = strlen((const char*)path->data);
+    char* search_path = malloc(path_len + 3);
+    if (search_path == NULL) {
+        return NULL;
+    }
+    
+    sprintf(search_path, "%s\\*", (const char*)path->data);
+    dir = FindFirstFile(search_path, &find_data);
+    if (dir == INVALID_HANDLE_VALUE) {
+        DWORD error = GetLastError();
+        fprintf(stderr, "Failed to open directory: error code %lu\n", error);
+        free(search_path);
+        return NULL;
+    }
+
+    do {
+        if (find_data.cFileName[0] != '.') {
+            count++;
+        }
+    } while (FindNextFile(dir, &find_data));
+
+
+    FindClose(dir);
+    dir = FindFirstFile(search_path, &find_data);
+    free(search_path);
+
+    result = moonbit_make_ref_array(count, NULL);
+    if (result == NULL) {
+        FindClose(dir);
+        return NULL;
+    }
+
+    int index = 0;
+    do {
+        if (find_data.cFileName[0] != '.') {
+            size_t name_len = strlen(find_data.cFileName);
+            struct moonbit_bytes *item = moonbit_make_bytes(name_len, 0);
+            memcpy(item->data, find_data.cFileName, name_len);
+            result->data[index++] = (struct moonbit_object *)item;
+        }
+    } while (FindNextFile(dir, &find_data));
+
+    FindClose(dir);
+    return result;
+#else
 
     DIR *dir;
     struct dirent *entry;
@@ -119,32 +176,57 @@ struct moonbit_ref_array* read_dir(struct moonbit_bytes* path) {
 
     closedir(dir);
     return result;
+#endif
 }
 
 int is_dir(struct moonbit_bytes* path) {
+#ifdef _WIN32
+    DWORD attrs = GetFileAttributes((const char*)path->data);
+    if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+        return 0;
+    }
+    return -1;
+#else
     struct stat buffer;
     int status = stat((const char *)(path->data), &buffer);
     if (status == 0 && S_ISDIR(buffer.st_mode)) {
         return 0;
     }
     return -1;
+#endif
 }
 
 int is_file(struct moonbit_bytes* path) {
+#ifdef _WIN32
+    DWORD attrs = GetFileAttributes((const char*)path->data);
+    if (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+        return 0;
+    }
+    return -1;
+#else
     struct stat buffer;
     int status = stat((const char *)(path->data), &buffer);
     if (status == 0 && S_ISREG(buffer.st_mode)) {
         return 0;
     }
     return -1;
+#endif
 }
 
 void remove_dir(struct moonbit_bytes* path) {
+#ifdef _WIN32
+    _rmdir((const char *)(path->data));
+#else
     rmdir((const char *)(path->data));
+#endif
 }
 
 void create_dir(struct moonbit_bytes* path) {
+#ifdef _WIN32
+    _mkdir((const char *)(path->data));
+#else
     mkdir((const char *)(path->data), 0777);
+#endif
 }
 
 void remove_file(struct moonbit_bytes* path) {
@@ -157,4 +239,3 @@ void write_bytes_to_file(struct moonbit_bytes* path, struct moonbit_bytes* conte
     fwrite(content->data, 1, content_size, file);
     fclose(file);
 }
-
