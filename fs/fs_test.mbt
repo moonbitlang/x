@@ -69,8 +69,10 @@ test "path_exist" {
 }
 
 test "create_and_remove_dir" {
-  @fs.create_dir(path="hello/1/12.txt")
-  assert_true!(@fs.path_exists(path="hello/1/12.txt"))
+  @fs.create_dir(path="hello")
+  assert_true!(@fs.path_exists(path="hello"))
+  assert_true!(@fs.is_dir!(path="hello"))
+  assert_false!(@fs.is_file!(path="hello"))
   @fs.remove_dir!(path="hello")
   assert_false!(@fs.path_exists(path="hello"))
   try {
