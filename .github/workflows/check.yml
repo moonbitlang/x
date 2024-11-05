@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os:
           - name: ubuntu-latest
@@ -36,6 +37,10 @@ jobs:
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
+      - name: Setup MSVC
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: moon version
         run: |
           moon version --all
@@ -51,13 +56,10 @@ jobs:
 
       - name: moon test
         run: |
-          # fs don't support native backend for now
-          moon test --target wasm
-          moon test --target wasm-gc
-          moon test --target js
-          moon test --target wasm --release
-          moon test --target wasm-gc --release
-          moon test --target js --release
+          moon test --target all --serial --release
+          moon test --target all --serial
+          moon test --target native --release
+          moon test --target native
 
       - name: format diff
         run: |
