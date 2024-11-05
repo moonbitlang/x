@@ -1,0 +1,15 @@
+package moonbitlang/x/unicode
+
+// Values
+fn from_utf8(Bytes) -> String!Failure
+
+fn to_utf8(String) -> Bytes!Failure
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
+// Extension Methods
+
