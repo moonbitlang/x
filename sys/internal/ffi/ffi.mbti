@@ -1,0 +1,13 @@
+package moonbitlang/x/sys/internal/ffi
+
+// Values
+fn get_cli_args() -> Array[String]
+
+fn get_env_var(String) -> String
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

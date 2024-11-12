@@ -13,9 +13,10 @@
 // limitations under the License.
 
 typealias XExternString = @ffi.XExternString
-typealias XExternByteArray = @ffi.XExternByteArray
-typealias XExternStringArray = @ffi.XExternStringArray
 
+typealias XExternByteArray = @ffi.XExternByteArray
+
+typealias XExternStringArray = @ffi.XExternStringArray
 
 pub fn read_file_to_string(path : String) -> String {
   let path = @ffi.string_to_extern(path)
