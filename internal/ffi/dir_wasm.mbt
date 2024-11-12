@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-priv type XStringArrayReadHandle
+pub type XStringArrayReadHandle
 
-priv type XExternStringArray
+pub type XExternStringArray
 
 fn begin_read_string_array(sa : XExternStringArray) -> XStringArrayReadHandle = "__moonbit_fs_unstable" "begin_read_string_array"
 
@@ -22,7 +22,7 @@ fn string_array_read_string(handle : XStringArrayReadHandle) -> XExternString = 
 
 fn finish_read_string_array(handle : XStringArrayReadHandle) = "__moonbit_fs_unstable" "finish_read_string_array"
 
-fn string_array_from_extern(e : XExternStringArray) -> Array[String] {
+pub fn string_array_from_extern(e : XExternStringArray) -> Array[String] {
   let buf = Array::new()
   let handle = begin_read_string_array(e)
   while true {

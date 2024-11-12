@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-priv type XStringCreateHandle
+pub type XStringCreateHandle
 
-priv type XStringReadHandle
+pub type XStringReadHandle
 
-priv type XExternString
+pub type XExternString
 
 fn begin_create_string() -> XStringCreateHandle = "__moonbit_fs_unstable" "begin_create_string"
 
@@ -24,7 +24,7 @@ fn string_append_char(handle : XStringCreateHandle, ch : Char) = "__moonbit_fs_u
 
 fn finish_create_string(handle : XStringCreateHandle) -> XExternString = "__moonbit_fs_unstable" "finish_create_string"
 
-fn string_to_extern(s : String) -> XExternString {
+pub fn string_to_extern(s : String) -> XExternString {
   let handle = begin_create_string()
   for i = 0; i < s.length(); i = i + 1 {
     string_append_char(handle, s[i])
@@ -40,7 +40,7 @@ fn string_read_char(handle : XStringReadHandle) -> Int = "__moonbit_fs_unstable"
 
 fn finish_read_string(handle : XStringReadHandle) = "__moonbit_fs_unstable" "finish_read_string"
 
-fn string_from_extern(e : XExternString) -> String {
+pub fn string_from_extern(e : XExternString) -> String {
   let buf = StringBuilder::new()
   let handle = begin_read_string(e)
   while true {

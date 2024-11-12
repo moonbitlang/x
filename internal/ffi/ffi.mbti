@@ -1,0 +1,34 @@
+package moonbitlang/x/internal/ffi
+
+// Values
+fn byte_array_from_extern(XExternByteArray) -> Bytes
+
+fn byte_array_to_extern(Bytes) -> XExternByteArray
+
+fn string_array_from_extern(XExternStringArray) -> Array[String]
+
+fn string_from_extern(XExternString) -> String
+
+fn string_to_extern(String) -> XExternString
+
+// Types and methods
+pub type XByteArrayCreateHandle
+
+pub type XByteArrayReadHandle
+
+pub type XExternByteArray
+
+pub type XExternString
+
+pub type XExternStringArray
+
+pub type XStringArrayReadHandle
+
+pub type XStringCreateHandle
+
+pub type XStringReadHandle
+
+// Type aliases
+
+// Traits
+
