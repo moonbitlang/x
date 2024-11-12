@@ -29,5 +29,3 @@ fn write_string_to_file(String, String) -> Unit
 
 // Traits
 
-// Extension Methods
-

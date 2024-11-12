@@ -55,5 +55,3 @@ impl Sha256Context {
 
 // Traits
 
-// Extension Methods
-

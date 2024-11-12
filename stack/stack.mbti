@@ -36,10 +36,9 @@ impl Stack {
   to_string[T : Show](Self[T]) -> String
   unsafe_pop[T](Self[T]) -> T
 }
+impl[T : Default] Default for Stack[T]
 
 // Type aliases
 
 // Traits
-
-// Extension Methods
 
