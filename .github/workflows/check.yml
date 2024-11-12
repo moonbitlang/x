@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+env:
+  # just for testing env var
+  MOON_TEST: "yes"
+
 jobs:
   build:
     strategy:
@@ -47,9 +51,6 @@ jobs:
           moonrun --version
 
       - name: moon test
-        env:
-          # just for testing env var
-          MOON_TEST: "yes"
         run: |
           moon test --target all --serial --release
           moon test --target all --serial
@@ -81,9 +82,6 @@ jobs:
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: moon test
-        env:
-          # just for testing env var
-          MOON_TEST: "yes"
         run: moon test --enable-coverage
 
       - name: coverage report

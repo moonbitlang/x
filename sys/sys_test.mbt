@@ -13,6 +13,11 @@
 // limitations under the License.
 
 test "get_env_var" {
-  let res = @sys.get_env_var("MOON_TEST")
-  inspect!(res, content="yes")
+  let res = @sys.get_env_var()["MOON_TEST"]
+  inspect!(
+    res,
+    content=
+      #|Some("yes")
+    ,
+  )
 }

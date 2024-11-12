@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-typealias XExternString = @ffi.XExternString
-
 typealias XExternStringArray = @ffi.XExternStringArray
 
 pub fn get_cli_args() -> Array[String] {
@@ -23,10 +21,14 @@ pub fn get_cli_args() -> Array[String] {
 
 fn get_cli_args_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "args_get"
 
-pub fn get_env_var(s : String) -> String {
-  let s = @ffi.string_to_extern(s)
-  let res = get_env_var_ffi(s)
-  @ffi.string_from_extern(res)
+pub fn get_env_var() -> Map[String, String] {
+  let env = get_env_var_ffi()
+  let tmp = @ffi.string_array_from_extern(env)
+  let res = {}
+  for i = 0; i < tmp.length(); i = i + 2 {
+    res[tmp[i]] = tmp[i + 1]
+  }
+  res
 }
 
-fn get_env_var_ffi(s : XExternString) -> XExternString = "__moonbit_fs_unstable" "env_get_var"
+fn get_env_var_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "env_get_vars"

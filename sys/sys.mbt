@@ -16,6 +16,6 @@ pub fn get_cli_args() -> Array[String] {
   @ffi.get_cli_args()
 }
 
-pub fn get_env_var(s : String) -> String {
-  @ffi.get_env_var(s)
+pub fn get_env_var() -> Map[String, String] {
+  @ffi.get_env_var()
 }

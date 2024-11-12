@@ -21,11 +21,22 @@ extern "js" fn get_cli_args_internal() -> Array[String] =
   #|  return process.argv.slice(2);
   #| }
 
-pub fn get_env_var(s : String) -> String {
-  get_env_var_internal(s)
+pub fn get_env_var() -> Map[String, String] {
+  let tmp = get_env_var_internal()
+  let res = {}
+  for i = 0; i < tmp.length(); i = i + 2 {
+    res[tmp[i]] = tmp[i + 1]
+  }
+  res
 }
 
-extern "js" fn get_env_var_internal(s : String) -> String =
-  #| function(s) {
-  #|  return process.env[s];
+extern "js" fn get_env_var_internal() -> Array[String] =
+  #| function() {
+  #|   const env = process.env;
+  #|   const result = [];
+  #|   for (const key in env) {
+  #|     result.push(key);
+  #|     result.push(env[key]);
+  #|   }
+  #|   return result;
   #| }
