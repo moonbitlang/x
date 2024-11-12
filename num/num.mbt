@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub trait Num {
+pub(readonly) trait Num {
   from_int(Int) -> Self
   op_add(Self, Self) -> Self
   op_sub(Self, Self) -> Self

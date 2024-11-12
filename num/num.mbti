@@ -7,7 +7,7 @@ package moonbitlang/x/num
 // Type aliases
 
 // Traits
-pub trait Num {
+pub(readonly) trait Num {
   from_int(Int) -> Self
   op_add(Self, Self) -> Self
   op_sub(Self, Self) -> Self
@@ -17,6 +17,4 @@ pub trait Num {
   abs(Self) -> Self
   signum(Self) -> Self
 }
-
-// Extension Methods
 

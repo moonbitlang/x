@@ -27,11 +27,9 @@ fn write_string_to_file(~path : String, ~content : String) -> Unit
 pub type! IOError {
   NotFound(String)
 }
+impl Show for IOError
 
 // Type aliases
 
 // Traits
-
-// Extension Methods
-impl Show for IOError
 

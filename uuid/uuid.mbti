@@ -17,6 +17,9 @@ impl UUID {
   variant(Self) -> Variant
   version(Self) -> Version?
 }
+impl Compare for UUID
+impl Eq for UUID
+impl Show for UUID
 
 pub enum Variant {
   ReservedNCS
@@ -27,6 +30,7 @@ pub enum Variant {
 impl Variant {
   to_string(Self) -> String
 }
+impl Show for Variant
 
 pub enum Version {
   V1
@@ -39,15 +43,9 @@ pub enum Version {
 impl Version {
   to_string(Self) -> String
 }
+impl Show for Version
 
 // Type aliases
 
 // Traits
-
-// Extension Methods
-impl Show for UUID
-
-impl Show for Variant
-
-impl Show for Version
 

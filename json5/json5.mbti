@@ -19,6 +19,7 @@ pub enum ParseErrorData {
 impl ParseErrorData {
   op_equal(Self, Self) -> Bool
 }
+impl Eq for ParseErrorData
 
 pub struct Position {
   pub line : Int
@@ -28,11 +29,10 @@ impl Position {
   op_equal(Self, Self) -> Bool
   to_string(Self) -> String
 }
+impl Eq for Position
+impl Show for Position
 
 // Type aliases
 
 // Traits
-
-// Extension Methods
-impl Show for Position
 

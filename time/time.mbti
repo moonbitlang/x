@@ -34,6 +34,9 @@ impl Duration {
   with_seconds(Self, Int64) -> Self
   zero() -> Self
 }
+impl Compare for Duration
+impl Eq for Duration
+impl Show for Duration
 
 type Period
 impl Period {
@@ -62,6 +65,9 @@ impl Period {
   years(Self) -> Int
   zero() -> Self
 }
+impl Compare for Period
+impl Eq for Period
+impl Show for Period
 
 type PlainDate
 impl PlainDate {
@@ -96,6 +102,7 @@ impl PlainDate {
   with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
+impl Show for PlainDate
 
 type PlainDateTime
 impl PlainDateTime {
@@ -143,6 +150,9 @@ impl PlainDateTime {
   with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
+impl Compare for PlainDateTime
+impl Eq for PlainDateTime
+impl Show for PlainDateTime
 
 type PlainTime
 impl PlainTime {
@@ -171,6 +181,9 @@ impl PlainTime {
   with_nanosecond(Self, Int) -> Self!
   with_second(Self, Int) -> Self!
 }
+impl Compare for PlainTime
+impl Eq for PlainTime
+impl Show for PlainTime
 
 pub enum Weekday {
   Monday
@@ -185,6 +198,8 @@ impl Weekday {
   op_equal(Self, Self) -> Bool
   to_string(Self) -> String
 }
+impl Eq for Weekday
+impl Show for Weekday
 
 type Zone
 impl Zone {
@@ -192,6 +207,8 @@ impl Zone {
   op_equal(Self, Self) -> Bool
   to_string(Self) -> String
 }
+impl Eq for Zone
+impl Show for Zone
 
 type ZoneOffset
 impl ZoneOffset {
@@ -204,6 +221,7 @@ impl ZoneOffset {
   seconds(Self) -> Int
   to_string(Self) -> String
 }
+impl Show for ZoneOffset
 
 type ZonedDateTime
 impl ZonedDateTime {
@@ -250,27 +268,9 @@ impl ZonedDateTime {
   year(Self) -> Int
   zone(Self) -> Zone
 }
+impl Show for ZonedDateTime
 
 // Type aliases
 
 // Traits
-
-// Extension Methods
-impl Show for Duration
-
-impl Show for Period
-
-impl Show for PlainDate
-
-impl Show for PlainDateTime
-
-impl Show for PlainTime
-
-impl Show for Weekday
-
-impl Show for Zone
-
-impl Show for ZoneOffset
-
-impl Show for ZonedDateTime
 
