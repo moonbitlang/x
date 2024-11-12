@@ -46,6 +46,13 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: moon test
+        run: |
+          moon test --target all --serial --release
+          moon test --target all --serial
+          moon test --target native --release
+          moon test --target native
+
       - name: moon check
         run: moon check --deny-warn
 
@@ -53,13 +60,6 @@ jobs:
         run: |
           moon info
           git diff --exit-code
-
-      - name: moon test
-        run: |
-          moon test --target all --serial --release
-          moon test --target all --serial
-          moon test --target native --release
-          moon test --target native
 
       - name: format diff
         run: |
