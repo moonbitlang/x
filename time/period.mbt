@@ -21,9 +21,9 @@ struct Period {
 
 /// Creates a Period from years, months, and days.
 pub fn Period::of(
-  ~years : Int = 0,
-  ~months : Int = 0,
-  ~days : Int = 0
+  years~ : Int = 0,
+  months~ : Int = 0,
+  days~ : Int = 0
 ) -> Period {
   { years, months, days }
 }
@@ -63,7 +63,7 @@ pub fn Period::from_string(str : String) -> Period!Error {
       _ => fail!(invalid_period_err)
     }
   }
-  Period::of(~years, ~months, ~days)
+  Period::of(years~, months~, days~)
 }
 
 /// Returns a string representation of this period using ISO 8601 representation.
@@ -173,7 +173,7 @@ pub fn multiply(self : Period, n : Int) -> Period!Error {
   let years = checked_mul_int!(self.years, n)
   let months = checked_mul_int!(self.months, n)
   let days = checked_mul_int!(self.days, n)
-  Period::of(~years, ~months, ~days)
+  Period::of(years~, months~, days~)
 }
 
 /// Returns a new period with all elements in this period negated.
@@ -186,7 +186,7 @@ pub fn with_years(self : Period, years : Int) -> Period {
   if years == self.years {
     self
   } else {
-    Period::of(~years, months=self.months, days=self.days)
+    Period::of(years~, months=self.months, days=self.days)
   }
 }
 
@@ -195,7 +195,7 @@ pub fn with_months(self : Period, months : Int) -> Period {
   if months == self.months {
     self
   } else {
-    Period::of(years=self.years, ~months, days=self.days)
+    Period::of(years=self.years, months~, days=self.days)
   }
 }
 
@@ -204,7 +204,7 @@ pub fn with_days(self : Period, days : Int) -> Period {
   if days == self.days {
     self
   } else {
-    Period::of(years=self.years, months=self.months, ~days)
+    Period::of(years=self.years, months=self.months, days~)
   }
 }
 

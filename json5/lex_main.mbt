@@ -14,7 +14,7 @@
 
 fn lex_value(
   ctx : ParseContext,
-  ~allow_rbracket : Bool = false
+  allow_rbracket~ : Bool = false
 ) -> Token!ParseError {
   for {
     match read_char(ctx) {

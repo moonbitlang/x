@@ -16,7 +16,7 @@
 //   https://github.com/python/cpython/blob/3.12/Lib/uuid.py
 
 /// The UUID variant.
-pub enum Variant {
+pub(all) enum Variant {
   ReservedNCS
   RFC4122(Version)
   ReservedMicrosoft
@@ -27,7 +27,7 @@ pub enum Variant {
 ///
 /// This is only used when the variant is `RFC4122`.
 ///
-pub enum Version {
+pub(all) enum Version {
   V1
   V2
   V3

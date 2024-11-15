@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+env:
+  # just for testing env var
+  MOON_TEST: "yes"
+
 jobs:
   build:
     strategy:

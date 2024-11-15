@@ -1,8 +1,8 @@
 {
+    "import": [
+        "moonbitlang/x/internal/ffi"
+    ],
     "targets": {
-        "string_wasm.mbt": ["wasm", "wasm-gc"],
-        "byte_array_wasm.mbt": ["wasm", "wasm-gc"],
-        "dir_wasm.mbt": ["wasm", "wasm-gc"],
         "fs_wasm.mbt": ["wasm", "wasm-gc"],
         "fs_js.mbt": ["js"],
         "fs_native.mbt": ["native"]

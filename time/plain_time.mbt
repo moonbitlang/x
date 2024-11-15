@@ -264,7 +264,7 @@ pub fn with_nanosecond(self : PlainTime, nanosecond : Int) -> PlainTime!Error {
 /// Returns the duration between this time and another time.
 pub fn until(self : PlainTime, end : PlainTime) -> Duration!Error {
   let nanoseconds = end.nanosecond_of_day() - self.nanosecond_of_day()
-  Duration::of!(~nanoseconds)
+  Duration::of!(nanoseconds~)
 }
 
 /// Combines this time with a date to creates a PlainDateTime

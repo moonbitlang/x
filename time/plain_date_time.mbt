@@ -23,10 +23,10 @@ pub fn PlainDateTime::of(
   year : Int,
   month : Int,
   day : Int,
-  ~hour : Int = 0,
-  ~minute : Int = 0,
-  ~second : Int = 0,
-  ~nanosecond : Int = 0
+  hour~ : Int = 0,
+  minute~ : Int = 0,
+  second~ : Int = 0,
+  nanosecond~ : Int = 0
 ) -> PlainDateTime!Error {
   {
     date: PlainDate::of!(year, month, day),
@@ -303,10 +303,10 @@ pub fn to_plain_time(self : PlainDateTime) -> PlainTime {
 
 fn overflowing_add(
   self : PlainDateTime,
-  ~h : Int64 = 0L,
-  ~m : Int64 = 0L,
-  ~s : Int64 = 0L,
-  ~ns : Int64 = 0L
+  h~ : Int64 = 0L,
+  m~ : Int64 = 0L,
+  s~ : Int64 = 0L,
+  ns~ : Int64 = 0L
 ) -> PlainDateTime!Error {
   if h == 0L && m == 0L && s == 0L && ns == 0L {
     return self

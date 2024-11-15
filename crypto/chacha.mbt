@@ -295,7 +295,7 @@ pub fn chacha8(
   key : FixedArray[UInt],
   counter : UInt,
   block : Bytes,
-  ~nonce : UInt = 0
+  nonce~ : UInt = 0
 ) -> Bytes!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -313,7 +313,7 @@ pub fn chacha12(
   key : FixedArray[UInt],
   counter : UInt,
   block : Bytes,
-  ~nonce : UInt = 0
+  nonce~ : UInt = 0
 ) -> Bytes!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -331,7 +331,7 @@ pub fn chacha20(
   key : FixedArray[UInt],
   counter : UInt,
   block : Bytes,
-  ~nonce : UInt = 0
+  nonce~ : UInt = 0
 ) -> Bytes!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")

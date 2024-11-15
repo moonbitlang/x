@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn lex_decimal_integer(ctx : ParseContext, ~start : Int) -> Double!ParseError {
+fn lex_decimal_integer(ctx : ParseContext, start~ : Int) -> Double!ParseError {
   for {
     match read_char(ctx) {
-      Some('.') => return lex_decimal_point!(ctx, ~start)
-      Some('e' | 'E') => return lex_decimal_exponent!(ctx, ~start)
+      Some('.') => return lex_decimal_point!(ctx, start~)
+      Some('e' | 'E') => return lex_decimal_exponent!(ctx, start~)
       Some(c) => {
         if c >= '0' && c <= '9' {
           continue
@@ -31,12 +31,12 @@ fn lex_decimal_integer(ctx : ParseContext, ~start : Int) -> Double!ParseError {
 
 fn lex_decimal_point_leading(
   ctx : ParseContext,
-  ~start : Int
+  start~ : Int
 ) -> Double!ParseError {
   match read_char(ctx) {
     Some(c) => {
       if c >= '0' && c <= '9' {
-        return lex_decimal_fraction!(ctx, ~start)
+        return lex_decimal_fraction!(ctx, start~)
       }
       ctx.offset -= 1
       invalid_char!(ctx)
@@ -45,12 +45,12 @@ fn lex_decimal_point_leading(
   }
 }
 
-fn lex_decimal_point(ctx : ParseContext, ~start : Int) -> Double!ParseError {
+fn lex_decimal_point(ctx : ParseContext, start~ : Int) -> Double!ParseError {
   match read_char(ctx) {
-    Some('e' | 'E') => return lex_decimal_exponent!(ctx, ~start)
+    Some('e' | 'E') => return lex_decimal_exponent!(ctx, start~)
     Some(c) => {
       if c >= '0' && c <= '9' {
-        return lex_decimal_fraction!(ctx, ~start)
+        return lex_decimal_fraction!(ctx, start~)
       }
       ctx.offset -= 1
       return lex_number_end!(ctx, start, ctx.offset)
@@ -59,10 +59,10 @@ fn lex_decimal_point(ctx : ParseContext, ~start : Int) -> Double!ParseError {
   }
 }
 
-fn lex_decimal_fraction(ctx : ParseContext, ~start : Int) -> Double!ParseError {
+fn lex_decimal_fraction(ctx : ParseContext, start~ : Int) -> Double!ParseError {
   for {
     match read_char(ctx) {
-      Some('e' | 'E') => return lex_decimal_exponent!(ctx, ~start)
+      Some('e' | 'E') => return lex_decimal_exponent!(ctx, start~)
       Some(c) => {
         if c >= '0' && c <= '9' {
           continue
@@ -75,12 +75,12 @@ fn lex_decimal_fraction(ctx : ParseContext, ~start : Int) -> Double!ParseError {
   }
 }
 
-fn lex_decimal_exponent(ctx : ParseContext, ~start : Int) -> Double!ParseError {
+fn lex_decimal_exponent(ctx : ParseContext, start~ : Int) -> Double!ParseError {
   match read_char(ctx) {
-    Some('+') | Some('-') => return lex_decimal_exponent_sign!(ctx, ~start)
+    Some('+') | Some('-') => return lex_decimal_exponent_sign!(ctx, start~)
     Some(c) => {
       if c >= '0' && c <= '9' {
-        return lex_decimal_exponent_integer!(ctx, ~start)
+        return lex_decimal_exponent_integer!(ctx, start~)
       }
       ctx.offset -= 1
       invalid_char!(ctx)
@@ -91,12 +91,12 @@ fn lex_decimal_exponent(ctx : ParseContext, ~start : Int) -> Double!ParseError {
 
 fn lex_decimal_exponent_sign(
   ctx : ParseContext,
-  ~start : Int
+  start~ : Int
 ) -> Double!ParseError {
   match read_char(ctx) {
     Some(c) => {
       if c >= '0' && c <= '9' {
-        return lex_decimal_exponent_integer!(ctx, ~start)
+        return lex_decimal_exponent_integer!(ctx, start~)
       }
       ctx.offset -= 1
       invalid_char!(ctx)
@@ -107,7 +107,7 @@ fn lex_decimal_exponent_sign(
 
 fn lex_decimal_exponent_integer(
   ctx : ParseContext,
-  ~start : Int
+  start~ : Int
 ) -> Double!ParseError {
   for {
     match read_char(ctx) {
@@ -123,11 +123,11 @@ fn lex_decimal_exponent_integer(
   }
 }
 
-fn lex_zero(ctx : ParseContext, ~neg : Bool, ~start : Int) -> Double!ParseError {
+fn lex_zero(ctx : ParseContext, neg~ : Bool, start~ : Int) -> Double!ParseError {
   match read_char(ctx) {
-    Some('.') => return lex_decimal_point!(ctx, ~start)
-    Some('e' | 'E') => return lex_decimal_exponent!(ctx, ~start)
-    Some('x' | 'X') => return lex_hexadecimal!(ctx, ~neg)
+    Some('.') => return lex_decimal_point!(ctx, start~)
+    Some('e' | 'E') => return lex_decimal_exponent!(ctx, start~)
+    Some('x' | 'X') => return lex_hexadecimal!(ctx, neg~)
     Some(c) => {
       if c >= '0' && c <= '9' {
         ctx.offset -= 1
@@ -140,7 +140,7 @@ fn lex_zero(ctx : ParseContext, ~neg : Bool, ~start : Int) -> Double!ParseError 
   }
 }
 
-fn lex_hexadecimal(ctx : ParseContext, ~neg : Bool) -> Double!ParseError {
+fn lex_hexadecimal(ctx : ParseContext, neg~ : Bool) -> Double!ParseError {
   match read_char(ctx) {
     Some(c) => {
       if (c >= '0' && c <= '9') ||
@@ -178,7 +178,7 @@ fn lex_number_end(
   start : Int,
   end : Int
 ) -> Double!ParseError {
-  let s = ctx.input.substring(~start, ~end)
+  let s = ctx.input.substring(start~, end~)
   match @strconv.parse_double?(s) {
     Ok(d) => d
     Err(_) =>

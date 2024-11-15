@@ -1,11 +1,11 @@
 package moonbitlang/x/time
 
 // Values
-fn date_time(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> ZonedDateTime!
+fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
 fn fixed_zone(String, Int) -> Zone!
 
-fn unix(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> ZonedDateTime!
+fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
 let utc_offset : ZoneOffset
 
@@ -24,7 +24,7 @@ impl Duration {
   is_neg(Self) -> Bool
   is_zero(Self) -> Bool
   nanoseconds(Self) -> Int
-  of(~hours : Int64 = .., ~minutes : Int64 = .., ~seconds : Int64 = .., ~nanoseconds : Int64 = ..) -> Self!
+  of(hours~ : Int64 = .., minutes~ : Int64 = .., seconds~ : Int64 = .., nanoseconds~ : Int64 = ..) -> Self!
   op_add(Self, Self) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int64
@@ -53,7 +53,7 @@ impl Period {
   months(Self) -> Int
   multiply(Self, Int) -> Self!
   negated(Self) -> Self!
-  of(~years : Int = .., ~months : Int = .., ~days : Int = ..) -> Self
+  of(years~ : Int = .., months~ : Int = .., days~ : Int = ..) -> Self
   op_add(Self, Self) -> Self!
   op_equal(Self, Self) -> Bool
   op_sub(Self, Self) -> Self!
@@ -131,7 +131,7 @@ impl PlainDateTime {
   month(Self) -> Int
   months_in_year(Self) -> Int
   nanosecond(Self) -> Int
-  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~nanosecond : Int = ..) -> Self!
+  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = ..) -> Self!
   op_equal(Self, Self) -> Bool
   ordinal(Self) -> Int
   second(Self) -> Int
@@ -185,7 +185,7 @@ impl Compare for PlainTime
 impl Eq for PlainTime
 impl Show for PlainTime
 
-pub enum Weekday {
+pub(all) enum Weekday {
   Monday
   Tuesday
   Wednesday
@@ -216,7 +216,7 @@ impl ZoneOffset {
   from_seconds(Int) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
-  of(~hours : Int = .., ~minutes : Int = .., ~seconds : Int = ..) -> Self!
+  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = ..) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String
@@ -239,15 +239,15 @@ impl ZonedDateTime {
   days_in_year(Self) -> Int
   era(Self) -> String
   era_year(Self) -> Int
-  from_plain_datetime(PlainDateTime, ~zone : Zone = ..) -> Self
-  from_unix_second(Int64, ~nanosecond : Int = .., ~zone : Zone = ..) -> Self!
+  from_plain_datetime(PlainDateTime, zone~ : Zone = ..) -> Self
+  from_unix_second(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
   hour(Self) -> Int
   in_leap_year(Self) -> Bool
   minute(Self) -> Int
   month(Self) -> Int
   months_in_year(Self) -> Int
   nanosecond(Self) -> Int
-  of(Int, Int, Int, ~hour : Int = .., ~minute : Int = .., ~second : Int = .., ~zone : Zone = ..) -> Self!
+  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., zone~ : Zone = ..) -> Self!
   offset(Self) -> ZoneOffset
   ordinal(Self) -> Int
   second(Self) -> Int

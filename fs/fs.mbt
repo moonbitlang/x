@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub type! IOError {
+pub(all) type! IOError {
   NotFound(String)
 }
 
@@ -31,7 +31,7 @@ fn IOError::to_string(self : IOError) -> String {
 /// # Parameters
 /// - `path`: A `String` representing the file path.
 /// - `content`: A `String` containing the content to be written to the file.
-pub fn write_string_to_file(~path : String, ~content : String) -> Unit {
+pub fn write_string_to_file(path~ : String, content~ : String) -> Unit {
   @ffi.write_string_to_file(path, content)
 }
 
@@ -41,7 +41,7 @@ pub fn write_string_to_file(~path : String, ~content : String) -> Unit {
 ///
 /// - `path` : The path to the file where the bytes will be written.
 /// - `content` : An array of bytes to be written to the file.
-pub fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit {
+pub fn write_bytes_to_file(path~ : String, content~ : Bytes) -> Unit {
   @ffi.write_bytes_to_file(path, content)
 }
 
@@ -52,7 +52,7 @@ pub fn write_bytes_to_file(~path : String, ~content : Bytes) -> Unit {
 ///
 /// # Returns
 /// A boolean indicating whether the path exists.
-pub fn path_exists(~path : String) -> Bool {
+pub fn path_exists(path~ : String) -> Bool {
   @ffi.path_exists(path)
 }
 
@@ -63,8 +63,8 @@ pub fn path_exists(~path : String) -> Bool {
 ///
 /// # Returns
 /// A `String` containing the file contents if the file exists, otherwise raises an error.
-pub fn read_file_to_string(~path : String) -> String! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn read_file_to_string(path~ : String) -> String! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.read_file_to_string(path)
 }
 
@@ -78,8 +78,8 @@ pub fn read_file_to_string(~path : String) -> String! {
 /// # Returns
 ///
 /// - An array of bytes representing the content of the file.
-pub fn read_file_to_bytes(~path : String) -> Bytes! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn read_file_to_bytes(path~ : String) -> Bytes! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.read_file_to_bytes(path)
 }
 
@@ -92,8 +92,8 @@ pub fn read_file_to_bytes(~path : String) -> Bytes! {
 /// # Returns
 ///
 /// - An array of strings representing the file name and directory name in the directory.
-pub fn read_dir(~path : String) -> Array[String]! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn read_dir(path~ : String) -> Array[String]! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.read_dir(path)
 }
 
@@ -103,7 +103,7 @@ pub fn read_dir(~path : String) -> Array[String]! {
 /// # Parameters
 ///
 /// - `path` : The path where the directory should be created.
-pub fn create_dir(~path : String) -> Unit {
+pub fn create_dir(path~ : String) -> Unit {
   @ffi.create_dir(path)
 }
 
@@ -116,8 +116,8 @@ pub fn create_dir(~path : String) -> Unit {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
-pub fn is_dir(~path : String) -> Bool! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn is_dir(path~ : String) -> Bool! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.is_dir(path)
 }
 
@@ -130,8 +130,8 @@ pub fn is_dir(~path : String) -> Bool! {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
-pub fn is_file(~path : String) -> Bool! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn is_file(path~ : String) -> Bool! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.is_file(path)
 }
 
@@ -140,8 +140,8 @@ pub fn is_file(~path : String) -> Bool! {
 /// # Parameters
 ///
 /// - `path` : The string path to the directory that needs to be removed.
-pub fn remove_dir(~path : String) -> Unit! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn remove_dir(path~ : String) -> Unit! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.remove_dir(path)
 }
 
@@ -150,7 +150,7 @@ pub fn remove_dir(~path : String) -> Unit! {
 /// # Parameters
 ///
 /// - `path` : The path to the file that needs to be removed.
-pub fn remove_file(~path : String) -> Unit! {
-  guard path_exists(~path) else { raise IOError::NotFound(path) }
+pub fn remove_file(path~ : String) -> Unit! {
+  guard path_exists(path~) else { raise IOError::NotFound(path) }
   @ffi.remove_file(path)
 }

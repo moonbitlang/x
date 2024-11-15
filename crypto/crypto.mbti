@@ -3,11 +3,11 @@ package moonbitlang/x/crypto
 // Values
 fn bytes_to_hex_string(Bytes) -> String
 
-fn chacha12(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
+fn chacha12(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
 
-fn chacha20(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
+fn chacha20(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
 
-fn chacha8(FixedArray[UInt], UInt, Bytes, ~nonce : UInt = ..) -> Bytes!
+fn chacha8(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
 
 fn md5(Bytes) -> Bytes
 
@@ -46,7 +46,7 @@ impl SM3Context {
 type Sha256Context
 impl Sha256Context {
   finalize(Self) -> Bytes
-  new(~reg : FixedArray[UInt] = ..) -> Self
+  new(reg~ : FixedArray[UInt] = ..) -> Self
   update(Self, Bytes) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }
