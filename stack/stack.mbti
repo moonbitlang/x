@@ -13,7 +13,7 @@ impl Stack {
   drop_result[T](Self[T]) -> Result[Unit, Unit]
   each[T](Self[T], (T) -> Unit) -> Unit
   equal[T : Eq](Self[T], Self[T]) -> Bool
-  fold[T, U](Self[T], ~init : U, (U, T) -> U) -> U
+  fold[T, U](Self[T], init~ : U, (U, T) -> U) -> U
   from_array[T](Array[T]) -> Self[T]
   from_list[T](@list.T[T]) -> Self[T]
   from_stack[T](Self[T]) -> Self[T]

@@ -4,13 +4,13 @@ package moonbitlang/x/json5
 fn parse(String) -> Json!ParseError
 
 // Types and methods
-pub type! ParseError ParseErrorData
+pub(all) type! ParseError ParseErrorData
 impl ParseError {
   output(Self, Logger) -> Unit
   to_string(Self) -> String
 }
 
-pub enum ParseErrorData {
+pub(all) enum ParseErrorData {
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
@@ -21,9 +21,9 @@ impl ParseErrorData {
 }
 impl Eq for ParseErrorData
 
-pub struct Position {
-  pub line : Int
-  pub column : Int
+pub(all) struct Position {
+  line : Int
+  column : Int
 }
 impl Position {
   op_equal(Self, Self) -> Bool

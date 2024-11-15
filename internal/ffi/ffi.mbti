@@ -12,21 +12,21 @@ fn string_from_extern(XExternString) -> String
 fn string_to_extern(String) -> XExternString
 
 // Types and methods
-pub type XByteArrayCreateHandle
+pub(all) type XByteArrayCreateHandle
 
-pub type XByteArrayReadHandle
+pub(all) type XByteArrayReadHandle
 
-pub type XExternByteArray
+pub(all) type XExternByteArray
 
-pub type XExternString
+pub(all) type XExternString
 
-pub type XExternStringArray
+pub(all) type XExternStringArray
 
-pub type XStringArrayReadHandle
+pub(all) type XStringArrayReadHandle
 
-pub type XStringCreateHandle
+pub(all) type XStringCreateHandle
 
-pub type XStringReadHandle
+pub(all) type XStringReadHandle
 
 // Type aliases
 

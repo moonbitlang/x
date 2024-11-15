@@ -21,7 +21,7 @@ impl Compare for UUID
 impl Eq for UUID
 impl Show for UUID
 
-pub enum Variant {
+pub(all) enum Variant {
   ReservedNCS
   RFC4122(Version)
   ReservedMicrosoft
@@ -32,7 +32,7 @@ impl Variant {
 }
 impl Show for Variant
 
-pub enum Version {
+pub(all) enum Version {
   V1
   V2
   V3
