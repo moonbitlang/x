@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn test_parse(input : String, ~loc : SourceLoc = _) -> @json.JsonValue!Error {
+fn test_parse(input : String, loc~ : SourceLoc = _) -> @json.JsonValue!Error {
   let v = @json5.parse?(input)
   match v {
     Ok(v) => v

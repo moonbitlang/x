@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub type XByteArrayCreateHandle
+pub(all) type XByteArrayCreateHandle
 
-pub type XByteArrayReadHandle
+pub(all) type XByteArrayReadHandle
 
-pub type XExternByteArray
+pub(all) type XExternByteArray
 
 fn begin_read_byte_array(s : XExternByteArray) -> XByteArrayReadHandle = "__moonbit_fs_unstable" "begin_read_byte_array"
 

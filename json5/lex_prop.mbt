@@ -35,7 +35,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         (c > '\x7f' && non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
-        let s = lex_ident!(ctx, ctx.offset, ~buffer)
+        let s = lex_ident!(ctx, ctx.offset, buffer~)
         String(s)
       } else {
         parse_error!(
@@ -59,7 +59,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
 fn lex_ident(
   ctx : ParseContext,
   start : Int,
-  ~buffer : StringBuilder = StringBuilder::make()
+  buffer~ : StringBuilder = StringBuilder::make()
 ) -> String!ParseError {
   let mut start = start
   fn flush(end : Int) {

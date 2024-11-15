@@ -25,22 +25,22 @@ pub fn date_time(
   year : Int,
   month : Int,
   day : Int,
-  ~hour : Int = 0,
-  ~minute : Int = 0,
-  ~second : Int = 0,
-  ~zone : Zone = utc_zone
+  hour~ : Int = 0,
+  minute~ : Int = 0,
+  second~ : Int = 0,
+  zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
-  ZonedDateTime::of!(year, month, day, ~hour, ~minute, ~second, ~zone)
+  ZonedDateTime::of!(year, month, day, hour~, minute~, second~, zone~)
 }
 
 /// Creates a ZonedDateTime from elapsed seconds since the unix epoch and a time zone.
 /// The default time zone is UTC+0.
 pub fn unix(
   second : Int64,
-  ~nanosecond : Int = 0,
-  ~zone : Zone = utc_zone
+  nanosecond~ : Int = 0,
+  zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
-  ZonedDateTime::from_unix_second!(second, ~nanosecond, ~zone)
+  ZonedDateTime::from_unix_second!(second, nanosecond~, zone~)
 }
 
 /// Creates a ZonedDateTime from year, month, day, hour, minute and second.
@@ -49,12 +49,12 @@ pub fn ZonedDateTime::of(
   year : Int,
   month : Int,
   day : Int,
-  ~hour : Int = 0,
-  ~minute : Int = 0,
-  ~second : Int = 0,
-  ~zone : Zone = utc_zone
+  hour~ : Int = 0,
+  minute~ : Int = 0,
+  second~ : Int = 0,
+  zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
-  let datetime = PlainDateTime::of!(year, month, day, ~hour, ~minute, ~second)
+  let datetime = PlainDateTime::of!(year, month, day, hour~, minute~, second~)
   create_from_plain(datetime, zone)
 }
 
@@ -62,7 +62,7 @@ pub fn ZonedDateTime::of(
 /// The default time zone is UTC+0.
 pub fn ZonedDateTime::from_plain_datetime(
   datetime : PlainDateTime,
-  ~zone : Zone = utc_zone
+  zone~ : Zone = utc_zone
 ) -> ZonedDateTime {
   create_from_plain(datetime, zone)
 }
@@ -71,8 +71,8 @@ pub fn ZonedDateTime::from_plain_datetime(
 /// The default time zone is UTC+0.
 pub fn ZonedDateTime::from_unix_second(
   second : Int64,
-  ~nanosecond : Int = 0,
-  ~zone : Zone = utc_zone
+  nanosecond~ : Int = 0,
+  zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second!(second, nanosecond, offset)

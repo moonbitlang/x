@@ -15,7 +15,7 @@
 test "date_time" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
-    @time.date_time!(2000, 1, 1, hour=10, minute=20, second=30, ~zone),
+    @time.date_time!(2000, 1, 1, hour=10, minute=20, second=30, zone~),
     content="2000-01-01T10:20:30+08:00[Asia/Shanghai]",
   )
 }
@@ -23,7 +23,7 @@ test "date_time" {
 test "unix" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
-    @time.unix!(1714227729L, nanosecond=1000, ~zone),
+    @time.unix!(1714227729L, nanosecond=1000, zone~),
     content="2024-04-27T22:22:09.000001+08:00[Asia/Shanghai]",
   )
 }
@@ -35,7 +35,7 @@ test "of" {
   )
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
-    @time.ZonedDateTime::of!(2000, 1, 1, hour=1, minute=2, second=3, ~zone),
+    @time.ZonedDateTime::of!(2000, 1, 1, hour=1, minute=2, second=3, zone~),
     content="2000-01-01T01:02:03+08:00[Asia/Shanghai]",
   )
 }
@@ -44,7 +44,7 @@ test "from_plain_datetime" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let datetime = @time.PlainDateTime::of!(2000, 1, 1)
   inspect!(
-    @time.ZonedDateTime::from_plain_datetime(datetime, ~zone),
+    @time.ZonedDateTime::from_plain_datetime(datetime, zone~),
     content="2000-01-01T00:00:00+08:00[Asia/Shanghai]",
   )
 }
@@ -60,7 +60,7 @@ test "from_unix_second" {
     content="1970-01-01T01:00:00.000001Z",
   )
   inspect!(
-    @time.ZonedDateTime::from_unix_second!(0L, ~zone),
+    @time.ZonedDateTime::from_unix_second!(0L, zone~),
     content="1970-01-01T08:00:00+08:00[Asia/Shanghai]",
   )
 }
@@ -69,7 +69,7 @@ test "to_unix_second" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(@time.ZonedDateTime::of!(1970, 1, 1).to_unix_second(), content="0")
   inspect!(
-    @time.ZonedDateTime::of!(1970, 1, 1, ~zone).to_unix_second(),
+    @time.ZonedDateTime::of!(1970, 1, 1, zone~).to_unix_second(),
     content="-28800",
   )
 }
@@ -83,7 +83,7 @@ test "conversions" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(zdt.to_unix_second(), content="946659723")
   inspect!(zdt.to_plain_date(), content="2000-01-01")
@@ -100,7 +100,7 @@ test "getters" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(zdt.era(), content="CE")
   inspect!(zdt.era_year(), content="2000")
@@ -130,7 +130,7 @@ test "add_years" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_years!(1L),
@@ -147,7 +147,7 @@ test "add_months" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_months!(1L),
@@ -164,7 +164,7 @@ test "add_weeks" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_weeks!(1L),
@@ -181,7 +181,7 @@ test "add_days" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_days!(1L),
@@ -198,7 +198,7 @@ test "add_hours" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_hours!(1L),
@@ -215,7 +215,7 @@ test "add_minutes" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_minutes!(1L),
@@ -232,7 +232,7 @@ test "add_seconds" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_seconds!(1L),
@@ -249,7 +249,7 @@ test "add_nanoseconds" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.add_nanoseconds!(1000L),
@@ -266,7 +266,7 @@ test "with_year" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_year!(2024),
@@ -283,7 +283,7 @@ test "with_month" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_month!(2),
@@ -300,7 +300,7 @@ test "with_day" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_day!(31),
@@ -317,7 +317,7 @@ test "with_ordinal" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_ordinal!(365),
@@ -334,7 +334,7 @@ test "with_hour" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_hour!(12),
@@ -351,7 +351,7 @@ test "with_minute" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_minute!(30),
@@ -368,7 +368,7 @@ test "with_second" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_second!(30),
@@ -385,7 +385,7 @@ test "with_nanosecond" {
     hour=1,
     minute=2,
     second=3,
-    ~zone,
+    zone~,
   )
   inspect!(
     zdt.with_nanosecond!(999_999_999),

@@ -336,7 +336,7 @@ pub fn until(self : PlainDate, end : PlainDate) -> Period!Error {
   }
   let years = (total_months / 12L).to_int()
   let months = (total_months % 12L).to_int()
-  Period::of(~years, ~months, ~days)
+  Period::of(years~, months~, days~)
 }
 
 // *****************************

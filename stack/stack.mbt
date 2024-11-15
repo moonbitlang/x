@@ -478,8 +478,8 @@ test "iter" {
 /// let sum = s.fold(~init=0, fn(acc, i) { acc + i })
 /// println(sum) // 6
 /// ```
-pub fn fold[T, U](self : Stack[T], ~init : U, f : (U, T) -> U) -> U {
-  self.elements.fold(~init, f)
+pub fn fold[T, U](self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
+  self.elements.fold(init~, f)
 }
 
 test "fold" {

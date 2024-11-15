@@ -36,9 +36,9 @@ pub let utc_offset : ZoneOffset = ZoneOffset::{
 
 /// Creates a offset from hours, minutes and seconds.
 pub fn ZoneOffset::of(
-  ~hours : Int = 0,
-  ~minutes : Int = 0,
-  ~seconds : Int = 0
+  hours~ : Int = 0,
+  minutes~ : Int = 0,
+  seconds~ : Int = 0
 ) -> ZoneOffset!Error {
   validate_offset!(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() +

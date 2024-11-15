@@ -22,7 +22,7 @@ struct Sha256Context {
 /// Instantiate a Sha256 context
 /// `reg` is the initial hash value. Defaults to Sha256's.
 pub fn Sha256Context::new(
-  ~reg : FixedArray[UInt] = [
+  reg~ : FixedArray[UInt] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
     0x5be0cd19,
   ]
@@ -71,7 +71,7 @@ fn pad(self : Sha256Context) -> Bytes {
 fn transform(
   self : Sha256Context,
   data : Bytes,
-  ~offset : Int = 0
+  offset~ : Int = 0
 ) -> FixedArray[UInt] {
   let w = FixedArray::make(64, 0U)
   let mut a = self.reg[0]
@@ -161,7 +161,7 @@ pub fn update(self : Sha256Context, data : Bytes) -> Unit {
 
 fn sha256_compute(
   self : Sha256Context,
-  ~data : Iter[Byte] = Iter::empty()
+  data~ : Iter[Byte] = Iter::empty()
 ) -> FixedArray[UInt] {
   self.update_from_iter(data)
   let msg = self.pad()

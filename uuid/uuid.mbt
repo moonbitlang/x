@@ -186,7 +186,7 @@ pub fn to_string(self : UUID) -> String {
       rv[i - 1] = dash.to_byte()
       continue v, i - 2, i - 2, d - 1
     } else {
-      break rv.to_string()
+      break rv.to_unchecked_string()
     }
   }
 }

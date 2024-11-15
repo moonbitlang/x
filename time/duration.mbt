@@ -20,10 +20,10 @@ struct Duration {
 
 /// Creates a Duration from hours, minutes, seconds and nanoseconds.
 pub fn Duration::of(
-  ~hours : Int64 = 0L,
-  ~minutes : Int64 = 0L,
-  ~seconds : Int64 = 0L,
-  ~nanoseconds : Int64 = 0L
+  hours~ : Int64 = 0L,
+  minutes~ : Int64 = 0L,
+  seconds~ : Int64 = 0L,
+  nanoseconds~ : Int64 = 0L
 ) -> Duration!Error {
   let hours_sec = checked_mul_int64!(hours, seconds_per_hour)
   let minutes_sec = checked_mul_int64!(minutes, seconds_per_minute)
@@ -94,7 +94,7 @@ pub fn Duration::from_string(str : String) -> Duration!Error {
       _ => fail!(invalid_duration_err)
     }
   }
-  Duration::of!(~hours, ~minutes, ~seconds, ~nanoseconds)
+  Duration::of!(hours~, minutes~, seconds~, nanoseconds~)
 }
 
 /// Returns a string representation of this duration using ISO 8601 representation.
@@ -204,7 +204,7 @@ pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!Error {
     nanoseconds / nanoseconds_per_second,
   )
   let nanoseconds = nanoseconds % nanoseconds_per_second
-  Duration::of!(~seconds, ~nanoseconds)
+  Duration::of!(seconds~, nanoseconds~)
 }
 
 /// Adds other duration to this duration, and returns a new duration.

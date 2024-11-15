@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub struct Position {
+pub(all) struct Position {
   line : Int // 1-based
   column : Int // 0-based
 } derive(Eq, Show)
 
-pub enum ParseErrorData {
+pub(all) enum ParseErrorData {
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 } derive(Eq)
 
-pub type! ParseError ParseErrorData
+pub(all) type! ParseError ParseErrorData
 
 fn parse_error[X](data : ParseErrorData) -> X!ParseError {
   raise ParseError(data)

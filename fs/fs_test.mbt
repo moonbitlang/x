@@ -22,32 +22,32 @@ test "write_and_read" {
       #|
     ,
   )
-  assert_true!(@fs.path_exists(~path))
-  let byte = @fs.read_file_to_bytes!(~path)
+  assert_true!(@fs.path_exists(path~))
+  let byte = @fs.read_file_to_bytes!(path~)
   inspect!(
     byte,
     content=
       #|b"\x74\x61\x72\x67\x65\x74\x2f\x0a\x2e\x6d\x6f\x6f\x6e\x63\x61\x6b\x65\x73\x2f\x0a"
     ,
   )
-  @fs.remove_file!(~path)
-  assert_false!(@fs.path_exists(~path))
+  @fs.remove_file!(path~)
+  assert_false!(@fs.path_exists(path~))
   try {
-    @fs.read_file_to_string!(~path) |> ignore
+    @fs.read_file_to_string!(path~) |> ignore
   } catch {
     @fs.IOError::NotFound(_) as e =>
       inspect!(e, content="`1.txt` does not exist")
     _ => return
   }
   let bytes = Bytes::from_array([65, 97].map(fn(x) { x.to_byte() }))
-  @fs.write_bytes_to_file(~path, content=bytes)
-  assert_true!(@fs.path_exists(~path))
-  let content = @fs.read_file_to_string!(~path)
+  @fs.write_bytes_to_file(path~, content=bytes)
+  assert_true!(@fs.path_exists(path~))
+  let content = @fs.read_file_to_string!(path~)
   inspect!(content, content="Aa")
-  @fs.remove_file!(~path)
-  assert_false!(@fs.path_exists(~path))
+  @fs.remove_file!(path~)
+  assert_false!(@fs.path_exists(path~))
   try {
-    @fs.remove_file!(~path) |> ignore
+    @fs.remove_file!(path~) |> ignore
   } catch {
     @fs.IOError::NotFound(_) as e =>
       inspect!(e, content="`1.txt` does not exist")

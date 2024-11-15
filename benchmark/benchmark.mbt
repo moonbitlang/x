@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub fn Task::new(name : String, f : () -> Unit, ~count : Int = 10) -> Task {
+pub fn Task::new(name : String, f : () -> Unit, count~ : Int = 10) -> Task {
   { name, f, count }
 }
 

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub type XStringCreateHandle
+pub(all) type XStringCreateHandle
 
-pub type XStringReadHandle
+pub(all) type XStringReadHandle
 
-pub type XExternString
+pub(all) type XExternString
 
 fn begin_create_string() -> XStringCreateHandle = "__moonbit_fs_unstable" "begin_create_string"
 

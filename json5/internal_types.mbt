@@ -76,7 +76,7 @@ fn add_substring(
   start : Int,
   end : Int
 ) -> Unit {
-  self.buffer = self.buffer + s.substring(~start, ~end)
+  self.buffer = self.buffer + s.substring(start~, end~)
 }
 
 fn add_char(self : StringBuilder, c : Char) -> Unit {

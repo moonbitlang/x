@@ -108,7 +108,7 @@ fn pad(self : SM3Context) -> Bytes {
 fn transform(
   self : SM3Context,
   data : Bytes,
-  ~offset : Int = 0
+  offset~ : Int = 0
 ) -> FixedArray[UInt] {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
@@ -222,7 +222,7 @@ pub fn update(self : SM3Context, data : Bytes) -> Unit {
 
 fn sm3_compute(
   self : SM3Context,
-  ~data : Iter[Byte] = Iter::empty()
+  data~ : Iter[Byte] = Iter::empty()
 ) -> FixedArray[UInt] {
   self.update_from_iter(data)
   let msg = self.pad()

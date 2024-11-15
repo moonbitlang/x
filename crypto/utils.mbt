@@ -54,7 +54,7 @@ fn uint32(x : Byte) -> UInt {
 /// convert 4 bytes a byte sequence to a UInt in little endian
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
+fn u8_to_u32le(x : Bytes, i~ : Int = 0) -> UInt {
   uint32(x[i]) |
   (uint32(x[i + 1]) << 8) |
   (uint32(x[i + 2]) << 16) |
@@ -81,7 +81,7 @@ fn u8_to_u32le(x : Bytes, ~i : Int = 0) -> UInt {
 //   )
 // }
 
-fn bytes_u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
+fn bytes_u8_to_u32be(x : Bytes, i~ : Int = 0) -> UInt {
   (uint32(x[i]) << 24) |
   (uint32(x[i + 1]) << 16) |
   (uint32(x[i + 2]) << 8) |
