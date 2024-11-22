@@ -32,3 +32,5 @@ pub fn get_env_var() -> Map[String, String] {
 }
 
 fn get_env_var_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "env_get_vars"
+
+pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"

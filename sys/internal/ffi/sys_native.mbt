@@ -21,3 +21,5 @@ pub fn get_env_var() -> Map[String, String] {
   // not implement yet
   panic()
 }
+
+pub extern "native" fn exit(code : Int) -> Unit = "exit"
