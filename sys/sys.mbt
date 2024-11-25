@@ -19,3 +19,7 @@ pub fn get_cli_args() -> Array[String] {
 pub fn get_env_var() -> Map[String, String] {
   @ffi.get_env_var()
 }
+
+pub fn exit(code : Int) -> Unit {
+  @ffi.exit(code)
+}

@@ -40,3 +40,8 @@ extern "js" fn get_env_var_internal() -> Array[String] =
   #|   }
   #|   return result;
   #| }
+
+pub extern "js" fn exit(code : Int) -> Unit =
+  #| function(code) {
+  #|   process.exit(code);
+  #| }

@@ -1,6 +1,8 @@
 package moonbitlang/x/sys/internal/ffi
 
 // Values
+fn exit(Int) -> Unit
+
 fn get_cli_args() -> Array[String]
 
 fn get_env_var() -> Map[String, String]
