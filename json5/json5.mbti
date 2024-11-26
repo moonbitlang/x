@@ -27,7 +27,6 @@ pub(all) struct Position {
 }
 impl Position {
   op_equal(Self, Self) -> Bool
-  to_string(Self) -> String
 }
 impl Eq for Position
 impl Show for Position

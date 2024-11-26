@@ -27,9 +27,6 @@ pub(all) enum Variant {
   ReservedMicrosoft
   ReservedFuture
 }
-impl Variant {
-  to_string(Self) -> String
-}
 impl Show for Variant
 
 pub(all) enum Version {
@@ -39,9 +36,6 @@ pub(all) enum Version {
   V4
   V5
   Unknown(Int)
-}
-impl Version {
-  to_string(Self) -> String
 }
 impl Show for Version
 
