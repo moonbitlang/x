@@ -196,7 +196,6 @@ pub(all) enum Weekday {
 }
 impl Weekday {
   op_equal(Self, Self) -> Bool
-  to_string(Self) -> String
 }
 impl Eq for Weekday
 impl Show for Weekday
