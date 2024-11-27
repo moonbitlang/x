@@ -18,7 +18,7 @@ pub fn get_cli_args() -> Array[String] {
 
 extern "js" fn get_cli_args_internal() -> Array[String] =
   #| function() {
-  #|  return process.argv.slice(2);
+  #|  return process.argv;
   #| }
 
 pub fn get_env_var() -> Map[String, String] {
