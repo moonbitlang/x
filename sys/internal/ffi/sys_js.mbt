@@ -21,8 +21,8 @@ extern "js" fn get_cli_args_internal() -> Array[String] =
   #|  return process.argv;
   #| }
 
-pub fn get_env_var() -> Map[String, String] {
-  let tmp = get_env_var_internal()
+pub fn get_env_vars() -> Map[String, String] {
+  let tmp = get_env_vars_internal()
   let res = {}
   for i = 0; i < tmp.length(); i = i + 2 {
     res[tmp[i]] = tmp[i + 1]
@@ -30,7 +30,7 @@ pub fn get_env_var() -> Map[String, String] {
   res
 }
 
-extern "js" fn get_env_var_internal() -> Array[String] =
+extern "js" fn get_env_vars_internal() -> Array[String] =
   #| function() {
   #|   const env = process.env;
   #|   const result = [];
