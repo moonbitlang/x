@@ -17,7 +17,7 @@ pub fn get_cli_args() -> Array[String] {
   panic()
 }
 
-pub fn get_env_var() -> Map[String, String] {
+pub fn get_env_vars() -> Map[String, String] {
   // not implement yet
   panic()
 }

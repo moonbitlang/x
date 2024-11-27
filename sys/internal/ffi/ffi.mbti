@@ -5,7 +5,7 @@ fn exit(Int) -> Unit
 
 fn get_cli_args() -> Array[String]
 
-fn get_env_var() -> Map[String, String]
+fn get_env_vars() -> Map[String, String]
 
 // Types and methods
 

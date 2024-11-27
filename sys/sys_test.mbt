@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-test "get_env_var" {
-  let res = @sys.get_env_var()["MOON_TEST"]
+test "get_env_vars" {
+  let res = @sys.get_env_vars()["MOON_TEST"]
   inspect!(
     res,
     content=
