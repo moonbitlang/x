@@ -374,7 +374,7 @@ fn r_utf_16_lo(hi : Int, buf : Bytes, offset0 : Int, offset1 : Int) -> Decode {
   let b1 = buf[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
-    malformed_pair(offset0 < offset1, hi, buf, @int.min(offset0, offset1), 2)
+    malformed_pair(offset0 < offset1, hi, buf, @math.minimum(offset0, offset1), 2)
   } else {
     Uchar(Char::from_int(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
   }
@@ -389,7 +389,7 @@ fn r_utf_16(buf : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
     UTF16Uchar(Char::from_int(u))
   } else if u > 0xDBFF {
     UTF16Malformed(
-      buf.to_unchecked_string(offset=@int.min(offset0, offset1), length=2),
+      buf.to_unchecked_string(offset=@math.minimum(offset0, offset1), length=2),
     )
   } else {
     Hi(u)
