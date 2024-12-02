@@ -54,6 +54,8 @@ let utf_8_len = [
 /// let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
 /// let arr = chars.iter().collect() // Array of unicode point code: `['你', '好', '👀']`
 /// let str = String::from_array(arr) // MoonBit String, representing as UTF16LE: `"你好👀"`
+/// // or
+/// let str = chars.to_string()
 /// ```
 pub fn decode_lossy(encoding : Encoding, src : Bytes) -> LossyChars {
   let decoder = decoder(encoding, src)
@@ -84,8 +86,8 @@ pub fn decode_lossy(encoding : Encoding, src : Bytes) -> LossyChars {
 /// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
 /// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
 /// let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
-/// let arr = chars.iter().try_collect!() // Array of unicode point code: `['你', '好', '👀']`
-/// let str = String::from_array(arr) // MoonBit String, representing as UTF16LE: `"你好👀"`
+/// let arr = chars.iter().collect() // Array of unicode point code: `[Ok('你'), Ok('好'), Ok('👀')]`
+/// let str = chars.to_string() // MoonBit String, representing as UTF16LE: `"你好👀"`
 /// ```
 pub fn decode_strict(encoding : Encoding, src : Bytes) -> StrictChars {
   let decoder = decoder(encoding, src)
@@ -374,7 +376,13 @@ fn r_utf_16_lo(hi : Int, buf : Bytes, offset0 : Int, offset1 : Int) -> Decode {
   let b1 = buf[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
-    malformed_pair(offset0 < offset1, hi, buf, @math.minimum(offset0, offset1), 2)
+    malformed_pair(
+      offset0 < offset1,
+      hi,
+      buf,
+      @math.minimum(offset0, offset1),
+      2,
+    )
   } else {
     Uchar(Char::from_int(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
   }

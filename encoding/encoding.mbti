@@ -18,7 +18,7 @@ fn write_utf16le_char(@buffer.T, Char) -> Unit
 fn write_utf8_char(@buffer.T, Char) -> Unit
 
 // Types and methods
-type DecodeError
+pub(all) type! DecodeError String
 impl Show for DecodeError
 
 pub(all) enum Encoding {
@@ -31,12 +31,16 @@ pub(all) enum Encoding {
 type LossyChars
 impl LossyChars {
   iter(Self) -> Iter[Char]
+  to_string(Self) -> String
 }
+impl Show for LossyChars
 
 type StrictChars
 impl StrictChars {
   iter(Self) -> Iter[Result[Char, DecodeError]]
+  to_string(Self) -> String!
 }
+impl Show for StrictChars
 
 // Type aliases
 

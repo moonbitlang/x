@@ -96,10 +96,21 @@ pub fn iter(self : LossyChars) -> Iter[Char] {
 }
 
 ///|
+pub fn to_string(self : LossyChars) -> String {
+  let arr = self.iter().collect()
+  String::from_array(arr)
+}
+
+///|
+pub impl Show for LossyChars with output(self : LossyChars, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
+///|
 type StrictChars Decoder
 
 ///|
-type! DecodeError String
+pub(all) type! DecodeError String
 
 ///|
 pub impl Show for DecodeError with output(self, logger) {
@@ -130,4 +141,21 @@ pub fn iter(self : StrictChars) -> Iter[Result[Char, DecodeError]] {
       }
     },
   )
+}
+
+///|
+pub fn to_string(self : StrictChars) -> String! {
+  let arr = []
+  for element in self {
+    match element {
+      Ok(x) => arr.push(x)
+      Err(e) => raise e
+    }
+  }
+  String::from_array(arr)
+}
+
+///|
+pub impl Show for StrictChars with output(self : StrictChars, logger : Logger) -> Unit {
+  logger.write_string(self.to_string?().to_string())
 }

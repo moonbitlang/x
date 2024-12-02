@@ -13,9 +13,12 @@
 // limitations under the License.
 
 ///|
-fn string_from_lossy_chars(chars : @encoding.LossyChars) -> String {
-  let arr = chars.iter().collect()
-  String::from_array(arr)
+fn printable_result(
+  r : Result[Char, @encoding.DecodeError]
+) -> Result[Int, Bytes] {
+  r
+  .map(fn { c => c.to_int() })
+  .map_err(fn { @encoding.DecodeError(s) => s.to_bytes() })
 }
 
 // lossy
@@ -31,7 +34,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF16LE, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content=src)
+  inspect!(chars, content=src)
 }
 
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
@@ -47,7 +50,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF16LE, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content=src)
+  inspect!(chars, content=src)
 }
 
 test "lossy decoding UTF16LE encoded data to String" {
@@ -62,7 +65,7 @@ test "lossy decoding UTF16LE encoded data to String" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF16LE, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content="你好👀")
+  inspect!(chars, content="你好👀")
 }
 
 test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
@@ -81,7 +84,7 @@ test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF16, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content="ᡥᠠᡳᡤᡳᠶᠠ")
+  inspect!(chars, content="ᡥᠠᡳᡤᡳᠶᠠ")
 }
 
 test "lossy decoding UTF16BE encoded data to String" {
@@ -97,7 +100,7 @@ test "lossy decoding UTF16BE encoded data to String" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF16BE, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content="🐈🐱🐇🐰")
+  inspect!(chars, content="🐈🐱🐇🐰")
 }
 
 test "lossy decoding UTF8 encoded data to String" {
@@ -112,7 +115,7 @@ test "lossy decoding UTF8 encoded data to String" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content="你好👀")
+  inspect!(chars, content="你好👀")
 }
 
 test "lossy decoding UTF8 encoded bytes to String" {
@@ -128,7 +131,7 @@ test "lossy decoding UTF8 encoded bytes to String" {
     ,
   )
   let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
-  inspect!(string_from_lossy_chars(chars), content=src)
+  inspect!(chars, content=src)
 }
 
 test "lossy decoding UTF8 encoded data" {
@@ -278,7 +281,12 @@ test "strictly decoding UTF16LE encoded data with UTF8" {
     ,
   )
   let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
-  inspect!(chars.iter().try_collect?(), content="Err(쏘)")
+  inspect!(
+    chars.iter().collect().map(printable_result),
+    content=
+      #|[Ok(1101), Ok(101), Ok(107), Ok(60), Err(b"\xd8\xc3"), Err(b"\xdf\x38"), Ok(110), Err(b"\xf3\x6c\x3c\xd8"), Err(b"\xca\xdf")]
+    ,
+  )
 }
 
 test "strictly decoding UTF8 encoded data with UTF16LE" {
@@ -295,8 +303,10 @@ test "strictly decoding UTF8 encoded data with UTF16LE" {
   )
   let chars = @encoding.decode_strict(UTF16LE, buf.to_bytes())
   inspect!(
-    chars.iter().try_collect?(),
-    content="Ok(['럨', '', 'ꖭ', '鿰', '莏', '룦', '', '뎳', '鿰', '誏'])",
+    chars.iter().collect(),
+    content=
+      #|[Ok('럨'), Ok(''), Ok('ꖭ'), Ok('鿰'), Ok('莏'), Ok('룦'), Ok(''), Ok('뎳'), Ok('鿰'), Ok('誏')]
+    ,
   )
 }
 
@@ -314,8 +324,10 @@ test "strictly decoding UTF8 encoded data with UTF16BE" {
   )
   let chars = @encoding.decode_strict(UTF16BE, buf.to_bytes())
   inspect!(
-    chars.iter().try_collect?(),
-    content="Ok(['', '釦', '궥', '', '较', '', '룦', '뎳', '', '辊'])",
+    chars.iter().collect(),
+    content=
+      #|[Ok(''), Ok('釦'), Ok('궥'), Ok(''), Ok('较'), Ok(''), Ok('룦'), Ok('뎳'), Ok(''), Ok('辊')]
+    ,
   )
 }
 
@@ -332,5 +344,10 @@ test "strictly decoding UTF16BE encoded data with UTF8" {
     ,
   )
   let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
-  inspect!(chars.iter().try_collect?(), content="Err(Ñ)")
+  inspect!(
+    chars.iter().collect().map(printable_result),
+    content=
+      #|[Ok(0), Err(b"\xd1\x00"), Ok(101), Err(b"\xd8\x3c"), Err(b"\xdf\xc3"), Ok(0), Ok(56), Ok(0), Err(b"\xf3\xd8\x3c\xdf"), Err(b"")]
+    ,
+  )
 }
