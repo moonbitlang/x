@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A time without a time zone
+///| A time without a time zone
 struct PlainTime {
   hour : Int
   minute : Int
@@ -20,7 +20,7 @@ struct PlainTime {
   nanosecond : Int
 } derive(Eq, Compare)
 
-/// Creates a PlainTime from the hour, minute, second and nanosecond.
+///| Creates a PlainTime from the hour, minute, second and nanosecond.
 pub fn PlainTime::of(
   hour : Int,
   minute : Int,
@@ -34,7 +34,7 @@ pub fn PlainTime::of(
   }
 }
 
-/// Creates a PlainTime from a string, like '10:20:30.45678'.
+///| Creates a PlainTime from a string, like '10:20:30.45678'.
 pub fn PlainTime::from_string(str : String) -> PlainTime!Error {
   // TODO: better parsing implementation
   if str.length() < 5 || str.length() > 18 || str[2] != ':' {
@@ -59,7 +59,7 @@ pub fn PlainTime::from_string(str : String) -> PlainTime!Error {
   PlainTime::of!(hour, minute, second, nanosecond)
 }
 
-/// Returns a string representing the time.
+///| Returns a string representing the time.
 pub fn PlainTime::to_string(self : PlainTime) -> String {
   let buf = StringBuilder::new(size_hint=8)
   buf.write_string(add_prefix_zero(self.hour.to_string(), 2))
@@ -77,31 +77,32 @@ pub fn PlainTime::to_string(self : PlainTime) -> String {
   buf.to_string()
 }
 
+///|
 pub impl Show for PlainTime with output(self : PlainTime, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
-/// Returns the hour of this time.
+///| Returns the hour of this time.
 pub fn hour(self : PlainTime) -> Int {
   self.hour
 }
 
-/// Returns the minute of this time.
+///| Returns the minute of this time.
 pub fn minute(self : PlainTime) -> Int {
   self.minute
 }
 
-/// Returns the second of this time.
+///| Returns the second of this time.
 pub fn second(self : PlainTime) -> Int {
   self.second
 }
 
-/// Returns the nanosecond of this time.
+///| Returns the nanosecond of this time.
 pub fn nanosecond(self : PlainTime) -> Int {
   self.nanosecond
 }
 
-/// Returns the total seconds of this time.
+///| Returns the total seconds of this time.
 pub fn second_of_day(self : PlainTime) -> Int {
   let sec = self.hour * seconds_per_hour.to_int() +
     self.minute * seconds_per_minute.to_int() +
@@ -109,13 +110,13 @@ pub fn second_of_day(self : PlainTime) -> Int {
   sec
 }
 
-/// Returns the total nanoseconds of this time.
+///| Returns the total nanoseconds of this time.
 pub fn nanosecond_of_day(self : PlainTime) -> Int64 {
   let sec = self.second_of_day()
   sec.to_int64() * nanoseconds_per_second + self.nanosecond.to_int64()
 }
 
-/// Creates a PlainTime from the total seconds of the day.
+///| Creates a PlainTime from the total seconds of the day.
 pub fn PlainTime::from_second_of_day(second : Int) -> PlainTime!Error {
   if second < 0 || second > seconds_per_day.to_int() {
     fail!(invalid_time_err)
@@ -128,7 +129,7 @@ pub fn PlainTime::from_second_of_day(second : Int) -> PlainTime!Error {
   PlainTime::of!(hour.to_int(), minute.to_int(), sec.to_int(), 0)
 }
 
-/// Creates a PlainTime from the total nanoseconds of the day.
+///| Creates a PlainTime from the total nanoseconds of the day.
 pub fn PlainTime::from_nanosecond_of_day(nanosecond : Int64) -> PlainTime!Error {
   if nanosecond < 0L || nanosecond > nanoseconds_per_day {
     fail!(invalid_time_err)
@@ -148,7 +149,7 @@ pub fn PlainTime::from_nanosecond_of_day(nanosecond : Int64) -> PlainTime!Error 
   )
 }
 
-/// Adds specified hours to this time, and returns a new time.
+///| Adds specified hours to this time, and returns a new time.
 pub fn add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error {
   if hours == 0L {
     return self
@@ -157,7 +158,7 @@ pub fn add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error {
   PlainTime::of!(new_hour.to_int(), self.minute, self.second, self.nanosecond)
 }
 
-/// Adds specified minutes to this time, and returns a new time.
+///| Adds specified minutes to this time, and returns a new time.
 pub fn add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
   if minutes == 0L {
     return self
@@ -178,7 +179,7 @@ pub fn add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
   )
 }
 
-/// Adds specified seconds to this time, and returns a new time.
+///| Adds specified seconds to this time, and returns a new time.
 pub fn add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
   if seconds == 0L {
     return self
@@ -202,7 +203,7 @@ pub fn add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
   )
 }
 
-/// Adds specified nanoseconds to this time, and returns a new time.
+///| Adds specified nanoseconds to this time, and returns a new time.
 pub fn add_nanoseconds(
   self : PlainTime,
   nanoseconds : Int64
@@ -221,7 +222,7 @@ pub fn add_nanoseconds(
   PlainTime::from_nanosecond_of_day!(new_nanos)
 }
 
-/// Adds a duration to this time, and returns a new time.
+///| Adds a duration to this time, and returns a new time.
 pub fn add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
   if duration.is_zero() {
     return self
@@ -229,7 +230,7 @@ pub fn add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
   self.add_nanoseconds!(duration.to_nanoseconds())
 }
 
-/// Returns a new time with the specified hour.
+///| Returns a new time with the specified hour.
 pub fn with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
   if hour == self.hour {
     return self
@@ -237,7 +238,7 @@ pub fn with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
   PlainTime::of!(hour, self.minute, self.second, self.nanosecond)
 }
 
-/// Returns a new time with the specified minute.
+///| Returns a new time with the specified minute.
 pub fn with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
   if minute == self.minute {
     return self
@@ -245,7 +246,7 @@ pub fn with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
   PlainTime::of!(self.hour, minute, self.second, self.nanosecond)
 }
 
-/// Returns a new time with the specified second.
+///| Returns a new time with the specified second.
 pub fn with_second(self : PlainTime, second : Int) -> PlainTime!Error {
   if second == self.second {
     return self
@@ -253,7 +254,7 @@ pub fn with_second(self : PlainTime, second : Int) -> PlainTime!Error {
   PlainTime::of!(self.hour, self.minute, second, self.nanosecond)
 }
 
-/// Returns a new time with the specified nanosecond.
+///| Returns a new time with the specified nanosecond.
 pub fn with_nanosecond(self : PlainTime, nanosecond : Int) -> PlainTime!Error {
   if nanosecond == self.nanosecond {
     return self
@@ -261,13 +262,13 @@ pub fn with_nanosecond(self : PlainTime, nanosecond : Int) -> PlainTime!Error {
   PlainTime::of!(self.hour, self.minute, self.second, nanosecond)
 }
 
-/// Returns the duration between this time and another time.
+///| Returns the duration between this time and another time.
 pub fn until(self : PlainTime, end : PlainTime) -> Duration!Error {
   let nanoseconds = end.nanosecond_of_day() - self.nanosecond_of_day()
   Duration::of!(nanoseconds~)
 }
 
-/// Combines this time with a date to creates a PlainDateTime
+///| Combines this time with a date to creates a PlainDateTime
 pub fn at_date(self : PlainTime, date : PlainDate) -> PlainDateTime {
   PlainDateTime::{ date, time: self }
 }
@@ -276,42 +277,61 @@ pub fn at_date(self : PlainTime, date : PlainDate) -> PlainDateTime {
 // * internal helper functions *
 // *****************************
 
+///|
 let min_hour = 0
 
+///|
 let max_hour = 23
 
+///|
 let min_minute = 0
 
+///|
 let max_minute = 59
 
+///|
 let min_second = 0
 
+///|
 let max_second = 59
 
+///|
 let min_nanosecond = 0
 
+///|
 let max_nanosecond = 999_999_999
 
+///|
 let hours_per_day = 24L
 
+///|
 let minutes_per_hour = 60L
 
+///|
 let minutes_per_day : Int64 = 24L * minutes_per_hour
 
+///|
 let seconds_per_minute = 60L
 
+///|
 let seconds_per_hour : Int64 = seconds_per_minute * 60L
 
+///|
 let seconds_per_day : Int64 = seconds_per_hour * 24L
 
+///|
 let nanoseconds_per_second = 1_000_000_000L
 
+///|
 let nanoseconds_per_minute : Int64 = nanoseconds_per_second * seconds_per_minute
 
+///|
 let nanoseconds_per_hour : Int64 = nanoseconds_per_minute * minutes_per_hour
 
+///|
 let nanoseconds_per_day : Int64 = nanoseconds_per_second * seconds_per_day
 
+///|
 fn validate_time(h : Int, m : Int, s : Int, ns : Int) -> Bool {
   let valid_hour = validate_hour(h)
   let valid_minute = validate_minute(m)
@@ -321,18 +341,22 @@ fn validate_time(h : Int, m : Int, s : Int, ns : Int) -> Bool {
   (valid_hour && valid_minute && valid_second && valid_nano) || zero
 }
 
+///|
 fn validate_hour(h : Int) -> Bool {
   h >= min_hour && h <= max_hour
 }
 
+///|
 fn validate_minute(m : Int) -> Bool {
   m >= min_minute && m <= max_minute
 }
 
+///|
 fn validate_second(s : Int) -> Bool {
   s >= min_second && s <= max_second
 }
 
+///|
 fn validate_nano(n : Int) -> Bool {
   n >= min_nanosecond && n <= max_nanosecond
 }

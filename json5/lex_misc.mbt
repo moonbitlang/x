@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn read_char(ctx : ParseContext) -> Char? {
   if ctx.offset < ctx.end_offset {
     let c = ctx.input[ctx.offset]
@@ -33,6 +34,7 @@ fn read_char(ctx : ParseContext) -> Char? {
   }
 }
 
+///|
 fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
   for {
     match read_char(ctx) {
@@ -53,6 +55,7 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
   }
 }
 
+///|
 fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
   lex_skip_whitespace!(ctx)
   match read_char(ctx) {
@@ -63,6 +66,7 @@ fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
   }
 }
 
+///|
 fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
   lex_skip_whitespace!(ctx)
   match read_char(ctx) {
@@ -72,6 +76,7 @@ fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
   }
 }
 
+///|
 fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
   lex_skip_whitespace!(ctx)
   match read_char(ctx) {
@@ -82,6 +87,7 @@ fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
   }
 }
 
+///|
 fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
   match read_char(ctx) {
     Some(c2) => if c == c2 { () } else { invalid_char!(ctx, shift=-1) }
@@ -89,6 +95,7 @@ fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
   }
 }
 
+///|
 fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
   lex_assert_char!(ctx, 'n')
   lex_assert_char!(ctx, 'f')
@@ -99,6 +106,7 @@ fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
   lex_assert_char!(ctx, 'y')
 }
 
+///|
 fn lex_comment(ctx : ParseContext) -> Unit!ParseError {
   match read_char(ctx) {
     Some('/') =>

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A date without a time zone in the ISO 8601 calendar system.
+///| A date without a time zone in the ISO 8601 calendar system.
 struct PlainDate {
   year : Int
   month : Int
   day : Int
 }
 
-/// Creates a PlainDate from the year, month and day.
+///| Creates a PlainDate from the year, month and day.
 pub fn PlainDate::of(year : Int, month : Int, day : Int) -> PlainDate!Error {
   if not(validate_ymd(year, month, day)) {
     fail!(invalid_date_err)
@@ -27,7 +27,7 @@ pub fn PlainDate::of(year : Int, month : Int, day : Int) -> PlainDate!Error {
   PlainDate::{ year, month, day }
 }
 
-/// Creates a PlainDate from year and ordinal day.
+///| Creates a PlainDate from year and ordinal day.
 pub fn PlainDate::from_year_ord(year : Int, ordinal : Int) -> PlainDate!Error {
   let valid = validate_year(year) && validate_ordinal(year, ordinal)
   if not(valid) {
@@ -42,7 +42,7 @@ pub fn PlainDate::from_year_ord(year : Int, ordinal : Int) -> PlainDate!Error {
   PlainDate::{ year, month, day }
 }
 
-/// Creates a date from the days count since unix epoch.
+///| Creates a date from the days count since unix epoch.
 pub fn PlainDate::from_unix_day(unix_day : Int64) -> PlainDate!Error {
   let (year, ord) = fixed_days_to_year_ord(
     unix_day + days_zero_year_to_unix_epoch,
@@ -50,13 +50,13 @@ pub fn PlainDate::from_unix_day(unix_day : Int64) -> PlainDate!Error {
   PlainDate::from_year_ord!(year, ord)
 }
 
-/// Returns the days count since unix epoch of this date.
+///| Returns the days count since unix epoch of this date.
 pub fn to_unix_day(self : PlainDate) -> Int64 {
   let days = date_to_fixed_days(self.year, self.month, self.day)
   days - days_zero_year_to_unix_epoch
 }
 
-/// Creates a PlainDate from a string, like "2008-08-08".
+///| Creates a PlainDate from a string, like "2008-08-08".
 pub fn PlainDate::from_string(str : String) -> PlainDate!Error {
   // TODO: better parsing implementation.
   let mut s = str
@@ -85,7 +85,7 @@ pub fn PlainDate::from_string(str : String) -> PlainDate!Error {
   PlainDate::of!(year, month, day)
 }
 
-/// Returns a string representing the date.
+///| Returns a string representing the date.
 pub fn to_string(self : PlainDate) -> String {
   let buf = StringBuilder::new(size_hint=11)
   if self.year < 0 {
@@ -99,14 +99,17 @@ pub fn to_string(self : PlainDate) -> String {
   buf.to_string()
 }
 
+///|
 pub impl Show for PlainDate with output(self : PlainDate, logger : Logger) {
   logger.write_string(self.to_string())
 }
 
+///|
 pub fn op_equal(self : PlainDate, other : PlainDate) -> Bool {
   self.compare(other) == 0
 }
 
+///|
 pub fn compare(self : PlainDate, other : PlainDate) -> Int {
   if self.year > other.year {
     1
@@ -125,7 +128,7 @@ pub fn compare(self : PlainDate, other : PlainDate) -> Int {
   }
 }
 
-/// Returns the era of this date.
+///| Returns the era of this date.
 pub fn era(self : PlainDate) -> String {
   if self.year >= 1 {
     "CE"
@@ -134,7 +137,7 @@ pub fn era(self : PlainDate) -> String {
   }
 }
 
-/// Returns the year of the era of this date.
+///| Returns the year of the era of this date.
 pub fn era_year(self : PlainDate) -> Int {
   if self.year <= 0 {
     self.year.abs() + 1
@@ -143,22 +146,22 @@ pub fn era_year(self : PlainDate) -> Int {
   }
 }
 
-/// Returns the number of years relative to a calendar-specific epoch.
+///| Returns the number of years relative to a calendar-specific epoch.
 pub fn year(self : PlainDate) -> Int {
   self.year
 }
 
-/// Returns the ordinal number of month in the current year.
+///| Returns the ordinal number of month in the current year.
 pub fn month(self : PlainDate) -> Int {
   self.month
 }
 
-/// Returns the day of the month.
+///| Returns the day of the month.
 pub fn day(self : PlainDate) -> Int {
   self.day
 }
 
-/// Returns the weekday.
+///| Returns the weekday.
 pub fn weekday(self : PlainDate) -> Weekday {
   // Zeller's congruence
   // https://en.wikipedia.org/wiki/Zeller%27s_congruence
@@ -176,40 +179,40 @@ pub fn weekday(self : PlainDate) -> Weekday {
   Weekday::new(week_day).unwrap()
 }
 
-/// Returns the ordinal day of the year.
+///| Returns the ordinal day of the year.
 pub fn ordinal(self : PlainDate) -> Int {
   let days = date_to_fixed_days(self.year, self.month, self.day)
   let (_, ordinal) = fixed_days_to_year_ord(days)
   ordinal
 }
 
-/// Returns the number of days in the week.
+///| Returns the number of days in the week.
 pub fn PlainDate::days_in_week(_self : PlainDate) -> Int {
   7
 }
 
-/// Returns the number of days in the month.
+///| Returns the number of days in the month.
 pub fn days_in_month(self : PlainDate) -> Int {
   let { year, month, .. } = self
   calc_days_in_month(year, month)
 }
 
-/// Returns the number of days in the year.
+///| Returns the number of days in the year.
 pub fn days_in_year(self : PlainDate) -> Int {
   calc_days_in_year(self.year)
 }
 
-/// Returns the number of months in the year.
+///| Returns the number of months in the year.
 pub fn PlainDate::months_in_year(_self : PlainDate) -> Int {
   12
 }
 
-/// Checks if the date is in a leap year.
+///| Checks if the date is in a leap year.
 pub fn in_leap_year(self : PlainDate) -> Bool {
   check_leap_year(self.year)
 }
 
-/// Returns a new date with the specified year.
+///| Returns a new date with the specified year.
 pub fn with_year(self : PlainDate, year : Int) -> PlainDate!Error {
   if self.year == year {
     return self
@@ -222,7 +225,7 @@ pub fn with_year(self : PlainDate, year : Int) -> PlainDate!Error {
   }
 }
 
-/// Returns a new date with the specified month.
+///| Returns a new date with the specified month.
 pub fn with_month(self : PlainDate, month : Int) -> PlainDate!Error {
   if self.month == month {
     return self
@@ -235,7 +238,7 @@ pub fn with_month(self : PlainDate, month : Int) -> PlainDate!Error {
   }
 }
 
-/// Returns a new date with the specified day of month.
+///| Returns a new date with the specified day of month.
 pub fn with_day(self : PlainDate, day : Int) -> PlainDate!Error {
   if self.day == day {
     return self
@@ -248,7 +251,7 @@ pub fn with_day(self : PlainDate, day : Int) -> PlainDate!Error {
   }
 }
 
-/// Returns a new date with the specified ordinal day of year.
+///| Returns a new date with the specified ordinal day of year.
 pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate!Error {
   if self.ordinal() == ordinal {
     return self
@@ -256,7 +259,7 @@ pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate!Error {
   PlainDate::from_year_ord!(self.year, ordinal)
 }
 
-/// Adds specified years to this date, and returns a new date.
+///| Adds specified years to this date, and returns a new date.
 pub fn add_years(self : PlainDate, years : Int64) -> PlainDate!Error {
   if years == 0L {
     return self
@@ -270,7 +273,7 @@ pub fn add_years(self : PlainDate, years : Int64) -> PlainDate!Error {
   }
 }
 
-/// Adds specified months to this date, and returns a new date.
+///| Adds specified months to this date, and returns a new date.
 pub fn add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
   if months == 0L {
     return self
@@ -290,7 +293,7 @@ pub fn add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
   }
 }
 
-/// Adds specified weeks to this date, and returns a new date.
+///| Adds specified weeks to this date, and returns a new date.
 pub fn add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!Error {
   if weeks == 0L {
     return self
@@ -299,7 +302,7 @@ pub fn add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!Error {
   self.add_days!(days_to_add)
 }
 
-/// Adds specified days to this date, and returns a new date.
+///| Adds specified days to this date, and returns a new date.
 pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
   if days == 0L {
     return self
@@ -310,7 +313,7 @@ pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
   PlainDate::from_year_ord!(year, ordinal)
 }
 
-/// Adds a period to this date, and returns a new date.
+///| Adds a period to this date, and returns a new date.
 pub fn add_period(self : PlainDate, period : Period) -> PlainDate!Error {
   let mut d = self
   d = d
@@ -319,7 +322,7 @@ pub fn add_period(self : PlainDate, period : Period) -> PlainDate!Error {
   d
 }
 
-/// Returns the period between this date and another date.
+///| Returns the period between this date and another date.
 pub fn until(self : PlainDate, end : PlainDate) -> Period!Error {
   let start_months = self.year.to_int64() * 12L + self.month.to_int64() - 1L
   let end_months = end.year.to_int64() * 12L + end.month.to_int64() - 1L
@@ -343,27 +346,38 @@ pub fn until(self : PlainDate, end : PlainDate) -> Period!Error {
 // * internal helper functions *
 // *****************************
 
+///|
 let min_year = -9999
 
+///|
 let max_year = 9999
 
+///|
 let min_month = 1
 
+///|
 let max_month = 12
 
+///|
 let min_day = 1
 
+///|
 let max_day = 31
 
+///|
 let min_ordinal = 1
 
+///|
 let max_ordinal = 366
 
+///|
 let days_per_400_years : Int64 = 400L * 365L + 97L
 
+///|
 let days_zero_year_to_unix_epoch : Int64 = 5L * days_per_400_years -
   (30L * 365L + 7L)
 
+///|
 fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
   let mut d = day
   let max_day = calc_days_in_month(year, month)
@@ -373,10 +387,12 @@ fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
   PlainDate::{ year, month, day: d }
 }
 
+///|
 fn check_leap_year(year : Int) -> Bool {
   (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
+///|
 fn calc_days_in_month(year : Int, month : Int) -> Int {
   let leap = check_leap_year(year)
   match month {
@@ -386,6 +402,7 @@ fn calc_days_in_month(year : Int, month : Int) -> Int {
   }
 }
 
+///|
 fn calc_days_in_year(year : Int) -> Int {
   if check_leap_year(year) {
     366
@@ -394,6 +411,7 @@ fn calc_days_in_year(year : Int) -> Int {
   }
 }
 
+///|
 fn date_to_fixed_days(year : Int, month : Int, day : Int) -> Int64 {
   let mut days = 0L
   // year days
@@ -415,6 +433,7 @@ fn date_to_fixed_days(year : Int, month : Int, day : Int) -> Int64 {
   days
 }
 
+///|
 fn fixed_days_to_year_ord(days : Int64) -> (Int, Int) {
   let mut d0 = days
   // adjust to positive days for calculation
@@ -432,6 +451,7 @@ fn fixed_days_to_year_ord(days : Int64) -> (Int, Int) {
   (year, ord)
 }
 
+///|
 let year_deltas = [
   0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7,
   7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 13,
@@ -456,6 +476,7 @@ let year_deltas = [
   97, // 400+1
 ]
 
+///|
 fn cycle_to_year_ord(cycle : Int) -> (Int, Int) {
   let mut year = cycle / 365
   let mut ordinal0 = cycle % 365
@@ -469,22 +490,27 @@ fn cycle_to_year_ord(cycle : Int) -> (Int, Int) {
   (year, ordinal0 + 1)
 }
 
+///|
 fn validate_ymd(year : Int, month : Int, day : Int) -> Bool {
   validate_year(year) && validate_month(month) && validate_day(year, month, day)
 }
 
+///|
 fn validate_year(year : Int) -> Bool {
   year >= min_year && year <= max_year
 }
 
+///|
 fn validate_month(month : Int) -> Bool {
   month >= min_month && month <= max_month
 }
 
+///|
 fn validate_day(year : Int, month : Int, day : Int) -> Bool {
   day >= min_day && day <= max_day && day <= calc_days_in_month(year, month)
 }
 
+///|
 fn validate_ordinal(year : Int, ordinal : Int) -> Bool {
   ordinal >= min_ordinal &&
   ordinal <= max_ordinal &&

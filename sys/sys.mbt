@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn get_cli_args() -> Array[String] {
   @ffi.get_cli_args()
 }
 
+///|
 pub fn get_env_vars() -> Map[String, String] {
   @ffi.get_env_vars()
 }
 
+///|
 pub fn exit(code : Int) -> Unit {
   @ffi.exit(code)
 }

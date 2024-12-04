@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn add_prefix_zero(s : String, len : Int) -> String {
   let buf = StringBuilder::new(size_hint=len)
   for i = s.length(); i < len; i = i + 1 {
@@ -21,6 +22,7 @@ fn add_prefix_zero(s : String, len : Int) -> String {
   buf.to_string()
 }
 
+///|
 fn remove_prefix_zero(s : String) -> String {
   if s.length() == 0 {
     return s
@@ -51,6 +53,7 @@ test "remove_prefix_zero" {
   inspect!(remove_prefix_zero("000"), content="0")
 }
 
+///|
 fn add_suffix_zero(s : String, len : Int) -> String {
   let buf = StringBuilder::new(size_hint=len)
   buf.write_string(s)
@@ -60,6 +63,7 @@ fn add_suffix_zero(s : String, len : Int) -> String {
   buf.to_string()
 }
 
+///|
 fn remove_suffix_zero(s : String) -> String {
   if s.length() == 0 {
     return s
@@ -84,7 +88,7 @@ test "remove_suffix_zero" {
   inspect!(remove_suffix_zero("000"), content="0")
 }
 
-/// FIXME: use split method of String
+///| FIXME: use split method of String
 fn split(s : String, delimiter : Char) -> Array[String] {
   let spl = []
   if s.length() == 0 {
@@ -143,15 +147,17 @@ test "split" {
   )
 }
 
+///|
 fn int_overflow_err[T]() -> T!Error {
   raise Failure("Int overflow")
 }
 
+///|
 fn int64_overflow_err[T]() -> T!Error {
   raise Failure("Int64 overflow")
 }
 
-/// FIXME: use checked_add method of Int
+///| FIXME: use checked_add method of Int
 fn checked_add_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() + y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
@@ -161,7 +167,7 @@ fn checked_add_int(x : Int, y : Int) -> Int!Error {
   }
 }
 
-/// FIXME: use checked_mul method of Int
+///| FIXME: use checked_mul method of Int
 fn checked_mul_int(x : Int, y : Int) -> Int!Error {
   let r = x.to_int64() * y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
@@ -171,7 +177,7 @@ fn checked_mul_int(x : Int, y : Int) -> Int!Error {
   }
 }
 
-/// FIXME: use checked_add method of Int64
+///| FIXME: use checked_add method of Int64
 fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
@@ -182,7 +188,7 @@ fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
   }
 }
 
-/// FIXME: use checked_mul method of Int64
+///| FIXME: use checked_mul method of Int64
 fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   let r = x * y
   let abs_x = x.abs()
@@ -253,6 +259,7 @@ test "checked_mul_int64" {
   )
 }
 
+///|
 fn floor(x : Double) -> Double {
   if x.is_pos_inf() || x.is_neg_inf() || x.is_nan() {
     return x
@@ -266,6 +273,7 @@ fn floor(x : Double) -> Double {
   }
 }
 
+///|
 fn floor_div_int(x : Int, y : Int) -> Int!Error {
   if y == 0 {
     raise Failure("division by zero")
@@ -286,6 +294,7 @@ test "floor_div_int" {
   )
 }
 
+///|
 fn floor_div_int64(x : Int64, y : Int64) -> Int64!Error {
   if y == 0L {
     fail!("division by zero")
@@ -306,6 +315,7 @@ test "floor_div_int64" {
   )
 }
 
+///|
 fn floor_mod_int(x : Int, y : Int) -> Int!Error {
   x - floor_div_int!(x, y) * y
 }
@@ -322,6 +332,7 @@ test "floor_mod_int" {
   )
 }
 
+///|
 fn floor_mod_int64(x : Int64, y : Int64) -> Int64!Error {
   x - floor_div_int64!(x, y) * y
 }

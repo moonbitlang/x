@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
   lex_skip_whitespace!(ctx)
   match read_char(ctx) {
@@ -56,6 +57,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
   }
 }
 
+///|
 fn lex_ident(
   ctx : ParseContext,
   start : Int,

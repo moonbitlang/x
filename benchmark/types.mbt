@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 struct Task {
   name : String
   f : () -> Unit
   count : Int
 }
 
+///|
 pub(readonly) struct TaskResult {
   task : Task
   average : Double
@@ -25,6 +27,7 @@ pub(readonly) struct TaskResult {
   min : Double
 }
 
+///|
 struct Criterion {
   tasks : Array[Task]
 }

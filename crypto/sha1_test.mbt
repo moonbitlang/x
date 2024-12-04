@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 let bytes_to_hex_string = @crypto.bytes_to_hex_string
 
 test "sha1" {

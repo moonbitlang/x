@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An amount of time representing by years, months and days in the ISO-8601 calendar system.
+///| An amount of time representing by years, months and days in the ISO-8601 calendar system.
 struct Period {
   years : Int
   months : Int
   days : Int
 } derive(Eq, Compare)
 
-/// Creates a Period from years, months, and days.
+///| Creates a Period from years, months, and days.
 pub fn Period::of(
   years~ : Int = 0,
   months~ : Int = 0,
@@ -28,12 +28,12 @@ pub fn Period::of(
   { years, months, days }
 }
 
-/// Returns a zero length period.
+///| Returns a zero length period.
 pub fn Period::zero() -> Period {
   { years: 0, months: 0, days: 0 }
 }
 
-/// Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
+///| Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
 pub fn Period::from_string(str : String) -> Period!Error {
   // TODO: better parsing impl
   if str[0] != 'P' {
@@ -66,7 +66,7 @@ pub fn Period::from_string(str : String) -> Period!Error {
   Period::of(years~, months~, days~)
 }
 
-/// Returns a string representation of this period using ISO 8601 representation.
+///| Returns a string representation of this period using ISO 8601 representation.
 pub fn to_string(self : Period) -> String {
   if self.is_zero() {
     return "P0D"
@@ -88,26 +88,27 @@ pub fn to_string(self : Period) -> String {
   buf.to_string()
 }
 
+///|
 pub impl Show for Period with output(self : Period, logger : Logger) {
   logger.write_string(self.to_string())
 }
 
-/// Returns the number of years in this duration.
+///| Returns the number of years in this duration.
 pub fn years(self : Period) -> Int {
   self.years
 }
 
-/// Returns the number of months in this duration.
+///| Returns the number of months in this duration.
 pub fn months(self : Period) -> Int {
   self.months
 }
 
-/// Returns the number of days in this duration.
+///| Returns the number of days in this duration.
 pub fn days(self : Period) -> Int {
   self.days
 }
 
-/// Adds specified years to this period, and returns a new period.
+///| Adds specified years to this period, and returns a new period.
 pub fn add_years(self : Period, years : Int) -> Period!Error {
   if years == 0 {
     return self
@@ -116,7 +117,7 @@ pub fn add_years(self : Period, years : Int) -> Period!Error {
   Period::of(years=new_years, months=self.months, days=self.days)
 }
 
-/// Adds specified weeks to this period, and returns a new period.
+///| Adds specified weeks to this period, and returns a new period.
 pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
   if weeks == 0 {
     return self
@@ -125,7 +126,7 @@ pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
   Period::of(years=self.years, months=self.months, days=new_days)
 }
 
-/// Adds specified months to this period, and returns a new period.
+///| Adds specified months to this period, and returns a new period.
 pub fn add_months(self : Period, months : Int) -> Period!Error {
   if months == 0 {
     return self
@@ -134,7 +135,7 @@ pub fn add_months(self : Period, months : Int) -> Period!Error {
   Period::of(years=self.years, months=new_months, days=self.days)
 }
 
-/// Adds specified days to this period, and returns a new period.
+///| Adds specified days to this period, and returns a new period.
 pub fn add_days(self : Period, days : Int) -> Period!Error {
   if days == 0 {
     return self
@@ -143,7 +144,7 @@ pub fn add_days(self : Period, days : Int) -> Period!Error {
   Period::of(years=self.years, months=self.months, days=new_days)
 }
 
-/// Adds other period to this period, and returns a new period.
+///| Adds other period to this period, and returns a new period.
 pub fn add_period(self : Period, other : Period) -> Period!Error {
   if other.is_zero() {
     return self
@@ -154,15 +155,17 @@ pub fn add_period(self : Period, other : Period) -> Period!Error {
   .add_days!(other.days())
 }
 
+///|
 pub fn op_add(self : Period, other : Period) -> Period!Error {
   self.add_period!(other)
 }
 
+///|
 pub fn op_sub(self : Period, other : Period) -> Period!Error {
   self.add_period!(other.negated!())
 }
 
-/// Returns a new period with all elements in this period multiplied by the specified value.
+///| Returns a new period with all elements in this period multiplied by the specified value.
 pub fn multiply(self : Period, n : Int) -> Period!Error {
   if n == 0 {
     return Period::zero()
@@ -176,12 +179,12 @@ pub fn multiply(self : Period, n : Int) -> Period!Error {
   Period::of(years~, months~, days~)
 }
 
-/// Returns a new period with all elements in this period negated.
+///| Returns a new period with all elements in this period negated.
 pub fn negated(self : Period) -> Period!Error {
   self.multiply!(-1)
 }
 
-/// Returns a new period with the specified amount of years.
+///| Returns a new period with the specified amount of years.
 pub fn with_years(self : Period, years : Int) -> Period {
   if years == self.years {
     self
@@ -190,7 +193,7 @@ pub fn with_years(self : Period, years : Int) -> Period {
   }
 }
 
-/// Returns a new period with the specified amount of months.
+///| Returns a new period with the specified amount of months.
 pub fn with_months(self : Period, months : Int) -> Period {
   if months == self.months {
     self
@@ -199,7 +202,7 @@ pub fn with_months(self : Period, months : Int) -> Period {
   }
 }
 
-/// Returns a new period with the specified amount of days.
+///| Returns a new period with the specified amount of days.
 pub fn with_days(self : Period, days : Int) -> Period {
   if days == self.days {
     self
@@ -208,17 +211,17 @@ pub fn with_days(self : Period, days : Int) -> Period {
   }
 }
 
-/// Checks if this period is zero length.
+///| Checks if this period is zero length.
 pub fn is_zero(self : Period) -> Bool {
   self.years == 0 && self.months == 0 && self.days == 0
 }
 
-/// Checks if this period is negative.
+///| Checks if this period is negative.
 pub fn is_neg(self : Period) -> Bool {
   self.years < 0 || self.months < 0 || self.days < 0
 }
 
-/// Returns the total number of months in this period.
+///| Returns the total number of months in this period.
 pub fn to_total_months(self : Period) -> Int64 {
   self.years.to_int64() * 12L + self.months.to_int64()
 }

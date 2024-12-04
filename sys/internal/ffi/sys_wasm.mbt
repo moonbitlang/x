@@ -12,15 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 typealias XExternStringArray = @ffi.XExternStringArray
 
+///|
 pub fn get_cli_args() -> Array[String] {
   let args = get_cli_args_ffi()
   @ffi.string_array_from_extern(args)
 }
 
+///|
 fn get_cli_args_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "args_get"
 
+///|
 pub fn get_env_vars() -> Map[String, String] {
   let env = get_env_vars_ffi()
   let tmp = @ffi.string_array_from_extern(env)
@@ -31,6 +35,8 @@ pub fn get_env_vars() -> Map[String, String] {
   res
 }
 
+///|
 fn get_env_vars_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "env_get_vars"
 
+///|
 pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"

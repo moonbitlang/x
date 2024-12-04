@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn get_cli_args() -> Array[String] {
   get_cli_args_internal()
 }
 
+///|
 extern "js" fn get_cli_args_internal() -> Array[String] =
   #| function() {
   #|  return process.argv;
   #| }
 
+///|
 pub fn get_env_vars() -> Map[String, String] {
   let tmp = get_env_vars_internal()
   let res = {}
@@ -30,6 +33,7 @@ pub fn get_env_vars() -> Map[String, String] {
   res
 }
 
+///|
 extern "js" fn get_env_vars_internal() -> Array[String] =
   #| function() {
   #|   const env = process.env;
@@ -41,6 +45,7 @@ extern "js" fn get_env_vars_internal() -> Array[String] =
   #|   return result;
   #| }
 
+///|
 pub extern "js" fn exit(code : Int) -> Unit =
   #| function(code) {
   #|   process.exit(code);
