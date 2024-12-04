@@ -39,13 +39,19 @@ priv struct Decoder {
 ///|
 priv enum Decode {
   End
-  Malformed(String)
+  Malformed(Bytes)
   Uchar(Char)
+}
+
+fn slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+  let new_bytes = Bytes::new(length)
+  new_bytes.blit(0, bytes, offset, length)
+  new_bytes
 }
 
 ///|
 fn malformed(buf : Bytes, offset : Int, length : Int) -> Decode {
-  Malformed(buf.to_unchecked_string(offset~, length~))
+  Malformed(slice(buf, offset, length))
 }
 
 ///|
@@ -64,7 +70,7 @@ fn malformed_pair(
   let bs = @buffer.new(size_hint=bs0.length() + bs1.length())
   bs.write_bytes(bs0)
   bs.write_bytes(bs1)
-  Malformed(bs.to_bytes().to_unchecked_string(offset=0, length=bs.length()))
+  Malformed(slice(bs.to_bytes(), 0, bs.length()))
 }
 
 // Chars
@@ -110,12 +116,12 @@ pub impl Show for LossyChars with output(self : LossyChars, logger : Logger) -> 
 type StrictChars Decoder
 
 ///|
-pub(all) type! DecodeError String
+pub(all) type! DecodeError Bytes
 
 ///|
 pub impl Show for DecodeError with output(self, logger) {
   match self {
-    DecodeError(err) => logger.write_string(err)
+    DecodeError(err) => err.output(logger)
   }
 }
 

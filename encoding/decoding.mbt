@@ -303,7 +303,7 @@ fn r_utf_8(buf : Bytes, offset : Int, length : Int) -> Decode {
 ///|
 priv enum UTF16Decode {
   Hi(Int)
-  UTF16Malformed(String)
+  UTF16Malformed(Bytes)
   UTF16Uchar(Char)
 }
 
@@ -397,7 +397,7 @@ fn r_utf_16(buf : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
     UTF16Uchar(Char::from_int(u))
   } else if u > 0xDBFF {
     UTF16Malformed(
-      buf.to_unchecked_string(offset=@math.minimum(offset0, offset1), length=2),
+      slice(buf, @math.minimum(offset0, offset1), 2)
     )
   } else {
     Hi(u)

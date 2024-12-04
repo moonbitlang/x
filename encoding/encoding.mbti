@@ -18,7 +18,7 @@ fn write_utf16le_char(@buffer.T, Char) -> Unit
 fn write_utf8_char(@buffer.T, Char) -> Unit
 
 // Types and methods
-pub(all) type! DecodeError String
+pub(all) type! DecodeError Bytes
 impl Show for DecodeError
 
 pub(all) enum Encoding {

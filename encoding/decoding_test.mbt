@@ -12,15 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-fn printable_result(
-  r : Result[Char, @encoding.DecodeError]
-) -> Result[Int, Bytes] {
-  r
-  .map(fn { c => c.to_int() })
-  .map_err(fn { @encoding.DecodeError(s) => s.to_bytes() })
-}
-
 // lossy
 
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
@@ -282,9 +273,9 @@ test "strictly decoding UTF16LE encoded data with UTF8" {
   )
   let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
   inspect!(
-    chars.iter().collect().map(printable_result),
+    chars.iter().collect(),
     content=
-      #|[Ok(1101), Ok(101), Ok(107), Ok(60), Err(b"\xd8\xc3"), Err(b"\xdf\x38"), Ok(110), Err(b"\xf3\x6c\x3c\xd8"), Err(b"\xca\xdf")]
+      #|[Ok('э'), Ok('e'), Ok('k'), Ok('<'), Err(b"\xd8\xc3"), Err(b"\xdf\x38"), Ok('n'), Err(b"\xf3\x6c\x3c\xd8"), Err(b"\xca\xdf")]
     ,
   )
 }
@@ -345,9 +336,9 @@ test "strictly decoding UTF16BE encoded data with UTF8" {
   )
   let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
   inspect!(
-    chars.iter().collect().map(printable_result),
+    chars.iter().collect(),
     content=
-      #|[Ok(0), Err(b"\xd1\x00"), Ok(101), Err(b"\xd8\x3c"), Err(b"\xdf\xc3"), Ok(0), Ok(56), Ok(0), Err(b"\xf3\xd8\x3c\xdf"), Err(b"")]
+      #|[Ok('\x00'), Err(b"\xd1\x00"), Ok('e'), Err(b"\xd8\x3c"), Err(b"\xdf\xc3"), Ok('\x00'), Ok('8'), Ok('\x00'), Err(b"\xf3\xd8\x3c\xdf"), Err(b"\x00")]
     ,
   )
 }
