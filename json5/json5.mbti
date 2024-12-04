@@ -16,17 +16,11 @@ pub(all) enum ParseErrorData {
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 }
-impl ParseErrorData {
-  op_equal(Self, Self) -> Bool
-}
 impl Eq for ParseErrorData
 
 pub(all) struct Position {
   line : Int
   column : Int
-}
-impl Position {
-  op_equal(Self, Self) -> Bool
 }
 impl Eq for Position
 impl Show for Position

@@ -9,9 +9,7 @@ fn from_hex(String) -> UUID!
 type UUID
 impl UUID {
   as_version(Self, Version) -> Self
-  compare(Self, Self) -> Int
   hash(Self) -> Int
-  op_equal(Self, Self) -> Bool
   to_bytes(Self) -> Bytes
   to_string(Self) -> String
   variant(Self) -> Variant

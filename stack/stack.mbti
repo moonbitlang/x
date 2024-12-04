@@ -8,7 +8,6 @@ alias @moonbitlang/core/immut/list as @list
 type Stack
 impl Stack {
   clear[T](Self[T]) -> Unit
-  default[T : Default]() -> Self[T]
   drop[T](Self[T]) -> Unit
   drop_result[T](Self[T]) -> Result[Unit, Unit]
   each[T](Self[T], (T) -> Unit) -> Unit
