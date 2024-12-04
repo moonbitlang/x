@@ -214,46 +214,46 @@ fn t_decode_utf_8(self : Decoder) -> Decode {
 }
 
 ///|
-fn r_utf_8(buf : Bytes, offset : Int, length : Int) -> Decode {
+fn r_utf_8(bytes : Bytes, offset : Int, length : Int) -> Decode {
   fn uchar(c : Int) {
     Uchar(Char::from_int(c))
   }
 
   match length {
-    1 => uchar(buf[offset].to_int())
+    1 => uchar(bytes[offset].to_int())
     2 => {
-      let b0 = buf[offset].to_int()
-      let b1 = buf[offset + 1].to_int()
+      let b0 = bytes[offset].to_int()
+      let b1 = bytes[offset + 1].to_int()
       if (b1 >> 6) != 0b10 {
-        malformed(buf, offset, length)
+        malformed(bytes, offset, length)
       } else {
         uchar(((b0 & 0x1F) << 6) | (b1 & 0x3F))
       }
     }
     3 => {
-      let b0 = buf[offset].to_int()
-      let b1 = buf[offset + 1].to_int()
-      let b2 = buf[offset + 2].to_int()
+      let b0 = bytes[offset].to_int()
+      let b1 = bytes[offset + 1].to_int()
+      let b2 = bytes[offset + 2].to_int()
       let c = ((b0 & 0x0F) << 12) | (((b1 & 0x3F) << 6) | (b2 & 0x3F))
       if (b2 >> 6) != 0b10 {
-        malformed(buf, offset, length)
+        malformed(bytes, offset, length)
       } else {
         match b0 {
           0xE0 =>
             if b1 < 0xA0 || 0xBF < b1 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
           0xED =>
             if b1 < 0x80 || 0x9F < b1 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
           _ =>
             if (b1 >> 6) != 0b10 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
@@ -261,33 +261,33 @@ fn r_utf_8(buf : Bytes, offset : Int, length : Int) -> Decode {
       }
     }
     4 => {
-      let b0 = buf[offset].to_int()
-      let b1 = buf[offset + 1].to_int()
-      let b2 = buf[offset + 2].to_int()
-      let b3 = buf[offset + 3].to_int()
+      let b0 = bytes[offset].to_int()
+      let b1 = bytes[offset + 1].to_int()
+      let b2 = bytes[offset + 2].to_int()
+      let b3 = bytes[offset + 3].to_int()
       let c = ((b0 & 0x07) << 18) |
         ((b1 & 0x3F) << 12) |
         ((b2 & 0x3F) << 6) |
         (b3 & 0x3F)
       if (b3 >> 6) != 0b10 || (b2 >> 6) != 0b10 {
-        malformed(buf, offset, length)
+        malformed(bytes, offset, length)
       } else {
         match b0 {
           0xF0 =>
             if b1 < 0x90 || 0xBF < b1 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
           0xF4 =>
             if b1 < 0x80 || 0x8F < b1 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
           _ =>
             if (b1 >> 6) != 0b10 {
-              malformed(buf, offset, length)
+              malformed(bytes, offset, length)
             } else {
               uchar(c)
             }
@@ -371,15 +371,15 @@ fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
 }
 
 ///|
-fn r_utf_16_lo(hi : Int, buf : Bytes, offset0 : Int, offset1 : Int) -> Decode {
-  let b0 = buf[offset0].to_int()
-  let b1 = buf[offset1].to_int()
+fn r_utf_16_lo(hi : Int, bytes : Bytes, offset0 : Int, offset1 : Int) -> Decode {
+  let b0 = bytes[offset0].to_int()
+  let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
     malformed_pair(
       offset0 < offset1,
       hi,
-      buf,
+      bytes,
       @math.minimum(offset0, offset1),
       2,
     )
@@ -389,16 +389,14 @@ fn r_utf_16_lo(hi : Int, buf : Bytes, offset0 : Int, offset1 : Int) -> Decode {
 }
 
 ///|
-fn r_utf_16(buf : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
-  let b0 = buf[offset0].to_int()
-  let b1 = buf[offset1].to_int()
+fn r_utf_16(bytes : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
+  let b0 = bytes[offset0].to_int()
+  let b1 = bytes[offset1].to_int()
   let u = (b0 << 8) | b1
   if u < 0xD800 || u > 0xDFFF {
     UTF16Uchar(Char::from_int(u))
   } else if u > 0xDBFF {
-    UTF16Malformed(
-      slice(buf, @math.minimum(offset0, offset1), 2)
-    )
+    UTF16Malformed(slice(bytes, @math.minimum(offset0, offset1), 2))
   } else {
     Hi(u)
   }

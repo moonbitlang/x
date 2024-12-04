@@ -43,6 +43,7 @@ priv enum Decode {
   Uchar(Char)
 }
 
+///|
 fn slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
   let new_bytes = Bytes::new(length)
   new_bytes.blit(0, bytes, offset, length)
@@ -50,19 +51,19 @@ fn slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
 }
 
 ///|
-fn malformed(buf : Bytes, offset : Int, length : Int) -> Decode {
-  Malformed(slice(buf, offset, length))
+fn malformed(bytes : Bytes, offset : Int, length : Int) -> Decode {
+  Malformed(slice(bytes, offset, length))
 }
 
 ///|
 fn malformed_pair(
   be : Bool,
   hi : Int,
-  buf : Bytes,
+  bytes : Bytes,
   offset : Int,
   length : Int
 ) -> Decode {
-  let bs1 = buf.to_unchecked_string(offset~, length~).to_bytes()
+  let bs1 = bytes.to_unchecked_string(offset~, length~).to_bytes()
   let bs0 = b"\x00\x00"
   let (j0, j1) = if be { (0, 1) } else { (1, 0) }
   bs0[j0] = (hi >> 8).to_byte()
