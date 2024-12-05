@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 let invalid_time_err = "Invalid time"
 
+///|
 let invalid_date_err = "Invalid date"
 
+///|
 let invalid_date_time_err = "Invalid date time"
 
+///|
 let invalid_period_err = "Invalid period"
 
+///|
 let invalid_duration_err = "Invalid duration"
 
+///|
 let invalid_offset_err = "Invalid offset"

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn md5test(s : String) -> String {
   bytes_to_hex_string(@crypto.md5(s.to_bytes()))
 }

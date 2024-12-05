@@ -12,29 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Time offset from UTC.
+///| Time offset from UTC.
 struct ZoneOffset {
   id : String
   seconds : Int
   dst : Bool
 }
 
+///|
 let max_offset_hours = 18
 
+///|
 let min_offset_hours = -18
 
+///|
 let max_offset_seconds : Int = max_offset_hours * seconds_per_hour.to_int()
 
+///|
 let min_offset_seconds : Int = min_offset_hours * seconds_per_hour.to_int()
 
-/// UTC+0 offset.
+///| UTC+0 offset.
 pub let utc_offset : ZoneOffset = ZoneOffset::{
   id: "Z",
   seconds: 0,
   dst: false,
 }
 
-/// Creates a offset from hours, minutes and seconds.
+///| Creates a offset from hours, minutes and seconds.
 pub fn ZoneOffset::of(
   hours~ : Int = 0,
   minutes~ : Int = 0,
@@ -47,7 +51,7 @@ pub fn ZoneOffset::of(
   ZoneOffset::from_seconds!(secs)
 }
 
-/// Creates a offset from seconds.
+///| Creates a offset from seconds.
 pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!Error {
   if seconds == 0 {
     return utc_offset
@@ -58,38 +62,42 @@ pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!Error {
   { id: create_id(seconds), seconds, dst: false }
 }
 
-/// Returns the offset id.
+///| Returns the offset id.
 pub fn to_string(self : ZoneOffset) -> String {
   self.id
 }
 
+///|
 pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : Logger) {
   logger.write_string(self.to_string())
 }
 
+///|
 pub fn op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }
 
+///|
 pub fn compare(self : ZoneOffset, other : ZoneOffset) -> Int {
   other.seconds - self.seconds
 }
 
-/// Returns the offset id.
+///| Returns the offset id.
 pub fn id(self : ZoneOffset) -> String {
   self.id
 }
 
-/// Returns the total seconds of this offset.
+///| Returns the total seconds of this offset.
 pub fn seconds(self : ZoneOffset) -> Int {
   self.seconds
 }
 
-/// Checks if this offset is daylight saving time.
+///| Checks if this offset is daylight saving time.
 pub fn is_dst(self : ZoneOffset) -> Bool {
   self.dst
 }
 
+///|
 fn create_id(secs : Int) -> String {
   if secs == 0 {
     return "Z"
@@ -112,6 +120,7 @@ fn create_id(secs : Int) -> String {
   buf.to_string()
 }
 
+///|
 fn validate_offset(h : Int, m : Int, s : Int) -> Unit!Error {
   if h < min_offset_hours || h > max_offset_hours {
     fail!(invalid_offset_err)

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // This is a generated file. Do not edit.
+///|
 let non_ascii_whitespace : CharClass = CharClass::of(
   [
     ('\u00A0', '\u00A0'),
@@ -26,6 +27,7 @@ let non_ascii_whitespace : CharClass = CharClass::of(
   ],
 )
 
+///|
 let non_ascii_id_start : CharClass = CharClass::of(
   [
     ('\u00AA', '\u00AA'),
@@ -617,6 +619,7 @@ let non_ascii_id_start : CharClass = CharClass::of(
   ],
 )
 
+///|
 let non_ascii_id_continue : CharClass = CharClass::of(
   [
     ('\u00AA', '\u00AA'),

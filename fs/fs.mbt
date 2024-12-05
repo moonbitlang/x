@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) type! IOError {
   NotFound(String)
 }
 
+///|
 pub impl Show for IOError with output(self, logger) {
   logger.write_string(self.to_string())
 }
 
+///|
 fn IOError::to_string(self : IOError) -> String {
   match self {
     IOError::NotFound(path) => "`\{path}` does not exist"
   }
 }
 
-/// Writes a string to a file.
+///| Writes a string to a file.
 ///
 /// # Parameters
 /// - `path`: A `String` representing the file path.
@@ -35,7 +38,7 @@ pub fn write_string_to_file(path~ : String, content~ : String) -> Unit {
   @ffi.write_string_to_file(path, content)
 }
 
-/// Writes an array of bytes to a file at the specified path.
+///| Writes an array of bytes to a file at the specified path.
 ///
 /// # Parameters
 ///
@@ -45,7 +48,7 @@ pub fn write_bytes_to_file(path~ : String, content~ : Bytes) -> Unit {
   @ffi.write_bytes_to_file(path, content)
 }
 
-/// Checks if a path exists.
+///| Checks if a path exists.
 ///
 /// # Parameters
 /// - `path`: A `String` representing the file path.
@@ -56,7 +59,7 @@ pub fn path_exists(path~ : String) -> Bool {
   @ffi.path_exists(path)
 }
 
-/// Reads the entire contents of a file into a string.
+///| Reads the entire contents of a file into a string.
 ///
 /// # Parameters
 /// - `path`: A `String` representing the file path.
@@ -68,7 +71,7 @@ pub fn read_file_to_string(path~ : String) -> String! {
   @ffi.read_file_to_string(path)
 }
 
-/// Reads the content of a file specified by the given path and returns its
+///| Reads the content of a file specified by the given path and returns its
 /// content as an array of bytes. If the file does not exist, an error is raised.
 ///
 /// # Parameters
@@ -83,7 +86,7 @@ pub fn read_file_to_bytes(path~ : String) -> Bytes! {
   @ffi.read_file_to_bytes(path)
 }
 
-/// Reads the contents of a directory and returns an array of filenames.
+///| Reads the contents of a directory and returns an array of filenames.
 ///
 /// # Parameters
 ///
@@ -97,7 +100,7 @@ pub fn read_dir(path~ : String) -> Array[String]! {
   @ffi.read_dir(path)
 }
 
-/// Creates a directory at the specified path.
+///| Creates a directory at the specified path.
 /// Note: nested directories are not supported for native backend
 ///
 /// # Parameters
@@ -107,7 +110,7 @@ pub fn create_dir(path~ : String) -> Unit {
   @ffi.create_dir(path)
 }
 
-/// Checks if the given path is a directory.
+///| Checks if the given path is a directory.
 ///
 /// # Parameters
 ///
@@ -121,7 +124,7 @@ pub fn is_dir(path~ : String) -> Bool! {
   @ffi.is_dir(path)
 }
 
-/// Check if the given path points to a file.
+///| Check if the given path points to a file.
 ///
 /// # Parameters
 ///
@@ -135,7 +138,7 @@ pub fn is_file(path~ : String) -> Bool! {
   @ffi.is_file(path)
 }
 
-/// Removes a directory at the specified path.
+///| Removes a directory at the specified path.
 ///
 /// # Parameters
 ///
@@ -145,7 +148,7 @@ pub fn remove_dir(path~ : String) -> Unit! {
   @ffi.remove_dir(path)
 }
 
-/// Removes a file at the specified path.
+///| Removes a file at the specified path.
 ///
 /// # Parameters
 ///

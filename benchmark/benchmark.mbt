@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn Task::new(name : String, f : () -> Unit, count~ : Int = 10) -> Task {
   { name, f, count }
 }
 
+///|
 pub fn run(self : Task) -> TaskResult {
   let now = @ffi.instant_now()
   for i = 1; i <= self.count; i = i + 1 {
@@ -34,6 +36,7 @@ pub fn run(self : Task) -> TaskResult {
   { task: self, average: time / self.count.to_double(), max, min }
 }
 
+///|
 pub fn to_string(self : TaskResult) -> String {
   $|Benchmark Task [\{self.task.name}] Count = \{self.task.count}
   $|----------------------------------------
@@ -43,18 +46,22 @@ pub fn to_string(self : TaskResult) -> String {
   $|----------------------------------------
 }
 
+///|
 pub fn output(self : TaskResult, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
+///|
 pub fn Criterion::new() -> Criterion {
   { tasks: [] }
 }
 
+///|
 pub fn add(self : Criterion, task : Task) -> Unit {
   self.tasks.push(task)
 }
 
+///|
 pub fn run(self : Criterion) -> Map[String, TaskResult] {
   let map = {}
   for task in self.tasks {

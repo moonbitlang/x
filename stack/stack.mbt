@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Create an empty stack.
+///| Create an empty stack.
 ///
 /// # Example
 ///
@@ -29,7 +29,7 @@ test "new" {
   inspect!(s, content="Stack::[]")
 }
 
-/// Create a stack based on all elements in list.
+///| Create a stack based on all elements in list.
 ///
 /// # Example
 ///
@@ -47,7 +47,7 @@ test "from_list" {
   inspect!(s.len, content="3")
 }
 
-/// Create a stack based on all elements in array.
+///| Create a stack based on all elements in array.
 ///
 /// # Example
 ///
@@ -65,7 +65,7 @@ test "from_array" {
   inspect!(s.len, content="3")
 }
 
-/// Create a stack based on all elements in array.
+///| Create a stack based on all elements in array.
 ///
 /// # Example
 ///
@@ -83,6 +83,7 @@ test "of" {
   inspect!(s.len, content="3")
 }
 
+///|
 pub fn to_string[T : Show](self : Stack[T]) -> String {
   let mut res = "Stack::["
   self.elements.eachi(
@@ -96,6 +97,7 @@ pub fn to_string[T : Show](self : Stack[T]) -> String {
   res + "]"
 }
 
+///|
 pub fn output[T : Show](self : Stack[T], logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
@@ -106,7 +108,7 @@ test "to_string" {
   inspect!(Stack::of([1, 2, 3, 4, 5]), content="Stack::[1, 2, 3, 4, 5]")
 }
 
-/// Create a stack based on another stack.
+///| Create a stack based on another stack.
 ///
 /// # Example
 ///
@@ -125,7 +127,7 @@ test "from_stack" {
   inspect!(s1.elements == s.elements, content="true")
 }
 
-/// Clear all elements in Stack
+///| Clear all elements in Stack
 /// 
 /// # Example
 ///
@@ -145,7 +147,7 @@ test "clear" {
   inspect!(s, content="Stack::[]")
 }
 
-/// Same as the `clear()`, but returns an cleared stack
+///| Same as the `clear()`, but returns an cleared stack
 ///
 /// # Example
 ///
@@ -163,7 +165,7 @@ test "return_with_clear" {
   inspect!(s, content="Stack::[]")
 }
 
-/// Push an element into the stack.
+///| Push an element into the stack.
 /// 
 /// # Example
 ///
@@ -184,7 +186,7 @@ test "push" {
   inspect!(s.len, content="1")
 }
 
-/// Push a list into the stack.
+///| Push a list into the stack.
 /// 
 /// # Example
 ///
@@ -204,7 +206,7 @@ test "push_list" {
   inspect!(s.len, content="3")
 }
 
-/// Push other stack into the current stack.
+///| Push other stack into the current stack.
 /// 
 /// # Example
 ///
@@ -226,7 +228,7 @@ test "push_stack" {
   inspect!(s.len == s1.len, content="true")
 }
 
-/// Push an array into the stack.
+///| Push an array into the stack.
 /// 
 /// # Example
 ///
@@ -246,7 +248,7 @@ test "push_array" {
   inspect!(s.len, content="3")
 }
 
-/// Pop an element from the top of the stack.
+///| Pop an element from the top of the stack.
 /// If there are elements in the stack, return `Some (the top element of the stack)`, otherwise return `None`.
 ///
 /// # Example
@@ -280,7 +282,7 @@ test "pop" {
   inspect!(s1.len, content="0")
 }
 
-/// Pop an element from the top of the stack.
+///| Pop an element from the top of the stack.
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
 /// # Example
@@ -311,7 +313,7 @@ test "unsafe_pop" {
   inspect!(s.len, content="2")
 }
 
-/// Drop the element at the top of the stack.
+///| Drop the element at the top of the stack.
 /// Like pop, but does not return elements and does nothing if the Stack is empty.
 ///
 /// # Example
@@ -338,7 +340,7 @@ test "drop" {
   inspect!(s.len, content="2")
 }
 
-/// Drop the element at the top of the stack.
+///| Drop the element at the top of the stack.
 /// Like drop, but when the drop is successful, it returns `Ok(())`, and when it fails, it returns `Err(())`
 ///
 /// # Example
@@ -367,7 +369,7 @@ test "drop_result" {
   inspect!(s.len, content="2")
 }
 
-/// Only the top element of the stack is returned and will not be pop or drop.
+///| Only the top element of the stack is returned and will not be pop or drop.
 /// If there are elements in the stack, return `Some (the top element of the stack)`, otherwise return `None`.
 ///
 /// # Example
@@ -391,7 +393,7 @@ test "peek" {
   inspect!(s.len, content="3")
 }
 
-/// Only the top element of the stack is returned and will not be pop or drop.
+///| Only the top element of the stack is returned and will not be pop or drop.
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
 /// # Example
@@ -418,7 +420,7 @@ test "peek_exn" {
   inspect!(s.len, content="3")
 }
 
-/// If stack is empty, return true, otherwise return false.
+///| If stack is empty, return true, otherwise return false.
 ///
 /// # Example
 ///
@@ -436,12 +438,12 @@ test "is_empty" {
   inspect!(empty.is_empty(), content="true")
 }
 
-/// Returns the number of elements of the Stack
+///| Returns the number of elements of the Stack
 pub fn length[T](self : Stack[T]) -> Int {
   self.len
 }
 
-/// Iterates over the elements of the stack from top to bottom.
+///| Iterates over the elements of the stack from top to bottom.
 /// 
 /// # Example
 /// ```
@@ -470,7 +472,7 @@ test "iter" {
   inspect!(sub, content="-3")
 }
 
-/// Folds over the elements of the stack from top to bottom.
+///| Folds over the elements of the stack from top to bottom.
 /// 
 /// # Example
 /// ```
@@ -488,7 +490,7 @@ test "fold" {
   inspect!(sum, content="6")
 }
 
-/// Convert stack to list.
+///| Convert stack to list.
 ///
 /// # Example
 ///
@@ -503,7 +505,7 @@ test "to_list" {
   inspect!(Stack::of([3, 2, 1]).to_list(), content="@list.of([3, 2, 1])")
 }
 
-/// Convert stack to array.
+///| Convert stack to array.
 ///
 /// # Example
 ///
@@ -518,7 +520,7 @@ test "to_array" {
   inspect!(Stack::of([3, 2, 1]).to_array(), content="[3, 2, 1]")
 }
 
-/// Compare two stacks.
+///| Compare two stacks.
 ///
 /// NOTE: Since the current standard library @immut/list.T lacks the equal or op_equal function, 
 /// this function internally implements the equal function of @immut/list.T.
@@ -536,6 +538,7 @@ pub fn equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
   }
 }
 
+///|
 pub fn op_equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
   self.equal(other)
 }

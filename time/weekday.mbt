@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) enum Weekday {
   Monday
   Tuesday
@@ -22,6 +23,7 @@ pub(all) enum Weekday {
   Sunday
 } derive(Eq, Show)
 
+///|
 fn Weekday::new(week_day : Int) -> Weekday? {
   match week_day {
     1 => Some(Monday)
@@ -35,6 +37,7 @@ fn Weekday::new(week_day : Int) -> Weekday? {
   }
 }
 
+///|
 fn value(self : Weekday) -> Int {
   match self {
     Monday => 1

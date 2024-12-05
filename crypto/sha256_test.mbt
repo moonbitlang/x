@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn sha256test(s : String) -> String {
   @crypto.bytes_to_hex_string(@crypto.sha256(s.to_bytes()))
 }
 
+///|
 fn sha224test(s : String) -> String {
   @crypto.bytes_to_hex_string(@crypto.sha224(s.to_bytes()))
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 struct Stack[T] {
   mut elements : @immut/list.T[T]
   mut len : Int

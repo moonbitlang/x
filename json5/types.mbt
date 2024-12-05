@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) struct Position {
   line : Int // 1-based
   column : Int // 0-based
 } derive(Eq, Show)
 
+///|
 pub(all) enum ParseErrorData {
   InvalidChar(Position, Char)
   InvalidEof
@@ -24,12 +26,15 @@ pub(all) enum ParseErrorData {
   InvalidIdentEscape(Position)
 } derive(Eq)
 
+///|
 pub(all) type! ParseError ParseErrorData
 
+///|
 fn parse_error[X](data : ParseErrorData) -> X!ParseError {
   raise ParseError(data)
 }
 
+///|
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
     ParseError(InvalidChar({ line, column }, c)) =>
@@ -42,6 +47,7 @@ pub fn ParseError::to_string(self : ParseError) -> String {
   }
 }
 
+///|
 pub fn ParseError::output(self : ParseError, logger : Logger) -> Unit {
   logger.write_string(ParseError::to_string(self))
 }

@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 type Instant
 
+///|
 pub fn instant_now() -> Instant {
   // no implement now
   panic()
 }
 
+///|
 pub fn instant_elapsed_as_secs_f64(_x : Instant) -> Double {
   // no implement now
   panic()

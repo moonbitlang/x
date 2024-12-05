@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn flipWord(word : UInt) -> UInt {
   let b0 = (word & 0xff) << 24
   let b1 = (word & 0xff00) << 8
@@ -26,6 +27,7 @@ test "flipWord" {
   inspect!(flipped, content="2018915346")
 }
 
+///|
 fn quarterRound(
   state : FixedArray[UInt],
   w : Int,
@@ -75,6 +77,7 @@ test "quarterRound" {
   )
 }
 
+///|
 fn chachaBlockRound(state : FixedArray[UInt]) -> FixedArray[UInt] {
   let state1 = quarterRound(state, 0, 4, 8, 12)
   let state2 = quarterRound(state1, 1, 5, 9, 13)
@@ -112,6 +115,7 @@ test "chachaBlockRound" {
   )
 }
 
+///|
 fn chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> FixedArray[UInt] {
   match n {
     0 => state.copy()
@@ -158,10 +162,12 @@ test "chachaBlockLoop" {
   )
 }
 
+///|
 fn flipState(state : FixedArray[UInt]) -> FixedArray[UInt] {
   state.map(flipWord)
 }
 
+///|
 fn zipWith(
   op : (UInt, UInt) -> UInt,
   state1 : FixedArray[UInt],
@@ -189,7 +195,7 @@ test "zipWith" {
   inspect!(result, content="[6, 8, 10, 12]")
 }
 
-/// - chacha8: round = 4
+///| - chacha8: round = 4
 /// - chacha12: round = 6
 /// - chacha20: round = 10
 fn chachaBlock(
@@ -240,6 +246,7 @@ test "chachaBlock" {
   )
 }
 
+///|
 fn stateToBytes(state : FixedArray[UInt]) -> Bytes {
   fn from_array(arr : Array[UInt]) -> Bytes {
     let rv = Bytes::new(arr.length())
@@ -285,7 +292,7 @@ test "stateToBytes" {
   )
 }
 
-/// Encrypts a block of data using the ChaCha8 algorithm.
+///| Encrypts a block of data using the ChaCha8 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -303,7 +310,7 @@ pub fn chacha8(
   chacha(key, counter, block, 4, nonce)
 }
 
-/// Encrypts a block of data using the ChaCha12 algorithm.
+///| Encrypts a block of data using the ChaCha12 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -321,7 +328,7 @@ pub fn chacha12(
   chacha(key, counter, block, 6, nonce)
 }
 
-/// Encrypts a block of data using the ChaCha20 algorithm.
+///| Encrypts a block of data using the ChaCha20 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -339,6 +346,7 @@ pub fn chacha20(
   chacha(key, counter, block, 10, nonce)
 }
 
+///|
 fn chacha(
   key : FixedArray[UInt],
   counter : UInt,
@@ -403,6 +411,7 @@ fn chacha(
   res
 }
 
+///|
 fn quarterRound1(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   let aprime = t.0 + t.1
   let dprime = t.3 ^ aprime
@@ -410,6 +419,7 @@ fn quarterRound1(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   (aprime, t.1, t.2, dout)
 }
 
+///|
 fn quarterRound2(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   let cprime = t.2 + t.3
   let bprime = t.1 ^ cprime
@@ -417,6 +427,7 @@ fn quarterRound2(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   (t.0, bout, cprime, t.3)
 }
 
+///|
 fn quarterRound3(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   let aprime = t.0 + t.1
   let dprime = t.3 ^ aprime
@@ -424,6 +435,7 @@ fn quarterRound3(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   (aprime, t.1, t.2, dout)
 }
 
+///|
 fn quarterRound4(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
   let cprime = t.2 + t.3
   let bprime = t.1 ^ cprime

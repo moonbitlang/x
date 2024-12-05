@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn sha224(data : Bytes) -> Bytes {
   let ctx = Sha256Context::new(
     reg=[
@@ -23,6 +24,7 @@ pub fn sha224(data : Bytes) -> Bytes {
   arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }
 
+///|
 pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
   let ctx = Sha256Context::new(
     reg=[

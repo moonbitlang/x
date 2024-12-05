@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn offset_to_position(input : String, offset : Int) -> Position {
   let mut line = 1
   let mut column = 0
@@ -27,6 +28,7 @@ fn offset_to_position(input : String, offset : Int) -> Position {
   return Position::{ line, column }
 }
 
+///|
 fn invalid_char[X](ctx : ParseContext, shift~ : Int = 0) -> X!ParseError {
   let offset = ctx.offset + shift
   parse_error!(
@@ -34,6 +36,7 @@ fn invalid_char[X](ctx : ParseContext, shift~ : Int = 0) -> X!ParseError {
   )
 }
 
+///|
 fn hex_digit_to_int(c : Char) -> Int {
   if c >= 'A' {
     (c.to_int() & (32).lnot()) - 'A'.to_int() + 10
