@@ -23,6 +23,11 @@ pub fn get_env_vars() -> Map[String, String] {
 }
 
 ///|
+pub fn set_env_var(key : String, value : String) -> Unit {
+  @ffi.set_env_var(key, value)
+}
+
+///|
 pub fn exit(code : Int) -> Unit {
   @ffi.exit(code)
 }

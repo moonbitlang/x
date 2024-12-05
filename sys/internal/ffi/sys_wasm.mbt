@@ -16,6 +16,9 @@
 typealias XExternStringArray = @ffi.XExternStringArray
 
 ///|
+typealias XExternString = @ffi.XExternString
+
+///|
 pub fn get_cli_args() -> Array[String] {
   let args = get_cli_args_ffi()
   @ffi.string_array_from_extern(args)
@@ -36,7 +39,17 @@ pub fn get_env_vars() -> Map[String, String] {
 }
 
 ///|
-fn get_env_vars_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "env_get_vars"
+fn get_env_vars_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "get_env_vars"
+
+///|
+pub fn set_env_var(key : String, value : String) -> Unit {
+  let key = @ffi.string_to_extern(key)
+  let value = @ffi.string_to_extern(value)
+  set_env_var_ffi(key, value)
+}
+
+///|
+fn set_env_var_ffi(key : XExternString, value : XExternString) = "__moonbit_fs_unstable" "set_env_var"
 
 ///|
 pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"
