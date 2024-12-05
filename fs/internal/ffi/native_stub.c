@@ -49,33 +49,21 @@ struct moonbit_bytes* read_file_to_bytes(struct moonbit_bytes *filename) {
         return NULL;
     }
 
+    struct moonbit_bytes* bytes = moonbit_make_bytes(size, 0);
 
-    // allocate memory to store the file content
-    char *buffer = (char *)malloc((size_t)size);
-    if (buffer == NULL) {
-        perror("malloc");
-        fclose((FILE *)(filename->data));
-        return NULL;
-    }
-
-    // read the file content into the buffer
-    size_t bytes_read = fread(buffer, 1, (size_t)size, file);
+    // read the file content into the bytes->data
+    size_t bytes_read = fread(bytes->data, 1, (size_t)size, file);
     if (bytes_read != (size_t)size) {
         perror("fread");
-        free(buffer);
-        fclose((FILE *)(filename->data));
+        fclose(file);
         return NULL;
     }
 
     // close the file
     if (fclose(file) != 0) {
         perror("fclose");
-        free(buffer);
         return NULL;
     }
-
-    struct moonbit_bytes* bytes = moonbit_make_bytes(size, 0);
-    memcpy(bytes->data, buffer, size);
 
     return bytes;
 }
@@ -235,7 +223,8 @@ void remove_file(struct moonbit_bytes* path) {
 
 void write_bytes_to_file(struct moonbit_bytes* path, struct moonbit_bytes* content) {
     FILE *file = fopen((const char *)(path->data), "wb");
-    size_t content_size = strlen((const char *)(content->data));
+    size_t content_size = content->header.arr.len;
     fwrite(content->data, 1, content_size, file);
+    fflush(file);
     fclose(file);
 }
