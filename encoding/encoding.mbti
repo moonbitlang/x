@@ -9,6 +9,14 @@ fn decode_strict(Encoding, Bytes) -> StrictChars
 
 fn encode(Encoding, String) -> Bytes
 
+fn to_utf16_bytes(Char) -> Bytes
+
+fn to_utf16be_bytes(Char) -> Bytes
+
+fn to_utf16le_bytes(Char) -> Bytes
+
+fn to_utf8_bytes(Char) -> Bytes
+
 fn write_utf16_char(@buffer.T, Char) -> Unit
 
 fn write_utf16be_char(@buffer.T, Char) -> Unit

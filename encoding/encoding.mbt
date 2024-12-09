@@ -52,10 +52,84 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 }
 
 ///|
+/// Converts a Char to UTF-8 bytes.
+///
+/// Note that this function incurs allocation overhead
+/// due to the intermediate creation of new buffers.
+pub fn to_utf8_bytes(value : Char) -> Bytes {
+  let buf = @buffer.new(size_hint=4)
+  write_utf8_char(buf, value)
+  buf.to_bytes()
+}
+
+///|
+/// Converts a Char to UTF-16LE bytes.
+///
+/// Alias for `to_utf16le_bytes`.
+///
+/// Note that this function incurs allocation overhead
+/// due to the intermediate creation of new buffers.
+pub fn to_utf16_bytes(value : Char) -> Bytes {
+  to_utf16le_bytes(value)
+}
+
+///|
+/// Converts a Char to UTF-16LE bytes.
+///
+/// Note that this function incurs allocation overhead
+/// due to the intermediate creation of new buffers.
+pub fn to_utf16le_bytes(value : Char) -> Bytes {
+  let buf = @buffer.new(size_hint=4)
+  write_utf16le_char(buf, value)
+  buf.to_bytes()
+}
+
+///|
+/// Converts a Char to UTF-16BE bytes.
+///
+/// Note that this function incurs allocation overhead
+/// due to the intermediate creation of new buffers.
+pub fn to_utf16be_bytes(value : Char) -> Bytes {
+  let buf = @buffer.new(size_hint=4)
+  write_utf16be_char(buf, value)
+  buf.to_bytes()
+}
+
+///|
 /// Write a char into buffer as UTF8.
 pub fn write_utf8_char(buf : @buffer.T, value : Char) -> Unit {
-  let bytes = to_utf8_bytes(value)
-  buf.write_bytes(bytes)
+  let code = value.to_uint()
+  match code {
+    _..<0x80 => {
+      let b0 = ((code & 0x7F) | 0x00).to_byte()
+      buf.write_byte(b0)
+    }
+    _..<0x0800 => {
+      let b0 = (((code >> 6) & 0x1F) | 0xC0).to_byte()
+      let b1 = ((code & 0x3F) | 0x80).to_byte()
+      buf.write_byte(b0)
+      buf.write_byte(b1)
+    }
+    _..<0x010000 => {
+      let b0 = (((code >> 12) & 0x0F) | 0xE0).to_byte()
+      let b1 = (((code >> 6) & 0x3F) | 0x80).to_byte()
+      let b2 = ((code & 0x3F) | 0x80).to_byte()
+      buf.write_byte(b0)
+      buf.write_byte(b1)
+      buf.write_byte(b2)
+    }
+    _..<0x110000 => {
+      let b0 = (((code >> 18) & 0x07) | 0xF0).to_byte()
+      let b1 = (((code >> 12) & 0x3F) | 0x80).to_byte()
+      let b2 = (((code >> 6) & 0x3F) | 0x80).to_byte()
+      let b3 = ((code & 0x3F) | 0x80).to_byte()
+      buf.write_byte(b0)
+      buf.write_byte(b1)
+      buf.write_byte(b2)
+      buf.write_byte(b3)
+    }
+    _ => abort("Char out of range")
+  }
 }
 
 ///|
@@ -68,54 +142,12 @@ pub fn write_utf16_char(buf : @buffer.T, value : Char) -> Unit {
 ///|
 /// Write a char into buffer as UTF16LE.
 pub fn write_utf16le_char(buf : @buffer.T, value : Char) -> Unit {
-  let bytes = to_utf16le_bytes(value)
-  buf.write_bytes(bytes)
-}
-
-///|
-/// Write a char into buffer as UTF16BE.
-pub fn write_utf16be_char(buf : @buffer.T, value : Char) -> Unit {
-  let bytes = to_utf16be_bytes(value)
-  buf.write_bytes(bytes)
-}
-
-///|
-fn to_utf8_bytes(value : Char) -> Bytes {
-  let code = value.to_uint()
-  match code {
-    _..<0x80 => {
-      let b0 = ((code & 0x7F) | 0x00).to_byte()
-      @bytes.of([b0])
-    }
-    _..<0x0800 => {
-      let b0 = (((code >> 6) & 0x1F) | 0xC0).to_byte()
-      let b1 = ((code & 0x3F) | 0x80).to_byte()
-      @bytes.of([b0, b1])
-    }
-    _..<0x010000 => {
-      let b0 = (((code >> 12) & 0x0F) | 0xE0).to_byte()
-      let b1 = (((code >> 6) & 0x3F) | 0x80).to_byte()
-      let b2 = ((code & 0x3F) | 0x80).to_byte()
-      @bytes.of([b0, b1, b2])
-    }
-    _..<0x110000 => {
-      let b0 = (((code >> 18) & 0x07) | 0xF0).to_byte()
-      let b1 = (((code >> 12) & 0x3F) | 0x80).to_byte()
-      let b2 = (((code >> 6) & 0x3F) | 0x80).to_byte()
-      let b3 = ((code & 0x3F) | 0x80).to_byte()
-      @bytes.of([b0, b1, b2, b3])
-    }
-    _ => abort("Char out of range")
-  }
-}
-
-///|
-fn to_utf16le_bytes(value : Char) -> Bytes {
   let code = value.to_uint()
   if code < 0x10000 {
     let b0 = (code & 0xFF).to_byte()
     let b1 = (code >> 8).to_byte()
-    @bytes.of([b0, b1])
+    buf.write_byte(b0)
+    buf.write_byte(b1)
   } else if code < 0x110000 {
     let hi = code - 0x10000
     let lo = (hi >> 10) | 0xD800
@@ -124,19 +156,24 @@ fn to_utf16le_bytes(value : Char) -> Bytes {
     let b1 = (lo >> 8).to_byte()
     let b2 = (hi & 0xFF).to_byte()
     let b3 = (hi >> 8).to_byte()
-    @bytes.of([b0, b1, b2, b3])
+    buf.write_byte(b0)
+    buf.write_byte(b1)
+    buf.write_byte(b2)
+    buf.write_byte(b3)
   } else {
     abort("Char out of range")
   }
 }
 
 ///|
-fn to_utf16be_bytes(value : Char) -> Bytes {
+/// Write a char into buffer as UTF16BE.
+pub fn write_utf16be_char(buf : @buffer.T, value : Char) -> Unit {
   let code = value.to_uint()
   if code < 0x10000 {
     let b0 = (code >> 0xFF).to_byte()
     let b1 = (code & 0xFF).to_byte()
-    @bytes.of([b0, b1])
+    buf.write_byte(b0)
+    buf.write_byte(b1)
   } else if code < 0x110000 {
     let hi = code - 0x10000
     let lo = (hi >> 10) | 0xD800
@@ -145,7 +182,10 @@ fn to_utf16be_bytes(value : Char) -> Bytes {
     let b1 = (lo & 0xFF).to_byte()
     let b2 = (hi >> 8).to_byte()
     let b3 = (hi & 0xFF).to_byte()
-    @bytes.of([b0, b1, b2, b3])
+    buf.write_byte(b0)
+    buf.write_byte(b1)
+    buf.write_byte(b2)
+    buf.write_byte(b3)
   } else {
     abort("Char out of range")
   }
