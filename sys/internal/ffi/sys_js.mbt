@@ -46,6 +46,17 @@ extern "js" fn get_env_vars_internal() -> Array[String] =
   #| }
 
 ///|
+pub fn set_env_var(key : String, value : String) -> Unit {
+  set_env_var_internal(key, value)
+}
+
+///|
+extern "js" fn set_env_var_internal(key : String, value : String) -> Unit =
+  #| function(key, value) {
+  #|   process.env[key] = value;
+  #| }
+
+///|
 pub extern "js" fn exit(code : Int) -> Unit =
   #| function(code) {
   #|   process.exit(code);
