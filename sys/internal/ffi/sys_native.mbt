@@ -25,4 +25,10 @@ pub fn get_env_vars() -> Map[String, String] {
 }
 
 ///|
+pub fn set_env_var(_key : String, _value : String) -> Unit {
+  // not implement yet
+  panic()
+}
+
+///|
 pub extern "native" fn exit(code : Int) -> Unit = "exit"
