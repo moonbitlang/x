@@ -27,12 +27,32 @@ pub(all) enum Encoding {
 
 ///|
 priv struct Decoder {
+  // Input bytes
+  // Stores the input bytes that need to be decoded.
+  // The primary data source from which characters are read and decoded.
   mut i : Bytes
+  // Input position
+  // Keeps track of the current position within the input bytes `i`.
+  // Indicates the next byte (starting point) to read from `i` during the decoding process
   mut i_pos : Int
+  // Input maximum
+  // Indicates the index of the last byte of the input bytes `i`.
+  // Helps bounds checking and limits how far the decoding process should go,
+  // ensuring that decoding does not go beyond the provided input length.
   mut i_max : Int
+  // Temporary bytes
+  // Used to temporarily store bytes that are read in parts
+  // (which might happen for multi-byte encoded characters).
   t : Bytes
+  // Temporary Length
+  // Tracks how many bytes currently reside in the temporary bytes `t`.
   mut t_len : Int
+  // Temporary Need
+  // The number of bytes still needed to complete the character code currently being processed.
   mut t_need : Int
+  // Continuation
+  //
+  // Called with a `Decoder` state.
   mut k : Cont
 }
 
