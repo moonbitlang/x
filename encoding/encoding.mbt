@@ -168,7 +168,7 @@ pub fn write_utf16le_char(buf : @buffer.T, value : Char) -> Unit {
 pub fn write_utf16be_char(buf : @buffer.T, value : Char) -> Unit {
   let code = value.to_uint()
   if code < 0x10000 {
-    let b0 = (code >> 0xFF).to_byte()
+    let b0 = (code >> 8).to_byte()
     let b1 = (code & 0xFF).to_byte()
     buf.write_byte(b0)
     buf.write_byte(b1)

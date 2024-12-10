@@ -188,14 +188,14 @@ test "lossy decoding UTF16BE encoded data with UTF8" {
   inspect!(
     buf.to_bytes(),
     content=
-      #|b"\x00\xd1\x00\x65\xd8\x3c\xdf\xc3\x00\x38\x00\xf3\xd8\x3c\xdf\xca"
+      #|b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca"
     ,
   )
   let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
   inspect!(
     chars.iter().collect(),
     content=
-      #|['\x00', '�', 'e', '�', '�', '\x00', '8', '\x00', '�', '�']
+      #|['�', '�', 'e', '�', '�', 'n', '8', 'l', '�', '�']
     ,
   )
 }
@@ -247,13 +247,13 @@ test "lossy decoding UTF16BE encoded data with UTF16LE" {
   inspect!(
     buf.to_bytes(),
     content=
-      #|b"\x00\xd1\x00\x65\xd8\x3c\xdf\xc3\x00\x38\x00\xf3\xd8\x3c\xdf\xca"
+      #|b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca"
     ,
   )
   let chars = @encoding.decode_lossy(UTF16LE, buf.to_bytes())
   inspect!(
     chars.iter().collect(),
-    content="['턀', '攀', '㳘', '쏟', '㠀', '', '㳘', '쫟']",
+    content="['톍', '敫', '㳘', '쏟', '㡮', '', '㳘', '쫟']",
   )
 }
 
@@ -331,14 +331,14 @@ test "strictly decoding UTF16BE encoded data with UTF8" {
   inspect!(
     buf.to_bytes(),
     content=
-      #|b"\x00\xd1\x00\x65\xd8\x3c\xdf\xc3\x00\x38\x00\xf3\xd8\x3c\xdf\xca"
+      #|b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca"
     ,
   )
   let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
   inspect!(
     chars.iter().collect(),
     content=
-      #|[Ok('\x00'), Err(b"\xd1\x00"), Ok('e'), Err(b"\xd8\x3c"), Err(b"\xdf\xc3"), Ok('\x00'), Ok('8'), Ok('\x00'), Err(b"\xf3\xd8\x3c\xdf"), Err(b"\x00")]
+      #|[Err(b"\x8d"), Err(b"\xd1\x6b"), Ok('e'), Err(b"\xd8\x3c"), Err(b"\xdf\xc3"), Ok('n'), Ok('8'), Ok('l'), Err(b"\xf3\xd8\x3c\xdf"), Err(b"\x00")]
     ,
   )
 }
