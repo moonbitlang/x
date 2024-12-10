@@ -36,17 +36,15 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
     UTF16 | UTF16LE => return src.to_bytes()
     _ => ()
   }
-  let bytes = src.to_bytes()
-  let chars = decode_strict(UTF16LE, bytes)
-  let new_buf = @buffer.T::new(size_hint=bytes.length())
+  let new_buf = @buffer.T::new(size_hint=src.length() * 4)
   let write = match encoding {
     UTF8 => write_utf8_char
     UTF16BE => write_utf16be_char
     _ => abort("unreachable")
   }
-  for char in chars {
+  for char in src {
     // SAFETY: Assume String are always valid UTF16LE
-    write(new_buf, char.unwrap())
+    write(new_buf, char)
   }
   new_buf.to_bytes()
 }
