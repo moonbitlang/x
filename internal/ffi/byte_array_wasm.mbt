@@ -12,26 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) type XByteArrayCreateHandle
 
+///|
 pub(all) type XByteArrayReadHandle
 
+///|
 pub(all) type XExternByteArray
 
+///|
 fn begin_read_byte_array(s : XExternByteArray) -> XByteArrayReadHandle = "__moonbit_fs_unstable" "begin_read_byte_array"
 
+///|
 fn byte_array_read_byte(handle : XByteArrayReadHandle) -> Int = "__moonbit_fs_unstable" "byte_array_read_byte"
 
+///|
 fn finish_read_byte_array(handle : XByteArrayReadHandle) = "__moonbit_fs_unstable" "finish_read_byte_array"
 
+///|
 fn begin_create_byte_array() -> XByteArrayCreateHandle = "__moonbit_fs_unstable" "begin_create_byte_array"
 
+///|
 fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int) = "__moonbit_fs_unstable" "byte_array_append_byte"
 
+///|
 fn finish_create_byte_array(
   handle : XByteArrayCreateHandle
 ) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
 
+///|
 pub fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
   let handle = begin_create_byte_array()
   for i = 0; i < s.length(); i = i + 1 {
@@ -40,6 +50,7 @@ pub fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
   finish_create_byte_array(handle)
 }
 
+///|
 pub fn byte_array_from_extern(e : XExternByteArray) -> Bytes {
   let buf = Array::new()
   let handle = begin_read_byte_array(e)

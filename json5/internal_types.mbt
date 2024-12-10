@@ -12,22 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 priv struct ParseContext {
   mut offset : Int
   input : String
   end_offset : Int
 }
 
+///|
 fn ParseContext::make(input : String) -> ParseContext {
   { offset: 0, input, end_offset: input.length() }
 }
 
+///|
 priv type CharClass Array[(Char, Char)]
 
+///|
 fn CharClass::of(array : Array[(Char, Char)]) -> CharClass {
   CharClass(array)
 }
 
+///|
 fn CharClass::contains(self : CharClass, c : Char) -> Bool {
   for left = 0, right = self._.length(); left < right; {
     let middle = (left + right) / 2
@@ -44,6 +49,7 @@ fn CharClass::contains(self : CharClass, c : Char) -> Bool {
   }
 }
 
+///|
 priv enum Token {
   Null
   True
@@ -58,18 +64,22 @@ priv enum Token {
   Colon
 } derive(Eq, Show)
 
+///|
 priv struct StringBuilder {
   mut buffer : String
 }
 
+///|
 fn StringBuilder::make() -> StringBuilder {
   { buffer: "" }
 }
 
+///|
 fn add_string(self : StringBuilder, s : String) -> Unit {
   self.buffer = self.buffer + s
 }
 
+///|
 fn add_substring(
   self : StringBuilder,
   s : String,
@@ -79,10 +89,12 @@ fn add_substring(
   self.buffer = self.buffer + s.substring(start~, end~)
 }
 
+///|
 fn add_char(self : StringBuilder, c : Char) -> Unit {
   self.buffer = self.buffer + c.to_string()
 }
 
+///|
 fn to_string(self : StringBuilder) -> String {
   self.buffer
 }

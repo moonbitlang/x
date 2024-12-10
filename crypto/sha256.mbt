@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 struct Sha256Context {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
@@ -19,7 +20,7 @@ struct Sha256Context {
   mut buf_index : Int
 }
 
-/// Instantiate a Sha256 context
+///| Instantiate a Sha256 context
 /// `reg` is the initial hash value. Defaults to Sha256's.
 pub fn Sha256Context::new(
   reg~ : FixedArray[UInt] = [
@@ -30,6 +31,7 @@ pub fn Sha256Context::new(
   { reg, len: 0, buf: Bytes::new(64), buf_index: 0 }
 }
 
+///|
 let sha256_t : FixedArray[UInt] = [ // pre calculated
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
   0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
@@ -43,6 +45,7 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
   0xc67178f2,
 ]
 
+///|
 fn pad(self : Sha256Context) -> Bytes {
   let mut cnt = self.buf_index
   self.len += 8UL * cnt.to_uint64()
@@ -68,6 +71,7 @@ fn pad(self : Sha256Context) -> Bytes {
   return self.buf
 }
 
+///|
 fn transform(
   self : Sha256Context,
   data : Bytes,
@@ -123,6 +127,7 @@ fn transform(
   self.reg
 }
 
+///|
 pub fn update_from_iter(self : Sha256Context, data : Iter[Byte]) -> Unit {
   data.each(
     fn(b) {
@@ -138,7 +143,7 @@ pub fn update_from_iter(self : Sha256Context, data : Iter[Byte]) -> Unit {
   )
 }
 
-/// update the state of given context from new `data` 
+///| update the state of given context from new `data` 
 pub fn update(self : Sha256Context, data : Bytes) -> Unit {
   let mut offset = 0
   while offset < data.length() {
@@ -159,6 +164,7 @@ pub fn update(self : Sha256Context, data : Bytes) -> Unit {
   }
 }
 
+///|
 fn sha256_compute(
   self : Sha256Context,
   data~ : Iter[Byte] = Iter::empty()
@@ -173,18 +179,19 @@ fn sha256_compute(
   }
 }
 
-/// Compute the Sha256 digest from given Sha256Context
+///| Compute the Sha256 digest from given Sha256Context
 pub fn finalize(self : Sha256Context) -> Bytes {
   arr_u32_to_u8be(self.sha256_compute().iter(), 256)
 }
 
-/// Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
+///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
 pub fn sha256(data : Bytes) -> Bytes {
   let ctx = Sha256Context::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
 
+///|
 pub fn sha256_from_iter(data : Iter[Byte]) -> Bytes {
   let ctx = Sha256Context::new()
   let _ = ctx.update_from_iter(data)

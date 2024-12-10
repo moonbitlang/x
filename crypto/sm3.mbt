@@ -16,6 +16,7 @@
 // - [GM/T 0004-2012]    https://www.oscca.gov.cn/sca/xxgk/2010-12/17/1002389/files/302a3ada057c4a73830536d03e683110.pdf
 // SM3 is as secure as SHA256, providing similar performance. https://doi.org/10.3390/electronics8091033
 
+///|
 struct SM3Context {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
@@ -23,7 +24,7 @@ struct SM3Context {
   mut buf_index : Int
 }
 
-/// Instantiate a SM3 context
+///| Instantiate a SM3 context
 pub fn SM3Context::new() -> SM3Context {
   {
     reg: [
@@ -36,6 +37,7 @@ pub fn SM3Context::new() -> SM3Context {
   }
 }
 
+///|
 let t : FixedArray[UInt] = [ // pre calculated
   0x79cc4519, 0xf3988a32, 0xe7311465, 0xce6228cb, 0x9cc45197, 0x3988a32f, 0x7311465e,
   0xe6228cbc, 0xcc451979, 0x988a32f3, 0x311465e7, 0x6228cbce, 0xc451979c, 0x88a32f39,
@@ -52,34 +54,41 @@ let t : FixedArray[UInt] = [ // pre calculated
 // auxiliary functions
 // FF_j = | X xor Y xor Z                       where 0 <= j <= 15
 //        | (X and Y) or (X and Z) or (Y and Z) where 16 <= j <=63
+///|
 fn SM3Context::ff_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
 }
 
+///|
 fn SM3Context::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
   (x & y) | (x & z) | (y & z)
 }
 
 // GG_j = | X xor Y xor Z           where 0 <= j <= 15
 //        | (X and Y) or (~X and Z) where 16 <= j <= 63
+///|
 fn SM3Context::gg_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
 }
 
+///|
 fn SM3Context::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
   ((y ^ z) & x) ^ z // equivalent of (x & y) | (x.lnot() & z), but faster
 }
 
 // P_0 = X xor (X <<< 9) xor (X <<< 17)
 // P_1 = X xor (X <<< 15) xor (X <<< 23)
+///|
 fn SM3Context::p_0(x : UInt) -> UInt {
   x ^ rotate_left_u(x, 9) ^ rotate_left_u(x, 17)
 }
 
+///|
 fn SM3Context::p_1(x : UInt) -> UInt {
   x ^ rotate_left_u(x, 15) ^ rotate_left_u(x, 23)
 }
 
+///|
 fn pad(self : SM3Context) -> Bytes {
   let mut cnt = self.buf_index
   self.len += 8UL * cnt.to_uint64()
@@ -105,6 +114,7 @@ fn pad(self : SM3Context) -> Bytes {
   return self.buf
 }
 
+///|
 fn transform(
   self : SM3Context,
   data : Bytes,
@@ -184,6 +194,7 @@ fn transform(
   return t_arr
 }
 
+///|
 pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
   data.each(
     fn(b) {
@@ -199,7 +210,7 @@ pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
   )
 }
 
-/// update the state of given context from new `data` 
+///| update the state of given context from new `data` 
 pub fn update(self : SM3Context, data : Bytes) -> Unit {
   let mut offset = 0
   while offset < data.length() {
@@ -220,6 +231,7 @@ pub fn update(self : SM3Context, data : Bytes) -> Unit {
   }
 }
 
+///|
 fn sm3_compute(
   self : SM3Context,
   data~ : Iter[Byte] = Iter::empty()
@@ -234,18 +246,19 @@ fn sm3_compute(
   }
 }
 
-/// Compute the SM3 digest from given SM3Context
+///| Compute the SM3 digest from given SM3Context
 pub fn finalize(self : SM3Context) -> Bytes {
   arr_u32_to_u8be(self.sm3_compute().iter(), 256)
 }
 
-/// Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
+///| Compute the SM3 digest in `Bytes` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : Bytes) -> Bytes {
   let ctx = SM3Context::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
 
+///|
 pub fn sm3_from_iter(data : Iter[Byte]) -> Bytes {
   let ctx = SM3Context::new()
   let _ = ctx.update_from_iter(data)

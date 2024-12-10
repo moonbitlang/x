@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// UUID that complies with RFC 4122.
+///| UUID that complies with RFC 4122.
 ///
 /// UUID objects are immutable, hashable and usable as mapping keys.
 /// The Display of UUIDs is like `12345678-1234-1234-1234-123456789abc`;
@@ -42,7 +42,7 @@ struct UUID {
   lo : Int64
 } derive(Eq, Compare)
 
-/// Constructs a UUID with the given big-endian bytes.
+///| Constructs a UUID with the given big-endian bytes.
 ///
 /// The produced UUID is not RFC-4122 compliant; see also `as_version()`.
 ///
@@ -64,7 +64,7 @@ pub fn from_bytes(bytes : Bytes) -> UUID!Error {
   { hi, lo }
 }
 
-/// The UUID as a 16-byte string.
+///| The UUID as a 16-byte string.
 pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
   let rv = Bytes::new(16)
@@ -99,6 +99,7 @@ test "bytes" {
   )
 }
 
+///|
 fn hex_char_to_int64(c : Char) -> Int64!Error {
   let d = if '0' <= c && c <= '9' {
     c.to_int() - '0'.to_int()
@@ -112,7 +113,7 @@ fn hex_char_to_int64(c : Char) -> Int64!Error {
   d.to_int64()
 }
 
-/// Constructs a UUID with the given hexadecimal string.
+///| Constructs a UUID with the given hexadecimal string.
 ///
 /// This function ignores dashes (`-`) in the given string. The remaining
 /// letters must be exactly 32 hexadecimals, or an error will be raised.
@@ -155,20 +156,25 @@ pub fn from_hex(hex : String) -> UUID!Error {
   }
 }
 
+///|
 let hex_table : Array[Int] = "0123456789abcdef"
   .to_array()
   .map(fn { c => c.to_int() })
 
+///|
 let dash : Int = '-'.to_int()
 
+///|
 let segments = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
+///|
 let size : Int = (
     segments.fold(fn { acc, x => acc + x }, init=0) + segments.length() - 2
   ) *
   2
 
+///|
 pub fn to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
   let rv = Bytes::new(size)
@@ -191,6 +197,7 @@ pub fn to_string(self : UUID) -> String {
   }
 }
 
+///|
 pub impl Show for UUID with output(self : UUID, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }

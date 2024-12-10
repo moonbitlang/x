@@ -16,25 +16,27 @@
 // [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
 // [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
 // [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html 
+///|
 struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   count : FixedArray[UInt]
   buffer : Bytes
 }
 
+///|
 let padding : Bytes = Bytes::make(64, b'\x00')
 
-/// update the state of given context from new `data` 
+///| update the state of given context from new `data` 
 pub fn MD5Context::update(self : MD5Context, data : Bytes) -> Unit {
   md5_update(self, data)
 }
 
-/// an alias of `MD5Context::compute()`
+///| an alias of `MD5Context::compute()`
 pub fn MD5Context::finalize(self : MD5Context) -> Bytes {
   self.md5_compute()
 }
 
-/// Instantiate a MD5 context
+///| Instantiate a MD5 context
 pub fn MD5Context::new() -> MD5Context {
   padding[0] = b'\x80'
   {
@@ -44,7 +46,7 @@ pub fn MD5Context::new() -> MD5Context {
   }
 }
 
-/// compute MD5 digest from given context
+///| compute MD5 digest from given context
 fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
   let input = FixedArray::make(16, 0U)
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
@@ -89,22 +91,27 @@ fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
 //          G(X,Y,Z) = XZ v Y not(Z)
 //          H(X,Y,Z) = X xor Y xor Z
 //          I(X,Y,Z) = Y xor (X v not(Z))
+///|
 fn MD5Context::f(x : UInt, y : UInt, z : UInt) -> UInt {
   (x & y) | (x.lnot() & z)
 }
 
+///|
 fn MD5Context::g(x : UInt, y : UInt, z : UInt) -> UInt {
   ((x ^ y) & z) ^ y
 }
 
+///|
 fn MD5Context::h(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
 }
 
+///|
 fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
   y ^ (x | z.lnot())
 }
 
+///|
 fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   let input = FixedArray::make(16, 0U)
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
@@ -130,6 +137,7 @@ fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
   }
 }
 
+///|
 fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   let mut a = state[0]
   let mut b = state[1]
@@ -217,7 +225,7 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   state[3] += d
 }
 
-/// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
+///| Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
 pub fn md5(data : Bytes) -> Bytes {

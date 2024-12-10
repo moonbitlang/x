@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn sha1(input : Bytes) -> Bytes {
   // Padding
   let old_length = input.length()

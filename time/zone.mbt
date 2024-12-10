@@ -12,36 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Time zone.
+///| Time zone.
 struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   // TODO: offset transition rules
 } derive(Eq)
 
-/// UTC time zone.
+///| UTC time zone.
 pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset] }
 
-/// Creates a time zone with fixed offset from time zone id and offset seconds.
+///| Creates a time zone with fixed offset from time zone id and offset seconds.
 pub fn fixed_zone(id : String, offset_seconds : Int) -> Zone!Error {
   let offset = ZoneOffset::from_seconds!(offset_seconds)
   Zone::{ id, offsets: [offset] }
 }
 
-/// Checks if this zone only has one offset.
+///| Checks if this zone only has one offset.
 pub fn is_fixed(self : Zone) -> Bool {
   self.offsets.length() == 1
 }
 
-/// Returns the zone id.
+///| Returns the zone id.
 pub fn to_string(self : Zone) -> String {
   self.id
 }
 
+///|
 pub impl Show for Zone with output(self : Zone, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
+///|
 fn lookup_offset(self : Zone, _secs : Int64) -> ZoneOffset {
   if self.offsets.length() == 0 {
     return utc_offset

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 fn sm3test(s : String) -> String {
   @crypto.bytes_to_hex_string(@crypto.sm3(s.to_bytes()))
 }
