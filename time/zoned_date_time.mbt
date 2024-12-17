@@ -95,7 +95,7 @@ pub fn to_string(self : ZonedDateTime) -> String {
 ///|
 pub impl Show for ZonedDateTime with output(
   self : ZonedDateTime,
-  logger : Logger
+  logger : &Logger
 ) -> Unit {
   logger.write_string(self.to_string())
 }

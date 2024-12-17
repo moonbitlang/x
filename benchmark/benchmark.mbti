@@ -23,7 +23,7 @@ pub(readonly) struct TaskResult {
   min : Double
 }
 impl TaskResult {
-  output(Self, Logger) -> Unit
+  output(Self, &Logger) -> Unit
   to_string(Self) -> String
 }
 

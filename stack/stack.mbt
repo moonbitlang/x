@@ -86,19 +86,17 @@ test "of" {
 ///|
 pub fn to_string[T : Show](self : Stack[T]) -> String {
   let mut res = "Stack::["
-  self.elements.eachi(
-    fn(i, t) {
-      if i > 0 {
-        res += ", "
-      }
-      res += t.to_string()
-    },
-  )
+  self.elements.eachi(fn(i, t) {
+    if i > 0 {
+      res += ", "
+    }
+    res += t.to_string()
+  })
   res + "]"
 }
 
 ///|
-pub fn output[T : Show](self : Stack[T], logger : Logger) -> Unit {
+pub fn output[T : Show](self : Stack[T], logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

@@ -101,25 +101,23 @@ type LossyChars Decoder
 
 ///|
 pub fn iter(self : LossyChars) -> Iter[Char] {
-  Iter::new(
-    fn(yield_) {
-      loop self._.decode() {
-        Uchar(u) => {
-          if yield_(u) == IterEnd {
-            break IterEnd
-          }
-          continue self._.decode()
+  Iter::new(fn(yield_) {
+    loop self._.decode() {
+      Uchar(u) => {
+        if yield_(u) == IterEnd {
+          break IterEnd
         }
-        Malformed(_) => {
-          if yield_(U_REP) == IterEnd {
-            break IterEnd
-          }
-          continue self._.decode()
-        }
-        End => break IterEnd
+        continue self._.decode()
       }
-    },
-  )
+      Malformed(_) => {
+        if yield_(U_REP) == IterEnd {
+          break IterEnd
+        }
+        continue self._.decode()
+      }
+      End => break IterEnd
+    }
+  })
 }
 
 ///|
@@ -129,7 +127,7 @@ pub fn to_string(self : LossyChars) -> String {
 }
 
 ///|
-pub impl Show for LossyChars with output(self : LossyChars, logger : Logger) -> Unit {
+pub impl Show for LossyChars with output(self : LossyChars, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
@@ -148,26 +146,24 @@ pub impl Show for DecodeError with output(self, logger) {
 
 ///|
 pub fn iter(self : StrictChars) -> Iter[Result[Char, DecodeError]] {
-  Iter::new(
-    fn(yield_) {
-      loop self._.decode() {
-        Uchar(u) => {
-          if yield_(Ok(u)) == IterEnd {
-            break IterEnd
-          }
-          continue self._.decode()
+  Iter::new(fn(yield_) {
+    loop self._.decode() {
+      Uchar(u) => {
+        if yield_(Ok(u)) == IterEnd {
+          break IterEnd
         }
-        Malformed(s) => {
-          let err = DecodeError(s)
-          if yield_(Err(err)) == IterEnd {
-            break IterEnd
-          }
-          continue self._.decode()
-        }
-        End => break IterEnd
+        continue self._.decode()
       }
-    },
-  )
+      Malformed(s) => {
+        let err = DecodeError(s)
+        if yield_(Err(err)) == IterEnd {
+          break IterEnd
+        }
+        continue self._.decode()
+      }
+      End => break IterEnd
+    }
+  })
 }
 
 ///|
@@ -183,6 +179,6 @@ pub fn to_string(self : StrictChars) -> String! {
 }
 
 ///|
-pub impl Show for StrictChars with output(self : StrictChars, logger : Logger) -> Unit {
+pub impl Show for StrictChars with output(self : StrictChars, logger : &Logger) -> Unit {
   logger.write_string(self.to_string?().to_string())
 }

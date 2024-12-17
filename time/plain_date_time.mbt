@@ -83,7 +83,7 @@ pub fn to_string(self : PlainDateTime) -> String {
 ///|
 pub impl Show for PlainDateTime with output(
   self : PlainDateTime,
-  logger : Logger
+  logger : &Logger
 ) -> Unit {
   logger.write_string(self.to_string())
 }
