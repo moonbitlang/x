@@ -39,7 +39,7 @@ pub fn to_string(self : Zone) -> String {
 }
 
 ///|
-pub impl Show for Zone with output(self : Zone, logger : Logger) -> Unit {
+pub impl Show for Zone with output(self : Zone, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

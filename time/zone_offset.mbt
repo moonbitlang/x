@@ -68,7 +68,7 @@ pub fn to_string(self : ZoneOffset) -> String {
 }
 
 ///|
-pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : Logger) {
+pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
   logger.write_string(self.to_string())
 }
 

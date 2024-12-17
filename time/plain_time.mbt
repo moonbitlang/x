@@ -78,7 +78,7 @@ pub fn PlainTime::to_string(self : PlainTime) -> String {
 }
 
 ///|
-pub impl Show for PlainTime with output(self : PlainTime, logger : Logger) -> Unit {
+pub impl Show for PlainTime with output(self : PlainTime, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

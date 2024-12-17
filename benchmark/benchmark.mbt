@@ -47,7 +47,7 @@ pub fn to_string(self : TaskResult) -> String {
 }
 
 ///|
-pub fn output(self : TaskResult, logger : Logger) -> Unit {
+pub fn output(self : TaskResult, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

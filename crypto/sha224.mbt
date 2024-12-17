@@ -14,24 +14,20 @@
 
 ///|
 pub fn sha224(data : Bytes) -> Bytes {
-  let ctx = Sha256Context::new(
-    reg=[
-      0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
-      0xbefa4fa4,
-    ],
-  )
+  let ctx = Sha256Context::new(reg=[
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
+    0xbefa4fa4,
+  ])
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }
 
 ///|
 pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
-  let ctx = Sha256Context::new(
-    reg=[
-      0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
-      0xbefa4fa4,
-    ],
-  )
+  let ctx = Sha256Context::new(reg=[
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
+    0xbefa4fa4,
+  ])
   let _ = ctx.update_from_iter(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }

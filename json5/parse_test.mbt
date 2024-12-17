@@ -56,13 +56,11 @@ test "parses special character property names" {
   assert_eq!(
     json,
     @json.JsonValue::Object(
-      Map::of(
-        [
-          ("$_", @json.JsonValue::Number(1.0)),
-          ("_$", @json.JsonValue::Number(2.0)),
-          ("a\u200C", @json.JsonValue::Number(3.0)),
-        ],
-      ),
+      Map::of([
+        ("$_", @json.JsonValue::Number(1.0)),
+        ("_$", @json.JsonValue::Number(2.0)),
+        ("a\u200C", @json.JsonValue::Number(3.0)),
+      ]),
     ),
   )
 }
@@ -82,13 +80,11 @@ test "parses escaped property names" {
   assert_eq!(
     json,
     @json.JsonValue::Object(
-      Map::of(
-        [
-          ("ab", @json.JsonValue::Number(1.0)),
-          ("$_", @json.JsonValue::Number(2.0)),
-          ("_$", @json.JsonValue::Number(3.0)),
-        ],
-      ),
+      Map::of([
+        ("ab", @json.JsonValue::Number(1.0)),
+        ("$_", @json.JsonValue::Number(2.0)),
+        ("_$", @json.JsonValue::Number(3.0)),
+      ]),
     ),
   )
 }
@@ -108,12 +104,10 @@ test "parses multiple properties" {
   assert_eq!(
     json,
     @json.JsonValue::Object(
-      Map::of(
-        [
-          ("abc", @json.JsonValue::Number(1.0)),
-          ("def", @json.JsonValue::Number(2.0)),
-        ],
-      ),
+      Map::of([
+        ("abc", @json.JsonValue::Number(1.0)),
+        ("def", @json.JsonValue::Number(2.0)),
+      ]),
     ),
   )
 }
@@ -123,16 +117,14 @@ test "parses nested objects" {
   assert_eq!(
     json,
     @json.JsonValue::Object(
-      Map::of(
-        [
-          (
-            "a",
-            @json.JsonValue::Object(
-              Map::of([("b", @json.JsonValue::Number(2.0))]),
-            ),
+      Map::of([
+        (
+          "a",
+          @json.JsonValue::Object(
+            Map::of([("b", @json.JsonValue::Number(2.0))]),
           ),
-        ],
-      ),
+        ),
+      ]),
     ),
   )
 }
@@ -153,9 +145,10 @@ test "parses multiple array values" {
   let json = test_parse!("[1,2]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [@json.JsonValue::Number(1.0), @json.JsonValue::Number(2.0)],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(2.0),
+    ]),
   )
 }
 
@@ -163,14 +156,13 @@ test "parses nested arrays" {
   let json = test_parse!("[1,[2,3]]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(1.0),
-        @json.JsonValue::Array(
-          [@json.JsonValue::Number(2.0), @json.JsonValue::Number(3.0)],
-        ),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Array([
+        @json.JsonValue::Number(2.0),
+        @json.JsonValue::Number(3.0),
+      ]),
+    ]),
   )
 }
 //endregion
@@ -199,13 +191,11 @@ test "parses leading zeroes" {
   let json = test_parse!("[0,0.,0e0]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(0.0),
-        @json.JsonValue::Number(0.0),
-        @json.JsonValue::Number(0.0),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(0.0),
+      @json.JsonValue::Number(0.0),
+      @json.JsonValue::Number(0.0),
+    ]),
   )
 }
 
@@ -213,14 +203,12 @@ test "parses integers" {
   let json = test_parse!("[1,23,456,7890]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(1.0),
-        @json.JsonValue::Number(23.0),
-        @json.JsonValue::Number(456.0),
-        @json.JsonValue::Number(7890.0),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(23.0),
+      @json.JsonValue::Number(456.0),
+      @json.JsonValue::Number(7890.0),
+    ]),
   )
 }
 
@@ -228,14 +216,12 @@ test "parses signed numbers" {
   let json = test_parse!("[-1,+2,-.1,-0]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(-1.0),
-        @json.JsonValue::Number(2.0),
-        @json.JsonValue::Number(-0.1),
-        @json.JsonValue::Number(-0.0),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(-1.0),
+      @json.JsonValue::Number(2.0),
+      @json.JsonValue::Number(-0.1),
+      @json.JsonValue::Number(-0.0),
+    ]),
   )
 }
 
@@ -243,9 +229,10 @@ test "parses leading decimal points" {
   let json = test_parse!("[.1,.23]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [@json.JsonValue::Number(0.1), @json.JsonValue::Number(0.23)],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(0.1),
+      @json.JsonValue::Number(0.23),
+    ]),
   )
 }
 
@@ -253,9 +240,10 @@ test "parses fractional numbers" {
   let json = test_parse!("[1.0,1.23]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [@json.JsonValue::Number(1.0), @json.JsonValue::Number(1.23)],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(1.23),
+    ]),
   )
 }
 
@@ -263,17 +251,15 @@ test "parses exponents" {
   let json = test_parse!("[1e0,1e1,1e01,1.e0,1.1e0,1e-1,1e+1]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(1.0),
-        @json.JsonValue::Number(10.0),
-        @json.JsonValue::Number(10.0),
-        @json.JsonValue::Number(1.0),
-        @json.JsonValue::Number(1.1),
-        @json.JsonValue::Number(0.1),
-        @json.JsonValue::Number(10.0),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(10.0),
+      @json.JsonValue::Number(10.0),
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(1.1),
+      @json.JsonValue::Number(0.1),
+      @json.JsonValue::Number(10.0),
+    ]),
   )
 }
 
@@ -281,14 +267,12 @@ test "parses hexadecimal numbers" {
   let json = test_parse!("[0x1,0x10,0xff,0xFF]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(1.0),
-        @json.JsonValue::Number(16.0),
-        @json.JsonValue::Number(255.0),
-        @json.JsonValue::Number(255.0),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(1.0),
+      @json.JsonValue::Number(16.0),
+      @json.JsonValue::Number(255.0),
+      @json.JsonValue::Number(255.0),
+    ]),
   )
 }
 
@@ -296,12 +280,10 @@ test "parses signed and unsigned Infinity" {
   let json = test_parse!("[Infinity,-Infinity]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [
-        @json.JsonValue::Number(@double.infinity),
-        @json.JsonValue::Number(@double.neg_infinity),
-      ],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::Number(@double.infinity),
+      @json.JsonValue::Number(@double.neg_infinity),
+    ]),
   )
 }
 
@@ -359,9 +341,10 @@ test "parses quotes in strings" {
   let json = test_parse!("[\"\\\"\",\"'\"]")
   assert_eq!(
     json,
-    @json.JsonValue::Array(
-      [@json.JsonValue::String("\""), @json.JsonValue::String("'")],
-    ),
+    @json.JsonValue::Array([
+      @json.JsonValue::String("\""),
+      @json.JsonValue::String("'"),
+    ]),
   )
 }
 

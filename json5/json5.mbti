@@ -6,7 +6,7 @@ fn parse(String) -> Json!ParseError
 // Types and methods
 pub(all) type! ParseError ParseErrorData
 impl ParseError {
-  output(Self, Logger) -> Unit
+  output(Self, &Logger) -> Unit
   to_string(Self) -> String
 }
 

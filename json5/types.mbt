@@ -48,6 +48,6 @@ pub fn ParseError::to_string(self : ParseError) -> String {
 }
 
 ///|
-pub fn ParseError::output(self : ParseError, logger : Logger) -> Unit {
+pub fn ParseError::output(self : ParseError, logger : &Logger) -> Unit {
   logger.write_string(ParseError::to_string(self))
 }

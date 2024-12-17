@@ -198,6 +198,6 @@ pub fn to_string(self : UUID) -> String {
 }
 
 ///|
-pub impl Show for UUID with output(self : UUID, logger : Logger) -> Unit {
+pub impl Show for UUID with output(self : UUID, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }

@@ -100,7 +100,7 @@ pub fn to_string(self : PlainDate) -> String {
 }
 
 ///|
-pub impl Show for PlainDate with output(self : PlainDate, logger : Logger) {
+pub impl Show for PlainDate with output(self : PlainDate, logger : &Logger) {
   logger.write_string(self.to_string())
 }
 

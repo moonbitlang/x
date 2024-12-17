@@ -196,18 +196,16 @@ fn transform(
 
 ///|
 pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
-  data.each(
-    fn(b) {
-      self.buf[self.buf_index] = b
-      self.buf_index += 1
-      if self.buf_index == 64 {
-        self.buf_index = 0
-        self.len += 512UL
-        let _ = self.transform(self.buf)
+  data.each(fn(b) {
+    self.buf[self.buf_index] = b
+    self.buf_index += 1
+    if self.buf_index == 64 {
+      self.buf_index = 0
+      self.len += 512UL
+      let _ = self.transform(self.buf)
 
-      }
-    },
-  )
+    }
+  })
 }
 
 ///| update the state of given context from new `data` 
