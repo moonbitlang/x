@@ -13,9 +13,17 @@
 // limitations under the License.
 
 ///|
+fn internal_get_cli_args() -> FixedArray[Bytes] = "$moonbit.get_cli_args"
+
+///|
 pub fn get_cli_args() -> Array[String] {
-  // not implement yet
-  panic()
+  Array::from_fixed_array(
+    internal_get_cli_args().map(fn {
+      // Here we assume that the CLI arguments are encoded in well-formed UTF-8.
+      // TODO: Handle other encodings.
+      arg => @encoding.decode_strict(UTF8, arg).to_string?().unwrap()
+    }),
+  )
 }
 
 ///|
