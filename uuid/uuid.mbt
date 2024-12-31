@@ -89,12 +89,8 @@ test "bytes" {
       #|b"\xc9\x82\xfb\x68\xdf\x50\x4c\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
     ,
   )
-  assert_true!(
-    from_bytes?(Bytes::new(15)).is_err(),
-  )
-  assert_true!(
-    from_bytes?(Bytes::new(17)).is_err(),
-  )
+  assert_true!(from_bytes?(Bytes::new(15)).is_err())
+  assert_true!(from_bytes?(Bytes::new(17)).is_err())
 }
 
 ///|

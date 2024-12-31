@@ -211,11 +211,13 @@ test "checked_add_int" {
     checked_add_int?(@int.max_value, 1),
     content=
       #|Err("Failure(Int overflow)")
+    ,
   )
   inspect!(
     checked_add_int?(@int.min_value, -1),
     content=
       #|Err("Failure(Int overflow)")
+    ,
   )
 }
 
@@ -227,11 +229,13 @@ test "checked_mul_int" {
     checked_mul_int?(@int.max_value, 2),
     content=
       #|Err("Failure(Int overflow)")
+    ,
   )
   inspect!(
     checked_mul_int?(@int.min_value, 2),
     content=
       #|Err("Failure(Int overflow)")
+    ,
   )
 }
 
@@ -243,11 +247,13 @@ test "checked_add_int64" {
     checked_add_int64?(1L, @int64.max_value),
     content=
       #|Err("Failure(Int64 overflow)")
+    ,
   )
   inspect!(
     checked_add_int64?(-1L, @int64.min_value),
     content=
       #|Err("Failure(Int64 overflow)")
+    ,
   )
 }
 
@@ -259,11 +265,13 @@ test "checked_mul_int64" {
     checked_mul_int64?(@int64.max_value, 2L),
     content=
       #|Err("Failure(Int64 overflow)")
+    ,
   )
   inspect!(
     checked_mul_int64?(@int64.min_value, 2L),
     content=
       #|Err("Failure(Int64 overflow)")
+    ,
   )
 }
 
@@ -300,6 +308,7 @@ test "floor_div_int" {
     floor_div_int?(10, 0),
     content=
       #|Err("Failure(division by zero)")
+    ,
   )
 }
 
@@ -318,9 +327,7 @@ test "floor_div_int64" {
   inspect!(floor_div_int64?(9L, 10L), content="Ok(0)")
   inspect!(floor_div_int64?(-9L, 10L), content="Ok(-1)")
   inspect!(floor_div_int64?(0L, 10L), content="Ok(0)")
-  assert_true!(
-    floor_div_int64?(10L, 0L).is_err(),
-  )
+  assert_true!(floor_div_int64?(10L, 0L).is_err())
 }
 
 ///|
@@ -338,6 +345,7 @@ test "floor_mod_int" {
     floor_mod_int?(10, 0),
     content=
       #|Err("Failure(division by zero)")
+    ,
   )
 }
 
@@ -352,7 +360,5 @@ test "floor_mod_int64" {
   inspect!(floor_mod_int64?(11L, 10L), content="Ok(1)")
   inspect!(floor_mod_int64?(-11L, 10L), content="Ok(9)")
   inspect!(floor_mod_int64?(0L, 10L), content="Ok(0)")
-  assert_true!(
-    floor_mod_int64?(10L, 0L).is_err(),
-  )
+  assert_true!(floor_mod_int64?(10L, 0L).is_err())
 }
