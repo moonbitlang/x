@@ -48,12 +48,8 @@ test "add_hours" {
     Duration::zero().add_hours!(@int64.min_value / seconds_per_hour),
     content="PT-2562047788015215H",
   )
-  assert_true!(
-    Duration::zero().add_hours?(@int64.max_value).is_err(),
-  )
-  assert_true!(
-    Duration::zero().add_hours?(@int64.min_value).is_err(),
-  )
+  assert_true!(Duration::zero().add_hours?(@int64.max_value).is_err())
+  assert_true!(Duration::zero().add_hours?(@int64.min_value).is_err())
 }
 
 test "add_minutes" {
@@ -68,12 +64,8 @@ test "add_minutes" {
     Duration::zero().add_minutes!(@int64.min_value / seconds_per_minute),
     content="PT-2562047788015215H-30M",
   )
-  assert_true!(
-    Duration::zero().add_minutes?(@int64.max_value).is_err(),
-  )
-  assert_true!(
-    Duration::zero().add_minutes?(@int64.min_value).is_err(),
-  )
+  assert_true!(Duration::zero().add_minutes?(@int64.max_value).is_err())
+  assert_true!(Duration::zero().add_minutes?(@int64.min_value).is_err())
 }
 
 test "add_nanoseconds" {
@@ -113,10 +105,14 @@ test "add_nanoseconds" {
     content="PT-2562047H-47M-16.854775808S",
   )
   assert_true!(
-    Duration::of!(seconds=@int64.max_value).add_nanoseconds?(@int64.max_value).is_err(),
+    Duration::of!(seconds=@int64.max_value)
+    .add_nanoseconds?(@int64.max_value)
+    .is_err(),
   )
   assert_true!(
-    Duration::of!(seconds=@int64.min_value).add_nanoseconds?(@int64.min_value).is_err(),
+    Duration::of!(seconds=@int64.min_value)
+    .add_nanoseconds?(@int64.min_value)
+    .is_err(),
   )
 }
 

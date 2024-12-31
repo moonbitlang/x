@@ -20,7 +20,7 @@ struct Task {
 }
 
 ///|
-pub(readonly) struct TaskResult {
+pub struct TaskResult {
   task : Task
   average : Double
   max : Double

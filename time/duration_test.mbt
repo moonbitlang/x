@@ -23,12 +23,8 @@ test "from_string" {
     content="PT-1H-2M-3.456789S",
   )
   inspect!(@time.Duration::from_string!("PT0.45S"), content="PT0.45S")
-  assert_true!(
-    @time.Duration::from_string?("PT0.000.45S").is_err(),
-  )
-  assert_true!(
-    @time.Duration::from_string?("P1Y2M3DT4H5M6S").is_err(),
-  )
+  assert_true!(@time.Duration::from_string?("PT0.000.45S").is_err())
+  assert_true!(@time.Duration::from_string?("P1Y2M3DT4H5M6S").is_err())
 }
 
 test "getters" {

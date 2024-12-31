@@ -19,12 +19,8 @@ test "from_hex" {
     @uuid.from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
   )
-  assert_true!(
-    @uuid.from_hex?("13cb").is_err(),
-  )
-  assert_true!(
-    @uuid.from_hex?("13cb501c-99a8-c889-3234").is_err(),
-  )
+  assert_true!(@uuid.from_hex?("13cb").is_err())
+  assert_true!(@uuid.from_hex?("13cb501c-99a8-c889-3234").is_err())
 }
 
 test "ops" {
