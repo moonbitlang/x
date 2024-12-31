@@ -19,13 +19,11 @@ test "from_hex" {
     @uuid.from_hex!("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",
   )
-  inspect!(
-    @uuid.from_hex?("13cb"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @uuid.from_hex?("13cb").is_err(),
   )
-  inspect!(
-    @uuid.from_hex?("13cb501c-99a8-c889-3234"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @uuid.from_hex?("13cb501c-99a8-c889-3234").is_err(),
   )
 }
 

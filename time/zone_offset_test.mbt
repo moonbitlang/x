@@ -22,53 +22,41 @@ test "of" {
     @time.ZoneOffset::of!(hours=1, minutes=30, seconds=30),
     content="+01:30:30",
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=19),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=19).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=-19),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=-19).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(minutes=60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(minutes=60).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(minutes=-60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(minutes=-60).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(seconds=60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(seconds=60).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(seconds=-60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(seconds=-60).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(minutes=-30, seconds=30),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(minutes=-30, seconds=30).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(minutes=30, seconds=-30),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(minutes=30, seconds=-30).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=18, minutes=1),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=18, minutes=1).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::of?(hours=-18, seconds=1),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::of?(hours=-18, seconds=1).is_err(),
   )
 }
 
@@ -77,13 +65,11 @@ test "from_seconds" {
   inspect!(@time.ZoneOffset::from_seconds!(0), content="Z")
   inspect!(@time.ZoneOffset::from_seconds!(18 * 60 * 60), content="+18:00")
   inspect!(@time.ZoneOffset::from_seconds!(-18 * 60 * 60), content="-18:00")
-  inspect!(
-    @time.ZoneOffset::from_seconds?(19 * 60 * 60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::from_seconds?(19 * 60 * 60).is_err(),
   )
-  inspect!(
-    @time.ZoneOffset::from_seconds?(-19 * 60 * 60),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.ZoneOffset::from_seconds?(-19 * 60 * 60).is_err(),
   )
 }
 

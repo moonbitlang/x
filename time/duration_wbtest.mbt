@@ -48,13 +48,11 @@ test "add_hours" {
     Duration::zero().add_hours!(@int64.min_value / seconds_per_hour),
     content="PT-2562047788015215H",
   )
-  inspect!(
-    Duration::zero().add_hours?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::zero().add_hours?(@int64.max_value).is_err(),
   )
-  inspect!(
-    Duration::zero().add_hours?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::zero().add_hours?(@int64.min_value).is_err(),
   )
 }
 
@@ -70,13 +68,11 @@ test "add_minutes" {
     Duration::zero().add_minutes!(@int64.min_value / seconds_per_minute),
     content="PT-2562047788015215H-30M",
   )
-  inspect!(
-    Duration::zero().add_minutes?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::zero().add_minutes?(@int64.max_value).is_err(),
   )
-  inspect!(
-    Duration::zero().add_minutes?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::zero().add_minutes?(@int64.min_value).is_err(),
   )
 }
 
@@ -116,13 +112,11 @@ test "add_nanoseconds" {
     Duration::zero().add_nanoseconds!(@int64.min_value),
     content="PT-2562047H-47M-16.854775808S",
   )
-  inspect!(
-    Duration::of!(seconds=@int64.max_value).add_nanoseconds?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::of!(seconds=@int64.max_value).add_nanoseconds?(@int64.max_value).is_err(),
   )
-  inspect!(
-    Duration::of!(seconds=@int64.min_value).add_nanoseconds?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    Duration::of!(seconds=@int64.min_value).add_nanoseconds?(@int64.min_value).is_err(),
   )
 }
 
@@ -143,12 +137,6 @@ test "op_add" {
   inspect!(p1.op_add!(p2), content="PT0S")
   inspect!(p1.op_add!(p1), content="PT2H2M2.000002S")
   inspect!(p2.op_add!(p2), content="PT-2H-2M-2.000002S")
-  inspect!(
-    p1.op_add?(p3),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
-  )
-  inspect!(
-    p2.op_add?(p4),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
-  )
+  assert_true!(p1.op_add?(p3).is_err())
+  assert_true!(p2.op_add?(p4).is_err())
 }
