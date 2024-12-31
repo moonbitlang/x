@@ -20,21 +20,14 @@ test "of" {
   inspect!(@time.PlainDate::of!(-1, 1, 1), content="-0001-01-01")
   inspect!(@time.PlainDate::of!(-2000, 2, 29), content="-2000-02-29")
   inspect!(@time.PlainDate::of!(-9999, 1, 1), content="-9999-01-01")
-  inspect!(
-    @time.PlainDate::of?(2001, 2, 29),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::of?(2001, 2, 29).is_err(),
   )
-  inspect!(
-    @time.PlainDate::of?(2001, 1, 32),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::of?(2001, 1, 32).is_err(),
   )
-  inspect!(
-    @time.PlainDate::of?(10000, 1, 1),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
-  )
-  inspect!(
-    @time.PlainDate::of?(10000, 1, 1),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::of?(10000, 1, 1).is_err(),
   )
 }
 
@@ -46,21 +39,17 @@ test "from_year_ord" {
   inspect!(@time.PlainDate::from_year_ord!(-2000, 366), content="-2000-12-31")
   inspect!(@time.PlainDate::from_year_ord!(9999, 365), content="9999-12-31")
   inspect!(@time.PlainDate::from_year_ord!(-9999, 365), content="-9999-12-31")
-  inspect!(
-    @time.PlainDate::from_year_ord?(2001, 366),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_year_ord?(2001, 366).is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_year_ord?(-2001, 366),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_year_ord?(-2001, 366).is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_year_ord?(10000, 365),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_year_ord?(10000, 365).is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_year_ord?(-10000, 365),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_year_ord?(-10000, 365).is_err(),
   )
 }
 
@@ -69,25 +58,20 @@ test "from_string" {
   inspect!(@time.PlainDate::from_string!("0000-01-01"), content="0000-01-01")
   inspect!(@time.PlainDate::from_string!("0001-01-01"), content="0001-01-01")
   inspect!(@time.PlainDate::from_string!("-9999-01-01"), content="-9999-01-01")
-  inspect!(
-    @time.PlainDate::from_string?("10000-01-01"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_string?("10000-01-01").is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_string?("-10000-01-01"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_string?("-10000-01-01").is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_string?("-01-01"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_string?("-01-01").is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_string?("12-31"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_string?("12-31").is_err(),
   )
-  inspect!(
-    @time.PlainDate::from_string?("-01"),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    @time.PlainDate::from_string?("-01").is_err(),
   )
 }
 
@@ -218,13 +202,11 @@ test "add_years" {
   inspect!(d.add_years!(7999L), content="9999-02-28")
   inspect!(d.add_years!(-2001L), content="-0001-02-28")
   inspect!(d.add_years!(-9999L), content="-7999-02-28")
-  inspect!(
-    d.add_years?(8000L),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_years?(8000L).is_err(),
   )
-  inspect!(
-    d.add_years?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_years?(@int64.max_value).is_err(),
   )
   inspect!(d.add_years!(@int64.min_value), content="2000-02-29")
 }
@@ -238,17 +220,14 @@ test "add_months" {
   inspect!(d.add_months!(12L), content="2001-02-28")
   inspect!(d.add_months!(24L), content="2002-02-28")
   inspect!(d.add_months!(12L * -2000L), content="0000-02-29")
-  inspect!(
-    d.add_months?(12L * 8000L),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(12L * 8000L).is_err(),
   )
-  inspect!(
-    d.add_months?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_months?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(@int64.min_value).is_err(),
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_months!(0L), content="-2000-02-29")
@@ -258,17 +237,14 @@ test "add_months" {
   inspect!(d.add_months!(12L), content="-1999-02-28")
   inspect!(d.add_months!(24L), content="-1998-02-28")
   inspect!(d.add_months!(12L * 10000L), content="8000-02-29")
-  inspect!(
-    d.add_months?(12L * -8000L),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(12L * -8000L).is_err(),
   )
-  inspect!(
-    d.add_months?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_months?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_months?(@int64.min_value).is_err(),
   )
 }
 
@@ -279,13 +255,11 @@ test "add_weeks" {
   inspect!(d.add_weeks!(-1L), content="2000-02-22")
   inspect!(d.add_weeks!(3L), content="2000-03-21")
   inspect!(d.add_weeks!(-3L), content="2000-02-08")
-  inspect!(
-    d.add_weeks?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_weeks?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_weeks?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_weeks?(@int64.min_value).is_err(),
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_weeks!(0L), content="-2000-02-29")
@@ -293,13 +267,11 @@ test "add_weeks" {
   inspect!(d.add_weeks!(-1L), content="-2000-02-22")
   inspect!(d.add_weeks!(3L), content="-2000-03-21")
   inspect!(d.add_weeks!(-3L), content="-2000-02-08")
-  inspect!(
-    d.add_weeks?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_weeks?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_weeks?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_weeks?(@int64.min_value).is_err(),
   )
 }
 
@@ -310,13 +282,11 @@ test "add_days" {
   inspect!(d.add_days!(-1L), content="2000-02-28")
   inspect!(d.add_days!(365L), content="2001-02-28")
   inspect!(d.add_days!(-365L), content="1999-03-01")
-  inspect!(
-    d.add_days?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_days?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_days?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_days?(@int64.min_value).is_err(),
   )
   let d = @time.PlainDate::of!(-2000, 2, 29)
   inspect!(d.add_days!(0L), content="-2000-02-29")
@@ -324,13 +294,11 @@ test "add_days" {
   inspect!(d.add_days!(-1L), content="-2000-02-28")
   inspect!(d.add_days!(365L), content="-1999-02-28")
   inspect!(d.add_days!(-365L), content="-2001-03-01")
-  inspect!(
-    d.add_days?(@int64.max_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_days?(@int64.max_value).is_err(),
   )
-  inspect!(
-    d.add_days?(@int64.min_value),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.add_days?(@int64.min_value).is_err(),
   )
 }
 
@@ -353,13 +321,11 @@ test "with_year" {
   inspect!(d.with_year!(0), content="0000-02-29")
   inspect!(d.with_year!(9999), content="9999-02-28")
   inspect!(d.with_year!(-9999), content="-9999-02-28")
-  inspect!(
-    d.with_year?(10000),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_year?(10000).is_err(),
   )
-  inspect!(
-    d.with_year?(-10000),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_year?(-10000).is_err(),
   )
 }
 
@@ -368,13 +334,11 @@ test "with_month" {
   inspect!(d.with_month!(1), content="2000-01-31")
   inspect!(d.with_month!(2), content="2000-02-29")
   inspect!(d.with_month!(4), content="2000-04-30")
-  inspect!(
-    d.with_month?(0),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_month?(0).is_err(),
   )
-  inspect!(
-    d.with_month?(13),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_month?(13).is_err(),
   )
 }
 
@@ -382,13 +346,11 @@ test "with_day" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_day!(29), content="2000-02-29")
   inspect!(d.with_day!(1), content="2000-02-01")
-  inspect!(
-    d.with_day?(0),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_day?(0).is_err(),
   )
-  inspect!(
-    d.with_day?(30),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_day?(30).is_err(),
   )
 }
 
@@ -396,13 +358,11 @@ test "with_ordinal" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_ordinal!(1), content="2000-01-01")
   inspect!(d.with_ordinal!(366), content="2000-12-31")
-  inspect!(
-    d.with_ordinal?(0),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_ordinal?(0).is_err(),
   )
-  inspect!(
-    d.with_ordinal?(367),
-    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  assert_true!(
+    d.with_ordinal?(367).is_err(),
   )
 }
 
