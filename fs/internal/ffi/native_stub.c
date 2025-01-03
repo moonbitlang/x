@@ -223,7 +223,7 @@ void remove_file(struct moonbit_bytes* path) {
 
 void write_bytes_to_file(struct moonbit_bytes* path, struct moonbit_bytes* content) {
     FILE *file = fopen((const char *)(path->data), "wb");
-    size_t content_size = moonbit_array_length(content);
+    size_t content_size = Moonbit_array_length(content);
     fwrite(content->data, 1, content_size, file);
     fflush(file);
     fclose(file);
