@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  stable-build:
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +32,67 @@ jobs:
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Setup MSVC
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: moon version
+        run: |
+          moon version --all
+          moonrun --version
+
+      - name: moon test
+        run: |
+          moon test --target all --serial --release
+          moon test --target all --serial
+          moon test --target native --release
+          moon test --target native
+
+      - name: moon check
+        run: moon check --deny-warn
+
+      - name: moon info
+        run: |
+          moon info
+          git diff --exit-code
+
+      - name: format diff
+        run: |
+          moon fmt
+          git diff --exit-code
+
+  bleeding-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: ubuntu-latest
+            path: ubuntu_x86_64_moon_setup
+          - name: macos-latest
+            path: mac_intel_moon_setup
+          - name: macos-14
+            path: mac_m1_moon_setup
+          - name: windows-latest
+
+    runs-on: ${{ matrix.os.name }}
+    continue-on-error: ${{ matrix.os.name == 'macos-14' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install on windows
+        env:
+          MOONBIT_INSTALL_VERSION: bleeding
         if: ${{ matrix.os.name == 'windows-latest' }}
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
