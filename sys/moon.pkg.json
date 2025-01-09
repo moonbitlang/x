@@ -1,8 +1,0 @@
-{
-    "import": [
-        "moonbitlang/x/sys/internal/ffi"
-    ],
-    "targets": {
-        "sys_test.mbt": ["not", "native"]
-    }
-}
