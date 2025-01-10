@@ -24,8 +24,8 @@ pub fn run(self : Task) -> TaskResult {
     (self.f)()
   }
   let time = @ffi.instant_elapsed_as_secs_f64(now)
-  let mut max : Double = @double.min_value
-  let mut min : Double = @double.max_value
+  let mut max = @double.min_value
+  let mut min = @double.max_value
   for i = 1; i <= self.count; i = i + 1 {
     let per_now = @ffi.instant_now()
     (self.f)()
