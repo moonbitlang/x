@@ -29,4 +29,12 @@ test "get_env_vars" {
       #|Some("IT_WORKS")
     ,
   )
+  @sys.unset_env_var(k)
+  let res = @sys.get_env_vars()[k]
+  inspect!(
+    res,
+    content=
+      #|None
+    ,
+  )
 }

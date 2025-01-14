@@ -52,4 +52,13 @@ pub fn set_env_var(key : String, value : String) -> Unit {
 fn set_env_var_ffi(key : XExternString, value : XExternString) = "__moonbit_fs_unstable" "set_env_var"
 
 ///|
+pub fn unset_env_var(key : String) -> Unit {
+  let key = @ffi.string_to_extern(key)
+  unset_env_var_ffi(key)
+}
+
+///|
+fn unset_env_var_ffi(key : XExternString) = "__moonbit_fs_unstable" "unset_env_var"
+
+///|
 pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"

@@ -39,4 +39,10 @@ pub fn set_env_var(_key : String, _value : String) -> Unit {
 }
 
 ///|
-pub extern "native" fn exit(code : Int) -> Unit = "exit"
+pub fn unset_env_var(_key : String) -> Unit {
+  // not implement yet
+  panic()
+}
+
+///|
+pub extern "C" fn exit(code : Int) -> Unit = "exit"

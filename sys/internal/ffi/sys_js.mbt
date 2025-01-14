@@ -57,6 +57,17 @@ extern "js" fn set_env_var_internal(key : String, value : String) -> Unit =
   #| }
 
 ///|
+pub fn unset_env_var(key : String) -> Unit {
+  unset_env_var_internal(key)
+}
+
+///|
+extern "js" fn unset_env_var_internal(key : String) -> Unit =
+  #| function(key) {
+  #|   delete process.env[key];
+  #| }
+
+///|
 pub extern "js" fn exit(code : Int) -> Unit =
   #| function(code) {
   #|   process.exit(code);
