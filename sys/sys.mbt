@@ -28,6 +28,11 @@ pub fn set_env_var(key : String, value : String) -> Unit {
 }
 
 ///|
+pub fn unset_env_var(key : String) -> Unit {
+  @ffi.unset_env_var(key)
+}
+
+///|
 pub fn exit(code : Int) -> Unit {
   @ffi.exit(code)
 }
