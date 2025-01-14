@@ -1,0 +1,17 @@
+package moonbitlang/x/sys/internal/ffi
+
+// Values
+fn exit(Int) -> Unit
+
+fn get_cli_args() -> Array[String]
+
+fn get_env_vars() -> Map[String, String]
+
+fn set_env_var(String, String) -> Unit
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
