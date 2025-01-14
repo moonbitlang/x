@@ -1,0 +1,11 @@
+{
+    "import": [
+        "moonbitlang/x/internal/ffi",
+        "moonbitlang/x/encoding"
+    ],
+    "targets": {
+        "sys_wasm.mbt": ["wasm", "wasm-gc"],
+        "sys_js.mbt": ["js"],
+        "sys_native.mbt": ["native"]
+    }
+}
