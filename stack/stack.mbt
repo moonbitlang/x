@@ -101,7 +101,7 @@ pub fn output[T : Show](self : Stack[T], logger : &Logger) -> Unit {
 }
 
 test "to_string" {
-  let empty : Stack[Int] = new()
+  let empty : Stack[Int] = Stack::new()
   inspect!(empty, content="Stack::[]")
   inspect!(Stack::of([1, 2, 3, 4, 5]), content="Stack::[1, 2, 3, 4, 5]")
 }
@@ -453,7 +453,7 @@ pub fn each[T](self : Stack[T], f : (T) -> Unit) -> Unit {
 }
 
 test "iter" {
-  let s : Stack[Int] = new()
+  let s : Stack[Int] = Stack::new()
   let mut sum = 0
   let mut sub = 0
   s.each(fn(i) { sum = sum + i })

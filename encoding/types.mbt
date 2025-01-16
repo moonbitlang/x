@@ -145,7 +145,7 @@ pub impl Show for DecodeError with output(self, logger) {
 }
 
 ///|
-pub fn iter(self : StrictChars) -> Iter[Result[Char, DecodeError]] {
+pub fn StrictChars::iter(self : StrictChars) -> Iter[Result[Char, DecodeError]] {
   Iter::new(fn(yield_) {
     loop self._.decode() {
       Uchar(u) => {
@@ -167,7 +167,7 @@ pub fn iter(self : StrictChars) -> Iter[Result[Char, DecodeError]] {
 }
 
 ///|
-pub fn to_string(self : StrictChars) -> String! {
+pub fn StrictChars::to_string(self : StrictChars) -> String! {
   let arr = []
   for element in self {
     match element {

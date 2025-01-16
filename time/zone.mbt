@@ -34,7 +34,7 @@ pub fn is_fixed(self : Zone) -> Bool {
 }
 
 ///| Returns the zone id.
-pub fn to_string(self : Zone) -> String {
+pub fn Zone::to_string(self : Zone) -> String {
   self.id
 }
 

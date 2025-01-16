@@ -67,7 +67,7 @@ pub fn Period::from_string(str : String) -> Period!Error {
 }
 
 ///| Returns a string representation of this period using ISO 8601 representation.
-pub fn to_string(self : Period) -> String {
+pub fn Period::to_string(self : Period) -> String {
   if self.is_zero() {
     return "P0D"
   }
@@ -156,7 +156,7 @@ pub fn add_period(self : Period, other : Period) -> Period!Error {
 }
 
 ///|
-pub fn op_add(self : Period, other : Period) -> Period!Error {
+pub fn Period::op_add(self : Period, other : Period) -> Period!Error {
   self.add_period!(other)
 }
 
@@ -212,12 +212,12 @@ pub fn with_days(self : Period, days : Int) -> Period {
 }
 
 ///| Checks if this period is zero length.
-pub fn is_zero(self : Period) -> Bool {
+pub fn Period::is_zero(self : Period) -> Bool {
   self.years == 0 && self.months == 0 && self.days == 0
 }
 
 ///| Checks if this period is negative.
-pub fn is_neg(self : Period) -> Bool {
+pub fn Period::is_neg(self : Period) -> Bool {
   self.years < 0 || self.months < 0 || self.days < 0
 }
 

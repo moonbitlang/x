@@ -66,7 +66,7 @@ pub fn variant(self : UUID) -> Variant {
     ReservedNCS
   } else if (self.lo & (0x4000L << 48)) == 0L {
     RFC4122(
-      from_int64(
+      Version::from_int64(
         (self.hi.reinterpret_as_uint64() >> 12).reinterpret_as_int64() & 0xfL,
       ),
     )

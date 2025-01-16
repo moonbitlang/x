@@ -102,11 +102,11 @@ fn transform(
     let big_sigma_1 = rotate_right_u(e, 6) ^
       rotate_right_u(e, 11) ^
       rotate_right_u(e, 25)
-    let t_1 = h + big_sigma_1 + gg_1(e, f, g) + sha256_t[index] + w[index]
+    let t_1 = h + big_sigma_1 + SM3Context::gg_1(e, f, g) + sha256_t[index] + w[index]
     let big_sigma_0 = rotate_right_u(a, 2) ^
       rotate_right_u(a, 13) ^
       rotate_right_u(a, 22)
-    let t_2 = big_sigma_0 + ff_1(a, b, c)
+    let t_2 = big_sigma_0 + SM3Context::ff_1(a, b, c)
     h = g
     g = f
     f = e

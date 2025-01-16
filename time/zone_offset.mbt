@@ -63,7 +63,7 @@ pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!Error {
 }
 
 ///| Returns the offset id.
-pub fn to_string(self : ZoneOffset) -> String {
+pub fn ZoneOffset::to_string(self : ZoneOffset) -> String {
   self.id
 }
 
@@ -73,12 +73,12 @@ pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
 }
 
 ///|
-pub fn op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
+pub fn ZoneOffset::op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }
 
 ///|
-pub fn compare(self : ZoneOffset, other : ZoneOffset) -> Int {
+pub fn ZoneOffset::compare(self : ZoneOffset, other : ZoneOffset) -> Int {
   other.seconds - self.seconds
 }
 
@@ -88,7 +88,7 @@ pub fn id(self : ZoneOffset) -> String {
 }
 
 ///| Returns the total seconds of this offset.
-pub fn seconds(self : ZoneOffset) -> Int {
+pub fn ZoneOffset::seconds(self : ZoneOffset) -> Int {
   self.seconds
 }
 
