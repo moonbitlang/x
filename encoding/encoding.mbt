@@ -36,7 +36,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
     UTF16 | UTF16LE => return src.to_bytes()
     _ => ()
   }
-  let new_buf = @buffer.T::new(size_hint=src.length() * 4)
+  let new_buf = @buffer.new(size_hint=src.length() * 4)
   let write = match encoding {
     UTF8 => write_utf8_char
     UTF16BE => write_utf16be_char
