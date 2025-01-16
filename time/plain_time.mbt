@@ -83,22 +83,22 @@ pub impl Show for PlainTime with output(self : PlainTime, logger : &Logger) -> U
 }
 
 ///| Returns the hour of this time.
-pub fn hour(self : PlainTime) -> Int {
+pub fn PlainTime::hour(self : PlainTime) -> Int {
   self.hour
 }
 
 ///| Returns the minute of this time.
-pub fn minute(self : PlainTime) -> Int {
+pub fn PlainTime::minute(self : PlainTime) -> Int {
   self.minute
 }
 
 ///| Returns the second of this time.
-pub fn second(self : PlainTime) -> Int {
+pub fn PlainTime::second(self : PlainTime) -> Int {
   self.second
 }
 
 ///| Returns the nanosecond of this time.
-pub fn nanosecond(self : PlainTime) -> Int {
+pub fn PlainTime::nanosecond(self : PlainTime) -> Int {
   self.nanosecond
 }
 
@@ -150,7 +150,7 @@ pub fn PlainTime::from_nanosecond_of_day(nanosecond : Int64) -> PlainTime!Error 
 }
 
 ///| Adds specified hours to this time, and returns a new time.
-pub fn add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error {
+pub fn PlainTime::add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error {
   if hours == 0L {
     return self
   }
@@ -159,7 +159,7 @@ pub fn add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error {
 }
 
 ///| Adds specified minutes to this time, and returns a new time.
-pub fn add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
+pub fn PlainTime::add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
   if minutes == 0L {
     return self
   }
@@ -180,7 +180,7 @@ pub fn add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
 }
 
 ///| Adds specified seconds to this time, and returns a new time.
-pub fn add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
+pub fn PlainTime::add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
   if seconds == 0L {
     return self
   }
@@ -204,7 +204,7 @@ pub fn add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
 }
 
 ///| Adds specified nanoseconds to this time, and returns a new time.
-pub fn add_nanoseconds(
+pub fn PlainTime::add_nanoseconds(
   self : PlainTime,
   nanoseconds : Int64
 ) -> PlainTime!Error {
@@ -223,7 +223,7 @@ pub fn add_nanoseconds(
 }
 
 ///| Adds a duration to this time, and returns a new time.
-pub fn add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
+pub fn PlainTime::add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
   if duration.is_zero() {
     return self
   }
@@ -231,7 +231,7 @@ pub fn add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
 }
 
 ///| Returns a new time with the specified hour.
-pub fn with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
+pub fn PlainTime::with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
   if hour == self.hour {
     return self
   }
@@ -239,7 +239,7 @@ pub fn with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
 }
 
 ///| Returns a new time with the specified minute.
-pub fn with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
+pub fn PlainTime::with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
   if minute == self.minute {
     return self
   }
@@ -247,7 +247,7 @@ pub fn with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
 }
 
 ///| Returns a new time with the specified second.
-pub fn with_second(self : PlainTime, second : Int) -> PlainTime!Error {
+pub fn PlainTime::with_second(self : PlainTime, second : Int) -> PlainTime!Error {
   if second == self.second {
     return self
   }
@@ -255,7 +255,10 @@ pub fn with_second(self : PlainTime, second : Int) -> PlainTime!Error {
 }
 
 ///| Returns a new time with the specified nanosecond.
-pub fn with_nanosecond(self : PlainTime, nanosecond : Int) -> PlainTime!Error {
+pub fn PlainTime::with_nanosecond(
+  self : PlainTime,
+  nanosecond : Int
+) -> PlainTime!Error {
   if nanosecond == self.nanosecond {
     return self
   }
@@ -263,7 +266,7 @@ pub fn with_nanosecond(self : PlainTime, nanosecond : Int) -> PlainTime!Error {
 }
 
 ///| Returns the duration between this time and another time.
-pub fn until(self : PlainTime, end : PlainTime) -> Duration!Error {
+pub fn PlainTime::until(self : PlainTime, end : PlainTime) -> Duration!Error {
   let nanoseconds = end.nanosecond_of_day() - self.nanosecond_of_day()
   Duration::of!(nanoseconds~)
 }

@@ -62,7 +62,7 @@ pub fn add(self : Criterion, task : Task) -> Unit {
 }
 
 ///|
-pub fn run(self : Criterion) -> Map[String, TaskResult] {
+pub fn Criterion::run(self : Criterion) -> Map[String, TaskResult] {
   let map = {}
   for task in self.tasks {
     map[task.name] = task.run()

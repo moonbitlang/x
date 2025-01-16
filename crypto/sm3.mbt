@@ -89,7 +89,7 @@ fn SM3Context::p_1(x : UInt) -> UInt {
 }
 
 ///|
-fn pad(self : SM3Context) -> Bytes {
+fn SM3Context::pad(self : SM3Context) -> Bytes {
   let mut cnt = self.buf_index
   self.len += 8UL * cnt.to_uint64()
   self.buf[cnt] = b'\x80'
@@ -115,7 +115,7 @@ fn pad(self : SM3Context) -> Bytes {
 }
 
 ///|
-fn transform(
+fn SM3Context::transform(
   self : SM3Context,
   data : Bytes,
   offset~ : Int = 0
@@ -134,7 +134,7 @@ fn transform(
     w_0[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
   }
   for index = 16; index < 68; index = index + 1 {
-    w_0[index] = p_1(
+    w_0[index] = SM3Context::p_1(
         w_0[index - 16] ^ w_0[index - 9] ^ rotate_left_u(w_0[index - 3], 15),
       ) ^
       rotate_left_u(w_0[index - 13], 7) ^
@@ -154,8 +154,8 @@ fn transform(
   for index = 0; index < 16; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    let tt_1 = SM3Context::ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = SM3Context::gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
     c1 = rotate_left_u(b1, 9)
     b1 = a1
@@ -163,13 +163,13 @@ fn transform(
     h1 = g1
     g1 = rotate_left_u(f1, 19)
     f1 = e1
-    e1 = p_0(tt_2)
+    e1 = SM3Context::p_0(tt_2)
   }
   for index = 16; index < 64; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    let tt_1 = SM3Context::ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = SM3Context::gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
     c1 = rotate_left_u(b1, 9)
     b1 = a1
@@ -177,7 +177,7 @@ fn transform(
     h1 = g1
     g1 = rotate_left_u(f1, 19)
     f1 = e1
-    e1 = p_0(tt_2)
+    e1 = SM3Context::p_0(tt_2)
   }
   a = a ^ a1
   b = b ^ b1
@@ -195,7 +195,7 @@ fn transform(
 }
 
 ///|
-pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
+pub fn SM3Context::update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -209,7 +209,7 @@ pub fn update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
 }
 
 ///| update the state of given context from new `data` 
-pub fn update(self : SM3Context, data : Bytes) -> Unit {
+pub fn SM3Context::update(self : SM3Context, data : Bytes) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -245,7 +245,7 @@ fn sm3_compute(
 }
 
 ///| Compute the SM3 digest from given SM3Context
-pub fn finalize(self : SM3Context) -> Bytes {
+pub fn SM3Context::finalize(self : SM3Context) -> Bytes {
   arr_u32_to_u8be(self.sm3_compute().iter(), 256)
 }
 

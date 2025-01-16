@@ -86,7 +86,7 @@ pub fn PlainDate::from_string(str : String) -> PlainDate!Error {
 }
 
 ///| Returns a string representing the date.
-pub fn to_string(self : PlainDate) -> String {
+pub fn PlainDate::to_string(self : PlainDate) -> String {
   let buf = StringBuilder::new(size_hint=11)
   if self.year < 0 {
     buf.write_char('-')
@@ -260,7 +260,7 @@ pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate!Error {
 }
 
 ///| Adds specified years to this date, and returns a new date.
-pub fn add_years(self : PlainDate, years : Int64) -> PlainDate!Error {
+pub fn PlainDate::add_years(self : PlainDate, years : Int64) -> PlainDate!Error {
   if years == 0L {
     return self
   }
@@ -274,7 +274,7 @@ pub fn add_years(self : PlainDate, years : Int64) -> PlainDate!Error {
 }
 
 ///| Adds specified months to this date, and returns a new date.
-pub fn add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
+pub fn PlainDate::add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
   if months == 0L {
     return self
   }
@@ -294,7 +294,7 @@ pub fn add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
 }
 
 ///| Adds specified weeks to this date, and returns a new date.
-pub fn add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!Error {
+pub fn PlainDate::add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!Error {
   if weeks == 0L {
     return self
   }
@@ -303,7 +303,7 @@ pub fn add_weeks(self : PlainDate, weeks : Int64) -> PlainDate!Error {
 }
 
 ///| Adds specified days to this date, and returns a new date.
-pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
+pub fn PlainDate::add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
   if days == 0L {
     return self
   }
@@ -314,7 +314,7 @@ pub fn add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
 }
 
 ///| Adds a period to this date, and returns a new date.
-pub fn add_period(self : PlainDate, period : Period) -> PlainDate!Error {
+pub fn PlainDate::add_period(self : PlainDate, period : Period) -> PlainDate!Error {
   let mut d = self
   d = d
     .add_months!(period.to_total_months())
@@ -323,7 +323,7 @@ pub fn add_period(self : PlainDate, period : Period) -> PlainDate!Error {
 }
 
 ///| Returns the period between this date and another date.
-pub fn until(self : PlainDate, end : PlainDate) -> Period!Error {
+pub fn PlainDate::until(self : PlainDate, end : PlainDate) -> Period!Error {
   let start_months = self.year.to_int64() * 12L + self.month.to_int64() - 1L
   let end_months = end.year.to_int64() * 12L + end.month.to_int64() - 1L
   let mut total_months = end_months - start_months
