@@ -47,7 +47,7 @@ let utf_8_len = [
 /// # Examples
 ///
 /// ```moonbit
-/// let buf = @buffer.T::new(size_hint=10)
+/// let buf = @buffer.new(size_hint=10)
 /// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
 /// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
 /// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
@@ -81,7 +81,7 @@ pub fn decode_lossy(encoding : Encoding, src : Bytes) -> LossyChars {
 /// # Examples
 ///
 /// ```moonbit
-/// let buf = @buffer.T::new(size_hint=10)
+/// let buf = @buffer.new(size_hint=10)
 /// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
 /// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
 /// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8

@@ -16,7 +16,7 @@
 
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
-  let buf = @buffer.T::new(size_hint=src.to_bytes().length())
+  let buf = @buffer.new(size_hint=src.to_bytes().length())
   buf.write_bytes(src.to_bytes())
   inspect!(
     buf.to_bytes(),
@@ -30,7 +30,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
 
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   let src = "👋再见"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     buf.write_char(s)
   }
@@ -45,7 +45,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
 }
 
 test "lossy decoding UTF16LE encoded data to String" {
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\x60\x4f")
   buf.write_bytes(b"\x7d\x59")
   buf.write_bytes(b"\x3d\xd8\x40\xdc")
@@ -60,7 +60,7 @@ test "lossy decoding UTF16LE encoded data to String" {
 }
 
 test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
-  let buf = @buffer.T::new(size_hint=20)
+  let buf = @buffer.new(size_hint=20)
   buf.write_bytes(b"\x65\x18")
   buf.write_bytes(b"\x20\x18")
   buf.write_bytes(b"\x73\x18")
@@ -79,7 +79,7 @@ test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
 }
 
 test "lossy decoding UTF16BE encoded data to String" {
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
   buf.write_bytes(b"\xd8\x3d\xdc\x31")
   buf.write_bytes(b"\xd8\x3d\xdc\x07")
@@ -95,7 +95,7 @@ test "lossy decoding UTF16BE encoded data to String" {
 }
 
 test "lossy decoding UTF8 encoded data to String" {
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xe4\xbd\xa0")
   buf.write_bytes(b"\xe5\xa5\xbd")
   buf.write_bytes(b"\xf0\x9f\x91\x80")
@@ -111,7 +111,7 @@ test "lossy decoding UTF8 encoded data to String" {
 
 test "lossy decoding UTF8 encoded bytes to String" {
   let src = "👋再见"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -127,7 +127,7 @@ test "lossy decoding UTF8 encoded bytes to String" {
 
 test "lossy decoding UTF8 encoded data" {
   let src = "👋再见"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -143,7 +143,7 @@ test "lossy decoding UTF8 encoded data" {
 
 test "lossy decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
@@ -162,7 +162,7 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
 
 test "lossy decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -181,7 +181,7 @@ test "lossy decoding UTF8 encoded data with UTF16LE" {
 
 test "lossy decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16be_char(buf, s)
   }
@@ -202,7 +202,7 @@ test "lossy decoding UTF16BE encoded data with UTF8" {
 
 test "lossy decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -221,7 +221,7 @@ test "lossy decoding UTF8 encoded data with UTF16BE" {
 
 test "lossy decoding UTF16LE encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
@@ -240,7 +240,7 @@ test "lossy decoding UTF16LE encoded data with UTF16BE" {
 
 test "lossy decoding UTF16BE encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16be_char(buf, s)
   }
@@ -261,7 +261,7 @@ test "lossy decoding UTF16BE encoded data with UTF16LE" {
 
 test "strictly decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
@@ -282,7 +282,7 @@ test "strictly decoding UTF16LE encoded data with UTF8" {
 
 test "strictly decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -303,7 +303,7 @@ test "strictly decoding UTF8 encoded data with UTF16LE" {
 
 test "strictly decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
@@ -324,7 +324,7 @@ test "strictly decoding UTF8 encoded data with UTF16BE" {
 
 test "strictly decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = @buffer.T::new(size_hint=10)
+  let buf = @buffer.new(size_hint=10)
   for s in src {
     @encoding.write_utf16be_char(buf, s)
   }
