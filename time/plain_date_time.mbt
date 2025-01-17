@@ -169,32 +169,50 @@ pub fn PlainDateTime::nanosecond(self : PlainDateTime) -> Int {
 }
 
 ///| Adds specified years to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_years(self : PlainDateTime, years : Int64) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_years(
+  self : PlainDateTime,
+  years : Int64
+) -> PlainDateTime!Error {
   { ..self, date: self.date.add_years!(years) }
 }
 
 ///| Adds specified months to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_months(self : PlainDateTime, months : Int64) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_months(
+  self : PlainDateTime,
+  months : Int64
+) -> PlainDateTime!Error {
   { ..self, date: self.date.add_months!(months) }
 }
 
 ///| Adds specified weeks to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_weeks(self : PlainDateTime, weeks : Int64) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_weeks(
+  self : PlainDateTime,
+  weeks : Int64
+) -> PlainDateTime!Error {
   { ..self, date: self.date.add_weeks!(weeks) }
 }
 
 ///| Adds specified days to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_days(self : PlainDateTime, days : Int64) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_days(
+  self : PlainDateTime,
+  days : Int64
+) -> PlainDateTime!Error {
   { ..self, date: self.date.add_days!(days) }
 }
 
 ///| Adds a period of date to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_period(self : PlainDateTime, period : Period) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_period(
+  self : PlainDateTime,
+  period : Period
+) -> PlainDateTime!Error {
   { ..self, date: self.date.add_period!(period) }
 }
 
 ///| Adds specified hours to this datetime, and returns a new datetime.
-pub fn PlainDateTime::add_hours(self : PlainDateTime, hours : Int64) -> PlainDateTime!Error {
+pub fn PlainDateTime::add_hours(
+  self : PlainDateTime,
+  hours : Int64
+) -> PlainDateTime!Error {
   if hours == 0L {
     return self
   }
@@ -246,37 +264,58 @@ pub fn PlainDateTime::add_duration(
 }
 
 ///| Returns a new datetime with the specified year.
-pub fn PlainDateTime::with_year(self : PlainDateTime, year : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_year(
+  self : PlainDateTime,
+  year : Int
+) -> PlainDateTime!Error {
   { ..self, date: self.date.with_year!(year) }
 }
 
 ///| Returns a new datetime with the specified month.
-pub fn PlainDateTime::with_month(self : PlainDateTime, month : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_month(
+  self : PlainDateTime,
+  month : Int
+) -> PlainDateTime!Error {
   { ..self, date: self.date.with_month!(month) }
 }
 
 ///| Returns a new datetime with the specified day of month.
-pub fn PlainDateTime::with_day(self : PlainDateTime, day : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_day(
+  self : PlainDateTime,
+  day : Int
+) -> PlainDateTime!Error {
   { ..self, date: self.date.with_day!(day) }
 }
 
 ///| Returns a new datetime with the specified ordinal day of year.
-pub fn PlainDateTime::with_ordinal(self : PlainDateTime, ordinal : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_ordinal(
+  self : PlainDateTime,
+  ordinal : Int
+) -> PlainDateTime!Error {
   { ..self, date: self.date.with_ordinal!(ordinal) }
 }
 
 ///| Returns a new datetime with the specified hour.
-pub fn PlainDateTime::with_hour(self : PlainDateTime, hour : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_hour(
+  self : PlainDateTime,
+  hour : Int
+) -> PlainDateTime!Error {
   { ..self, time: self.time.with_hour!(hour) }
 }
 
 ///| Returns a new datetime with the specified minute.
-pub fn PlainDateTime::with_minute(self : PlainDateTime, minute : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_minute(
+  self : PlainDateTime,
+  minute : Int
+) -> PlainDateTime!Error {
   { ..self, time: self.time.with_minute!(minute) }
 }
 
 ///| Returns a new datetime with the specified second.
-pub fn PlainDateTime::with_second(self : PlainDateTime, second : Int) -> PlainDateTime!Error {
+pub fn PlainDateTime::with_second(
+  self : PlainDateTime,
+  second : Int
+) -> PlainDateTime!Error {
   { ..self, time: self.time.with_second!(second) }
 }
 

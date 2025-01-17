@@ -385,7 +385,10 @@ fn chacha(
     result
   }
 
-  fn concatBytes(b1 : FixedArray[Byte], b2 : FixedArray[Byte]) -> FixedArray[Byte] {
+  fn concatBytes(
+    b1 : FixedArray[Byte],
+    b2 : FixedArray[Byte]
+  ) -> FixedArray[Byte] {
     let result = FixedArray::make(b1.length() + b2.length(), Byte::default())
     for i = 0; i < b1.length(); i = i + 1 {
       result[i] = b1[i]

@@ -235,7 +235,9 @@ pub fn md5(data : FixedArray[Byte]) -> FixedArray[Byte] {
 }
 
 test "md5_wb" {
-  let hash = md5("The quick brown fox jumps over the lazy dog".to_bytes().to_fixedarray())
+  let hash = md5(
+    "The quick brown fox jumps over the lazy dog".to_bytes().to_fixedarray(),
+  )
   inspect!(
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",

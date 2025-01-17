@@ -102,7 +102,11 @@ fn transform(
     let big_sigma_1 = rotate_right_u(e, 6) ^
       rotate_right_u(e, 11) ^
       rotate_right_u(e, 25)
-    let t_1 = h + big_sigma_1 + SM3Context::gg_1(e, f, g) + sha256_t[index] + w[index]
+    let t_1 = h +
+      big_sigma_1 +
+      SM3Context::gg_1(e, f, g) +
+      sha256_t[index] +
+      w[index]
     let big_sigma_0 = rotate_right_u(a, 2) ^
       rotate_right_u(a, 13) ^
       rotate_right_u(a, 22)
@@ -150,7 +154,12 @@ pub fn update(self : Sha256Context, data : FixedArray[Byte]) -> Unit {
     } else {
       64 - self.buf_index
     }
-    data.blit_to(self.buf, len=min_len, src_offset=offset, dst_offset=self.buf_index)
+    data.blit_to(
+      self.buf,
+      len=min_len,
+      src_offset=offset,
+      dst_offset=self.buf_index,
+    )
     self.buf_index += min_len
     if self.buf_index == 64 {
       self.len += 512UL

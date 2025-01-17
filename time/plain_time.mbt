@@ -159,7 +159,10 @@ pub fn PlainTime::add_hours(self : PlainTime, hours : Int64) -> PlainTime!Error 
 }
 
 ///| Adds specified minutes to this time, and returns a new time.
-pub fn PlainTime::add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Error {
+pub fn PlainTime::add_minutes(
+  self : PlainTime,
+  minutes : Int64
+) -> PlainTime!Error {
   if minutes == 0L {
     return self
   }
@@ -180,7 +183,10 @@ pub fn PlainTime::add_minutes(self : PlainTime, minutes : Int64) -> PlainTime!Er
 }
 
 ///| Adds specified seconds to this time, and returns a new time.
-pub fn PlainTime::add_seconds(self : PlainTime, seconds : Int64) -> PlainTime!Error {
+pub fn PlainTime::add_seconds(
+  self : PlainTime,
+  seconds : Int64
+) -> PlainTime!Error {
   if seconds == 0L {
     return self
   }
@@ -223,7 +229,10 @@ pub fn PlainTime::add_nanoseconds(
 }
 
 ///| Adds a duration to this time, and returns a new time.
-pub fn PlainTime::add_duration(self : PlainTime, duration : Duration) -> PlainTime!Error {
+pub fn PlainTime::add_duration(
+  self : PlainTime,
+  duration : Duration
+) -> PlainTime!Error {
   if duration.is_zero() {
     return self
   }
@@ -239,7 +248,10 @@ pub fn PlainTime::with_hour(self : PlainTime, hour : Int) -> PlainTime!Error {
 }
 
 ///| Returns a new time with the specified minute.
-pub fn PlainTime::with_minute(self : PlainTime, minute : Int) -> PlainTime!Error {
+pub fn PlainTime::with_minute(
+  self : PlainTime,
+  minute : Int
+) -> PlainTime!Error {
   if minute == self.minute {
     return self
   }
@@ -247,7 +259,10 @@ pub fn PlainTime::with_minute(self : PlainTime, minute : Int) -> PlainTime!Error
 }
 
 ///| Returns a new time with the specified second.
-pub fn PlainTime::with_second(self : PlainTime, second : Int) -> PlainTime!Error {
+pub fn PlainTime::with_second(
+  self : PlainTime,
+  second : Int
+) -> PlainTime!Error {
   if second == self.second {
     return self
   }
