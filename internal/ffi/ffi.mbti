@@ -5,11 +5,15 @@ fn byte_array_from_extern(XExternByteArray) -> Bytes
 
 fn byte_array_to_extern(Bytes) -> XExternByteArray
 
+fn mbt_string_to_utf8_bytes(String, Bool) -> Bytes
+
 fn string_array_from_extern(XExternStringArray) -> Array[String]
 
 fn string_from_extern(XExternString) -> String
 
 fn string_to_extern(String) -> XExternString
+
+fn utf8_bytes_to_mbt_string(Bytes) -> String
 
 // Types and methods
 pub(all) type XByteArrayCreateHandle
