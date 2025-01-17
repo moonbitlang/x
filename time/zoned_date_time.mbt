@@ -211,27 +211,42 @@ pub fn offset(self : ZonedDateTime) -> ZoneOffset {
 }
 
 ///| Adds specified years to this datetime, and returns a new datetime.
-pub fn ZonedDateTime::add_years(self : ZonedDateTime, years : Int64) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::add_years(
+  self : ZonedDateTime,
+  years : Int64
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_years!(years), self.zone)
 }
 
 ///| Adds specified months to this datetime, and returns a new datetime.
-pub fn ZonedDateTime::add_months(self : ZonedDateTime, months : Int64) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::add_months(
+  self : ZonedDateTime,
+  months : Int64
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_months!(months), self.zone)
 }
 
 ///| Adds specified weeks to this datetime, and returns a new datetime.
-pub fn ZonedDateTime::add_weeks(self : ZonedDateTime, weeks : Int64) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::add_weeks(
+  self : ZonedDateTime,
+  weeks : Int64
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_weeks!(weeks), self.zone)
 }
 
 ///| Adds specified days to this datetime, and returns a new datetime.
-pub fn ZonedDateTime::add_days(self : ZonedDateTime, days : Int64) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::add_days(
+  self : ZonedDateTime,
+  days : Int64
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_days!(days), self.zone)
 }
 
 ///| Adds specified hours to this datetime, and returns a new datetime.
-pub fn ZonedDateTime::add_hours(self : ZonedDateTime, hours : Int64) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::add_hours(
+  self : ZonedDateTime,
+  hours : Int64
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.add_hours!(hours), self.zone)
 }
 
@@ -260,37 +275,58 @@ pub fn ZonedDateTime::add_nanoseconds(
 }
 
 ///| Returns a new datetime with the specified year.
-pub fn ZonedDateTime::with_year(self : ZonedDateTime, year : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_year(
+  self : ZonedDateTime,
+  year : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_year!(year), self.zone)
 }
 
 ///| Returns a new datetime with the specified month.
-pub fn ZonedDateTime::with_month(self : ZonedDateTime, month : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_month(
+  self : ZonedDateTime,
+  month : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_month!(month), self.zone)
 }
 
 ///| Returns a new datetime with the specified day of the month.
-pub fn ZonedDateTime::with_day(self : ZonedDateTime, day : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_day(
+  self : ZonedDateTime,
+  day : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_day!(day), self.zone)
 }
 
 ///| Returns a new datetime with the specified ordinal day of the year.
-pub fn ZonedDateTime::with_ordinal(self : ZonedDateTime, ordinal : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_ordinal(
+  self : ZonedDateTime,
+  ordinal : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_ordinal!(ordinal), self.zone)
 }
 
 ///| Returns a new datetime with the specified hour.
-pub fn ZonedDateTime::with_hour(self : ZonedDateTime, hour : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_hour(
+  self : ZonedDateTime,
+  hour : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_hour!(hour), self.zone)
 }
 
 ///| Returns a new datetime with the specified minute.
-pub fn ZonedDateTime::with_minute(self : ZonedDateTime, minute : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_minute(
+  self : ZonedDateTime,
+  minute : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_minute!(minute), self.zone)
 }
 
 ///| Returns a new datetime with the specified second.
-pub fn ZonedDateTime::with_second(self : ZonedDateTime, second : Int) -> ZonedDateTime!Error {
+pub fn ZonedDateTime::with_second(
+  self : ZonedDateTime,
+  second : Int
+) -> ZonedDateTime!Error {
   create_from_plain(self.datetime.with_second!(second), self.zone)
 }
 

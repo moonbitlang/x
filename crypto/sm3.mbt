@@ -195,7 +195,10 @@ fn SM3Context::transform(
 }
 
 ///|
-pub fn SM3Context::update_from_iter(self : SM3Context, data : Iter[Byte]) -> Unit {
+pub fn SM3Context::update_from_iter(
+  self : SM3Context,
+  data : Iter[Byte]
+) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -217,7 +220,12 @@ pub fn SM3Context::update(self : SM3Context, data : FixedArray[Byte]) -> Unit {
     } else {
       64 - self.buf_index
     }
-    data.blit_to(self.buf, len=min_len, src_offset=offset, dst_offset=self.buf_index)
+    data.blit_to(
+      self.buf,
+      len=min_len,
+      src_offset=offset,
+      dst_offset=self.buf_index,
+    )
     self.buf_index += min_len
     if self.buf_index == 64 {
       self.len += 512UL

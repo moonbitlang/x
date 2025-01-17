@@ -274,7 +274,10 @@ pub fn PlainDate::add_years(self : PlainDate, years : Int64) -> PlainDate!Error 
 }
 
 ///| Adds specified months to this date, and returns a new date.
-pub fn PlainDate::add_months(self : PlainDate, months : Int64) -> PlainDate!Error {
+pub fn PlainDate::add_months(
+  self : PlainDate,
+  months : Int64
+) -> PlainDate!Error {
   if months == 0L {
     return self
   }
@@ -314,7 +317,10 @@ pub fn PlainDate::add_days(self : PlainDate, days : Int64) -> PlainDate!Error {
 }
 
 ///| Adds a period to this date, and returns a new date.
-pub fn PlainDate::add_period(self : PlainDate, period : Period) -> PlainDate!Error {
+pub fn PlainDate::add_period(
+  self : PlainDate,
+  period : Period
+) -> PlainDate!Error {
   let mut d = self
   d = d
     .add_months!(period.to_total_months())
