@@ -1,53 +1,53 @@
 package moonbitlang/x/crypto
 
 // Values
-fn bytes_to_hex_string(Bytes) -> String
+fn bytes_to_hex_string(FixedArray[Byte]) -> String
 
-fn chacha12(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
+fn chacha12(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
 
-fn chacha20(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
+fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
 
-fn chacha8(FixedArray[UInt], UInt, Bytes, nonce~ : UInt = ..) -> Bytes!
+fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
 
-fn md5(Bytes) -> Bytes
+fn md5(FixedArray[Byte]) -> FixedArray[Byte]
 
-fn sha1(Bytes) -> Bytes
+fn sha1(FixedArray[Byte]) -> FixedArray[Byte]
 
-fn sha224(Bytes) -> Bytes
+fn sha224(FixedArray[Byte]) -> FixedArray[Byte]
 
-fn sha224_from_iter(Iter[Byte]) -> Bytes
+fn sha224_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
-fn sha256(Bytes) -> Bytes
+fn sha256(FixedArray[Byte]) -> FixedArray[Byte]
 
-fn sha256_from_iter(Iter[Byte]) -> Bytes
+fn sha256_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
-fn sm3(Bytes) -> Bytes
+fn sm3(FixedArray[Byte]) -> FixedArray[Byte]
 
-fn sm3_from_iter(Iter[Byte]) -> Bytes
+fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
 fn uints_to_hex_string(Iter[UInt]) -> String
 
 // Types and methods
 type MD5Context
 impl MD5Context {
-  finalize(Self) -> Bytes
+  finalize(Self) -> FixedArray[Byte]
   new() -> Self
-  update(Self, Bytes) -> Unit
+  update(Self, FixedArray[Byte]) -> Unit
 }
 
 type SM3Context
 impl SM3Context {
-  finalize(Self) -> Bytes
+  finalize(Self) -> FixedArray[Byte]
   new() -> Self
-  update(Self, Bytes) -> Unit
+  update(Self, FixedArray[Byte]) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }
 
 type Sha256Context
 impl Sha256Context {
-  finalize(Self) -> Bytes
+  finalize(Self) -> FixedArray[Byte]
   new(reg~ : FixedArray[UInt] = ..) -> Self
-  update(Self, Bytes) -> Unit
+  update(Self, FixedArray[Byte]) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }
 
