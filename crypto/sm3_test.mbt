@@ -14,7 +14,7 @@
 
 ///|
 fn sm3test(s : String) -> String {
-  @crypto.bytes_to_hex_string(@crypto.sm3(s.to_bytes()))
+  @crypto.bytes_to_hex_string(@crypto.sm3(s.to_bytes().to_fixedarray()))
 }
 
 // additional

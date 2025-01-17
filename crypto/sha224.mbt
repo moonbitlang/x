@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn sha224(data : Bytes) -> Bytes {
+pub fn sha224(data : FixedArray[Byte]) -> FixedArray[Byte] {
   let ctx = Sha256Context::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
     0xbefa4fa4,
@@ -23,7 +23,7 @@ pub fn sha224(data : Bytes) -> Bytes {
 }
 
 ///|
-pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
+pub fn sha224_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
   let ctx = Sha256Context::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
     0xbefa4fa4,
@@ -35,13 +35,13 @@ pub fn sha224_from_iter(data : Iter[Byte]) -> Bytes {
 test {
   // Sha224
   assert_eq!(
-    bytes_to_hex_string(sha224(b"\x61\x62\x63")),
+    bytes_to_hex_string(sha224(b"\x61\x62\x63".to_fixedarray())),
     "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7",
   )
   assert_eq!(
     bytes_to_hex_string(
       sha224(
-        b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
+        b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64".to_fixedarray(),
       ),
     ),
     "fffd3b5e90c6fc3cb77c3d04b1f7660b16a426ef6655384e8486ae1f",

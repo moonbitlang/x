@@ -84,12 +84,12 @@ fn malformed_pair(
   length : Int
 ) -> Decode {
   let bs1 = bytes.to_unchecked_string(offset~, length~).to_bytes()
-  let bs0 = b"\x00\x00"
+  let bs0 = FixedArray::make(2, b'\x00')
   let (j0, j1) = if be { (0, 1) } else { (1, 0) }
   bs0[j0] = (hi >> 8).to_byte()
   bs0[j1] = hi.land(0xFF).to_byte()
   let bs = @buffer.new(size_hint=bs0.length() + bs1.length())
-  bs.write_bytes(bs0)
+  bs.write_bytes(Bytes::from_fixedarray(bs0))
   bs.write_bytes(bs1)
   Malformed(slice(bs.to_bytes(), 0, bs.length()))
 }

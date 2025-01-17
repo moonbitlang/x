@@ -14,7 +14,7 @@
 
 ///|
 fn md5test(s : String) -> String {
-  bytes_to_hex_string(@crypto.md5(s.to_bytes()))
+  bytes_to_hex_string(@crypto.md5(s.to_bytes().to_fixedarray()))
 }
 
 test "md5_rfc1321" { // testsuites in RFC1321
@@ -47,7 +47,7 @@ test "md5_additional" { // Additional testsuites
   for index = 0; index < 1000; index = index + 1 {
     a[index] = (index % 256).to_byte()
   }
-  let hash = @crypto.md5(Bytes::from_array(a))
+  let hash = @crypto.md5(FixedArray::from_array(a))
   inspect!(
     bytes_to_hex_string(hash),
     content="cbecbdb0fdd5cec1e242493b6008cc79",

@@ -20,19 +20,19 @@
 struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   count : FixedArray[UInt]
-  buffer : Bytes
+  buffer : FixedArray[Byte]
 }
 
 ///|
-let padding : Bytes = Bytes::make(64, b'\x00')
+let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
 ///| update the state of given context from new `data` 
-pub fn MD5Context::update(self : MD5Context, data : Bytes) -> Unit {
+pub fn MD5Context::update(self : MD5Context, data : FixedArray[Byte]) -> Unit {
   md5_update(self, data)
 }
 
 ///| an alias of `MD5Context::compute()`
-pub fn MD5Context::finalize(self : MD5Context) -> Bytes {
+pub fn MD5Context::finalize(self : MD5Context) -> FixedArray[Byte] {
   self.md5_compute()
 }
 
@@ -42,23 +42,23 @@ pub fn MD5Context::new() -> MD5Context {
   {
     state: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476],
     count: [0, 0],
-    buffer: Bytes::make(64, b'\x00'),
+    buffer: FixedArray::make(64, Byte::default()),
   }
 }
 
 ///| compute MD5 digest from given context
-fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
+fn MD5Context::md5_compute(self : MD5Context) -> FixedArray[Byte] {
   let input = FixedArray::make(16, 0U)
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
   input[14] = self.count[0]
   input[15] = self.count[1]
   let bytes_slice = if idx < 56 {
-    let bytes_slice = Bytes::make(56 - idx + 1, b'\x00')
-    bytes_slice.blit(0, padding, 0, 56 - idx + 1)
+    let bytes_slice = FixedArray::make(56 - idx + 1, Byte::default())
+    padding.blit_to(bytes_slice, len=56 - idx + 1)
     bytes_slice
   } else {
-    let bytes_slice = Bytes::make(120 - idx + 1, b'\x00')
-    bytes_slice.blit(0, padding, 0, 120 - idx + 1)
+    let bytes_slice = FixedArray::make(120 - idx + 1, Byte::default())
+    padding.blit_to(bytes_slice, len=120 - idx + 1)
     bytes_slice
   }
   md5_update(self, bytes_slice)
@@ -68,7 +68,7 @@ fn MD5Context::md5_compute(self : MD5Context) -> Bytes {
     j += 4
   }
   md5_transform(self.state, input)
-  let digest = Bytes::make(16, b'\x00')
+  let digest = FixedArray::make(16, Byte::default())
   let mut j = 0
   // u32 to u8
   for i = 0; i < 4; i = i + 1 {
@@ -112,7 +112,7 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
 }
 
 ///|
-fn md5_update(ctx : MD5Context, data : Bytes) -> Unit {
+fn md5_update(ctx : MD5Context, data : FixedArray[Byte]) -> Unit {
   let input = FixedArray::make(16, 0U)
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let length = data.length()
@@ -228,14 +228,14 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
 ///| Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
-pub fn md5(data : Bytes) -> Bytes {
+pub fn md5(data : FixedArray[Byte]) -> FixedArray[Byte] {
   let ctx = MD5Context::new()
   md5_update(ctx, data)
   ctx.md5_compute()
 }
 
 test "md5_wb" {
-  let hash = md5("The quick brown fox jumps over the lazy dog".to_bytes())
+  let hash = md5("The quick brown fox jumps over the lazy dog".to_bytes().to_fixedarray())
   inspect!(
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",
@@ -244,12 +244,12 @@ test "md5_wb" {
 
 test {
   let ctx = MD5Context::new()
-  md5_update(ctx, b"\x61")
-  md5_update(ctx, b"\x62")
-  md5_update(ctx, b"\x63")
+  md5_update(ctx, b"\x61".to_fixedarray())
+  md5_update(ctx, b"\x62".to_fixedarray())
+  md5_update(ctx, b"\x63".to_fixedarray())
   let res1 = bytes_to_hex_string(ctx.md5_compute())
   let ctx = MD5Context::new()
-  md5_update(ctx, b"\x61\x62\x63")
+  md5_update(ctx, b"\x61\x62\x63".to_fixedarray())
   let res2 = bytes_to_hex_string(ctx.md5_compute())
   assert_eq!(res1, res2)
 }
