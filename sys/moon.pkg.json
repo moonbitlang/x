@@ -2,7 +2,10 @@
     "import": [
         "moonbitlang/x/sys/internal/ffi"
     ],
-    "targets": {
-        "sys_test.mbt": ["not", "native"]
+
+    "link": {
+        "native": {
+           "cc-flags": "./sys/internal/ffi/native_stub.c"
+        }
     }
 }

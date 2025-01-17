@@ -21,28 +21,37 @@ pub fn get_cli_args() -> Array[String] {
     internal_get_cli_args().map(fn {
       // Here we assume that the CLI arguments are encoded in well-formed UTF-8.
       // TODO: Handle other encodings.
-      arg => @encoding.decode_strict(UTF8, arg).to_string?().unwrap()
+      arg => @ffi.utf8_bytes_to_mbt_string(arg)
     }),
   )
 }
 
 ///|
 pub fn get_env_vars() -> Map[String, String] {
-  // not implement yet
-  panic()
+  let env_vars = get_env_vars_ffi().map(fn {
+    env => @ffi.utf8_bytes_to_mbt_string(env)
+  })
+  let res = {}
+  for i = 0; i < env_vars.length(); i = i + 2 {
+    res[env_vars[i]] = env_vars[i + 1]
+  }
+  res
 }
+
+extern "C" fn get_env_vars_ffi() -> FixedArray[Bytes] = "get_env_vars"
 
 ///|
-pub fn set_env_var(_key : String, _value : String) -> Unit {
-  // not implement yet
-  panic()
+pub fn set_env_var(key : String, value : String) -> Unit {
+  set_env_var_ffi(@ffi.mbt_string_to_utf8_bytes(key, false), @ffi.mbt_string_to_utf8_bytes(value, false))
 }
+
+extern "C" fn set_env_var_ffi(_key : Bytes, _value : Bytes) -> Unit = "set_env_var"
 
 ///|
-pub fn unset_env_var(_key : String) -> Unit {
-  // not implement yet
-  panic()
+pub fn unset_env_var(key : String) -> Unit {
+  unset_env_var_ffi(@ffi.mbt_string_to_utf8_bytes(key, false))
 }
 
+extern "C" fn unset_env_var_ffi(_key : Bytes) -> Unit = "unset_env_var"
 ///|
 pub extern "C" fn exit(code : Int) -> Unit = "exit"
