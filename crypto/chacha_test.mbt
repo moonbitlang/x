@@ -23,7 +23,7 @@ test "chachaEncrypt" {
   key[6] = 0
   key[7] = 0
   let plaintext = "abc"
-  let block = plaintext.to_bytes()
+  let block = plaintext.to_bytes().to_fixedarray()
   inspect!(bytes_to_hex_string(block), content="610062006300")
   let encrypted = @crypto.chacha8!(key, 0, block)
   let expected = "5f008d2fea5f"

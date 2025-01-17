@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn sha1(input : Bytes) -> Bytes {
+pub fn sha1(input : FixedArray[Byte]) -> FixedArray[Byte] {
   // Padding
   let old_length = input.length()
   let bits = old_length.to_uint64() * 8
@@ -21,8 +21,8 @@ pub fn sha1(input : Bytes) -> Bytes {
   if new_length - old_length < 9 {
     new_length += 64
   }
-  let bytes = Bytes::make(new_length, b'\x00')
-  Bytes::blit(bytes, 0, input, 0, old_length)
+  let bytes = FixedArray::make(new_length, b'\x00')
+  input.blit_to(bytes, len=old_length)
   bytes[old_length] = (0x80).to_byte()
   for i = new_length - 8; i < new_length; i = i + 1 {
     bytes[i] = (bits >> (56 - (i - (new_length - 8)) * 8)).to_byte()
@@ -69,7 +69,7 @@ pub fn sha1(input : Bytes) -> Bytes {
     }
   }
   // Digest
-  let result = Bytes::make(20, b'\x00')
+  let result = FixedArray::make(20, b'\x00')
   for i = 0; i < 5; i = i + 1 {
     result[i * 4 + 0] = (h[i].reinterpret_as_uint() >> 24).to_byte()
     result[i * 4 + 1] = (h[i].reinterpret_as_uint() >> 16).to_byte()

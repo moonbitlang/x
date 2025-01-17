@@ -247,9 +247,9 @@ test "chachaBlock" {
 }
 
 ///|
-fn stateToBytes(state : FixedArray[UInt]) -> Bytes {
-  fn from_array(arr : Array[UInt]) -> Bytes {
-    let rv = Bytes::new(arr.length())
+fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
+  fn from_array(arr : Array[UInt]) -> FixedArray[Byte] {
+    let rv = FixedArray::make(arr.length(), Byte::default())
     for i = 0; i < arr.length(); i = i + 1 {
       rv[i] = arr[i].to_byte()
     }
@@ -301,9 +301,9 @@ test "stateToBytes" {
 pub fn chacha8(
   key : FixedArray[UInt],
   counter : UInt,
-  block : Bytes,
+  block : FixedArray[Byte],
   nonce~ : UInt = 0
-) -> Bytes!Error {
+) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
@@ -319,9 +319,9 @@ pub fn chacha8(
 pub fn chacha12(
   key : FixedArray[UInt],
   counter : UInt,
-  block : Bytes,
+  block : FixedArray[Byte],
   nonce~ : UInt = 0
-) -> Bytes!Error {
+) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
@@ -337,9 +337,9 @@ pub fn chacha12(
 pub fn chacha20(
   key : FixedArray[UInt],
   counter : UInt,
-  block : Bytes,
+  block : FixedArray[Byte],
   nonce~ : UInt = 0
-) -> Bytes!Error {
+) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
     fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
@@ -350,15 +350,15 @@ pub fn chacha20(
 fn chacha(
   key : FixedArray[UInt],
   counter : UInt,
-  block : Bytes,
+  block : FixedArray[Byte],
   round : UInt,
   nonce : UInt
-) -> Bytes {
+) -> FixedArray[Byte] {
   if block.length() == 0 {
-    return Bytes::new(0)
+    return FixedArray::make(0, Byte::default())
   }
-  fn takeToFixedArray(b : Bytes, len : Int) -> FixedArray[Byte] {
-    let result = FixedArray::make(len, b'0')
+  fn takeToFixedArray(b : FixedArray[Byte], len : Int) -> FixedArray[Byte] {
+    let result = FixedArray::make(len, Byte::default())
     for i = 0; i < len; i = i + 1 {
       result[i] = b[i]
     }
@@ -369,24 +369,24 @@ fn chacha(
     op : (Byte, Byte) -> Byte,
     state1 : FixedArray[Byte],
     state2 : FixedArray[Byte]
-  ) -> Bytes {
-    let result = Array::make(state1.length(), b'0')
+  ) -> FixedArray[Byte] {
+    let result = FixedArray::make(state1.length(), Byte::default())
     for i = 0; i < state1.length(); i = i + 1 {
       result[i] = op(state1[i], state2[i])
     }
-    Bytes::from_array(result)
+    result
   }
 
-  fn dropBytes(b : Bytes, len : Int) -> Bytes {
-    let result = Bytes::new(b.length() - len)
+  fn dropBytes(b : FixedArray[Byte], len : Int) -> FixedArray[Byte] {
+    let result = FixedArray::make(b.length() - len, Byte::default())
     for i = 0; i < b.length() - len; i = i + 1 {
       result[i] = b[len + i]
     }
     result
   }
 
-  fn concatBytes(b1 : Bytes, b2 : Bytes) -> Bytes {
-    let result = Bytes::new(b1.length() + b2.length())
+  fn concatBytes(b1 : FixedArray[Byte], b2 : FixedArray[Byte]) -> FixedArray[Byte] {
+    let result = FixedArray::make(b1.length() + b2.length(), Byte::default())
     for i = 0; i < b1.length(); i = i + 1 {
       result[i] = b1[i]
     }

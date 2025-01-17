@@ -18,7 +18,7 @@ let hex_digits : FixedArray[String] = [
 ]
 
 ///| print a sequence of byte in hex representation
-pub fn bytes_to_hex_string(input : Bytes) -> String {
+pub fn bytes_to_hex_string(input : FixedArray[Byte]) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
     let byte = input[i]
@@ -55,7 +55,7 @@ fn uint32(x : Byte) -> UInt {
 ///| convert 4 bytes a byte sequence to a UInt in little endian
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn u8_to_u32le(x : Bytes, i~ : Int = 0) -> UInt {
+fn u8_to_u32le(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
   uint32(x[i]) |
   (uint32(x[i + 1]) << 8) |
   (uint32(x[i + 2]) << 16) |
@@ -81,7 +81,7 @@ fn u8_to_u32le(x : Bytes, i~ : Int = 0) -> UInt {
 ///| convert 4 bytes of a byte array to a UInt in big endian 
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn bytes_u8_to_u32be(x : Bytes, i~ : Int = 0) -> UInt {
+fn bytes_u8_to_u32be(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
   (uint32(x[i]) << 24) |
   (uint32(x[i + 1]) << 16) |
   (uint32(x[i + 2]) << 8) |
@@ -89,8 +89,8 @@ fn bytes_u8_to_u32be(x : Bytes, i~ : Int = 0) -> UInt {
 }
 
 ///| convert an array of UInt to Bytes in big endian
-fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> Bytes {
-  let temp : Bytes = Bytes::new(bits / 8)
+fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> FixedArray[Byte] {
+  let temp = FixedArray::make(bits / 8, Byte::default())
   x.eachi(fn(i, d) {
     temp[i * 4 + 0] = (d >> 24).to_byte()
     temp[i * 4 + 1] = (d >> 16).to_byte()

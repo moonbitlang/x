@@ -67,14 +67,14 @@ pub fn from_bytes(bytes : Bytes) -> UUID!Error {
 ///| The UUID as a 16-byte string.
 pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
-  let rv = Bytes::new(16)
+  let rv = FixedArray::make(16, b'\x00')
   for i = 0; i < 8; i = i + 1 {
     rv[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
   }
   for i = 8; i < 16; i = i + 1 {
     rv[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
   }
-  rv
+  Bytes::from_fixedarray(rv)
 }
 
 test "bytes" {
@@ -171,7 +171,7 @@ let size : Int = (
 ///|
 pub fn to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
-  let rv = Bytes::new(size)
+  let rv = FixedArray::make(size, b'\x00')
   for v = self.lo, c = size - 1, i = size - 1, d = segments.length() - 1 {
     let s = segments[d] * 2
     if s == 0 {
@@ -186,7 +186,7 @@ pub fn to_string(self : UUID) -> String {
       rv[i - 1] = dash.to_byte()
       continue v, i - 2, i - 2, d - 1
     } else {
-      break rv.to_unchecked_string()
+      break Bytes::from_fixedarray(rv).to_unchecked_string()
     }
   }
 }
