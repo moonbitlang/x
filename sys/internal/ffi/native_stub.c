@@ -100,14 +100,7 @@ struct moonbit_ref_array* get_env_vars() {
 
 void set_env_var(struct moonbit_bytes *key, struct moonbit_bytes *value) {
 #ifdef _WIN32
-    // SetEnvironmentVariable can't work as expected, so we use _putenv instead
-    char *env_str = malloc(Moonbit_array_length(key) + Moonbit_array_length(value) + 2); // +2 for '=' and null terminator
-    memcpy(env_str, key->data, Moonbit_array_length(key));
-    env_str[Moonbit_array_length(key)] = '=';
-    memcpy(env_str + Moonbit_array_length(key) + 1, value->data, Moonbit_array_length(value));
-    env_str[Moonbit_array_length(key) + Moonbit_array_length(value) + 1] = '\0';
-    _putenv(env_str);
-    free(env_str);
+    SetEnvironmentVariable(key->data, value->data);
 #else
     setenv((const char*)key->data, (const char*)value->data, 1);
 #endif
@@ -115,13 +108,7 @@ void set_env_var(struct moonbit_bytes *key, struct moonbit_bytes *value) {
 
 void unset_env_var(struct moonbit_bytes *key) {
 #ifdef _WIN32
-    size_t key_len = Moonbit_array_length(key);
-    char *env_str = malloc(key_len + 2); // +2 for '=' and null terminator
-    memcpy(env_str, key->data, key_len);
-    env_str[key_len] = '=';
-    env_str[key_len + 1] = '\0';
-    _putenv(env_str);
-    free(env_str);
+    SetEnvironmentVariable(key->data, NULL);
 #else
     unsetenv((const char*)key->data);
 #endif
