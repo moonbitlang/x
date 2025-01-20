@@ -44,8 +44,8 @@ extern "C" fn get_env_vars_ffi() -> FixedArray[Bytes] = "get_env_vars"
 ///|
 pub fn set_env_var(key : String, value : String) -> Unit {
   set_env_var_ffi(
-    @ffi.mbt_string_to_utf8_bytes(key, false),
-    @ffi.mbt_string_to_utf8_bytes(value, false),
+    @ffi.mbt_string_to_utf8_bytes(key, true),
+    @ffi.mbt_string_to_utf8_bytes(value, true),
   )
 }
 
@@ -54,7 +54,7 @@ extern "C" fn set_env_var_ffi(_key : Bytes, _value : Bytes) -> Unit = "set_env_v
 
 ///|
 pub fn unset_env_var(key : String) -> Unit {
-  unset_env_var_ffi(@ffi.mbt_string_to_utf8_bytes(key, false))
+  unset_env_var_ffi(@ffi.mbt_string_to_utf8_bytes(key, true))
 }
 
 ///|
