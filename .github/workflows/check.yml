@@ -50,7 +50,11 @@ jobs:
         run: |
           moon test --target all --serial --release
           moon test --target all --serial
+          moon test --target native --release --build-only
+          sleep 2
           moon test --target native --release
+          moon test --target native --build-only
+          sleep 2
           moon test --target native
 
       - name: moon check
@@ -111,7 +115,11 @@ jobs:
         run: |
           moon test --target all --serial --release
           moon test --target all --serial
+          moon test --target native --release --build-only
+          sleep 2
           moon test --target native --release
+          moon test --target native --build-only
+          sleep 2
           moon test --target native
 
       - name: moon check
