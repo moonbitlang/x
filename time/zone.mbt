@@ -28,6 +28,23 @@ pub fn fixed_zone(id : String, offset_seconds : Int) -> Zone!Error {
   Zone::{ id, offsets: [offset] }
 }
 
+///| Creates a time zone with fixed offset from time zone id and offset seconds
+/// but without validating the offset. This is needed so that a default zone
+/// can be used as a parameter to a function call.
+/// For example: `fn foo(zone~ : @time.Zone = @time.fixed_zone_unvalidated("EST", -18000)) {...}`
+/// If the validation fails, `utc_zone` will be returned.
+pub fn fixed_zone_unvalidated(id : String, offset_seconds : Int) -> Zone {
+  if id.is_empty() {
+    return utc_zone
+  }
+  try {
+    let offset = ZoneOffset::from_seconds!(offset_seconds)
+    Zone::{ id, offsets: [offset] }
+  } catch {
+    _ => utc_zone
+  }
+}
+
 ///| Checks if this zone only has one offset.
 pub fn is_fixed(self : Zone) -> Bool {
   self.offsets.length() == 1
