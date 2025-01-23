@@ -5,6 +5,8 @@ fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int 
 
 fn fixed_zone(String, Int) -> Zone!
 
+fn fixed_zone_unvalidated(String, Int) -> Zone
+
 fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
 let utc_offset : ZoneOffset
