@@ -191,6 +191,7 @@ impl Show for Weekday
 
 type Zone
 impl Zone {
+  from_tzif2(String, FixedArray[Byte]) -> Self!
   is_fixed(Self) -> Bool
   to_string(Self) -> String
 }
