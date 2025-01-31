@@ -200,11 +200,12 @@ impl Show for Zone
 
 type ZoneOffset
 impl ZoneOffset {
+  abbreviation(Self) -> String
   compare(Self, Self) -> Int
-  from_seconds(Int) -> Self!
+  from_seconds(Int, abbrev~ : String = ..) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
-  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = ..) -> Self!
+  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = ..) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String

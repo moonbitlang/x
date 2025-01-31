@@ -86,7 +86,12 @@ pub fn ZonedDateTime::to_string(self : ZonedDateTime) -> String {
   buf.write_string(self.offset.to_string())
   if self.zone != utc_zone {
     buf.write_char('[')
-    buf.write_string(self.zone.to_string())
+    let abbrev = self.offset.abbreviation()
+    if abbrev == "" {
+      buf.write_string(self.zone.to_string())
+    } else {
+      buf.write_string(abbrev)
+    }
     buf.write_char(']')
   }
   buf.to_string()
