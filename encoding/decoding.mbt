@@ -98,10 +98,10 @@ pub fn decode_strict(encoding : Encoding, src : Bytes) -> StrictChars {
 
 ///|
 fn decoder(encoding : Encoding, src : Bytes) -> Decoder {
-  let i = src
+  let i = src.to_fixedarray()
   let i_pos = 0
   let i_max = src.length() - 1
-  let t = b"\x00\x00\x00\x00"
+  let t = b"\x00\x00\x00\x00".to_fixedarray()
   let t_len = 0
   let t_need = 0
   let k = match encoding {
@@ -131,7 +131,7 @@ fn i_rem(self : Decoder) -> Int {
 
 ///|
 fn eoi(self : Decoder) -> Unit {
-  self.i = @bytes.default()
+  self.i = []
   self.i_pos = 0
   self.i_max = @int.min_value
 }
@@ -152,7 +152,13 @@ fn t_need(self : Decoder, need : Int) -> Unit {
 ///|
 fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   fn blit(decoder : Decoder, l : Int) -> Unit {
-    decoder.i.blit(decoder.i_pos, decoder.t, decoder.t_len, l)
+    FixedArray::unsafe_blit(
+      decoder.i,
+      decoder.i_pos,
+      decoder.t,
+      decoder.t_len,
+      l,
+    )
     decoder.i_pos = decoder.i_pos + 1
     decoder.t_len = decoder.t_len + 1
   }
@@ -193,10 +199,16 @@ fn decode_utf_8(self : Decoder) -> Decode {
         let j = self.i_pos
         if need == 0 {
           self.i_pos = self.i_pos + 1
-          self.ret(decode_utf_8, malformed(self.i, j, 1))
+          self.ret(
+            decode_utf_8,
+            malformed(Bytes::from_fixedarray(self.i), j, 1),
+          )
         } else {
           self.i_pos = self.i_pos + need
-          self.ret(decode_utf_8, r_utf_8(self.i, j, need))
+          self.ret(
+            decode_utf_8,
+            r_utf_8(Bytes::from_fixedarray(self.i), j, need),
+          )
         }
       }
     }
@@ -207,9 +219,9 @@ fn decode_utf_8(self : Decoder) -> Decode {
 ///|
 fn t_decode_utf_8(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    malformed(self.t, 0, self.t_len)
+    malformed(Bytes::from_fixedarray(self.t), 0, self.t_len)
   } else {
-    r_utf_8(self.t, 0, self.t_len)
+    r_utf_8(Bytes::from_fixedarray(self.t), 0, self.t_len)
   }
 }
 
@@ -324,7 +336,9 @@ fn decode_utf_16le(self : Decoder) -> Decode {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
         // mark
-        self.decode_utf_16le_lo(r_utf_16(self.i, j + 1, j))
+        self.decode_utf_16le_lo(
+          r_utf_16(Bytes::from_fixedarray(self.i), j + 1, j),
+        )
       }
     _ => abort("unreachable")
   }
@@ -333,9 +347,12 @@ fn decode_utf_16le(self : Decoder) -> Decode {
 ///|
 fn t_decode_utf_16le(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(decode_utf_16le, malformed(self.t, 0, self.t_len))
+    self.ret(
+      decode_utf_16le,
+      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
+    )
   } else {
-    self.decode_utf_16le_lo(r_utf_16(self.t, 1, 0))
+    self.decode_utf_16le_lo(r_utf_16(Bytes::from_fixedarray(self.t), 1, 0))
   }
 }
 
@@ -352,7 +369,7 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
       } else {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
-        r_utf_16_lo(hi, self.i, j + 1, j)
+        r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j + 1, j)
       }
     }
   }
@@ -363,10 +380,19 @@ fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
   if decoder.t_len < decoder.t_need {
     decoder.ret(
       decode_utf_16le,
-      malformed_pair(false, hi, decoder.t, 0, decoder.t_len),
+      malformed_pair(
+        false,
+        hi,
+        Bytes::from_fixedarray(decoder.t),
+        0,
+        decoder.t_len,
+      ),
     )
   } else {
-    decoder.ret(decode_utf_16le, r_utf_16_lo(hi, decoder.t, 1, 0))
+    decoder.ret(
+      decode_utf_16le,
+      r_utf_16_lo(hi, Bytes::from_fixedarray(decoder.t), 1, 0),
+    )
   }
 }
 
@@ -420,7 +446,9 @@ fn decode_utf_16be(self : Decoder) -> Decode {
       } else {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
-        self.decode_utf_16be_lo(r_utf_16(self.i, j, j + 1))
+        self.decode_utf_16be_lo(
+          r_utf_16(Bytes::from_fixedarray(self.i), j, j + 1),
+        )
       }
     _ => abort("unreachable")
   }
@@ -429,9 +457,12 @@ fn decode_utf_16be(self : Decoder) -> Decode {
 ///|
 fn t_decode_utf_16be(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(decode_utf_16be, malformed(self.t, 0, self.t_len))
+    self.ret(
+      decode_utf_16be,
+      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
+    )
   } else {
-    self.decode_utf_16be_lo(r_utf_16(self.t, 0, 1))
+    self.decode_utf_16be_lo(r_utf_16(Bytes::from_fixedarray(self.t), 0, 1))
   }
 }
 
@@ -448,7 +479,10 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       } else {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
-        self.ret(decode_utf_16be, r_utf_16_lo(hi, self.i, j, j + 1))
+        self.ret(
+          decode_utf_16be,
+          r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j, j + 1),
+        )
       }
     }
   }
@@ -457,8 +491,14 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
 ///|
 fn t_decode_utf_16be_lo(hi : Int, self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(decode_utf_16be, malformed_pair(true, hi, self.t, 0, self.t_len))
+    self.ret(
+      decode_utf_16be,
+      malformed_pair(true, hi, Bytes::from_fixedarray(self.t), 0, self.t_len),
+    )
   } else {
-    self.ret(decode_utf_16be, r_utf_16_lo(hi, self.t, 0, 1))
+    self.ret(
+      decode_utf_16be,
+      r_utf_16_lo(hi, Bytes::from_fixedarray(self.t), 0, 1),
+    )
   }
 }

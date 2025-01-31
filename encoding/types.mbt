@@ -30,7 +30,7 @@ priv struct Decoder {
   // Input bytes
   // Stores the input bytes that need to be decoded.
   // The primary data source from which characters are read and decoded.
-  mut i : Bytes
+  mut i : FixedArray[Byte]
   // Input position
   // Keeps track of the current position within the input bytes `i`.
   // Indicates the next byte (starting point) to read from `i` during the decoding process
@@ -43,7 +43,7 @@ priv struct Decoder {
   // Temporary bytes
   // Used to temporarily store bytes that are read in parts
   // (which might happen for multi-byte encoded characters).
-  t : Bytes
+  t : FixedArray[Byte]
   // Temporary Length
   // Tracks how many bytes currently reside in the temporary bytes `t`.
   mut t_len : Int
@@ -65,9 +65,8 @@ priv enum Decode {
 
 ///|
 fn slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
-  let new_bytes = Bytes::new(length)
-  new_bytes.blit(0, bytes, offset, length)
-  new_bytes
+  let new_bytes = FixedArray::makei(length, fn(i) { bytes[offset + i] })
+  Bytes::from_fixedarray(new_bytes)
 }
 
 ///|
