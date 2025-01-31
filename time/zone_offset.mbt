@@ -14,7 +14,8 @@
 
 ///| Time offset from UTC.
 struct ZoneOffset {
-  id : String
+  id : String // e.g. "Z", "+08:00", "-05:30", etc.
+  abbrev : String // e.g. "PST", "CST", "EST", "UTC", etc.
   seconds : Int
   dst : Bool
 }
@@ -34,6 +35,7 @@ let min_offset_seconds : Int = min_offset_hours * seconds_per_hour.to_int()
 ///| UTC+0 offset.
 pub let utc_offset : ZoneOffset = ZoneOffset::{
   id: "Z",
+  abbrev: "UTC",
   seconds: 0,
   dst: false,
 }
@@ -42,29 +44,38 @@ pub let utc_offset : ZoneOffset = ZoneOffset::{
 pub fn ZoneOffset::of(
   hours~ : Int = 0,
   minutes~ : Int = 0,
-  seconds~ : Int = 0
+  seconds~ : Int = 0,
+  abbrev~ : String = ""
 ) -> ZoneOffset!Error {
   validate_offset!(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() +
     minutes * seconds_per_minute.to_int() +
     seconds
-  ZoneOffset::from_seconds!(secs)
+  ZoneOffset::from_seconds!(secs, abbrev~)
 }
 
 ///| Creates a offset from seconds.
-pub fn ZoneOffset::from_seconds(seconds : Int) -> ZoneOffset!Error {
+pub fn ZoneOffset::from_seconds(
+  seconds : Int,
+  abbrev~ : String = ""
+) -> ZoneOffset!Error {
   if seconds == 0 {
     return utc_offset
   }
   if seconds < min_offset_seconds || seconds > max_offset_seconds {
     fail!(invalid_offset_err)
   }
-  { id: create_id(seconds), seconds, dst: false }
+  { id: create_id(seconds), abbrev, seconds, dst: false }
 }
 
-///| Returns the offset id.
+///| Returns the offset id, e.g. "Z", "+08:00", "-05:30", etc.
 pub fn ZoneOffset::to_string(self : ZoneOffset) -> String {
   self.id
+}
+
+///| Returns the zone offset abbreviation, e.g. "PST", "CST", "EST", "UTC", etc.
+pub fn ZoneOffset::abbreviation(self : ZoneOffset) -> String {
+  self.abbrev
 }
 
 ///|
