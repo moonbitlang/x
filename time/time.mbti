@@ -3,7 +3,7 @@ package moonbitlang/x/time
 // Values
 fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
-fn fixed_zone(String, Int) -> Zone!
+fn fixed_zone(String, Int, abbrev~ : String = .., dst~ : Bool = ..) -> Zone!
 
 fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
@@ -202,10 +202,10 @@ type ZoneOffset
 impl ZoneOffset {
   abbreviation(Self) -> String
   compare(Self, Self) -> Int
-  from_seconds(Int, abbrev~ : String = ..) -> Self!
+  from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
-  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = ..) -> Self!
+  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self!
   op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String
