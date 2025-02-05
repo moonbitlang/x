@@ -28,9 +28,19 @@ pub fn date_time(
   hour~ : Int = 0,
   minute~ : Int = 0,
   second~ : Int = 0,
+  nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
-  ZonedDateTime::of!(year, month, day, hour~, minute~, second~, zone~)
+  ZonedDateTime::of!(
+    year,
+    month,
+    day,
+    hour~,
+    minute~,
+    second~,
+    nanosecond~,
+    zone~,
+  )
 }
 
 ///| Creates a ZonedDateTime from elapsed seconds since the unix epoch and a time zone.
@@ -52,9 +62,18 @@ pub fn ZonedDateTime::of(
   hour~ : Int = 0,
   minute~ : Int = 0,
   second~ : Int = 0,
+  nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
 ) -> ZonedDateTime!Error {
-  let datetime = PlainDateTime::of!(year, month, day, hour~, minute~, second~)
+  let datetime = PlainDateTime::of!(
+    year,
+    month,
+    day,
+    hour~,
+    minute~,
+    second~,
+    nanosecond~,
+  )
   create_from_plain(datetime, zone)
 }
 
