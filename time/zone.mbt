@@ -137,7 +137,7 @@ test "Zone::from_tzif2" {
   let data : FixedArray[Byte] = [
     // magic number
     84, 90, 105, 102,
-    // version - 50?!?
+    // version
      50,
     // unused
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
