@@ -23,8 +23,13 @@ struct Zone {
 pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset], transitions: [] }
 
 ///| Creates a time zone with fixed offset from time zone id and offset seconds.
-pub fn fixed_zone(id : String, offset_seconds : Int) -> Zone!Error {
-  let offset = ZoneOffset::from_seconds!(offset_seconds)
+pub fn fixed_zone(
+  id : String,
+  offset_seconds : Int,
+  abbrev~ : String = "",
+  dst~ : Bool = false
+) -> Zone!Error {
+  let offset = ZoneOffset::from_seconds!(offset_seconds, abbrev~, dst~)
   Zone::{ id, offsets: [offset], transitions: [] }
 }
 
@@ -64,18 +69,25 @@ fn lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
 }
 
 ///|
+const TZIF_MAGIC_HEADER : Int = 0x545A6966
+
+///|
+const TZIF2_VERSION = 50
+
+///|
 const TZIF2_HEADER_SIZE : Int = 44
 
 ///| Creates a time zone from TZif2 data.
 pub fn Zone::from_tzif2(id : String, data : FixedArray[Byte]) -> Zone!Error {
   let magic = to_int_be(data, 0)
-  let want = 0x545A6966
-  if magic != want {
-    raise Failure("invalid TZif magic: \{magic}, want \{want}")
+  if magic != TZIF_MAGIC_HEADER {
+    raise Failure("invalid TZif magic: \{magic}, want \{TZIF_MAGIC_HEADER}")
   }
   let version = data[4].to_int()
-  if version != 50 {
-    raise Failure("unsupported TZif2 version: \{version}, want 50")
+  if version != TZIF2_VERSION {
+    raise Failure(
+      "unsupported TZif2 version: \{version}, want \{TZIF2_VERSION}",
+    )
   }
 
   //
@@ -92,9 +104,12 @@ pub fn Zone::from_tzif2(id : String, data : FixedArray[Byte]) -> Zone!Error {
   let offsets = Array::new(capacity=typecnt)
   for i in 0..<typecnt {
     let offset = ttinfo_offset + i * 6
+    let dst = data[offset + 4] != 0
     let abbrev_index = abbrev_offset + data[offset + 5].to_int()
     let abbrev = ascii_to_string(data, abbrev_index)
-    offsets.push(ZoneOffset::from_seconds!(to_int_be(data, offset), abbrev~))
+    offsets.push(
+      ZoneOffset::from_seconds!(to_int_be(data, offset), abbrev~, dst~),
+    )
   }
   { id, offsets, transitions }
 }
@@ -312,11 +327,17 @@ test "Zone::from_tzif2" {
   let current_time_seconds = 1706659200L // Tuesday, January 30, 2024 4:00:00pm PST
   let got = unix!(current_time_seconds, zone~)
   inspect!(got, content="2024-01-30T16:00:00-08:00[PST]")
+  inspect!(got.offset(), content="-08:00")
+  inspect!(got.offset().is_dst(), content="false")
   let current_time_seconds = 1754006400L // Thursday, July 31, 2025 5:00:00pm PDT
   let got = unix!(current_time_seconds, zone~)
   inspect!(got, content="2025-07-31T17:00:00-07:00[PDT]")
+  inspect!(got.offset(), content="-07:00")
+  inspect!(got.offset().is_dst(), content="true")
   // Behavior of a fixed-offset zone:
-  let zone = fixed_zone!(name, -25200) // PDT
+  let zone = fixed_zone!(name, -25200, abbrev="PDT", dst=true)
   let got = unix!(current_time_seconds, zone~)
-  inspect!(got, content="2025-07-31T17:00:00-07:00[America/Los_Angeles]")
+  inspect!(got, content="2025-07-31T17:00:00-07:00[PDT]")
+  inspect!(got.offset(), content="-07:00")
+  inspect!(got.offset().is_dst(), content="true")
 }
