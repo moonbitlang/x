@@ -1,7 +1,7 @@
 package moonbitlang/x/time
 
 // Values
-fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
+fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
 fn fixed_zone(String, Int, abbrev~ : String = .., dst~ : Bool = ..) -> Zone!
 
@@ -236,7 +236,7 @@ impl ZonedDateTime {
   month(Self) -> Int
   months_in_year(Self) -> Int
   nanosecond(Self) -> Int
-  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., zone~ : Zone = ..) -> Self!
+  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
   offset(Self) -> ZoneOffset
   ordinal(Self) -> Int
   second(Self) -> Int
