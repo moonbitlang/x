@@ -32,6 +32,7 @@ pub fn sha224_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
   arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
 }
 
+///|
 test {
   // Sha224
   assert_eq!(

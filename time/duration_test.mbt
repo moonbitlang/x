@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "from_string" {
   inspect!(@time.Duration::from_string!("PT0S"), content="PT0S")
   inspect!(
@@ -27,6 +28,7 @@ test "from_string" {
   assert_true!(@time.Duration::from_string?("P1Y2M3DT4H5M6S").is_err())
 }
 
+///|
 test "getters" {
   let d = @time.Duration::of!(
     hours=1L,
@@ -38,6 +40,7 @@ test "getters" {
   inspect!(d.nanoseconds(), content="400")
 }
 
+///|
 test "is_zero" {
   inspect!(@time.Duration::zero().is_zero(), content="true")
   inspect!(@time.Duration::of!().is_zero(), content="true")
@@ -47,6 +50,7 @@ test "is_zero" {
   inspect!(@time.Duration::of!(nanoseconds=1L).is_zero(), content="false")
 }
 
+///|
 test "is_neg" {
   inspect!(@time.Duration::zero().is_neg(), content="false")
   inspect!(@time.Duration::of!(seconds=1L).is_neg(), content="false")
@@ -58,6 +62,7 @@ test "is_neg" {
   inspect!(@time.Duration::of!(nanoseconds=1L).is_neg(), content="false")
 }
 
+///|
 test "add_seconds" {
   inspect!(@time.Duration::zero().add_seconds!(0L), content="PT0S")
   inspect!(@time.Duration::zero().add_seconds!(1L), content="PT1S")
@@ -78,12 +83,14 @@ test "add_seconds" {
   )
 }
 
+///|
 test "with_seconds" {
   let d = @time.Duration::of!(seconds=20L)
   inspect!(d.with_seconds(20L), content="PT20S")
   inspect!(d.with_seconds(30L), content="PT30S")
 }
 
+///|
 test "with_nanoseconds" {
   let d = @time.Duration::of!(nanoseconds=1000L)
   inspect!(d.with_nanoseconds!(1000), content="PT0.000001S")

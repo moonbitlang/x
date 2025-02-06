@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "fixed" {
   inspect!(@time.fixed_zone!("CST", 8 * 60 * 60), content="CST")
   inspect!(@time.fixed_zone!("CST", 8 * 60 * 60).is_fixed(), content="true")
 }
 
+///|
 test "utc" {
   inspect!(@time.utc_zone, content="UTC")
 }

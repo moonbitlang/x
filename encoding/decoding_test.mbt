@@ -14,6 +14,7 @@
 
 // lossy
 
+///|
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
   let buf = @buffer.new(size_hint=src.to_bytes().length())
@@ -28,6 +29,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   inspect!(chars, content=src)
 }
 
+///|
 test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
@@ -44,6 +46,7 @@ test "lossy decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   inspect!(chars, content=src)
 }
 
+///|
 test "lossy decoding UTF16LE encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\x60\x4f")
@@ -59,6 +62,7 @@ test "lossy decoding UTF16LE encoded data to String" {
   inspect!(chars, content="你好👀")
 }
 
+///|
 test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
   let buf = @buffer.new(size_hint=20)
   buf.write_bytes(b"\x65\x18")
@@ -78,6 +82,7 @@ test "lossy decoding UTF16 (alias for UTF16LE) encoded data to String" {
   inspect!(chars, content="ᡥᠠᡳᡤᡳᠶᠠ")
 }
 
+///|
 test "lossy decoding UTF16BE encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
@@ -94,6 +99,7 @@ test "lossy decoding UTF16BE encoded data to String" {
   inspect!(chars, content="🐈🐱🐇🐰")
 }
 
+///|
 test "lossy decoding UTF8 encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xe4\xbd\xa0")
@@ -109,6 +115,7 @@ test "lossy decoding UTF8 encoded data to String" {
   inspect!(chars, content="你好👀")
 }
 
+///|
 test "lossy decoding UTF8 encoded bytes to String" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
@@ -125,6 +132,7 @@ test "lossy decoding UTF8 encoded bytes to String" {
   inspect!(chars, content=src)
 }
 
+///|
 test "lossy decoding UTF8 encoded data" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
@@ -141,6 +149,7 @@ test "lossy decoding UTF8 encoded data" {
   inspect!(chars.iter().collect(), content="['👋', '再', '见']")
 }
 
+///|
 test "lossy decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -160,6 +169,7 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
   )
 }
 
+///|
 test "lossy decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -179,6 +189,7 @@ test "lossy decoding UTF8 encoded data with UTF16LE" {
   )
 }
 
+///|
 test "lossy decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -200,6 +211,7 @@ test "lossy decoding UTF16BE encoded data with UTF8" {
   )
 }
 
+///|
 test "lossy decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -219,6 +231,7 @@ test "lossy decoding UTF8 encoded data with UTF16BE" {
   )
 }
 
+///|
 test "lossy decoding UTF16LE encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -238,6 +251,7 @@ test "lossy decoding UTF16LE encoded data with UTF16BE" {
   )
 }
 
+///|
 test "lossy decoding UTF16BE encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -259,6 +273,7 @@ test "lossy decoding UTF16BE encoded data with UTF16LE" {
 
 // strictly
 
+///|
 test "strictly decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -280,6 +295,7 @@ test "strictly decoding UTF16LE encoded data with UTF8" {
   )
 }
 
+///|
 test "strictly decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -301,6 +317,7 @@ test "strictly decoding UTF8 encoded data with UTF16LE" {
   )
 }
 
+///|
 test "strictly decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -322,6 +339,7 @@ test "strictly decoding UTF8 encoded data with UTF16BE" {
   )
 }
 
+///|
 test "strictly decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)

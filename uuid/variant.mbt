@@ -101,6 +101,7 @@ pub fn as_version(self : UUID, version : Version) -> UUID {
   { hi, lo }
 }
 
+///|
 test "variant" {
   inspect!(
     from_hex!("81a277a6-771b-1a55-6246-fa3763226aa0").variant(),
@@ -120,6 +121,7 @@ test "variant" {
   )
 }
 
+///|
 test "version" {
   let u = from_hex!("907976bf-6784-5a4f-5d7d-33c04dd8fa1a")
   inspect!(u.version(), content="None")

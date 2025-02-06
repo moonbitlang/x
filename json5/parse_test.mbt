@@ -22,11 +22,13 @@ fn test_parse(input : String, loc~ : SourceLoc = _) -> @json.JsonValue!Error {
 }
 
 //region objects
+///|
 test "parses empty objects" {
   let json = test_parse!("{}")
   assert_eq!(json, @json.JsonValue::Object(Map::of([])))
 }
 
+///|
 test "parses double string property names" {
   let json = test_parse!("{\"a\":1}")
   assert_eq!(
@@ -35,6 +37,7 @@ test "parses double string property names" {
   )
 }
 
+///|
 test "parses single string property names" {
   let json = test_parse!("{a:1}")
   assert_eq!(
@@ -43,6 +46,7 @@ test "parses single string property names" {
   )
 }
 
+///|
 test "parses unquoted property names" {
   let json = test_parse!("{a:1}")
   assert_eq!(
@@ -51,6 +55,7 @@ test "parses unquoted property names" {
   )
 }
 
+///|
 test "parses special character property names" {
   let json = test_parse!("{$_:1,_$:2,a\u200C:3}")
   assert_eq!(
@@ -65,6 +70,7 @@ test "parses special character property names" {
   )
 }
 
+///|
 test "parses unicode property names" {
   let json = test_parse!("{ùńîċõďë:9}")
   assert_eq!(
@@ -75,6 +81,7 @@ test "parses unicode property names" {
   )
 }
 
+///|
 test "parses escaped property names" {
   let json = test_parse!("{\\u0061\\u0062:1,\\u0024\\u005F:2,\\u005F\\u0024:3}")
   assert_eq!(
@@ -89,6 +96,7 @@ test "parses escaped property names" {
   )
 }
 
+///|
 test "preserves __proto__ property names" {
   let json = test_parse!("{\"__proto__\":1}")
   assert_eq!(
@@ -99,6 +107,7 @@ test "preserves __proto__ property names" {
   )
 }
 
+///|
 test "parses multiple properties" {
   let json = test_parse!("{abc:1,def:2}")
   assert_eq!(
@@ -112,6 +121,7 @@ test "parses multiple properties" {
   )
 }
 
+///|
 test "parses nested objects" {
   let json = test_parse!("{a:{b:2}}")
   assert_eq!(
@@ -131,16 +141,19 @@ test "parses nested objects" {
 //endregion
 
 //region arrays
+///|
 test "parses empty arrays" {
   let json = test_parse!("[]")
   assert_eq!(json, @json.JsonValue::Array([]))
 }
 
+///|
 test "parses array values" {
   let json = test_parse!("[1]")
   assert_eq!(json, @json.JsonValue::Array([@json.JsonValue::Number(1.0)]))
 }
 
+///|
 test "parses multiple array values" {
   let json = test_parse!("[1,2]")
   assert_eq!(
@@ -152,6 +165,7 @@ test "parses multiple array values" {
   )
 }
 
+///|
 test "parses nested arrays" {
   let json = test_parse!("[1,[2,3]]")
   assert_eq!(
@@ -168,6 +182,7 @@ test "parses nested arrays" {
 //endregion
 
 //region nulls
+///|
 test "parses nulls" {
   let json = test_parse!("null")
   assert_eq!(json, @json.JsonValue::Null)
@@ -175,11 +190,13 @@ test "parses nulls" {
 //endregion
 
 //region booleans
+///|
 test "parses true" {
   let json = test_parse!("true")
   assert_eq!(json, @json.JsonValue::True)
 }
 
+///|
 test "parses false" {
   let json = test_parse!("false")
   assert_eq!(json, @json.JsonValue::False)
@@ -187,6 +204,7 @@ test "parses false" {
 //endregion
 
 //region numbers
+///|
 test "parses leading zeroes" {
   let json = test_parse!("[0,0.,0e0]")
   assert_eq!(
@@ -199,6 +217,7 @@ test "parses leading zeroes" {
   )
 }
 
+///|
 test "parses integers" {
   let json = test_parse!("[1,23,456,7890]")
   assert_eq!(
@@ -212,6 +231,7 @@ test "parses integers" {
   )
 }
 
+///|
 test "parses signed numbers" {
   let json = test_parse!("[-1,+2,-.1,-0]")
   assert_eq!(
@@ -225,6 +245,7 @@ test "parses signed numbers" {
   )
 }
 
+///|
 test "parses leading decimal points" {
   let json = test_parse!("[.1,.23]")
   assert_eq!(
@@ -236,6 +257,7 @@ test "parses leading decimal points" {
   )
 }
 
+///|
 test "parses fractional numbers" {
   let json = test_parse!("[1.0,1.23]")
   assert_eq!(
@@ -247,6 +269,7 @@ test "parses fractional numbers" {
   )
 }
 
+///|
 test "parses exponents" {
   let json = test_parse!("[1e0,1e1,1e01,1.e0,1.1e0,1e-1,1e+1]")
   assert_eq!(
@@ -263,6 +286,7 @@ test "parses exponents" {
   )
 }
 
+///|
 test "parses hexadecimal numbers" {
   let json = test_parse!("[0x1,0x10,0xff,0xFF]")
   assert_eq!(
@@ -276,6 +300,7 @@ test "parses hexadecimal numbers" {
   )
 }
 
+///|
 test "parses signed and unsigned Infinity" {
   let json = test_parse!("[Infinity,-Infinity]")
   assert_eq!(
@@ -287,6 +312,7 @@ test "parses signed and unsigned Infinity" {
   )
 }
 
+///|
 test "parses NaN" {
   let json = test_parse!("NaN")
   let ok = match json {
@@ -296,6 +322,7 @@ test "parses NaN" {
   assert_true!(ok)
 }
 
+///|
 test "parses signed NaN" {
   let json = test_parse!("-NaN")
   let ok = match json {
@@ -305,21 +332,25 @@ test "parses signed NaN" {
   assert_true!(ok)
 }
 
+///|
 test "parses 1" {
   let json = test_parse!("1")
   assert_eq!(json, @json.JsonValue::Number(1.0))
 }
 
+///|
 test "parses +1.23e100" {
   let json = test_parse!("+1.23e100")
   assert_eq!(json, @json.JsonValue::Number(1.23e100))
 }
 
+///|
 test "parses bare hexadecimal number" {
   let json = test_parse!("0x1")
   assert_eq!(json, @json.JsonValue::Number(1.0))
 }
 
+///|
 test "parses bare long hexadecimal number" {
   let json = test_parse!("-0x0123456789abcdefABCDEF")
   assert_eq!(json, @json.JsonValue::Number(-0x0123456789abcdefABCDEF.0))
@@ -327,16 +358,19 @@ test "parses bare long hexadecimal number" {
 //endregion
 
 //region strings
+///|
 test "parses double quoted strings" {
   let json = test_parse!("\"abc\"")
   assert_eq!(json, @json.JsonValue::String("abc"))
 }
 
+///|
 test "parses single quoted strings" {
   let json = test_parse!("'abc'")
   assert_eq!(json, @json.JsonValue::String("abc"))
 }
 
+///|
 test "parses quotes in strings" {
   let json = test_parse!("[\"\\\"\",\"'\"]")
   assert_eq!(
@@ -348,6 +382,7 @@ test "parses quotes in strings" {
   )
 }
 
+///|
 test "parses escaped characters" {
   let json = test_parse!("'\\b\\f\\n\\r\\t\\v\\0\\x0f\\u01fF\\a\\'\\\"'")
   assert_eq!(
@@ -362,16 +397,19 @@ test "parses escaped characters" {
 //endregion
 
 //region comments
+///|
 test "parses single-line comments" {
   let json = test_parse!("{//comment\n}")
   assert_eq!(json, @json.JsonValue::Object(Map::of([])))
 }
 
+///|
 test "parses single-line comments at end of input" {
   let json = test_parse!("{}//comment")
   assert_eq!(json, @json.JsonValue::Object(Map::of([])))
 }
 
+///|
 test "parses multi-line comments" {
   let json = test_parse!("{/*comment\n** */}")
   assert_eq!(json, @json.JsonValue::Object(Map::of([])))
@@ -379,6 +417,7 @@ test "parses multi-line comments" {
 //endregion
 
 //region whitespace
+///|
 test "parses whitespace" {
   let json = test_parse!("{\t\u000b\u000c \u00A0\uFEFF\n\r\u2028\u2029\u2003}")
   assert_eq!(json, @json.JsonValue::Object(Map::of([])))

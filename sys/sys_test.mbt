@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "get_env_vars" {
   let (k, v) = ("THIS_IS_A_TEST_FOR_ENV_VAR", "IT_WORKS")
   inspect!(

@@ -271,6 +271,7 @@ pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
   arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
 
+///|
 test {
   fn sm3_u32(data : FixedArray[Byte]) -> FixedArray[UInt] {
     let ctx = SM3Context::new()

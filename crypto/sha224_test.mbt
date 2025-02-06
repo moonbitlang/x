@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "sha224-additional" {
   assert_eq!(
     sha224test(""),

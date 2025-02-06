@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "from_hex" {
   let hex = "13cb501c-1234-5678-9034-abcdef937e20"
   inspect!(@uuid.from_hex!(hex), content=hex)
@@ -23,6 +24,7 @@ test "from_hex" {
   assert_true!(@uuid.from_hex?("13cb501c-99a8-c889-3234").is_err())
 }
 
+///|
 test "ops" {
   let hex = "72212911-64d1-c441-e87d-de89b955ea34"
   let u1 = @uuid.from_hex!(hex)

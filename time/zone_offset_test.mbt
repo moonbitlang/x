@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(@time.ZoneOffset::of!(), content="Z")
   inspect!(@time.ZoneOffset::of!(hours=8), content="+08:00")
@@ -38,6 +39,7 @@ test "of" {
   assert_true!(@time.ZoneOffset::of?(hours=-18, seconds=1).is_err())
 }
 
+///|
 test "from_seconds" {
   inspect!(@time.ZoneOffset::from_seconds!(8 * 60 * 60), content="+08:00")
   inspect!(@time.ZoneOffset::from_seconds!(0), content="Z")
@@ -47,6 +49,7 @@ test "from_seconds" {
   assert_true!(@time.ZoneOffset::from_seconds?(-19 * 60 * 60).is_err())
 }
 
+///|
 test "utc" {
   inspect!(@time.utc_offset, content="Z")
   inspect!(@time.utc_offset.id(), content="Z")
@@ -54,6 +57,7 @@ test "utc" {
   inspect!(@time.utc_offset.is_dst(), content="false")
 }
 
+///|
 test "compare" {
   let o1 = @time.ZoneOffset::from_seconds!(10)
   let o2 = @time.ZoneOffset::from_seconds!(-10)

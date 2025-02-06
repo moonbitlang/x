@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(
     Duration::of!(hours=1L, minutes=2L, seconds=3L, nanoseconds=456789L),
@@ -36,6 +37,7 @@ test "of" {
   inspect!(Duration::of!(nanoseconds=-200L), content="PT-0.0000002S")
 }
 
+///|
 test "add_hours" {
   inspect!(Duration::zero().add_hours!(0L), content="PT0S")
   inspect!(Duration::zero().add_hours!(1L), content="PT1H")
@@ -52,6 +54,7 @@ test "add_hours" {
   assert_true!(Duration::zero().add_hours?(@int64.min_value).is_err())
 }
 
+///|
 test "add_minutes" {
   inspect!(Duration::zero().add_minutes!(0L), content="PT0S")
   inspect!(Duration::zero().add_minutes!(1L), content="PT1M")
@@ -68,6 +71,7 @@ test "add_minutes" {
   assert_true!(Duration::zero().add_minutes?(@int64.min_value).is_err())
 }
 
+///|
 test "add_nanoseconds" {
   inspect!(Duration::zero().add_nanoseconds!(0L), content="PT0S")
   inspect!(Duration::zero().add_nanoseconds!(1L), content="PT0.000000001S")
@@ -116,6 +120,7 @@ test "add_nanoseconds" {
   )
 }
 
+///|
 test "op_add" {
   let p1 = Duration::of!(hours=1L, minutes=1L, seconds=1L, nanoseconds=1000L)
   let p2 = Duration::of!(

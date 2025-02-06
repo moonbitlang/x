@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "date_time" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
@@ -20,6 +21,7 @@ test "date_time" {
   )
 }
 
+///|
 test "unix" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
@@ -28,6 +30,7 @@ test "unix" {
   )
 }
 
+///|
 test "of" {
   inspect!(
     @time.ZonedDateTime::of!(2000, 1, 1, hour=1, minute=2, second=3),
@@ -40,6 +43,7 @@ test "of" {
   )
 }
 
+///|
 test "from_plain_datetime" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let datetime = @time.PlainDateTime::of!(2000, 1, 1)
@@ -49,6 +53,7 @@ test "from_plain_datetime" {
   )
 }
 
+///|
 test "from_unix_second" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(
@@ -65,6 +70,7 @@ test "from_unix_second" {
   )
 }
 
+///|
 test "to_unix_second" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   inspect!(@time.ZonedDateTime::of!(1970, 1, 1).to_unix_second(), content="0")
@@ -74,6 +80,7 @@ test "to_unix_second" {
   )
 }
 
+///|
 test "conversions" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -91,6 +98,7 @@ test "conversions" {
   inspect!(zdt.to_plain_date_time(), content="2000-01-01T01:02:03")
 }
 
+///|
 test "getters" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -121,6 +129,7 @@ test "getters" {
   inspect!(zdt.offset(), content="+08:00")
 }
 
+///|
 test "add_years" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -138,6 +147,7 @@ test "add_years" {
   )
 }
 
+///|
 test "add_months" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -155,6 +165,7 @@ test "add_months" {
   )
 }
 
+///|
 test "add_weeks" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -172,6 +183,7 @@ test "add_weeks" {
   )
 }
 
+///|
 test "add_days" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -189,6 +201,7 @@ test "add_days" {
   )
 }
 
+///|
 test "add_hours" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -206,6 +219,7 @@ test "add_hours" {
   )
 }
 
+///|
 test "add_minutes" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -223,6 +237,7 @@ test "add_minutes" {
   )
 }
 
+///|
 test "add_seconds" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -240,6 +255,7 @@ test "add_seconds" {
   )
 }
 
+///|
 test "add_nanoseconds" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -257,6 +273,7 @@ test "add_nanoseconds" {
   )
 }
 
+///|
 test "with_year" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -274,6 +291,7 @@ test "with_year" {
   )
 }
 
+///|
 test "with_month" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -291,6 +309,7 @@ test "with_month" {
   )
 }
 
+///|
 test "with_day" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -308,6 +327,7 @@ test "with_day" {
   )
 }
 
+///|
 test "with_ordinal" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -325,6 +345,7 @@ test "with_ordinal" {
   )
 }
 
+///|
 test "with_hour" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -342,6 +363,7 @@ test "with_hour" {
   )
 }
 
+///|
 test "with_minute" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -359,6 +381,7 @@ test "with_minute" {
   )
 }
 
+///|
 test "with_second" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(
@@ -376,6 +399,7 @@ test "with_second" {
   )
 }
 
+///|
 test "with_nanosecond" {
   let zone = @time.fixed_zone!("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of!(

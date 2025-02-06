@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "fixed" {
   inspect!(fixed_zone!("CST", 8 * 60 * 60).offsets, content="[+08:00]")
 }
 
+///|
 test "utc" {
   inspect!(utc_zone.offsets, content="[Z]")
 }

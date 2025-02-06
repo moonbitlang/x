@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(@time.PlainTime::of!(0, 0, 0, 0), content="00:00:00")
   inspect!(@time.PlainTime::of!(24, 0, 0, 0), content="24:00:00")
@@ -23,6 +24,7 @@ test "of" {
   assert_true!(@time.PlainTime::of?(-1, 0, 0, 0).is_err())
 }
 
+///|
 test "from_string" {
   inspect!(@time.PlainTime::from_string!("00:00"), content="00:00:00")
   inspect!(@time.PlainTime::from_string!("23:59"), content="23:59:00")
@@ -44,6 +46,7 @@ test "from_string" {
   assert_true!(@time.PlainTime::from_string?("z1:00:00").is_err())
 }
 
+///|
 test "getters" {
   let time = @time.PlainTime::of!(1, 2, 3, 400)
   inspect!(time.hour(), content="1")
@@ -52,12 +55,14 @@ test "getters" {
   inspect!(time.nanosecond(), content="400")
 }
 
+///|
 test "second_of_day" {
   inspect!(@time.PlainTime::of!(0, 0, 0, 0).second_of_day(), content="0")
   inspect!(@time.PlainTime::of!(12, 30, 30, 0).second_of_day(), content="45030")
   inspect!(@time.PlainTime::of!(24, 0, 0, 0).second_of_day(), content="86400")
 }
 
+///|
 test "nanosecond_of_day" {
   inspect!(@time.PlainTime::of!(0, 0, 0, 0).nanosecond_of_day(), content="0")
   inspect!(
@@ -70,6 +75,7 @@ test "nanosecond_of_day" {
   )
 }
 
+///|
 test "from_second_of_day" {
   inspect!(@time.PlainTime::from_second_of_day!(0), content="00:00:00")
   inspect!(@time.PlainTime::from_second_of_day!(86400), content="24:00:00")
@@ -79,6 +85,7 @@ test "from_second_of_day" {
   assert_true!(@time.PlainTime::from_second_of_day?(86401).is_err())
 }
 
+///|
 test "from_nanosecond_of_day" {
   inspect!(@time.PlainTime::from_nanosecond_of_day!(0L), content="00:00:00")
   inspect!(
@@ -95,6 +102,7 @@ test "from_nanosecond_of_day" {
   )
 }
 
+///|
 test "add_hours" {
   let time = @time.PlainTime::of!(10, 0, 0, 0)
   inspect!(time.add_hours!(-1L), content="09:00:00")
@@ -122,6 +130,7 @@ test "add_hours" {
   inspect!(time.add_hours!(@int64.max_value), content="17:00:00")
 }
 
+///|
 test "add_minutes" {
   let time = @time.PlainTime::of!(0, 30, 0, 0)
   inspect!(time.add_minutes!(-1L), content="00:29:00")
@@ -138,6 +147,7 @@ test "add_minutes" {
   inspect!(time.add_minutes!(@int64.max_value), content="18:37:00")
 }
 
+///|
 test "add_seconds" {
   let time = @time.PlainTime::of!(0, 0, 30, 0)
   inspect!(time.add_seconds!(-1L), content="00:00:29")
@@ -151,6 +161,7 @@ test "add_seconds" {
   inspect!(time.add_seconds!(24L * 60L * 60L), content="00:00:30")
 }
 
+///|
 test "with_hour" {
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_hour!(1),
@@ -169,6 +180,7 @@ test "with_hour" {
   assert_true!(@time.PlainTime::of!(1, 20, 30, 400).with_hour?(25).is_err())
 }
 
+///|
 test "with_minute" {
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_minute!(20),
@@ -190,6 +202,7 @@ test "with_minute" {
   assert_true!(@time.PlainTime::of!(1, 20, 30, 400).with_minute?(60).is_err())
 }
 
+///|
 test "with_second" {
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_second!(30),
@@ -211,6 +224,7 @@ test "with_second" {
   assert_true!(@time.PlainTime::of!(1, 20, 30, 400).with_second?(60).is_err())
 }
 
+///|
 test "with_nanosecond" {
   inspect!(
     @time.PlainTime::of!(1, 20, 30, 400).with_nanosecond!(400),
@@ -238,6 +252,7 @@ test "with_nanosecond" {
   )
 }
 
+///|
 test "until" {
   let time = @time.PlainTime::of!(12, 0, 0, 0)
   inspect!(

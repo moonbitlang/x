@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "add_nanoseconds!" {
   let d = PlainDateTime::of!(0, 1, 1)
   inspect!(d.add_nanoseconds!(0L), content="0000-01-01T00:00:00")

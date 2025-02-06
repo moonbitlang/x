@@ -205,6 +205,7 @@ pub fn sha256_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
   arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
 
+///|
 test {
   // Sha256
   fn sha256_u32(data : FixedArray[Byte]) -> FixedArray[UInt] {

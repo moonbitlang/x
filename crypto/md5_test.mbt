@@ -17,6 +17,7 @@ fn md5test(s : String) -> String {
   bytes_to_hex_string(@crypto.md5(s.to_bytes().to_fixedarray()))
 }
 
+///|
 test "md5_rfc1321" { // testsuites in RFC1321
   let hash = md5test("")
   inspect!(hash, content="d41d8cd98f00b204e9800998ecf8427e")
@@ -38,6 +39,7 @@ test "md5_rfc1321" { // testsuites in RFC1321
   inspect!(hash, content="903f43f5c1f384fc267110bf07caec04")
 }
 
+///|
 test "md5_additional" { // Additional testsuites
   let hash = md5test(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",

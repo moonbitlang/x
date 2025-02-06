@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(@time.PlainDate::of!(0, 1, 1), content="0000-01-01")
   inspect!(@time.PlainDate::of!(1, 1, 1), content="0001-01-01")
@@ -25,6 +26,7 @@ test "of" {
   assert_true!(@time.PlainDate::of?(10000, 1, 1).is_err())
 }
 
+///|
 test "from_year_ord" {
   inspect!(@time.PlainDate::from_year_ord!(0, 1), content="0000-01-01")
   inspect!(@time.PlainDate::from_year_ord!(1, 365), content="0001-12-31")
@@ -39,6 +41,7 @@ test "from_year_ord" {
   assert_true!(@time.PlainDate::from_year_ord?(-10000, 365).is_err())
 }
 
+///|
 test "from_string" {
   inspect!(@time.PlainDate::from_string!("9999-01-01"), content="9999-01-01")
   inspect!(@time.PlainDate::from_string!("0000-01-01"), content="0000-01-01")
@@ -51,6 +54,7 @@ test "from_string" {
   assert_true!(@time.PlainDate::from_string?("-01").is_err())
 }
 
+///|
 test "compare" {
   inspect!(
     @time.PlainDate::of!(2000, 1, 1) == @time.PlainDate::of!(2000, 1, 1),
@@ -82,6 +86,7 @@ test "compare" {
   )
 }
 
+///|
 test "era" {
   inspect!(@time.PlainDate::of!(-9999, 1, 1).era(), content="BCE")
   inspect!(@time.PlainDate::of!(-1, 1, 1).era(), content="BCE")
@@ -90,6 +95,7 @@ test "era" {
   inspect!(@time.PlainDate::of!(9999, 1, 1).era(), content="CE")
 }
 
+///|
 test "era_year" {
   inspect!(@time.PlainDate::of!(-9999, 1, 1).era_year(), content="10000")
   inspect!(@time.PlainDate::of!(-1, 1, 1).era_year(), content="2")
@@ -98,6 +104,7 @@ test "era_year" {
   inspect!(@time.PlainDate::of!(9999, 1, 1).era_year(), content="9999")
 }
 
+///|
 test "getters" {
   let date = @time.PlainDate::of!(2000, 12, 31)
   inspect!(date.year(), content="2000")
@@ -111,6 +118,7 @@ test "getters" {
   inspect!(date.ordinal(), content="366")
 }
 
+///|
 test "weekday" {
   inspect!(@time.PlainDate::of!(2000, 1, 1).weekday(), content="Saturday")
   inspect!(@time.PlainDate::of!(2000, 1, 2).weekday(), content="Sunday")
@@ -121,16 +129,19 @@ test "weekday" {
   inspect!(@time.PlainDate::of!(2000, 1, 7).weekday(), content="Friday")
 }
 
+///|
 test "ordinal" {
   inspect!(@time.PlainDate::of!(1, 1, 1).ordinal(), content="1")
   inspect!(@time.PlainDate::of!(2000, 12, 31).ordinal(), content="366")
   inspect!(@time.PlainDate::of!(2001, 12, 31).ordinal(), content="365")
 }
 
+///|
 test "days_in_week" {
   inspect!(@time.PlainDate::of!(1, 1, 1).days_in_week(), content="7")
 }
 
+///|
 test "days_in_month" {
   inspect!(@time.PlainDate::of!(2000, 1, 1).days_in_month(), content="31")
   inspect!(@time.PlainDate::of!(2000, 2, 1).days_in_month(), content="29")
@@ -147,6 +158,7 @@ test "days_in_month" {
   inspect!(@time.PlainDate::of!(2001, 2, 1).days_in_month(), content="28")
 }
 
+///|
 test "days_in_year" {
   inspect!(@time.PlainDate::of!(2000, 1, 1).days_in_year(), content="366")
   inspect!(@time.PlainDate::of!(2001, 1, 1).days_in_year(), content="365")
@@ -154,10 +166,12 @@ test "days_in_year" {
   inspect!(@time.PlainDate::of!(-2001, 1, 1).days_in_year(), content="365")
 }
 
+///|
 test "months_in_year" {
   inspect!(@time.PlainDate::of!(2000, 1, 1).months_in_year(), content="12")
 }
 
+///|
 test "in_leap_year" {
   inspect!(@time.PlainDate::of!(2000, 1, 1).in_leap_year(), content="true")
   inspect!(@time.PlainDate::of!(2000, 1, 1).in_leap_year(), content="true")
@@ -169,6 +183,7 @@ test "in_leap_year" {
   inspect!(@time.PlainDate::of!(1, 1, 1).in_leap_year(), content="false")
 }
 
+///|
 test "add_years" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.add_years!(0L), content="2000-02-29")
@@ -183,6 +198,7 @@ test "add_years" {
   inspect!(d.add_years!(@int64.min_value), content="2000-02-29")
 }
 
+///|
 test "add_months" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.add_months!(0L), content="2000-02-29")
@@ -208,6 +224,7 @@ test "add_months" {
   assert_true!(d.add_months?(@int64.min_value).is_err())
 }
 
+///|
 test "add_weeks" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.add_weeks!(0L), content="2000-02-29")
@@ -227,6 +244,7 @@ test "add_weeks" {
   assert_true!(d.add_weeks?(@int64.min_value).is_err())
 }
 
+///|
 test "add_days" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.add_days!(0L), content="2000-02-29")
@@ -246,6 +264,7 @@ test "add_days" {
   assert_true!(d.add_days?(@int64.min_value).is_err())
 }
 
+///|
 test "add_period" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.add_period!(@time.Period::of(years=1)), content="2001-02-28")
@@ -257,6 +276,7 @@ test "add_period" {
   )
 }
 
+///|
 test "with_year" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_year!(2000), content="2000-02-29")
@@ -269,6 +289,7 @@ test "with_year" {
   assert_true!(d.with_year?(-10000).is_err())
 }
 
+///|
 test "with_month" {
   let d = @time.PlainDate::of!(2000, 1, 31)
   inspect!(d.with_month!(1), content="2000-01-31")
@@ -278,6 +299,7 @@ test "with_month" {
   assert_true!(d.with_month?(13).is_err())
 }
 
+///|
 test "with_day" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_day!(29), content="2000-02-29")
@@ -286,6 +308,7 @@ test "with_day" {
   assert_true!(d.with_day?(30).is_err())
 }
 
+///|
 test "with_ordinal" {
   let d = @time.PlainDate::of!(2000, 2, 29)
   inspect!(d.with_ordinal!(1), content="2000-01-01")
@@ -294,6 +317,7 @@ test "with_ordinal" {
   assert_true!(d.with_ordinal?(367).is_err())
 }
 
+///|
 test "until" {
   inspect!(
     @time.PlainDate::of!(1970, 1, 1).until!(@time.PlainDate::of!(2000, 1, 1)),
@@ -325,6 +349,7 @@ test "until" {
   )
 }
 
+///|
 test "until and add_period" {
   let start = @time.PlainDate::of!(2000, 1, 1)
   let p = start.until!(@time.PlainDate::of!(2024, 1, 1))
