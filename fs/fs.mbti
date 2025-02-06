@@ -1,32 +1,30 @@
 package moonbitlang/x/fs
 
 // Values
-fn create_dir(path~ : String) -> Unit
+fn create_dir(String) -> Unit!
 
-fn is_dir(path~ : String) -> Bool!
+fn is_dir(String) -> Bool!
 
-fn is_file(path~ : String) -> Bool!
+fn is_file(String) -> Bool!
 
-fn path_exists(path~ : String) -> Bool
+fn path_exists(String) -> Bool
 
-fn read_dir(path~ : String) -> Array[String]!
+fn read_dir(String) -> Array[String]!
 
-fn read_file_to_bytes(path~ : String) -> Bytes!
+fn read_file_to_bytes(String) -> Bytes!
 
-fn read_file_to_string(path~ : String) -> String!
+fn read_file_to_string(String, encoding~ : String = ..) -> String!
 
-fn remove_dir(path~ : String) -> Unit!
+fn remove_dir(String) -> Unit!
 
-fn remove_file(path~ : String) -> Unit!
+fn remove_file(String) -> Unit!
 
-fn write_bytes_to_file(path~ : String, content~ : Bytes) -> Unit
+fn write_bytes_to_file(String, Bytes) -> Unit!
 
-fn write_string_to_file(path~ : String, content~ : String) -> Unit
+fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit!
 
 // Types and methods
-pub(all) type! IOError {
-  NotFound(String)
-}
+pub type! IOError String
 impl Show for IOError
 
 // Type aliases
