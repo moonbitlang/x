@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(
     @time.Period::of(years=1000, months=24, days=365),
@@ -19,6 +20,7 @@ test "of" {
   )
 }
 
+///|
 test "from_string" {
   inspect!(@time.Period::from_string!("P10Y2M3D"), content="P10Y2M3D")
   inspect!(@time.Period::from_string!("P-10Y-2M-3D"), content="P-10Y-2M-3D")
@@ -29,6 +31,7 @@ test "from_string" {
   assert_true!(@time.Period::from_string?("P2.5Y").is_err())
 }
 
+///|
 test "getters" {
   let p = @time.Period::of(years=1, months=2, days=3)
   inspect!(p.years(), content="1")
@@ -37,6 +40,7 @@ test "getters" {
   inspect!(p.to_total_months(), content="14")
 }
 
+///|
 test "is_zero" {
   inspect!(@time.Period::zero().is_zero(), content="true")
   inspect!(@time.Period::of().is_zero(), content="true")
@@ -45,12 +49,14 @@ test "is_zero" {
   inspect!(@time.Period::of(days=1).is_zero(), content="false")
 }
 
+///|
 test "is_neg" {
   inspect!(@time.Period::of().is_neg(), content="false")
   inspect!(@time.Period::of(years=1, months=1).is_neg(), content="false")
   inspect!(@time.Period::of(years=-1, months=1).is_neg(), content="true")
 }
 
+///|
 test "add_years" {
   let p = @time.Period::of(years=10)
   inspect!(p.add_years!(0), content="P10Y")
@@ -58,6 +64,7 @@ test "add_years" {
   inspect!(p.add_years!(-1), content="P9Y")
 }
 
+///|
 test "add_months" {
   let p = @time.Period::of(months=10)
   inspect!(p.add_months!(0), content="P10M")
@@ -65,6 +72,7 @@ test "add_months" {
   inspect!(p.add_months!(-1), content="P9M")
 }
 
+///|
 test "add_weeks" {
   let p = @time.Period::of(days=10)
   inspect!(p.add_weeks!(0), content="P10D")
@@ -72,6 +80,7 @@ test "add_weeks" {
   inspect!(p.add_weeks!(-1), content="P3D")
 }
 
+///|
 test "add_days" {
   let p = @time.Period::of(days=10)
   inspect!(p.add_days!(0), content="P10D")
@@ -79,24 +88,28 @@ test "add_days" {
   inspect!(p.add_days!(-1), content="P9D")
 }
 
+///|
 test "with_years" {
   inspect!(@time.Period::of(years=1).with_years(1), content="P1Y")
   inspect!(@time.Period::of(years=1).with_years(2), content="P2Y")
   inspect!(@time.Period::of(years=1).with_years(-1), content="P-1Y")
 }
 
+///|
 test "with_months" {
   inspect!(@time.Period::of(months=1).with_months(1), content="P1M")
   inspect!(@time.Period::of(months=1).with_months(2), content="P2M")
   inspect!(@time.Period::of(months=1).with_months(-1), content="P-1M")
 }
 
+///|
 test "with_days" {
   inspect!(@time.Period::of(days=1).with_days(1), content="P1D")
   inspect!(@time.Period::of(days=1).with_days(2), content="P2D")
   inspect!(@time.Period::of(days=1).with_days(-1), content="P-1D")
 }
 
+///|
 test "op_add" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
@@ -118,6 +131,7 @@ test "op_add" {
   assert_true!(p2.op_add?(p4).is_err())
 }
 
+///|
 test "op_sub" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
@@ -138,6 +152,7 @@ test "op_sub" {
   assert_true!(p4.op_sub?(p1).is_err())
 }
 
+///|
 test "multiply" {
   let p = @time.Period::of(years=1, months=2, days=3)
   inspect!(p.multiply!(0), content="P0D")
@@ -148,6 +163,7 @@ test "multiply" {
   assert_true!(p.multiply?(@int.min_value).is_err())
 }
 
+///|
 test "negated" {
   let p = @time.Period::of(years=1, months=1, days=1)
   inspect!(p.negated!(), content="P-1Y-1M-1D")

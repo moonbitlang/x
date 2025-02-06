@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "encoding String to UTF8" {
   let src = "你好👀"
   let bytes = @encoding.encode(UTF8, src)
@@ -23,6 +24,7 @@ test "encoding String to UTF8" {
   )
 }
 
+///|
 test "encoding String to UTF16 (alias of UTF16LE)" {
   let src = "LISP programmers know the value of everything"
   let bytes = @encoding.encode(UTF16, src)
@@ -34,6 +36,7 @@ test "encoding String to UTF16 (alias of UTF16LE)" {
   )
 }
 
+///|
 test "encoding String to UTF16LE" {
   let src = "and the cost of nothing"
   let bytes = @encoding.encode(UTF16LE, src)
@@ -45,6 +48,7 @@ test "encoding String to UTF16LE" {
   )
 }
 
+///|
 test "encoding String to UTF16BE" {
   let src = "λf.(λx.f(x x))(λx.f(x x))"
   let bytes = @encoding.encode(UTF16BE, src)
@@ -56,6 +60,7 @@ test "encoding String to UTF16BE" {
   )
 }
 
+///|
 test "to_utf8_bytes" {
   inspect!(
     @encoding.to_utf8_bytes('A'),
@@ -83,6 +88,7 @@ test "to_utf8_bytes" {
   )
 }
 
+///|
 test "to_utf16_bytes (alias for to_utf16le_bytes)" {
   inspect!(
     @encoding.to_utf16_bytes('A'),
@@ -110,6 +116,7 @@ test "to_utf16_bytes (alias for to_utf16le_bytes)" {
   )
 }
 
+///|
 test "to_utf16le_bytes" {
   inspect!(
     @encoding.to_utf16le_bytes('A'),
@@ -137,6 +144,7 @@ test "to_utf16le_bytes" {
   )
 }
 
+///|
 test "to_utf16be_bytes" {
   inspect!(
     @encoding.to_utf16be_bytes('A'),
@@ -164,6 +172,7 @@ test "to_utf16be_bytes" {
   )
 }
 
+///|
 test "write_utf8_char" {
   let buf = @buffer.new(size_hint=10)
   @encoding.write_utf8_char(buf, 'A')
@@ -178,6 +187,7 @@ test "write_utf8_char" {
   )
 }
 
+///|
 test "write_utf16_char (alias for write_utf16le_char)" {
   let buf = @buffer.new(size_hint=10)
   @encoding.write_utf16_char(buf, 'A')
@@ -192,6 +202,7 @@ test "write_utf16_char (alias for write_utf16le_char)" {
   )
 }
 
+///|
 test "write_utf16le_char" {
   let buf = @buffer.new(size_hint=10)
   @encoding.write_utf16le_char(buf, 'A')
@@ -206,6 +217,7 @@ test "write_utf16le_char" {
   )
 }
 
+///|
 test "write_utf16be_char" {
   let buf = @buffer.new(size_hint=10)
   @encoding.write_utf16be_char(buf, 'A')

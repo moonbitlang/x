@@ -23,6 +23,7 @@ fn sha224test(s : String) -> String {
 }
 
 // additional
+///|
 test "sha256-additional" {
   assert_eq!(
     sha256test(""),

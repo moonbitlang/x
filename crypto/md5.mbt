@@ -234,6 +234,7 @@ pub fn md5(data : FixedArray[Byte]) -> FixedArray[Byte] {
   ctx.md5_compute()
 }
 
+///|
 test "md5_wb" {
   let hash = md5(
     "The quick brown fox jumps over the lazy dog".to_bytes().to_fixedarray(),
@@ -244,6 +245,7 @@ test "md5_wb" {
   )
 }
 
+///|
 test {
   let ctx = MD5Context::new()
   md5_update(ctx, b"\x61".to_fixedarray())

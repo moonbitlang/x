@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "of" {
   inspect!(@time.PlainDateTime::of!(2000, 1, 1), content="2000-01-01T00:00:00")
   inspect!(
@@ -53,6 +54,7 @@ test "of" {
   )
 }
 
+///|
 test "from_unix_second" {
   inspect!(
     @time.PlainDateTime::from_unix_second!(1714227729L, 1000, @time.utc_offset),
@@ -73,6 +75,7 @@ test "from_unix_second" {
   )
 }
 
+///|
 test "from_string" {
   inspect!(
     @time.PlainDateTime::from_string!("0000-01-01T00:00:00"),
@@ -103,6 +106,7 @@ test "from_string" {
   assert_true!(@time.PlainDateTime::from_string?("00:00:00").is_err())
 }
 
+///|
 test "getters" {
   let d = @time.PlainDateTime::of!(
     2000,
@@ -130,11 +134,13 @@ test "getters" {
   inspect!(d.nanosecond(), content="1000")
 }
 
+///|
 test "in_leap_year" {
   inspect!(@time.PlainDateTime::of!(2000, 1, 1).in_leap_year(), content="true")
   inspect!(@time.PlainDateTime::of!(2001, 1, 1).in_leap_year(), content="false")
 }
 
+///|
 test "add_years" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.add_years!(0L), content="2000-02-29T00:00:00")
@@ -145,6 +151,7 @@ test "add_years" {
   assert_true!(d.add_years?(-12000L).is_err())
 }
 
+///|
 test "add_months" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.add_months!(0L), content="2000-02-29T00:00:00")
@@ -155,6 +162,7 @@ test "add_months" {
   assert_true!(d.add_months?(12L * -12000L).is_err())
 }
 
+///|
 test "add_weeks" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.add_weeks!(0L), content="2000-02-29T00:00:00")
@@ -166,6 +174,7 @@ test "add_weeks" {
   assert_true!(d.add_weeks?(@int64.min_value).is_err())
 }
 
+///|
 test "add_days" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.add_days!(0L), content="2000-02-29T00:00:00")
@@ -177,6 +186,7 @@ test "add_days" {
   assert_true!(d.add_days?(@int64.min_value).is_err())
 }
 
+///|
 test "add_period" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(
@@ -197,6 +207,7 @@ test "add_period" {
   )
 }
 
+///|
 test "add_hours" {
   let d = @time.PlainDateTime::of!(0, 1, 1)
   inspect!(d.add_hours!(0L), content="0000-01-01T00:00:00")
@@ -206,6 +217,7 @@ test "add_hours" {
   inspect!(d.add_hours!(24L * 366L), content="0001-01-01T00:00:00")
 }
 
+///|
 test "add_minutes" {
   let d = @time.PlainDateTime::of!(0, 1, 1)
   inspect!(d.add_minutes!(0L), content="0000-01-01T00:00:00")
@@ -215,6 +227,7 @@ test "add_minutes" {
   inspect!(d.add_minutes!(24L * 60L * 366L), content="0001-01-01T00:00:00")
 }
 
+///|
 test "add_seconds" {
   let d = @time.PlainDateTime::of!(0, 1, 1)
   inspect!(d.add_seconds!(0L), content="0000-01-01T00:00:00")
@@ -228,6 +241,7 @@ test "add_seconds" {
   )
 }
 
+///|
 test "add_duration" {
   let d = @time.PlainDateTime::of!(0, 1, 1)
   inspect!(
@@ -258,6 +272,7 @@ test "add_duration" {
   )
 }
 
+///|
 test "with_year" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.with_year!(2000), content="2000-02-29T00:00:00")
@@ -270,6 +285,7 @@ test "with_year" {
   assert_true!(d.with_year?(-10000).is_err())
 }
 
+///|
 test "with_month" {
   let d = @time.PlainDateTime::of!(2000, 1, 31)
   inspect!(d.with_month!(1), content="2000-01-31T00:00:00")
@@ -279,6 +295,7 @@ test "with_month" {
   assert_true!(d.with_month?(13).is_err())
 }
 
+///|
 test "with_day" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.with_day!(29), content="2000-02-29T00:00:00")
@@ -287,6 +304,7 @@ test "with_day" {
   assert_true!(d.with_day?(30).is_err())
 }
 
+///|
 test "with_ordinal" {
   let d = @time.PlainDateTime::of!(2000, 2, 29)
   inspect!(d.with_ordinal!(1), content="2000-01-01T00:00:00")
@@ -295,6 +313,7 @@ test "with_ordinal" {
   assert_true!(d.with_ordinal?(367).is_err())
 }
 
+///|
 test "with_hour" {
   let d = @time.PlainDateTime::of!(2000, 1, 1, hour=1)
   inspect!(d.with_hour!(1), content="2000-01-01T01:00:00")
@@ -305,6 +324,7 @@ test "with_hour" {
   assert_true!(d.with_hour?(25).is_err())
 }
 
+///|
 test "with_minute" {
   let d = @time.PlainDateTime::of!(2000, 1, 1, minute=20)
   inspect!(d.with_minute!(20), content="2000-01-01T00:20:00")
@@ -315,6 +335,7 @@ test "with_minute" {
   assert_true!(d.with_minute?(60).is_err())
 }
 
+///|
 test "with_second" {
   let d = @time.PlainDateTime::of!(2000, 1, 1, second=30)
   inspect!(d.with_second!(30), content="2000-01-01T00:00:30")
@@ -325,6 +346,7 @@ test "with_second" {
   assert_true!(d.with_second?(60).is_err())
 }
 
+///|
 test "with_nanosecond" {
   let d = @time.PlainDateTime::of!(2000, 1, 1, nanosecond=400)
   inspect!(d.with_nanosecond!(400), content="2000-01-01T00:00:00.0000004")
@@ -338,6 +360,7 @@ test "with_nanosecond" {
   assert_true!(d.with_nanosecond?(1_000_000_000).is_err())
 }
 
+///|
 test "to_plain_date and to_plain_time" {
   let d = @time.PlainDateTime::of!(
     2000,

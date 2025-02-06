@@ -50,6 +50,7 @@ fn value(self : Weekday) -> Int {
   }
 }
 
+///|
 test "new" {
   inspect!(Weekday::new(0), content="None")
   inspect!(Weekday::new(1), content="Some(Monday)")
@@ -62,6 +63,7 @@ test "new" {
   inspect!(Weekday::new(8), content="None")
 }
 
+///|
 test "value" {
   inspect!(Weekday::Monday.value(), content="1")
   inspect!(Weekday::Tuesday.value(), content="2")

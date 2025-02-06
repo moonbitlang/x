@@ -133,6 +133,7 @@ fn ascii_to_string(b : FixedArray[Byte], start : Int) -> String {
   result.to_string()
 }
 
+///|
 test "Zone::from_tzif2" {
   let data : FixedArray[Byte] = [
     // magic number

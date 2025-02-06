@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "validate_time" {
   inspect!(validate_time(1, 0, 0, 0), content="true")
   inspect!(validate_time(0, 0, 0, 0), content="true")
@@ -25,6 +26,7 @@ test "validate_time" {
   inspect!(validate_time(1, 0, 0, 1_000_000_000), content="false")
 }
 
+///|
 test "add_nanoseconds" {
   let time = PlainTime::of!(0, 0, 00, 1000)
   inspect!(time.add_nanoseconds!(-1L), content="00:00:00.000000999")
@@ -45,6 +47,7 @@ test "add_nanoseconds" {
   )
 }
 
+///|
 test "add_duration" {
   let time = PlainTime::of!(12, 0, 0, 0)
   inspect!(
@@ -62,6 +65,7 @@ test "add_duration" {
   inspect!(time.add_duration!(Duration::zero()), content="12:00:00")
 }
 
+///|
 test "at_date" {
   let time = PlainTime::of!(12, 0, 0, 0)
   let date = PlainDate::of!(2000, 1, 1)

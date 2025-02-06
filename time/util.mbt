@@ -38,6 +38,7 @@ fn remove_prefix_zero(s : String) -> String {
   }
 }
 
+///|
 test "add_prefix_zero" {
   inspect!(add_prefix_zero("", 2), content="00")
   inspect!(add_prefix_zero("1", 0), content="1")
@@ -46,6 +47,7 @@ test "add_prefix_zero" {
   inspect!(add_prefix_zero("1", 3), content="001")
 }
 
+///|
 test "remove_prefix_zero" {
   inspect!(remove_prefix_zero(""), content="")
   inspect!(remove_prefix_zero("01"), content="1")
@@ -75,6 +77,7 @@ fn remove_suffix_zero(s : String) -> String {
   s.substring(end=i + 1)
 }
 
+///|
 test "add_suffix_zero" {
   inspect!(add_suffix_zero("1", 0), content="1")
   inspect!(add_suffix_zero("1", 1), content="1")
@@ -82,6 +85,7 @@ test "add_suffix_zero" {
   inspect!(add_suffix_zero("1", 3), content="100")
 }
 
+///|
 test "remove_suffix_zero" {
   inspect!(remove_suffix_zero(""), content="")
   inspect!(remove_suffix_zero("1000100"), content="10001")
@@ -107,6 +111,7 @@ fn split(s : String, delimiter : Char) -> Array[String] {
   spl
 }
 
+///|
 test "split" {
   inspect!(
     split("2000-01-01", '-'),
@@ -203,6 +208,7 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
   r
 }
 
+///|
 test "checked_add_int" {
   inspect!(checked_add_int?(1, 1), content="Ok(2)")
   inspect!(checked_add_int?(1, -1), content="Ok(0)")
@@ -221,6 +227,7 @@ test "checked_add_int" {
   )
 }
 
+///|
 test "checked_mul_int" {
   inspect!(checked_mul_int?(2, 3), content="Ok(6)")
   inspect!(checked_mul_int?(2, -3), content="Ok(-6)")
@@ -239,6 +246,7 @@ test "checked_mul_int" {
   )
 }
 
+///|
 test "checked_add_int64" {
   inspect!(checked_add_int64?(1L, 1L), content="Ok(2)")
   inspect!(checked_add_int64?(1L, -1L), content="Ok(0)")
@@ -257,6 +265,7 @@ test "checked_add_int64" {
   )
 }
 
+///|
 test "checked_mul_int64" {
   inspect!(checked_mul_int64?(2L, 3L), content="Ok(6)")
   inspect!(checked_mul_int64?(2L, -3L), content="Ok(-6)")
@@ -298,6 +307,7 @@ fn floor_div_int(x : Int, y : Int) -> Int!Error {
   floor(r).to_int()
 }
 
+///|
 test "floor_div_int" {
   inspect!(floor_div_int?(1, 10), content="Ok(0)")
   inspect!(floor_div_int?(-1, 10), content="Ok(-1)")
@@ -321,6 +331,7 @@ fn floor_div_int64(x : Int64, y : Int64) -> Int64!Error {
   floor(r).to_int64()
 }
 
+///|
 test "floor_div_int64" {
   inspect!(floor_div_int64?(1L, 10L), content="Ok(0)")
   inspect!(floor_div_int64?(-1L, 10L), content="Ok(-1)")
@@ -335,6 +346,7 @@ fn floor_mod_int(x : Int, y : Int) -> Int!Error {
   x - floor_div_int!(x, y) * y
 }
 
+///|
 test "floor_mod_int" {
   inspect!(floor_mod_int?(1, 10), content="Ok(1)")
   inspect!(floor_mod_int?(-1, 10), content="Ok(9)")
@@ -354,6 +366,7 @@ fn floor_mod_int64(x : Int64, y : Int64) -> Int64!Error {
   x - floor_div_int64!(x, y) * y
 }
 
+///|
 test "floor_mod_int64" {
   inspect!(floor_mod_int64?(1L, 10L), content="Ok(1)")
   inspect!(floor_mod_int64?(-1L, 10L), content="Ok(9)")

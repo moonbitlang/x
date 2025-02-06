@@ -21,6 +21,7 @@ fn flipWord(word : UInt) -> UInt {
   b0 | b1 | b2 | b3
 }
 
+///|
 test "flipWord" {
   let word = 0x12345678U
   let flipped = flipWord(word)
@@ -52,6 +53,7 @@ fn quarterRound(
   state
 }
 
+///|
 test "quarterRound" {
   let state = FixedArray::make(16, 0U)
   state[0] = 0x879531e0U
@@ -90,6 +92,7 @@ fn chachaBlockRound(state : FixedArray[UInt]) -> FixedArray[UInt] {
   state8
 }
 
+///|
 test "chachaBlockRound" {
   let state = FixedArray::make(16, 0U)
   state[0] = 0x61707865U
@@ -123,6 +126,7 @@ fn chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> FixedArray[UInt] {
   }
 }
 
+///|
 test "chachaBlockLoop" {
   let count = 1U
   let key = FixedArray::make(8, 0U)
@@ -180,6 +184,7 @@ fn zipWith(
   result
 }
 
+///|
 test "zipWith" {
   let state1 = FixedArray::make(4, 0U)
   state1[0] = 1
@@ -229,6 +234,7 @@ fn chachaBlock(
   flipState(combinedState)
 }
 
+///|
 test "chachaBlock" {
   let key = FixedArray::make(8, 0U)
   key[0] = 0x00010203U
@@ -267,6 +273,7 @@ fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
   from_array(result)
 }
 
+///|
 test "stateToBytes" {
   let state = FixedArray::make(16, 0U)
   state[0] = 0x879531e0

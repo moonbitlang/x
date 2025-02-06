@@ -77,6 +77,7 @@ pub fn to_bytes(self : UUID) -> Bytes {
   Bytes::from_fixedarray(rv)
 }
 
+///|
 test "bytes" {
   let buf = Bytes::from_array(
     [201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185].map(

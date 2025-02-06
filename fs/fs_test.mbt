@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 test "write_and_read" {
   let path = "1.txt"
   @fs.write_string_to_file(
@@ -55,6 +56,7 @@ test "write_and_read" {
   }
 }
 
+///|
 test "path_exist" {
   // dir exist
   assert_true!(@fs.path_exists(path=".github"))
@@ -68,6 +70,7 @@ test "path_exist" {
   assert_false!(@fs.path_exists(path="no_exist.txt"))
 }
 
+///|
 test "create_and_remove_dir" {
   @fs.create_dir(path="hello")
   assert_true!(@fs.path_exists(path="hello"))
@@ -84,6 +87,7 @@ test "create_and_remove_dir" {
   }
 }
 
+///|
 test "read_dir" {
   let dir_content = @fs.read_dir!(path="./fs")..sort()
   inspect!(
