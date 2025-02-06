@@ -5,7 +5,7 @@ alias @moonbitlang/core/immut/list as @list
 // Values
 
 // Types and methods
-type Stack
+type Stack[T]
 impl Stack {
   clear[T](Self[T]) -> Unit
   drop[T](Self[T]) -> Unit
