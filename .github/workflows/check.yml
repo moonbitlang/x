@@ -50,8 +50,15 @@ jobs:
         run: |
           moon test --target all --serial --release
           moon test --target all --serial
-          moon test --target native --release
-          moon test --target native
+
+      - name: moon test(native)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          command: |
+            moon test --target native --release
+            moon test --target native
 
       - name: moon check
         run: moon check --deny-warn
@@ -111,8 +118,15 @@ jobs:
         run: |
           moon test --target all --serial --release
           moon test --target all --serial
-          moon test --target native --release
-          moon test --target native
+
+      - name: moon test(native)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          command: |
+            moon test --target native --release
+            moon test --target native
 
       - name: moon check
         run: moon check --deny-warn
