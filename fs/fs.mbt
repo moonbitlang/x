@@ -13,39 +13,63 @@
 // limitations under the License.
 
 ///|
-pub(all) type! IOError {
-  NotFound(String)
-}
+pub type! IOError String derive(Show)
 
-///|
-pub impl Show for IOError with output(self, logger) {
-  logger.write_string(self.to_string())
-}
-
-///|
-fn IOError::to_string(self : IOError) -> String {
-  match self {
-    IOError::NotFound(path) => "`\{path}` does not exist"
-  }
-}
-
-///| Writes a string to a file.
+///| Reads the content of a file specified by the given path and returns its
+/// content as `Bytes`
 ///
 /// # Parameters
-/// - `path`: A `String` representing the file path.
-/// - `content`: A `String` containing the content to be written to the file.
-pub fn write_string_to_file(path~ : String, content~ : String) -> Unit {
-  @ffi.write_string_to_file(path, content)
+///
+/// - `path` : The path to the file to be read.
+///
+/// # Returns
+///
+/// - A `Bytes` representing the content of the file.
+pub fn read_file_to_bytes(path : String) -> Bytes! {
+  read_file_to_bytes_internal!(path)
 }
 
-///| Writes an array of bytes to a file at the specified path.
+///| Reads the content of a file specified by the given path and returns its
+/// content as `String`.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file to be read.
+/// - `encoding~` : The encoding of the file. Only support `utf8` for now.
+///
+/// # Returns
+///
+/// - A `String` representing the content of the file.
+pub fn read_file_to_string(
+  path : String,
+  encoding~ : String = "utf8"
+) -> String! {
+  read_file_to_string_internal!(path, encoding~)
+}
+
+///| Writes a `Bytes` to a file at the specified path.
 ///
 /// # Parameters
 ///
 /// - `path` : The path to the file where the bytes will be written.
-/// - `content` : An array of bytes to be written to the file.
-pub fn write_bytes_to_file(path~ : String, content~ : Bytes) -> Unit {
-  @ffi.write_bytes_to_file(path, content)
+/// - `content` : A `Bytes` to be written to the file.
+pub fn write_bytes_to_file(path : String, content : Bytes) -> Unit! {
+  write_bytes_to_file_internal!(path, content)
+}
+
+///| Writes a `String` to a file at the specified path.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file where the string will be written.
+/// - `content` : A `String` to be written to the file.
+/// - `encoding~` : The encoding of the file. Only support `utf8` for now.
+pub fn write_string_to_file(
+  path : String,
+  content : String,
+  encoding~ : String = "utf8"
+) -> Unit! {
+  write_string_to_file_internal!(path, content, encoding~)
 }
 
 ///| Checks if a path exists.
@@ -55,35 +79,8 @@ pub fn write_bytes_to_file(path~ : String, content~ : Bytes) -> Unit {
 ///
 /// # Returns
 /// A boolean indicating whether the path exists.
-pub fn path_exists(path~ : String) -> Bool {
-  @ffi.path_exists(path)
-}
-
-///| Reads the entire contents of a file into a string.
-///
-/// # Parameters
-/// - `path`: A `String` representing the file path.
-///
-/// # Returns
-/// A `String` containing the file contents if the file exists, otherwise raises an error.
-pub fn read_file_to_string(path~ : String) -> String! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.read_file_to_string(path)
-}
-
-///| Reads the content of a file specified by the given path and returns its
-/// content as an array of bytes. If the file does not exist, an error is raised.
-///
-/// # Parameters
-///
-/// - `path` : The path to the file to be read.
-///
-/// # Returns
-///
-/// - An array of bytes representing the content of the file.
-pub fn read_file_to_bytes(path~ : String) -> Bytes! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.read_file_to_bytes(path)
+pub fn path_exists(path : String) -> Bool {
+  path_exists_internal(path)
 }
 
 ///| Reads the contents of a directory and returns an array of filenames.
@@ -95,9 +92,8 @@ pub fn read_file_to_bytes(path~ : String) -> Bytes! {
 /// # Returns
 ///
 /// - An array of strings representing the file name and directory name in the directory.
-pub fn read_dir(path~ : String) -> Array[String]! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.read_dir(path)
+pub fn read_dir(path : String) -> Array[String]! {
+  read_dir_internal!(path)
 }
 
 ///| Creates a directory at the specified path.
@@ -106,8 +102,9 @@ pub fn read_dir(path~ : String) -> Array[String]! {
 /// # Parameters
 ///
 /// - `path` : The path where the directory should be created.
-pub fn create_dir(path~ : String) -> Unit {
-  @ffi.create_dir(path)
+/// - `mode~` : The mode of the directory. Default is `777`.
+pub fn create_dir(path : String) -> Unit! {
+  create_dir_internal!(path)
 }
 
 ///| Checks if the given path is a directory.
@@ -119,9 +116,8 @@ pub fn create_dir(path~ : String) -> Unit {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
-pub fn is_dir(path~ : String) -> Bool! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.is_dir(path)
+pub fn is_dir(path : String) -> Bool! {
+  is_dir_internal!(path)
 }
 
 ///| Check if the given path points to a file.
@@ -133,9 +129,8 @@ pub fn is_dir(path~ : String) -> Bool! {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
-pub fn is_file(path~ : String) -> Bool! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.is_file(path)
+pub fn is_file(path : String) -> Bool! {
+  is_file_internal!(path)
 }
 
 ///| Removes a directory at the specified path.
@@ -143,9 +138,8 @@ pub fn is_file(path~ : String) -> Bool! {
 /// # Parameters
 ///
 /// - `path` : The string path to the directory that needs to be removed.
-pub fn remove_dir(path~ : String) -> Unit! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.remove_dir(path)
+pub fn remove_dir(path : String) -> Unit! {
+  remove_dir_internal!(path)
 }
 
 ///| Removes a file at the specified path.
@@ -153,7 +147,6 @@ pub fn remove_dir(path~ : String) -> Unit! {
 /// # Parameters
 ///
 /// - `path` : The path to the file that needs to be removed.
-pub fn remove_file(path~ : String) -> Unit! {
-  guard path_exists(path~) else { raise IOError::NotFound(path) }
-  @ffi.remove_file(path)
+pub fn remove_file(path : String) -> Unit! {
+  remove_file_internal!(path)
 }
