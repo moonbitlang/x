@@ -66,6 +66,107 @@ test "streaming decoding UTF16LE ASCII" {
   inspect!(acc, content=ascii)
 }
 
+///|
+test "streaming decoding UTF8 Emoji" {
+  let art =
+    #|   🎩
+    #|   👶
+    #| ✋👕🌂
+    #|   ‼️
+    #|   👞👞
+  let art_bytes = @encoding.encode(UTF8, art)
+  let from_array = Bytes::from_array
+  let decoder = @encoding.decoder(UTF8)
+  let buf = @buffer.new(size_hint=art_bytes.length())
+  buf.write_bytes(art_bytes)
+  let chunks = buf.contents().to_array().chunks(13)
+  assert_eq!(chunks.length(), 4)
+
+  // chunk by chunk
+  assert_eq!(
+    from_array(chunks[0]),
+    b"\x20\x20\x20\xf0\x9f\x8e\xa9\x0a\x20\x20\x20\xf0\x9f",
+  )
+  inspect!(decoder.decode!(from_array(chunks[0])), content="   🎩\n   ")
+  assert_eq!(
+    from_array(chunks[1]),
+    b"\x91\xb6\x0a\x20\xe2\x9c\x8b\xf0\x9f\x91\x95\xf0\x9f",
+  )
+  inspect!(decoder.decode!(from_array(chunks[1])), content="👶\n ✋👕")
+  assert_eq!(
+    from_array(chunks[2]),
+    b"\x8c\x82\x0a\x20\x20\x20\xe2\x80\xbc\xef\xb8\x8f\x0a",
+  )
+  inspect!(decoder.decode!(from_array(chunks[2])), content="🌂\n   ‼️\n")
+  assert_eq!(
+    from_array(chunks[3]),
+    b"\x20\x20\x20\xf0\x9f\x91\x9e\xf0\x9f\x91\x9e",
+  )
+  inspect!(decoder.decode!(from_array(chunks[3])), content="   👞👞")
+
+  // check accumulator
+  let decoder = @encoding.decoder(UTF8)
+  let mut acc = ""
+  for chunk in art_bytes.to_array().chunks(7) {
+    acc += decoder.decode!(from_array(chunk))
+  }
+  inspect!(acc, content=art)
+}
+
+///|
+test "streaming decoding UTF16BE Tao71" {
+  let tao71 = "知不知，尚矣；不知知，病也。圣人不病，以其病病，夫惟病病，是以不病。"
+  let tao71_bytes = @encoding.encode(UTF16BE, tao71)
+  let from_array = Bytes::from_array
+  let decoder = @encoding.decoder(UTF16BE)
+  let buf = @buffer.new(size_hint=tao71_bytes.length())
+  buf.write_bytes(tao71_bytes)
+  let chunks = buf.contents().to_array().chunks(17)
+  assert_eq!(chunks.length(), 4)
+
+  // chunk by chunk
+  assert_eq!(
+    from_array(chunks[0]),
+    b"\x77\xe5\x4e\x0d\x77\xe5\xff\x0c\x5c\x1a\x77\xe3\xff\x1b\x4e\x0d\x77",
+  )
+  inspect!(
+    decoder.decode!(from_array(chunks[0])),
+    content="知不知，尚矣；不",
+  )
+  assert_eq!(
+    from_array(chunks[1]),
+    b"\xe5\x77\xe5\xff\x0c\x75\xc5\x4e\x5f\x30\x02\x57\x23\x4e\xba\x4e\x0d",
+  )
+  inspect!(
+    decoder.decode!(from_array(chunks[1])),
+    content="知知，病也。圣人不",
+  )
+  assert_eq!(
+    from_array(chunks[2]),
+    b"\x75\xc5\xff\x0c\x4e\xe5\x51\x76\x75\xc5\x75\xc5\xff\x0c\x59\x2b\x60",
+  )
+  inspect!(
+    decoder.decode!(from_array(chunks[2])),
+    content="病，以其病病，夫",
+  )
+  assert_eq!(
+    from_array(chunks[3]),
+    b"\xdf\x75\xc5\x75\xc5\xff\x0c\x66\x2f\x4e\xe5\x4e\x0d\x75\xc5\x30\x02",
+  )
+  inspect!(
+    decoder.decode!(from_array(chunks[3])),
+    content="惟病病，是以不病。",
+  )
+
+  // check accumulator
+  let decoder = @encoding.decoder(UTF16BE)
+  let mut acc = ""
+  for chunk in tao71_bytes.to_array().chunks(7) {
+    acc += decoder.decode!(from_array(chunk))
+  }
+  inspect!(acc, content=tao71)
+}
+
 // In one go
 
 ///|
