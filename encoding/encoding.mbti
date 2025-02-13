@@ -3,9 +3,7 @@ package moonbitlang/x/encoding
 alias @moonbitlang/core/buffer as @buffer
 
 // Values
-fn decode_lossy(Encoding, Bytes) -> LossyChars
-
-fn decode_strict(Encoding, Bytes) -> StrictChars
+fn decoder(Encoding) -> Decoder
 
 fn encode(Encoding, String) -> Bytes
 
@@ -26,8 +24,25 @@ fn write_utf16le_char(@buffer.T, Char) -> Unit
 fn write_utf8_char(@buffer.T, Char) -> Unit
 
 // Types and methods
-pub(all) type! DecodeError Bytes
-impl Show for DecodeError
+pub enum Decode {
+  End
+  Refill
+  Malformed(Bytes)
+  Uchar(Char)
+}
+impl Show for Decode
+
+pub struct Decoder {
+  i : FixedArray[Byte]
+  i_pos : Int
+  t : FixedArray[Byte]
+  t_len : Int
+  t_need : Int
+  k : (Decoder) -> Decode
+}
+impl Decoder {
+  decode(Self, Bytes) -> String!
+}
 
 pub(all) enum Encoding {
   UTF8
@@ -36,21 +51,10 @@ pub(all) enum Encoding {
   UTF16BE
 }
 
-type LossyChars
-impl LossyChars {
-  iter(Self) -> Iter[Char]
-  to_string(Self) -> String
-}
-impl Show for LossyChars
-
-type StrictChars
-impl StrictChars {
-  iter(Self) -> Iter[Result[Char, DecodeError]]
-  to_string(Self) -> String!
-}
-impl Show for StrictChars
+pub type! MalformedError Bytes
 
 // Type aliases
+pub typealias Cont = (Decoder) -> Decode
 
 // Traits
 
