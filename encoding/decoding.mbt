@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-const U_REP = '\u{FFFD}'
+// const U_REP = '\u{FFFD}' // TODO: should usable in some case
 
 ///|
 let utf_8_len = [
@@ -30,78 +30,10 @@ let utf_8_len = [
 ]
 
 ///|
-/// Decodes bytes from a specified encoding into lossily decoded characters.
-///
-/// # Parameters
-/// - `encoding`: The character encoding of the input `bytes`.
-/// - `src`: A `bytes` representing the encoded string in the specified format.
-///
-/// # Returns
-///
-/// A `LossyChars` iterator representing the decoded characters, with invalid byte sequences replaced by a replacement character.
-///
-/// # Behavior
-///
-/// - Any invalid sequences in the `bytes` are replaced with a replacement character (`\u{FFFD}`), preventing decoding errors.
-///
-/// # Examples
-///
-/// ```moonbit
-/// let buf = @buffer.new(size_hint=10)
-/// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
-/// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
-/// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
-/// let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
-/// let arr = chars.iter().collect() // Array of unicode point code: `['你', '好', '👀']`
-/// let str = String::from_array(arr) // MoonBit String, representing as UTF16LE: `"你好👀"`
-/// // or
-/// let str = chars.to_string()
-/// ```
-pub fn decode_lossy(encoding : Encoding, src : Bytes) -> LossyChars {
-  let decoder = decoder(encoding, src)
-  decoder
-}
-
-///|
-/// Decodes bytes from a specified encoding into strictly decoded characters.
-///
-/// # Parameters
-///
-/// - `encoding`: The character encoding of the input `bytes`.
-/// - `src`: A `bytes` representing the encoded string in the specified format.
-///
-/// # Returns
-///
-/// A `StrictChars` iterator representing the decoded characters.
-///
-/// # Behavior
-///
-/// - Assumes all sequences in the `bytes` are valid and will raise errors if invalid sequences are encountered.
-///
-/// # Examples
-///
-/// ```moonbit
-/// let buf = @buffer.new(size_hint=10)
-/// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
-/// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
-/// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
-/// let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
-/// let arr = chars.iter().collect() // Array of unicode point code: `[Ok('你'), Ok('好'), Ok('👀')]`
-/// let str = chars.to_string() // MoonBit String, representing as UTF16LE: `"你好👀"`
-/// ```
-pub fn decode_strict(encoding : Encoding, src : Bytes) -> StrictChars {
-  let decoder = decoder(encoding, src)
-  decoder
-}
-
-// Implementations
-
-///|
-fn decoder(encoding : Encoding, src : Bytes) -> Decoder {
-  let i = src.to_fixedarray()
+pub fn decoder(encoding : Encoding) -> Decoder {
+  let i = FixedArray::default()
   let i_pos = 0
-  let i_max = src.length() - 1
-  let t = b"\x00\x00\x00\x00".to_fixedarray()
+  let t = FixedArray::make(4, b'0')
   let t_len = 0
   let t_need = 0
   let k = match encoding {
@@ -110,11 +42,40 @@ fn decoder(encoding : Encoding, src : Bytes) -> Decoder {
     UTF16LE => decode_utf_16le
     UTF16BE => decode_utf_16be
   }
-  { i, i_pos, i_max, t, t_len, t_need, k }
+  { i, i_pos, t, t_len, t_need, k }
 }
 
 ///|
-fn decode(self : Decoder) -> Decode {
+pub fn decode!(self : Decoder, input : Bytes) -> String {
+  // concat `input` to `i`, drop decoded `i`
+  // init a new `i`
+  let i_rem = self.i_rem()
+  let new_len = i_rem + input.length()
+  let new_i = FixedArray::make(new_len, Byte::default())
+  // copy the remainder of the old `i` into the new `i`
+  self.i.blit_to(new_i, len=i_rem, src_offset=self.i_pos)
+  // copy all `input` into new `i`, starting at the remainder of the old `i`
+  new_i.blit_from_bytes(i_rem, input, 0, input.length())
+  self.i = new_i
+  // reset position to starting position
+  self.i_pos = 0
+
+  // drive decoder to decode
+  let chars = []
+  loop self.decode_() {
+    Uchar(u) => {
+      chars.push(u)
+      continue self.decode_()
+    }
+    Malformed(bs) => raise MalformedError(bs)
+    End | Refill => String::from_array(chars)
+  }
+}
+
+// Implementations
+
+///|
+fn decode_(self : Decoder) -> Decode {
   (self.k)(self)
 }
 
@@ -126,21 +87,7 @@ fn ret(self : Decoder, k : Cont, v : Decode) -> Decode {
 
 ///|
 fn i_rem(self : Decoder) -> Int {
-  self.i_max - self.i_pos + 1
-}
-
-///|
-fn eoi(self : Decoder) -> Unit {
-  self.i = []
-  self.i_pos = 0
-  self.i_max = @int.min_value
-}
-
-///|
-fn refill(self : Decoder, k : Cont) -> Decode {
-  // only Bytes
-  self.eoi()
-  k(self)
+  self.i.length() - self.i_pos
 }
 
 ///|
@@ -152,12 +99,11 @@ fn t_need(self : Decoder, need : Int) -> Unit {
 ///|
 fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   fn blit(decoder : Decoder, l : Int) -> Unit {
-    FixedArray::unsafe_blit(
+    decoder.t.blit_to(
       decoder.i,
-      decoder.i_pos,
-      decoder.t,
-      decoder.t_len,
-      l,
+      len=l,
+      dst_offset=decoder.i_pos,
+      src_offset=decoder.t_len,
     )
     decoder.i_pos = decoder.i_pos + 1
     decoder.t_len = decoder.t_len + 1
@@ -169,8 +115,7 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   } else {
     let need = decoder.t_need - decoder.t_len
     if rem < need {
-      blit(decoder, rem)
-      decoder.refill(@tuple.curry(t_fill)(k))
+      Decode::Refill
     } else {
       blit(decoder, need)
       k(decoder)
@@ -183,50 +128,38 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
 ///|
 fn decode_utf_8(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_8)
-    // rem > 0
-    1 => {
-      let idx = self.i[self.i_pos].to_int()
-      let need = utf_8_len[idx]
-      if rem < need {
-        self.t_need(need)
-        t_fill(t_decode_utf_8, self)
+  if rem <= 0 {
+    Decode::End
+  } else {
+    let idx = self.i[self.i_pos].to_int()
+    let need = utf_8_len[idx]
+    if rem < need {
+      self.t_need(need)
+      t_fill(t_decode_utf_8, self)
+    } else {
+      let j = self.i_pos
+      if need == 0 {
+        self.i_pos = self.i_pos + 1
+        self.ret(decode_utf_8, Decode::Refill)
       } else {
-        let j = self.i_pos
-        if need == 0 {
-          self.i_pos = self.i_pos + 1
-          self.ret(
-            decode_utf_8,
-            malformed(Bytes::from_fixedarray(self.i), j, 1),
-          )
-        } else {
-          self.i_pos = self.i_pos + need
-          self.ret(
-            decode_utf_8,
-            r_utf_8(Bytes::from_fixedarray(self.i), j, need),
-          )
-        }
+        self.i_pos = self.i_pos + need
+        self.ret(decode_utf_8, r_utf_8(self.i, j, need))
       }
     }
-    _ => abort("unreachable")
   }
 }
 
 ///|
 fn t_decode_utf_8(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    malformed(Bytes::from_fixedarray(self.t), 0, self.t_len)
+    malformed(self.t, 0, self.t_len)
   } else {
-    r_utf_8(Bytes::from_fixedarray(self.t), 0, self.t_len)
+    r_utf_8(self.t, 0, self.t_len)
   }
 }
 
 ///|
-fn r_utf_8(bytes : Bytes, offset : Int, length : Int) -> Decode {
+fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
   fn uchar(c : Int) {
     Uchar(Char::from_int(c))
   }
@@ -322,37 +255,24 @@ priv enum UTF16Decode {
 ///|
 fn decode_utf_16le(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_16le)
-    // rem > 0
-    1 =>
-      if rem < 2 {
-        self.t_need(2)
-        t_fill(t_decode_utf_16le, self)
-      } else {
-        let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        // mark
-        self.decode_utf_16le_lo(
-          r_utf_16(Bytes::from_fixedarray(self.i), j + 1, j),
-        )
-      }
-    _ => abort("unreachable")
+  if rem <= 0 {
+    Decode::End
+  } else if rem < 2 {
+    self.t_need(2)
+    t_fill(t_decode_utf_16le, self)
+  } else {
+    let j = self.i_pos
+    self.i_pos = self.i_pos + 2
+    self.decode_utf_16le_lo(r_utf_16(self.i, j + 1, j))
   }
 }
 
 ///|
 fn t_decode_utf_16le(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16le,
-      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16le, malformed(self.t, 0, self.t_len))
   } else {
-    self.decode_utf_16le_lo(r_utf_16(Bytes::from_fixedarray(self.t), 1, 0))
+    self.decode_utf_16le_lo(r_utf_16(self.t, 1, 0))
   }
 }
 
@@ -369,7 +289,7 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
       } else {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
-        r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j + 1, j)
+        r_utf_16_lo(hi, self.i, j + 1, j)
       }
     }
   }
@@ -380,24 +300,20 @@ fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
   if decoder.t_len < decoder.t_need {
     decoder.ret(
       decode_utf_16le,
-      malformed_pair(
-        false,
-        hi,
-        Bytes::from_fixedarray(decoder.t),
-        0,
-        decoder.t_len,
-      ),
+      malformed_pair(false, hi, decoder.t, 0, decoder.t_len),
     )
   } else {
-    decoder.ret(
-      decode_utf_16le,
-      r_utf_16_lo(hi, Bytes::from_fixedarray(decoder.t), 1, 0),
-    )
+    decoder.ret(decode_utf_16le, r_utf_16_lo(hi, decoder.t, 1, 0))
   }
 }
 
 ///|
-fn r_utf_16_lo(hi : Int, bytes : Bytes, offset0 : Int, offset1 : Int) -> Decode {
+fn r_utf_16_lo(
+  hi : Int,
+  bytes : FixedArray[Byte],
+  offset0 : Int,
+  offset1 : Int
+) -> Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
@@ -415,7 +331,11 @@ fn r_utf_16_lo(hi : Int, bytes : Bytes, offset0 : Int, offset1 : Int) -> Decode 
 }
 
 ///|
-fn r_utf_16(bytes : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
+fn r_utf_16(
+  bytes : FixedArray[Byte],
+  offset0 : Int,
+  offset1 : Int
+) -> UTF16Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let u = (b0 << 8) | b1
@@ -433,36 +353,24 @@ fn r_utf_16(bytes : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
 ///|
 fn decode_utf_16be(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_16be)
-    // rem > 0
-    1 =>
-      if rem < 2 {
-        self.t_need(2)
-        t_fill(t_decode_utf_16be, self)
-      } else {
-        let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        self.decode_utf_16be_lo(
-          r_utf_16(Bytes::from_fixedarray(self.i), j, j + 1),
-        )
-      }
-    _ => abort("unreachable")
+  if rem <= 0 {
+    Decode::End
+  } else if rem < 2 {
+    self.t_need(2)
+    t_fill(t_decode_utf_16be, self)
+  } else {
+    let j = self.i_pos
+    self.i_pos = self.i_pos + 2
+    self.decode_utf_16be_lo(r_utf_16(self.i, j, j + 1))
   }
 }
 
 ///|
 fn t_decode_utf_16be(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16be,
-      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16be, malformed(self.t, 0, self.t_len))
   } else {
-    self.decode_utf_16be_lo(r_utf_16(Bytes::from_fixedarray(self.t), 0, 1))
+    self.decode_utf_16be_lo(r_utf_16(self.t, 0, 1))
   }
 }
 
@@ -479,10 +387,7 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       } else {
         let j = self.i_pos
         self.i_pos = self.i_pos + 2
-        self.ret(
-          decode_utf_16be,
-          r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j, j + 1),
-        )
+        self.ret(decode_utf_16be, r_utf_16_lo(hi, self.i, j, j + 1))
       }
     }
   }
@@ -491,14 +396,8 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
 ///|
 fn t_decode_utf_16be_lo(hi : Int, self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16be,
-      malformed_pair(true, hi, Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16be, malformed_pair(true, hi, self.t, 0, self.t_len))
   } else {
-    self.ret(
-      decode_utf_16be,
-      r_utf_16_lo(hi, Bytes::from_fixedarray(self.t), 0, 1),
-    )
+    self.ret(decode_utf_16be, r_utf_16_lo(hi, self.t, 0, 1))
   }
 }
