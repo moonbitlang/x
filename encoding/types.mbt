@@ -13,9 +13,6 @@
 // limitations under the License.
 
 ///|
-pub typealias Cont = (Decoder) -> Decode
-
-///|
 pub type! MalformedError Bytes
 
 ///|
@@ -29,7 +26,10 @@ pub(all) enum Encoding {
 // Decoder
 
 ///|
-pub struct Decoder {
+typealias Cont = (Decoder) -> Decode
+
+///|
+struct Decoder {
   // Input bytes
   // Stores the input bytes that need to be decoded.
   // The primary data source from which characters are read and decoded.
@@ -54,7 +54,7 @@ pub struct Decoder {
 }
 
 ///|
-pub enum Decode {
+priv enum Decode {
   End
   Refill
   Malformed(Bytes)
