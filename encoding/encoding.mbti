@@ -24,22 +24,7 @@ fn write_utf16le_char(@buffer.T, Char) -> Unit
 fn write_utf8_char(@buffer.T, Char) -> Unit
 
 // Types and methods
-pub enum Decode {
-  End
-  Refill
-  Malformed(Bytes)
-  Uchar(Char)
-}
-impl Show for Decode
-
-pub struct Decoder {
-  i : FixedArray[Byte]
-  i_pos : Int
-  t : FixedArray[Byte]
-  t_len : Int
-  t_need : Int
-  k : (Decoder) -> Decode
-}
+type Decoder
 impl Decoder {
   decode(Self, Bytes) -> String!
 }
@@ -54,7 +39,6 @@ pub(all) enum Encoding {
 pub type! MalformedError Bytes
 
 // Type aliases
-pub typealias Cont = (Decoder) -> Decode
 
 // Traits
 
