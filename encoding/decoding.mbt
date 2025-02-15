@@ -33,7 +33,7 @@ let utf_8_len = [
 pub fn decoder(encoding : Encoding) -> Decoder {
   let i = FixedArray::default()
   let i_pos = 0
-  let t = FixedArray::make(4, b'0')
+  let t = FixedArray::make(4, Byte::default())
   let t_len = 0
   let t_need = 0
   let k = match encoding {
