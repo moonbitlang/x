@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-// const U_REP = '\u{FFFD}' // TODO: should usable in some case
+pub const U_REP = '\u{FFFD}'
 
 ///|
 let utf_8_len = [
@@ -46,19 +46,8 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 }
 
 ///|
-pub fn decode!(self : Decoder, input : Bytes) -> String {
-  // concat `input` to `i`, drop decoded `i`
-  // init a new `i`
-  let i_rem = self.i_rem()
-  let new_len = i_rem + input.length()
-  let new_i = FixedArray::make(new_len, Byte::default())
-  // copy the remainder of the old `i` into the new `i`
-  self.i.blit_to(new_i, len=i_rem, src_offset=self.i_pos)
-  // copy all `input` into new `i`, starting at the remainder of the old `i`
-  new_i.blit_from_bytes(i_rem, input, 0, input.length())
-  self.i = new_i
-  // reset position to starting position
-  self.i_pos = 0
+pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = true) -> String {
+  self.i_cont(input)
 
   // drive decoder to decode
   let chars = []
@@ -67,9 +56,70 @@ pub fn decode!(self : Decoder, input : Bytes) -> String {
       chars.push(u)
       continue self.decode_()
     }
-    Malformed(bs) => raise MalformedError(bs)
-    End | Refill => String::from_array(chars)
+    Malformed(bs) =>
+      if stream && self.t_need > 0 {
+        String::from_array(chars)
+      } else {
+        raise MalformedError(bs)
+      }
+    End => String::from_array(chars)
+    Refill(t) =>
+      if stream {
+        String::from_array(chars)
+      } else {
+        raise TruncatedError(t)
+      }
   }
+}
+
+///|
+pub fn decode_lossy(
+  self : Decoder,
+  input : Bytes,
+  stream~ : Bool = true
+) -> String {
+  self.i_cont(input)
+
+  // drive decoder to decode
+  let chars = []
+  loop self.decode_() {
+    Uchar(u) => {
+      chars.push(u)
+      continue self.decode_()
+    }
+    Malformed(_) =>
+      if stream && self.t_need > 0 {
+        String::from_array(chars)
+      } else {
+        chars.push(U_REP)
+        continue self.decode_()
+      }
+    End => String::from_array(chars)
+    Refill(_) =>
+      if stream {
+        String::from_array(chars)
+      } else {
+        continue self.decode_()
+      }
+  }
+}
+
+///|
+fn i_cont(self : Decoder, input : Bytes) -> Unit {
+  // concat `input` to `i`, drop decoded `i`
+  let i_rem = @math.maximum(self.i_rem(), 0)
+  let new_len = i_rem + input.length()
+  // init a new `i`
+  let new_i = FixedArray::make(new_len, Byte::default())
+  if i_rem > 0 {
+    // copy the remainder of the old `i` into the new `i`
+    self.i.blit_to(new_i, len=i_rem, src_offset=self.i_pos)
+  }
+  // copy all `input` into new `i`, starting at the remainder of the old `i`
+  new_i.blit_from_bytes(i_rem, input, 0, input.length())
+  self.i = new_i
+  // reset position to starting position
+  self.i_pos = 0
 }
 
 // Implementations
@@ -97,16 +147,27 @@ fn t_need(self : Decoder, need : Int) -> Unit {
 }
 
 ///|
+fn eoi(self : Decoder) -> Unit {
+  self.i = FixedArray::default()
+}
+
+///|
+fn refill(self : Decoder, k : Cont) -> Decode {
+  self.eoi()
+  self.ret(k, Decode::Refill(Bytes::from_fixedarray(self.t)))
+}
+
+///|
 fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   fn blit(decoder : Decoder, l : Int) -> Unit {
-    decoder.t.blit_to(
-      decoder.i,
+    decoder.i.blit_to(
+      decoder.t,
       len=l,
-      dst_offset=decoder.i_pos,
-      src_offset=decoder.t_len,
+      dst_offset=decoder.t_len,
+      src_offset=decoder.i_pos,
     )
-    decoder.i_pos = decoder.i_pos + 1
-    decoder.t_len = decoder.t_len + 1
+    decoder.i_pos += l
+    decoder.t_len += l
   }
 
   let rem = decoder.i_rem()
@@ -115,7 +176,8 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   } else {
     let need = decoder.t_need - decoder.t_len
     if rem < need {
-      Decode::Refill
+      blit(decoder, rem)
+      decoder.refill(@tuple.curry(t_fill)(k))
     } else {
       blit(decoder, need)
       k(decoder)
@@ -139,10 +201,10 @@ fn decode_utf_8(self : Decoder) -> Decode {
     } else {
       let j = self.i_pos
       if need == 0 {
-        self.i_pos = self.i_pos + 1
-        self.ret(decode_utf_8, Decode::Refill)
+        self.i_pos += 1
+        self.ret(decode_utf_8, malformed(self.i, j, 1))
       } else {
-        self.i_pos = self.i_pos + need
+        self.i_pos += need
         self.ret(decode_utf_8, r_utf_8(self.i, j, need))
       }
     }
@@ -152,9 +214,9 @@ fn decode_utf_8(self : Decoder) -> Decode {
 ///|
 fn t_decode_utf_8(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    malformed(self.t, 0, self.t_len)
+    self.ret(decode_utf_8, malformed(self.t, 0, self.t_len))
   } else {
-    r_utf_8(self.t, 0, self.t_len)
+    self.ret(decode_utf_8, r_utf_8(self.t, 0, self.t_len))
   }
 }
 
@@ -262,7 +324,7 @@ fn decode_utf_16le(self : Decoder) -> Decode {
     t_fill(t_decode_utf_16le, self)
   } else {
     let j = self.i_pos
-    self.i_pos = self.i_pos + 2
+    self.i_pos += 2
     self.decode_utf_16le_lo(r_utf_16(self.i, j + 1, j))
   }
 }
@@ -279,8 +341,8 @@ fn t_decode_utf_16le(self : Decoder) -> Decode {
 ///|
 fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
   match v {
-    UTF16Uchar(u) => Uchar(u)
-    UTF16Malformed(s) => Malformed(s)
+    UTF16Uchar(u) => self.ret(decode_utf_16le, Uchar(u))
+    UTF16Malformed(s) => self.ret(decode_utf_16le, Malformed(s))
     Hi(hi) => {
       let rem = self.i_rem()
       if rem < 2 {
@@ -288,8 +350,8 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16le_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        r_utf_16_lo(hi, self.i, j + 1, j)
+        self.i_pos += 2
+        self.ret(decode_utf_16le, r_utf_16_lo(hi, self.i, j + 1, j))
       }
     }
   }
@@ -360,7 +422,7 @@ fn decode_utf_16be(self : Decoder) -> Decode {
     t_fill(t_decode_utf_16be, self)
   } else {
     let j = self.i_pos
-    self.i_pos = self.i_pos + 2
+    self.i_pos += 2
     self.decode_utf_16be_lo(r_utf_16(self.i, j, j + 1))
   }
 }
@@ -386,7 +448,7 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16be_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos = self.i_pos + 2
+        self.i_pos += 2
         self.ret(decode_utf_16be, r_utf_16_lo(hi, self.i, j, j + 1))
       }
     }
