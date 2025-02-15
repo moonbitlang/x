@@ -16,6 +16,9 @@
 pub type! MalformedError Bytes
 
 ///|
+pub type! TruncatedError Bytes
+
+///|
 pub(all) enum Encoding {
   UTF8
   UTF16 // alias for UTF16LE
@@ -56,7 +59,7 @@ struct Decoder {
 ///|
 priv enum Decode {
   End
-  Refill
+  Refill(Bytes)
   Malformed(Bytes)
   Uchar(Char)
 } derive(Show)

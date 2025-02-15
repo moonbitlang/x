@@ -3,6 +3,8 @@ package moonbitlang/x/encoding
 alias @moonbitlang/core/buffer as @buffer
 
 // Values
+const U_REP : Char = '�'
+
 fn decoder(Encoding) -> Decoder
 
 fn encode(Encoding, String) -> Bytes
@@ -26,7 +28,8 @@ fn write_utf8_char(@buffer.T, Char) -> Unit
 // Types and methods
 type Decoder
 impl Decoder {
-  decode(Self, Bytes) -> String!
+  decode(Self, Bytes, stream~ : Bool = ..) -> String!
+  decode_lossy(Self, Bytes, stream~ : Bool = ..) -> String
 }
 
 pub(all) enum Encoding {
@@ -37,6 +40,8 @@ pub(all) enum Encoding {
 }
 
 pub type! MalformedError Bytes
+
+pub type! TruncatedError Bytes
 
 // Type aliases
 

@@ -25,10 +25,17 @@ test "streaming decoding UTF8 rabbit" {
 
 ///|
 test "streaming decoding UTF16LE rabbit" {
-  let inputs = [b"\x3D\xD8", b"\x30\xDC"] // UTF16LE(🐰) == <3DD8 30DC>
+  // UTF16LE(🐰) == <3DD8 30DC>
+  let inputs = [
+    b"\x3D", b"\xD8\x30\xDC", b"\x3D\xD8", b"\x30\xDC", b"\x3D\xD8\x30", b"\xDC",
+  ]
   let decoder = @encoding.decoder(UTF16LE)
   inspect!(decoder.decode!(inputs[0]), content="")
   inspect!(decoder.decode!(inputs[1]), content="🐰")
+  inspect!(decoder.decode!(inputs[2]), content="")
+  inspect!(decoder.decode!(inputs[3]), content="🐰")
+  inspect!(decoder.decode!(inputs[4]), content="")
+  inspect!(decoder.decode!(inputs[5]), content="🐰")
 }
 
 ///|
@@ -321,7 +328,7 @@ test "decoding UTF8 encoded data" {
 }
 
 ///|
-test "panic decoding UTF16LE encoded data with UTF8" {
+test "decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -335,7 +342,12 @@ test "panic decoding UTF16LE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
-  decoder.decode!(buf.to_bytes()) |> ignore
+  let chars = decoder.decode?(buf.to_bytes())
+  assert_true!(chars.is_err())
+  inspect!(
+    chars,
+    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+  )
 }
 
 ///|
@@ -374,11 +386,13 @@ test "decoding UTF16BE encoded data with UTF8" {
     ,
   )
   let decoder = @encoding.decoder(UTF8)
-  let chars = decoder.decode!(buf.to_bytes())
-  // NOTE: decoder generates `Refill` and waits for continued input.
-  //       This is a decoded string, it is empty,
-  //       indicating that no UTF16BE bytes were successfully UTF8 decoded into a string
-  inspect!(chars, content="")
+  // NOTE: Expected to be malformed here
+  let chars = decoder.decode?(buf.to_bytes())
+  assert_true!(chars.is_err())
+  inspect!(
+    chars,
+    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+  )
 }
 
 ///|
@@ -468,41 +482,37 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
   )
 }
 
-// ///|
-// test "lossy decoding UTF16LE incorrectly encoded data to String" {
-//   let buf = @buffer.new(size_hint=10)
-//   buf.write_bytes(b"") // 👀 \x3d\xd8\x40\xdc
-//   inspect!(
-//     buf.to_bytes(),
-//     content=
-//       #|b"\x60\x40\x70\x50\x00\xd0\x40\x00"
-//     ,
-//   )
-//   let decoder = @encoding.decoder(UTF16LE)
-//   let chars = decoder.decode!(buf.to_bytes())
-//   inspect!(chars, content="你好👀")
-// }
+///|
+test "lossy decoding UTF16LE incorrectly encoded data to String" {
+  let src = b"\x00\xD8"
+  inspect!(
+    src,
+    content=
+      #|b"\x00\xd8"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF16LE)
+  let chars = decoder.decode_lossy(src, stream=false)
+  inspect!(chars, content="�")
+  assert_eq!(chars.length(), 1)
+  assert_eq!(chars[0], @encoding.U_REP)
+}
 
-// ///|
-// test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to String" {
-//   let buf = @buffer.new(size_hint=20)
-//   buf.write_bytes(b"\x65\x18")
-//   buf.write_bytes(b"\x20\x18")
-//   buf.write_bytes(b"\x73\x18")
-//   buf.write_bytes(b"\x64\x18")
-//   buf.write_bytes(b"\x73\x18")
-//   buf.write_bytes(b"\x36\x18")
-//   buf.write_bytes(b"\x20\x18")
-//   inspect!(
-//     buf.to_bytes(),
-//     content=
-//       #|b"\x65\x18\x20\x18\x73\x18\x64\x18\x73\x18\x36\x18\x20\x18"
-//     ,
-//   )
-//   let decoder = @encoding.decoder(UTF16)
-//   let chars = decoder.decode!(buf.to_bytes())
-//   inspect!(chars, content="ᡥᠠᡳᡤᡳᠶᠠ")
-// }
+///|
+test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to String" {
+  let src = b"\x00\xD8"
+  inspect!(
+    src,
+    content=
+      #|b"\x00\xd8"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF16)
+  let chars = decoder.decode_lossy(src, stream=false)
+  inspect!(chars, content="�")
+  assert_eq!(chars.length(), 1)
+  assert_eq!(chars[0], @encoding.U_REP)
+}
 
 ///|
 test "lossy decoding UTF16BE incorrectly encoded data to String" {
@@ -516,7 +526,29 @@ test "lossy decoding UTF16BE incorrectly encoded data to String" {
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode_lossy(src, stream=false)
   inspect!(chars, content="�")
+  assert_eq!(chars.length(), 1)
   assert_eq!(chars[0], @encoding.U_REP)
+}
+
+///|
+test "lossy decoding UTF16BE which is `HI+!LO`" {
+  let src = b"\xD8\x00\x00\x48"
+  inspect!(
+    src,
+    content=
+      #|b"\xd8\x00\x00\x48"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF16BE)
+  let chars = decoder.decode_lossy(src, stream=false)
+
+  // FIXME: should decode as many characters as possible
+  // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
+  inspect!(chars, content="�") // ❌
+  // inspect!(chars, content="�H") // ✅
+  // assert_eq!(chars.length(), 2)
+  assert_eq!(chars[0], @encoding.U_REP)
+  // assert_eq!(chars[1], 'H')
 }
 
 ///|
