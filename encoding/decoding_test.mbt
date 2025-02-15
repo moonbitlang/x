@@ -16,11 +16,19 @@
 
 ///|
 test "streaming decoding UTF8 rabbit" {
-  let inputs = [b"abc", b"\xf0\x9f", b"\x90\xb0"] // utf8(🐰) == F0 9F 90 B0
+  let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
   let decoder = @encoding.decoder(UTF8)
   inspect!(decoder.decode!(inputs[0]), content="abc")
   inspect!(decoder.decode!(inputs[1]), content="")
   inspect!(decoder.decode!(inputs[2]), content="🐰")
+}
+
+///|
+test "streaming decoding UTF16LE rabbit" {
+  let inputs = [b"\x3D\xD8", b"\x30\xDC"] // UTF16LE(🐰) == <3DD8 30DC>
+  let decoder = @encoding.decoder(UTF16LE)
+  inspect!(decoder.decode!(inputs[0]), content="")
+  inspect!(decoder.decode!(inputs[1]), content="🐰")
 }
 
 ///|
@@ -170,7 +178,7 @@ test "streaming decoding UTF16BE Tao71" {
 // In one go
 
 ///|
-test "decoding String (UTF16LE encoded) to String (buffer.write_bytes) in one go" {
+test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
   let buf = @buffer.new(size_hint=src.to_bytes().length())
   buf.write_bytes(src.to_bytes())
@@ -186,7 +194,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes) in one go
 }
 
 ///|
-test "decoding String (UTF16LE encoded) to String (buffer.write_char) in one go" {
+test "decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -204,7 +212,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_char) in one go"
 }
 
 ///|
-test "decoding UTF16LE encoded data to String in one go" {
+test "decoding UTF16LE encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\x60\x4f") // 你
   buf.write_bytes(b"\x7d\x59") // 好
@@ -221,7 +229,7 @@ test "decoding UTF16LE encoded data to String in one go" {
 }
 
 ///|
-test "decoding UTF16 (alias for UTF16LE) encoded data to String in one go" {
+test "decoding UTF16 (alias for UTF16LE) encoded data to String" {
   let buf = @buffer.new(size_hint=20)
   buf.write_bytes(b"\x65\x18")
   buf.write_bytes(b"\x20\x18")
@@ -242,7 +250,7 @@ test "decoding UTF16 (alias for UTF16LE) encoded data to String in one go" {
 }
 
 ///|
-test "decoding UTF16BE encoded data to String in one go" {
+test "decoding UTF16BE encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
   buf.write_bytes(b"\xd8\x3d\xdc\x31")
@@ -260,7 +268,7 @@ test "decoding UTF16BE encoded data to String in one go" {
 }
 
 ///|
-test "decoding UTF8 encoded data to String in one go" {
+test "decoding UTF8 encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xe4\xbd\xa0") // 你
   buf.write_bytes(b"\xe5\xa5\xbd") // 好
@@ -277,7 +285,7 @@ test "decoding UTF8 encoded data to String in one go" {
 }
 
 ///|
-test "decoding UTF8 encoded bytes to String in one go" {
+test "decoding UTF8 encoded bytes to String" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -295,7 +303,7 @@ test "decoding UTF8 encoded bytes to String in one go" {
 }
 
 ///|
-test "decoding UTF8 encoded data in one go" {
+test "decoding UTF8 encoded data" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -313,7 +321,7 @@ test "decoding UTF8 encoded data in one go" {
 }
 
 ///|
-test "panic decoding UTF16LE encoded data with UTF8 in one go" {
+test "panic decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -326,16 +334,12 @@ test "panic decoding UTF16LE encoded data with UTF8 in one go" {
     ,
   )
   let decoder = @encoding.decoder(UTF8)
-  // FIXME: how to U_REP?
+  // NOTE: Expected to be malformed here
   decoder.decode!(buf.to_bytes()) |> ignore
-  // inspect!(
-  //   chars.iter().collect(),
-  //   content="['э', 'e', 'k', '<', '�', '�', 'n', '�', '�']",
-  // )
 }
 
 ///|
-test "decoding UTF8 encoded data with UTF16LE in one go" {
+test "decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -357,7 +361,7 @@ test "decoding UTF8 encoded data with UTF16LE in one go" {
 }
 
 ///|
-test "decoding UTF16BE encoded data with UTF8 in one go" {
+test "decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -371,13 +375,14 @@ test "decoding UTF16BE encoded data with UTF8 in one go" {
   )
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
-  // NOTE: decoder generates `Refill` and waits for continued input,
-  //       so here is an empty string (`String::default()`)
+  // NOTE: decoder generates `Refill` and waits for continued input.
+  //       This is a decoded string, it is empty,
+  //       indicating that no UTF16BE bytes were successfully UTF8 decoded into a string
   inspect!(chars, content="")
 }
 
 ///|
-test "decoding UTF8 encoded data with UTF16BE in one go" {
+test "decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -399,7 +404,7 @@ test "decoding UTF8 encoded data with UTF16BE in one go" {
 }
 
 ///|
-test "decoding UTF16LE encoded data with UTF16BE in one go" {
+test "decoding UTF16LE encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -421,7 +426,7 @@ test "decoding UTF16LE encoded data with UTF16BE in one go" {
 }
 
 ///|
-test "decoding UTF16BE encoded data with UTF16LE in one go" {
+test "decoding UTF16BE encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
   for s in src {
@@ -440,6 +445,96 @@ test "decoding UTF16BE encoded data with UTF16LE in one go" {
     chars.to_array(),
     content="['톍', '敫', '㳘', '쏟', '㡮', '', '㳘', '쫟']",
   )
+}
+
+///|
+test "lossy decoding UTF16LE encoded data with UTF8" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  inspect!(
+    buf.to_bytes(),
+    content=
+      #|b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF8)
+  let chars = decoder.decode_lossy(buf.to_bytes())
+  inspect!(
+    chars.to_array(),
+    content="['э', 'e', 'k', '<', '�', '�', 'n', '�', '�']",
+  )
+}
+
+// ///|
+// test "lossy decoding UTF16LE incorrectly encoded data to String" {
+//   let buf = @buffer.new(size_hint=10)
+//   buf.write_bytes(b"") // 👀 \x3d\xd8\x40\xdc
+//   inspect!(
+//     buf.to_bytes(),
+//     content=
+//       #|b"\x60\x40\x70\x50\x00\xd0\x40\x00"
+//     ,
+//   )
+//   let decoder = @encoding.decoder(UTF16LE)
+//   let chars = decoder.decode!(buf.to_bytes())
+//   inspect!(chars, content="你好👀")
+// }
+
+// ///|
+// test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to String" {
+//   let buf = @buffer.new(size_hint=20)
+//   buf.write_bytes(b"\x65\x18")
+//   buf.write_bytes(b"\x20\x18")
+//   buf.write_bytes(b"\x73\x18")
+//   buf.write_bytes(b"\x64\x18")
+//   buf.write_bytes(b"\x73\x18")
+//   buf.write_bytes(b"\x36\x18")
+//   buf.write_bytes(b"\x20\x18")
+//   inspect!(
+//     buf.to_bytes(),
+//     content=
+//       #|b"\x65\x18\x20\x18\x73\x18\x64\x18\x73\x18\x36\x18\x20\x18"
+//     ,
+//   )
+//   let decoder = @encoding.decoder(UTF16)
+//   let chars = decoder.decode!(buf.to_bytes())
+//   inspect!(chars, content="ᡥᠠᡳᡤᡳᠶᠠ")
+// }
+
+///|
+test "lossy decoding UTF16BE incorrectly encoded data to String" {
+  let src = b"\xD8\x00"
+  inspect!(
+    src,
+    content=
+      #|b"\xd8\x00"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF16BE)
+  let chars = decoder.decode_lossy(src, stream=false)
+  inspect!(chars, content="�")
+  assert_eq!(chars[0], @encoding.U_REP)
+}
+
+///|
+/// Well-Formed UTF-8 Byte Sequences
+/// https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G27506
+test "lossy decoding UTF8 incorrectly encoded data to String" {
+  let buf = @buffer.new(size_hint=10)
+  buf.write_bytes(b"\xE0\x9F\x80")
+  inspect!(
+    buf.to_bytes(),
+    content=
+      #|b"\xe0\x9f\x80"
+    ,
+  )
+  let decoder = @encoding.decoder(UTF8)
+  let chars = decoder.decode_lossy(buf.to_bytes())
+  inspect!(chars, content="�")
+  assert_eq!(chars[0], @encoding.U_REP)
 }
 
 ///| https://learn.microsoft.com/en-us/windows/win32/intl/surrogates-and-supplementary-characters
