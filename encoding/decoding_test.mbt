@@ -189,12 +189,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
   let buf = @buffer.new(size_hint=src.to_bytes().length())
   buf.write_bytes(src.to_bytes())
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content=src)
@@ -207,12 +202,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   for s in src {
     buf.write_char(s)
   }
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\x3d\xd8\x4b\xdc\x8d\x51\xc1\x89"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\x3d\xd8\x4b\xdc\x8d\x51\xc1\x89")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content=src)
@@ -224,12 +214,7 @@ test "decoding UTF16LE encoded data to String" {
   buf.write_bytes(b"\x60\x4f") // 你
   buf.write_bytes(b"\x7d\x59") // 好
   buf.write_bytes(b"\x3d\xd8\x40\xdc") // 👀
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content="你好👀")
@@ -245,11 +230,9 @@ test "decoding UTF16 (alias for UTF16LE) encoded data to String" {
   buf.write_bytes(b"\x73\x18")
   buf.write_bytes(b"\x36\x18")
   buf.write_bytes(b"\x20\x18")
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\x65\x18\x20\x18\x73\x18\x64\x18\x73\x18\x36\x18\x20\x18"
-    ,
+    b"\x65\x18\x20\x18\x73\x18\x64\x18\x73\x18\x36\x18\x20\x18",
   )
   let decoder = @encoding.decoder(UTF16)
   let chars = decoder.decode!(buf.to_bytes())
@@ -263,11 +246,9 @@ test "decoding UTF16BE encoded data to String" {
   buf.write_bytes(b"\xd8\x3d\xdc\x31")
   buf.write_bytes(b"\xd8\x3d\xdc\x07")
   buf.write_bytes(b"\xd8\x3d\xdc\x30")
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xd8\x3d\xdc\x08\xd8\x3d\xdc\x31\xd8\x3d\xdc\x07\xd8\x3d\xdc\x30"
-    ,
+    b"\xd8\x3d\xdc\x08\xd8\x3d\xdc\x31\xd8\x3d\xdc\x07\xd8\x3d\xdc\x30",
   )
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode!(buf.to_bytes())
@@ -280,12 +261,7 @@ test "decoding UTF8 encoded data to String" {
   buf.write_bytes(b"\xe4\xbd\xa0") // 你
   buf.write_bytes(b"\xe5\xa5\xbd") // 好
   buf.write_bytes(b"\xf0\x9f\x91\x80") // 👀
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\xe4\xbd\xa0\xe5\xa5\xbd\xf0\x9f\x91\x80"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\xe4\xbd\xa0\xe5\xa5\xbd\xf0\x9f\x91\x80")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content="你好👀")
@@ -298,12 +274,7 @@ test "decoding UTF8 encoded bytes to String" {
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content=src)
@@ -316,12 +287,7 @@ test "decoding UTF8 encoded data" {
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars.iter().collect(), content="['👋', '再', '见']")
@@ -334,11 +300,9 @@ test "decoding UTF16LE encoded data with UTF8" {
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf"
-    ,
+    b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf",
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
@@ -357,11 +321,9 @@ test "decoding UTF8 encoded data with UTF16LE" {
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xe8\xb7\x91\xe6\xad\xa5\xf0\x9f\x8f\x83\xe6\xb8\xb8\xe6\xb3\xb3\xf0\x9f\x8f\x8a"
-    ,
+    b"\xe8\xb7\x91\xe6\xad\xa5\xf0\x9f\x8f\x83\xe6\xb8\xb8\xe6\xb3\xb3\xf0\x9f\x8f\x8a",
   )
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
@@ -379,11 +341,9 @@ test "decoding UTF16BE encoded data with UTF8" {
   for s in src {
     @encoding.write_utf16be_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca"
-    ,
+    b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca",
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
@@ -402,11 +362,9 @@ test "decoding UTF8 encoded data with UTF16BE" {
   for s in src {
     @encoding.write_utf8_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xe8\xb7\x91\xe6\xad\xa5\xf0\x9f\x8f\x83\xe6\xb8\xb8\xe6\xb3\xb3\xf0\x9f\x8f\x8a"
-    ,
+    b"\xe8\xb7\x91\xe6\xad\xa5\xf0\x9f\x8f\x83\xe6\xb8\xb8\xe6\xb3\xb3\xf0\x9f\x8f\x8a",
   )
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode!(buf.to_bytes())
@@ -424,11 +382,9 @@ test "decoding UTF16LE encoded data with UTF16BE" {
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf"
-    ,
+    b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf",
   )
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode!(buf.to_bytes())
@@ -446,11 +402,9 @@ test "decoding UTF16BE encoded data with UTF16LE" {
   for s in src {
     @encoding.write_utf16be_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca"
-    ,
+    b"\x8d\xd1\x6b\x65\xd8\x3c\xdf\xc3\x6e\x38\x6c\xf3\xd8\x3c\xdf\xca",
   )
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
@@ -468,11 +422,9 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
   for s in src {
     @encoding.write_utf16le_char(buf, s)
   }
-  inspect!(
+  assert_eq!(
     buf.to_bytes(),
-    content=
-      #|b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf"
-    ,
+    b"\xd1\x8d\x65\x6b\x3c\xd8\xc3\xdf\x38\x6e\xf3\x6c\x3c\xd8\xca\xdf",
   )
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode_lossy(buf.to_bytes())
@@ -485,12 +437,7 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
 ///|
 test "lossy decoding UTF16LE incorrectly encoded data to String" {
   let src = b"\x00\xD8"
-  inspect!(
-    src,
-    content=
-      #|b"\x00\xd8"
-    ,
-  )
+  assert_eq!(src, b"\x00\xd8")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode_lossy(src, stream=false)
   inspect!(chars, content="�")
@@ -501,12 +448,7 @@ test "lossy decoding UTF16LE incorrectly encoded data to String" {
 ///|
 test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to String" {
   let src = b"\x00\xD8"
-  inspect!(
-    src,
-    content=
-      #|b"\x00\xd8"
-    ,
-  )
+  assert_eq!(src, b"\x00\xd8")
   let decoder = @encoding.decoder(UTF16)
   let chars = decoder.decode_lossy(src, stream=false)
   inspect!(chars, content="�")
@@ -517,12 +459,7 @@ test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to Strin
 ///|
 test "lossy decoding UTF16BE incorrectly encoded data to String" {
   let src = b"\xD8\x00"
-  inspect!(
-    src,
-    content=
-      #|b"\xd8\x00"
-    ,
-  )
+  assert_eq!(src, b"\xd8\x00")
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode_lossy(src, stream=false)
   inspect!(chars, content="�")
@@ -533,12 +470,7 @@ test "lossy decoding UTF16BE incorrectly encoded data to String" {
 ///|
 test "lossy decoding UTF16BE which is `HI+!LO`" {
   let src = b"\xD8\x00\x00\x48"
-  inspect!(
-    src,
-    content=
-      #|b"\xd8\x00\x00\x48"
-    ,
-  )
+  assert_eq!(src, b"\xd8\x00\x00\x48")
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode_lossy(src, stream=false)
 
@@ -557,12 +489,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
 test "lossy decoding UTF8 incorrectly encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xE0\x9F\x80")
-  inspect!(
-    buf.to_bytes(),
-    content=
-      #|b"\xe0\x9f\x80"
-    ,
-  )
+  assert_eq!(buf.to_bytes(), b"\xe0\x9f\x80")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode_lossy(buf.to_bytes())
   inspect!(chars, content="�")
