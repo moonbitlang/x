@@ -63,8 +63,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes! {
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
-  let content = get_file_content_ffi()
-  Bytes::from_iter(content.iter())
+  get_file_content_ffi()
 }
 
 ///|
