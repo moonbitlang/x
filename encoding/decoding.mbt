@@ -380,6 +380,17 @@ fn r_utf_16_lo(
   let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
+    // TODO(jinser): try to skip lo and then parse the following
+    //
+    // For example, b"\xD8\x00\x00\x48" (BE)
+    // Since \xD8\x00 is *legal* hi, here will try to parse lo next,
+    // however the whole \xD8\x00\x00\x48 is *illegal* so the result will be a `Malformed[b"\xD8\x00\x00\x48"]`
+    //
+    // But \x00\x48 itself is a *legal* UTF16 code point with a value of `H`,
+    // the ideal result should be: `[Malformed(b"\xD8\x00"), Uchar('H')]`
+    //
+    // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
+    // �H
     malformed_pair(
       offset0 < offset1,
       hi,
