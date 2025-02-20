@@ -380,8 +380,12 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16le_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos += 2
-        self.ret(decode_utf_16le, r_utf_16_lo(hi, self.i, j + 1, j))
+        let dcd = r_utf_16_lo(hi, self.i, j + 1, j)
+        match dcd {
+          Uchar(_) => self.i_pos += 2
+          _ => ()
+        }
+        self.ret(decode_utf_16le, dcd)
       }
     }
   }
@@ -410,7 +414,7 @@ fn r_utf_16_lo(
   let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
-    // TODO(jinser): try to skip lo and then parse the following
+    // NOTE(jinser): only hi malformed, skip lo if lo is illegal
     //
     // For example, b"\xD8\x00\x00\x48" (BE)
     // Since \xD8\x00 is *legal* hi, here will try to parse lo next,
@@ -421,13 +425,7 @@ fn r_utf_16_lo(
     //
     // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
     // �H
-    malformed_pair(
-      offset0 < offset1,
-      hi,
-      bytes,
-      @math.minimum(offset0, offset1),
-      2,
-    )
+    Malformed([bytes[offset0], bytes[offset1]])
   } else {
     Uchar(Char::from_int(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
   }
@@ -489,8 +487,12 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16be_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos += 2
-        self.ret(decode_utf_16be, r_utf_16_lo(hi, self.i, j, j + 1))
+        let dcd = r_utf_16_lo(hi, self.i, j, j + 1)
+        match dcd {
+          Uchar(_) => self.i_pos += 2
+          _ => ()
+        }
+        self.ret(decode_utf_16be, dcd)
       }
     }
   }

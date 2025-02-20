@@ -488,13 +488,11 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode_lossy(src, stream=false)
 
-  // FIXME(jinser): should decode as many characters as possible
-  // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
-  inspect!(chars, content="�") // ❌
-  // inspect!(chars, content="�H") // ✅
-  // assert_eq!(chars.length(), 2)
+  // NOTE(jinser): should decode as many characters as possible
+  inspect!(chars, content="�H") // ✅
+  assert_eq!(chars.length(), 2)
   assert_eq!(chars[0], @encoding.U_REP)
-  // assert_eq!(chars[1], 'H')
+  assert_eq!(chars[1], 'H')
 }
 
 ///|
