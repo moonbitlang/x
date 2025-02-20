@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-struct moonbit_ref_array* get_env_vars() {
+moonbit_bytes_t* get_env_vars() {
 #ifdef _WIN32
     // Get environment block
     LPCH env_block = GetEnvironmentStrings();
@@ -28,7 +28,7 @@ struct moonbit_ref_array* get_env_vars() {
         env += strlen(env) + 1;
     }
 
-    struct moonbit_ref_array* result = moonbit_make_ref_array(count * 2, NULL);
+    moonbit_bytes_t* result = (moonbit_bytes_t*)moonbit_make_ref_array(count * 2, NULL);
     
     // Parse variables
     env = env_block;
@@ -39,14 +39,14 @@ struct moonbit_ref_array* get_env_vars() {
             size_t key_len = equals - env;
             size_t val_len = strlen(equals + 1);
             
-            struct moonbit_bytes* key = moonbit_make_bytes(key_len, 0);
-            memcpy(key->data, env, key_len);
+            moonbit_bytes_t key = moonbit_make_bytes(key_len, 0);
+            memcpy(key, env, key_len);
             
-            struct moonbit_bytes* value = moonbit_make_bytes(val_len, 0);
-            memcpy(value->data, equals + 1, val_len);
+            moonbit_bytes_t value = moonbit_make_bytes(val_len, 0);
+            memcpy(value, equals + 1, val_len);
 
-            result->data[i * 2] = key;
-            result->data[i * 2 + 1] = value;
+            result[i * 2] = key;
+            result[i * 2 + 1] = value;
         }
         env += strlen(env) + 1;
         i++;
@@ -67,7 +67,7 @@ struct moonbit_ref_array* get_env_vars() {
 
     // Create an array to store environment variable key-value pairs
     // Array size is twice the number of variables since we need to store both key and value
-    struct moonbit_ref_array* result = moonbit_make_ref_array(count * 2, NULL);
+    moonbit_bytes_t* result = (moonbit_bytes_t*)moonbit_make_ref_array(count * 2, NULL);
     env = environ;
     int i = 0;
     while (*env != NULL) {
@@ -79,17 +79,17 @@ struct moonbit_ref_array* get_env_vars() {
             size_t val_len = strlen(equals + 1);
             
             // Create bytes object for key and copy data
-            struct moonbit_bytes* key = moonbit_make_bytes(key_len, 0);
-            memcpy(key->data, *env, key_len);
+            moonbit_bytes_t key = moonbit_make_bytes(key_len, 0);
+            memcpy(key, *env, key_len);
             
             // Create bytes object for value and copy data
-            struct moonbit_bytes* value = moonbit_make_bytes(val_len, 0);
-            memcpy(value->data, equals + 1, val_len);
+            moonbit_bytes_t value = moonbit_make_bytes(val_len, 0);
+            memcpy(value, equals + 1, val_len);
 
             // Store key and value in result array
             // Even indices store keys, odd indices store values
-            result->data[i * 2] = key;
-            result->data[i * 2 + 1] = value;
+            result[i * 2] = key;
+            result[i * 2 + 1] = value;
         }
         env++;
         i++;
@@ -98,18 +98,18 @@ struct moonbit_ref_array* get_env_vars() {
 #endif
 }
 
-void set_env_var(struct moonbit_bytes *key, struct moonbit_bytes *value) {
+void set_env_var(moonbit_bytes_t key, moonbit_bytes_t value) {
 #ifdef _WIN32
-    SetEnvironmentVariable(key->data, value->data);
+    SetEnvironmentVariable(key, value);
 #else
-    setenv((const char*)key->data, (const char*)value->data, 1);
+    setenv((const char*)key, (const char*)value, 1);
 #endif
 }
 
-void unset_env_var(struct moonbit_bytes *key) {
+void unset_env_var(moonbit_bytes_t key) {
 #ifdef _WIN32
-    SetEnvironmentVariable(key->data, NULL);
+    SetEnvironmentVariable(key, NULL);
 #else
-    unsetenv((const char*)key->data);
+    unsetenv((const char*)key);
 #endif
 }
