@@ -18,9 +18,9 @@
 test "streaming decoding UTF8 rabbit" {
   let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
   let decoder = @encoding.decoder(UTF8)
-  inspect!(decoder.decode!(inputs[0]), content="abc")
-  inspect!(decoder.decode!(inputs[1]), content="")
-  inspect!(decoder.decode!(inputs[2]), content="🐰")
+  inspect!(decoder.decode_continue!(inputs[0]), content="abc")
+  inspect!(decoder.decode_continue!(inputs[1]), content="")
+  inspect!(decoder.decode_finish!(input=inputs[2]), content="🐰")
 }
 
 ///|
@@ -30,12 +30,12 @@ test "streaming decoding UTF16LE rabbit" {
     b"\x3D", b"\xD8\x30\xDC", b"\x3D\xD8", b"\x30\xDC", b"\x3D\xD8\x30", b"\xDC",
   ]
   let decoder = @encoding.decoder(UTF16LE)
-  inspect!(decoder.decode!(inputs[0]), content="")
-  inspect!(decoder.decode!(inputs[1]), content="🐰")
-  inspect!(decoder.decode!(inputs[2]), content="")
-  inspect!(decoder.decode!(inputs[3]), content="🐰")
-  inspect!(decoder.decode!(inputs[4]), content="")
-  inspect!(decoder.decode!(inputs[5]), content="🐰")
+  inspect!(decoder.decode_continue!(inputs[0]), content="")
+  inspect!(decoder.decode_continue!(inputs[1]), content="🐰")
+  inspect!(decoder.decode_continue!(inputs[2]), content="")
+  inspect!(decoder.decode_continue!(inputs[3]), content="🐰")
+  inspect!(decoder.decode_continue!(inputs[4]), content="")
+  inspect!(decoder.decode_finish!(input=inputs[5]), content="🐰")
 }
 
 ///|
@@ -53,31 +53,33 @@ test "streaming decoding UTF16LE ASCII" {
     from_array(chunks[0]),
     b"\x48\x00\x6f\x00\x77\x00\x20\x00\x64\x00\x6f\x00\x20\x00\x77\x00\x65",
   )
-  inspect!(decoder.decode!(from_array(chunks[0])), content="How do w")
+  inspect!(decoder.decode_continue!(from_array(chunks[0])), content="How do w")
   assert_eq!(
     from_array(chunks[1]),
     b"\x00\x20\x00\x67\x00\x72\x00\x61\x00\x73\x00\x70\x00\x20\x00\x61\x00",
   )
-  inspect!(decoder.decode!(from_array(chunks[1])), content="e grasp a")
+  inspect!(decoder.decode_continue!(from_array(chunks[1])), content="e grasp a")
   assert_eq!(
     from_array(chunks[2]),
     b"\x6c\x00\x6c\x00\x20\x00\x74\x00\x68\x00\x65\x00\x20\x00\x61\x00\x70",
   )
-  inspect!(decoder.decode!(from_array(chunks[2])), content="ll the a")
+  inspect!(decoder.decode_continue!(from_array(chunks[2])), content="ll the a")
   assert_eq!(
     from_array(chunks[3]),
     b"\x00\x70\x00\x6c\x00\x65\x00\x73\x00\x20\x00\x61\x00\x74\x00\x20\x00",
   )
-  inspect!(decoder.decode!(from_array(chunks[3])), content="pples at ")
+  inspect!(decoder.decode_continue!(from_array(chunks[3])), content="pples at ")
   assert_eq!(from_array(chunks[4]), b"\x6f\x00\x6e\x00\x63\x00\x65\x00\x3f\x00")
-  inspect!(decoder.decode!(from_array(chunks[4])), content="once?")
+  // `decode_finish!(input)` is an alias for `decode!(input, stream=false)`
+  inspect!(decoder.decode_finish!(input=from_array(chunks[4])), content="once?")
 
   // check accumulator
   let decoder = @encoding.decoder(UTF16LE)
   let mut acc = ""
   for chunk in ascii.to_bytes().to_array().chunks(7) {
-    acc += decoder.decode!(from_array(chunk))
+    acc += decoder.decode_continue!(from_array(chunk))
   }
+  decoder.decode_finish!() |> ignore
   inspect!(acc, content=ascii)
 }
 
@@ -102,29 +104,40 @@ test "streaming decoding UTF8 Emoji" {
     from_array(chunks[0]),
     b"\x20\x20\x20\xf0\x9f\x8e\xa9\x0a\x20\x20\x20\xf0\x9f",
   )
-  inspect!(decoder.decode!(from_array(chunks[0])), content="   🎩\n   ")
+  inspect!(
+    decoder.decode_continue!(from_array(chunks[0])),
+    content="   🎩\n   ",
+  )
   assert_eq!(
     from_array(chunks[1]),
     b"\x91\xb6\x0a\x20\xe2\x9c\x8b\xf0\x9f\x91\x95\xf0\x9f",
   )
-  inspect!(decoder.decode!(from_array(chunks[1])), content="👶\n ✋👕")
+  inspect!(
+    decoder.decode_continue!(from_array(chunks[1])),
+    content="👶\n ✋👕",
+  )
   assert_eq!(
     from_array(chunks[2]),
     b"\x8c\x82\x0a\x20\x20\x20\xe2\x80\xbc\xef\xb8\x8f\x0a",
   )
-  inspect!(decoder.decode!(from_array(chunks[2])), content="🌂\n   ‼️\n")
+  inspect!(
+    decoder.decode_continue!(from_array(chunks[2])),
+    content="🌂\n   ‼️\n",
+  )
   assert_eq!(
     from_array(chunks[3]),
     b"\x20\x20\x20\xf0\x9f\x91\x9e\xf0\x9f\x91\x9e",
   )
+  // stream default to false
   inspect!(decoder.decode!(from_array(chunks[3])), content="   👞👞")
 
   // check accumulator
   let decoder = @encoding.decoder(UTF8)
   let mut acc = ""
   for chunk in art_bytes.to_array().chunks(7) {
-    acc += decoder.decode!(from_array(chunk))
+    acc += decoder.decode_continue!(from_array(chunk))
   }
+  decoder.decode_finish!() |> ignore
   inspect!(acc, content=art)
 }
 
@@ -145,7 +158,7 @@ test "streaming decoding UTF16BE Tao71" {
     b"\x77\xe5\x4e\x0d\x77\xe5\xff\x0c\x5c\x1a\x77\xe3\xff\x1b\x4e\x0d\x77",
   )
   inspect!(
-    decoder.decode!(from_array(chunks[0])),
+    decoder.decode_continue!(from_array(chunks[0])),
     content="知不知，尚矣；不",
   )
   assert_eq!(
@@ -153,7 +166,7 @@ test "streaming decoding UTF16BE Tao71" {
     b"\xe5\x77\xe5\xff\x0c\x75\xc5\x4e\x5f\x30\x02\x57\x23\x4e\xba\x4e\x0d",
   )
   inspect!(
-    decoder.decode!(from_array(chunks[1])),
+    decoder.decode_continue!(from_array(chunks[1])),
     content="知知，病也。圣人不",
   )
   assert_eq!(
@@ -161,7 +174,7 @@ test "streaming decoding UTF16BE Tao71" {
     b"\x75\xc5\xff\x0c\x4e\xe5\x51\x76\x75\xc5\x75\xc5\xff\x0c\x59\x2b\x60",
   )
   inspect!(
-    decoder.decode!(from_array(chunks[2])),
+    decoder.decode_continue!(from_array(chunks[2])),
     content="病，以其病病，夫",
   )
   assert_eq!(
@@ -177,8 +190,9 @@ test "streaming decoding UTF16BE Tao71" {
   let decoder = @encoding.decoder(UTF16BE)
   let mut acc = ""
   for chunk in tao71_bytes.to_array().chunks(7) {
-    acc += decoder.decode!(from_array(chunk))
+    acc += decoder.decode_continue!(from_array(chunk))
   }
+  decoder.decode_finish!() |> ignore
   inspect!(acc, content=tao71)
 }
 

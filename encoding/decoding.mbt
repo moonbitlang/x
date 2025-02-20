@@ -46,8 +46,13 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 }
 
 ///|
-pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = true) -> String {
-  self.i_cont(input)
+pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return String::default()
+  }
 
   // drive decoder to decode
   let chars = []
@@ -73,12 +78,27 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = true) -> String {
 }
 
 ///|
+pub fn decode_continue!(self : Decoder, input : Bytes) -> String {
+  self.decode!(input, stream=true)
+}
+
+///|
+pub fn decode_finish!(self : Decoder, input~ : Bytes = b"") -> String {
+  self.decode!(input, stream=false)
+}
+
+///|
 pub fn decode_lossy(
   self : Decoder,
   input : Bytes,
-  stream~ : Bool = true
+  stream~ : Bool = false
 ) -> String {
-  self.i_cont(input)
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return String::default()
+  }
 
   // drive decoder to decode
   let chars = []
@@ -102,6 +122,16 @@ pub fn decode_lossy(
         continue self.decode_()
       }
   }
+}
+
+///|
+pub fn decode_lossy_continue(self : Decoder, input : Bytes) -> String {
+  self.decode_lossy(input, stream=true)
+}
+
+///|
+pub fn decode_lossy_finish(self : Decoder, input~ : Bytes = b"") -> String {
+  self.decode_lossy(input, stream=false)
 }
 
 ///|
