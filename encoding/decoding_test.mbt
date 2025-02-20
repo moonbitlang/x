@@ -474,7 +474,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode_lossy(src, stream=false)
 
-  // FIXME: should decode as many characters as possible
+  // FIXME(jinser): should decode as many characters as possible
   // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
   inspect!(chars, content="�") // ❌
   // inspect!(chars, content="�H") // ✅
