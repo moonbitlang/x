@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-pub(all) type XStringArrayReadHandle
+pub(all) extern type XStringArrayReadHandle
 
 ///|
-pub(all) type XExternStringArray
+pub(all) extern type XExternStringArray
 
 ///|
 fn begin_read_string_array(sa : XExternStringArray) -> XStringArrayReadHandle = "__moonbit_fs_unstable" "begin_read_string_array"
