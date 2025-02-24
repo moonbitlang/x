@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-priv type Handler
+priv extern type Handler
 
 ///|
 fn fopen_ffi(path : Bytes, mode : Bytes) -> Handler = "$moonbit.fopen_ffi"

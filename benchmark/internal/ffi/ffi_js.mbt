@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type Date
+extern type Date
 
 ///|
 pub extern "js" fn instant_now() -> Date =
