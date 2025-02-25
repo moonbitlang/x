@@ -80,7 +80,7 @@ test "streaming decoding UTF16LE ASCII" {
     acc += decoder.decode_continue!(from_array(chunk))
   }
   decoder.decode_finish!() |> ignore
-  inspect!(acc, content=ascii)
+  assert_eq!(acc, ascii)
 }
 
 ///|
@@ -138,7 +138,7 @@ test "streaming decoding UTF8 Emoji" {
     acc += decoder.decode_continue!(from_array(chunk))
   }
   decoder.decode_finish!() |> ignore
-  inspect!(acc, content=art)
+  assert_eq!(acc, art)
 }
 
 ///|
@@ -193,7 +193,7 @@ test "streaming decoding UTF16BE Tao71" {
     acc += decoder.decode_continue!(from_array(chunk))
   }
   decoder.decode_finish!() |> ignore
-  inspect!(acc, content=tao71)
+  assert_eq!(acc, tao71)
 }
 
 // In one go
@@ -206,7 +206,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   assert_eq!(buf.to_bytes(), b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
-  inspect!(chars, content=src)
+  assert_eq!(chars, src)
 }
 
 ///|
@@ -219,7 +219,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   assert_eq!(buf.to_bytes(), b"\x3d\xd8\x4b\xdc\x8d\x51\xc1\x89")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode!(buf.to_bytes())
-  inspect!(chars, content=src)
+  assert_eq!(chars, src)
 }
 
 ///|
@@ -291,7 +291,7 @@ test "decoding UTF8 encoded bytes to String" {
   assert_eq!(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
-  inspect!(chars, content=src)
+  assert_eq!(chars, src)
 }
 
 ///|
