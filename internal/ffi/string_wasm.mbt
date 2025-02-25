@@ -13,13 +13,13 @@
 // limitations under the License.
 
 ///|
-pub(all) type XStringCreateHandle
+pub(all) extern type XStringCreateHandle
 
 ///|
-pub(all) type XStringReadHandle
+pub(all) extern type XStringReadHandle
 
 ///|
-pub(all) type XExternString
+pub(all) extern type XExternString
 
 ///|
 fn begin_create_string() -> XStringCreateHandle = "__moonbit_fs_unstable" "begin_create_string"

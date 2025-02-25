@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type Instant
+extern type Instant
 
 ///|
 pub fn instant_now() -> Instant {
