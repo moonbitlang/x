@@ -78,13 +78,13 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
 }
 
 ///|
-pub fn decode_continue!(self : Decoder, input : Bytes) -> String {
+pub fn consume!(self : Decoder, input : Bytes) -> String {
   self.decode!(input, stream=true)
 }
 
 ///|
-pub fn decode_finish!(self : Decoder, input~ : Bytes = b"") -> String {
-  self.decode!(input, stream=false)
+pub fn finish!(self : Decoder) -> String {
+  self.decode!(b"", stream=false)
 }
 
 ///|
@@ -125,13 +125,13 @@ pub fn decode_lossy(
 }
 
 ///|
-pub fn decode_lossy_continue(self : Decoder, input : Bytes) -> String {
+pub fn lossy_consume(self : Decoder, input : Bytes) -> String {
   self.decode_lossy(input, stream=true)
 }
 
 ///|
-pub fn decode_lossy_finish(self : Decoder, input~ : Bytes = b"") -> String {
-  self.decode_lossy(input, stream=false)
+pub fn lossy_finish(self : Decoder) -> String {
+  self.decode_lossy(b"", stream=false)
 }
 
 ///|
