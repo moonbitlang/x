@@ -175,6 +175,7 @@ test "streaming decoding UTF16BE Tao71" {
     from_array(chunks[3]),
     b"\xdf\x75\xc5\x75\xc5\xff\x0c\x66\x2f\x4e\xe5\x4e\x0d\x75\xc5\x30\x02",
   )
+  // decoder.decode!(input, stream~ = false)
   inspect!(
     decoder.decode!(from_array(chunks[3])),
     content="惟病病，是以不病。",
