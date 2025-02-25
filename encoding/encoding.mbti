@@ -28,12 +28,12 @@ fn write_utf8_char(@buffer.T, Char) -> Unit
 // Types and methods
 type Decoder
 impl Decoder {
+  consume(Self, Bytes) -> String!
   decode(Self, Bytes, stream~ : Bool = ..) -> String!
-  decode_continue(Self, Bytes) -> String!
-  decode_finish(Self, input~ : Bytes = ..) -> String!
   decode_lossy(Self, Bytes, stream~ : Bool = ..) -> String
-  decode_lossy_continue(Self, Bytes) -> String
-  decode_lossy_finish(Self, input~ : Bytes = ..) -> String
+  finish(Self) -> String!
+  lossy_consume(Self, Bytes) -> String
+  lossy_finish(Self) -> String
 }
 
 pub(all) enum Encoding {
