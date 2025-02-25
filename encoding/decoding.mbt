@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| The Unicode Replacement Character, which is used to replace invalid or unrecognized sequences during lossy decoding.
+/// https://unicode.org/charts/nameslist/n_FFF0.html
 pub const U_REP = '\u{FFFD}'
 
 ///|
@@ -30,6 +31,27 @@ let utf_8_len = [
 ]
 
 ///|
+/// Create and return a `Decoder` for the specified character encoding.
+///
+/// The `Decoder` consumes byte sequences and decodes them into the original string format.
+///
+/// # Parameters
+///
+/// - `encoding`: The character encoding format to be used for decoding the input byte sequences.
+///
+/// # Returns
+///
+/// A `Decoder` instance that can be used to decode byte sequences into strings.
+///
+/// # Examples
+///
+/// ```moonbit
+/// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
+/// let decoder = decoder(UTF8)
+/// inspect!(decoder.consume!(inputs[0]), content="abc")
+/// inspect!(decoder.consume!(inputs[1]), content="")
+/// inspect!(decoder.consume!(inputs[2]), content="🐰")
+/// assert_true!(decoder.finish!().is_empty())
 pub fn decoder(encoding : Encoding) -> Decoder {
   let i = FixedArray::default()
   let i_pos = 0
@@ -46,6 +68,35 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 }
 
 ///|
+/// Decode the given byte sequence using the specified `Decoder` and return the resulting string.
+///
+/// This function can work in streaming mode where bytes are consumed incrementally.
+/// When `stream` is `false`, it indicates the end of the input and triggers the final decoding step.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to decode the byte sequence.
+/// - `input`: The byte sequence to be decoded.
+/// - `stream~`: A boolean indicating whether more bytes will be supplied for decoding. It defaults to `false`.
+///
+/// # Returns
+///
+/// A `String` representing the decoded content from the input byte sequence.
+///
+/// # Errors
+///
+/// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
+///
+/// # Examples
+///
+/// ```moonbit
+/// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
+/// let decoder = @encoding.decoder(UTF8)
+/// inspect!(decoder.decode!(inputs[0], stream=true), content="abc")
+/// inspect!(decoder.decode!(inputs[1], stream=true), content="")
+/// inspect!(decoder.decode!(inputs[2], stream=false), content="🐰")
+/// ```
 pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String {
   if input.length() > 0 {
     self.i_cont(input)
@@ -78,16 +129,64 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
 }
 
 ///|
+/// Consume the given byte sequence using the specified `Decoder` and return the resulting string incrementally.
+///
+/// This function calls `decode!` with the `stream` parameter set to `true`, indicating that more bytes will follow for decoding.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to consume the byte sequence.
+/// - `input`: The byte sequence to be consumed and decoded incrementally.
+///
+/// # Returns
+///
+/// A `String` representing the partially decoded content from the input byte sequence, as more bytes are expected.
+///
+/// # Errors
+///
+/// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
 pub fn consume!(self : Decoder, input : Bytes) -> String {
   self.decode!(input, stream=true)
 }
 
 ///|
+/// Finalize the decoding process and return the remaining decoded string.
+///
+/// This function calls `decode!` with the `stream` parameter set to `false`, indicating that no more bytes will be supplied
+/// and triggering the final decoding step to produce the remaining output.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to finalize the decoding process.
+///
+/// # Returns
+///
+/// A `String` representing the final part of the decoded content, after all byte sequences have been processed.
+///
+/// # Errors
+///
+/// `MalformedError`: This error is raised if the remaining byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: This error is raised if the remaining byte sequence ends prematurely, implying that more data was expected for complete decoding.
 pub fn finish!(self : Decoder) -> String {
   self.decode!(b"", stream=false)
 }
 
 ///|
+/// Decode the given byte sequence using the specified `Decoder` and return the resulting string, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function can work in streaming mode where bytes are consumed incrementally.
+/// When `stream` is `false`, it indicates the end of the input and triggers the final decoding step.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to decode the byte sequence.
+/// - `input`: The byte sequence to be decoded.
+/// - `stream~`: A boolean indicating whether more bytes will be supplied for decoding. It defaults to `false`.
+///
+/// # Returns
+///
+/// A `String` representing the decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`).
 pub fn decode_lossy(
   self : Decoder,
   input : Bytes,
@@ -125,11 +224,35 @@ pub fn decode_lossy(
 }
 
 ///|
+/// Consume the given byte sequence using the specified `Decoder` and return the resulting string incrementally, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function calls `decode_lossy` with the `stream` parameter set to `true`, indicating that more bytes will follow for decoding.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to consume and decode the byte sequence.
+/// - `input`: The byte sequence to be consumed and decoded incrementally.
+///
+/// # Returns
+///
+/// A `String` representing the partially decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`), as more bytes are expected.
 pub fn lossy_consume(self : Decoder, input : Bytes) -> String {
   self.decode_lossy(input, stream=true)
 }
 
 ///|
+/// Finalize the lossy decoding process and return the remaining decoded string, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function calls `decode_lossy` with the `stream` parameter set to `false`, indicating that no more bytes will be supplied
+/// and triggering the final decoding step to produce the remaining output.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to finalize the lossy decoding process.
+///
+/// # Returns
+///
+/// A `String` representing the final part of the decoded content, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`), after all byte sequences have been processed.
 pub fn lossy_finish(self : Decoder) -> String {
   self.decode_lossy(b"", stream=false)
 }
