@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-const U_REP = '\u{FFFD}'
+///| The Unicode Replacement Character, which is used to replace invalid or unrecognized sequences during lossy decoding.
+/// https://unicode.org/charts/nameslist/n_FFF0.html
+pub const U_REP = '\u{FFFD}'
 
 ///|
 let utf_8_len = [
@@ -30,78 +31,31 @@ let utf_8_len = [
 ]
 
 ///|
-/// Decodes bytes from a specified encoding into lossily decoded characters.
+/// Create and return a `Decoder` for the specified character encoding.
+///
+/// The `Decoder` consumes byte sequences and decodes them into the original string format.
 ///
 /// # Parameters
-/// - `encoding`: The character encoding of the input `bytes`.
-/// - `src`: A `bytes` representing the encoded string in the specified format.
+///
+/// - `encoding`: The character encoding format to be used for decoding the input byte sequences.
 ///
 /// # Returns
 ///
-/// A `LossyChars` iterator representing the decoded characters, with invalid byte sequences replaced by a replacement character.
-///
-/// # Behavior
-///
-/// - Any invalid sequences in the `bytes` are replaced with a replacement character (`\u{FFFD}`), preventing decoding errors.
+/// A `Decoder` instance that can be used to decode byte sequences into strings.
 ///
 /// # Examples
 ///
 /// ```moonbit
-/// let buf = @buffer.new(size_hint=10)
-/// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
-/// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
-/// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
-/// let chars = @encoding.decode_lossy(UTF8, buf.to_bytes())
-/// let arr = chars.iter().collect() // Array of unicode point code: `['你', '好', '👀']`
-/// let str = String::from_array(arr) // MoonBit String, representing as UTF16LE: `"你好👀"`
-/// // or
-/// let str = chars.to_string()
-/// ```
-pub fn decode_lossy(encoding : Encoding, src : Bytes) -> LossyChars {
-  let decoder = decoder(encoding, src)
-  decoder
-}
-
-///|
-/// Decodes bytes from a specified encoding into strictly decoded characters.
-///
-/// # Parameters
-///
-/// - `encoding`: The character encoding of the input `bytes`.
-/// - `src`: A `bytes` representing the encoded string in the specified format.
-///
-/// # Returns
-///
-/// A `StrictChars` iterator representing the decoded characters.
-///
-/// # Behavior
-///
-/// - Assumes all sequences in the `bytes` are valid and will raise errors if invalid sequences are encountered.
-///
-/// # Examples
-///
-/// ```moonbit
-/// let buf = @buffer.new(size_hint=10)
-/// buf.write_bytes(b"\xe4\xbd\xa0") // "你" in UTF8
-/// buf.write_bytes(b"\xe5\xa5\xbd") // "好" in UTF8
-/// buf.write_bytes(b"\xf0\x9f\x91\x80") // "👀" in UTF8
-/// let chars = @encoding.decode_strict(UTF8, buf.to_bytes())
-/// let arr = chars.iter().collect() // Array of unicode point code: `[Ok('你'), Ok('好'), Ok('👀')]`
-/// let str = chars.to_string() // MoonBit String, representing as UTF16LE: `"你好👀"`
-/// ```
-pub fn decode_strict(encoding : Encoding, src : Bytes) -> StrictChars {
-  let decoder = decoder(encoding, src)
-  decoder
-}
-
-// Implementations
-
-///|
-fn decoder(encoding : Encoding, src : Bytes) -> Decoder {
-  let i = src.to_fixedarray()
+/// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
+/// let decoder = decoder(UTF8)
+/// inspect!(decoder.consume!(inputs[0]), content="abc")
+/// inspect!(decoder.consume!(inputs[1]), content="")
+/// inspect!(decoder.consume!(inputs[2]), content="🐰")
+/// assert_true!(decoder.finish!().is_empty())
+pub fn decoder(encoding : Encoding) -> Decoder {
+  let i = FixedArray::default()
   let i_pos = 0
-  let i_max = src.length() - 1
-  let t = b"\x00\x00\x00\x00".to_fixedarray()
+  let t = FixedArray::make(4, Byte::default())
   let t_len = 0
   let t_need = 0
   let k = match encoding {
@@ -110,11 +64,221 @@ fn decoder(encoding : Encoding, src : Bytes) -> Decoder {
     UTF16LE => decode_utf_16le
     UTF16BE => decode_utf_16be
   }
-  { i, i_pos, i_max, t, t_len, t_need, k }
+  { i, i_pos, t, t_len, t_need, k }
 }
 
 ///|
-fn decode(self : Decoder) -> Decode {
+/// Decode the given byte sequence using the specified `Decoder` and return the resulting string.
+///
+/// This function can work in streaming mode where bytes are consumed incrementally.
+/// When `stream` is `false`, it indicates the end of the input and triggers the final decoding step.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to decode the byte sequence.
+/// - `input`: The byte sequence to be decoded.
+/// - `stream~`: A boolean indicating whether more bytes will be supplied for decoding. It defaults to `false`.
+///
+/// # Returns
+///
+/// A `String` representing the decoded content from the input byte sequence.
+///
+/// # Errors
+///
+/// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
+///
+/// # Examples
+///
+/// ```moonbit
+/// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
+/// let decoder = @encoding.decoder(UTF8)
+/// inspect!(decoder.decode!(inputs[0], stream=true), content="abc")
+/// inspect!(decoder.decode!(inputs[1], stream=true), content="")
+/// inspect!(decoder.decode!(inputs[2], stream=false), content="🐰")
+/// ```
+pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return String::default()
+  }
+
+  // drive decoder to decode
+  let chars = []
+  loop self.decode_() {
+    Uchar(u) => {
+      chars.push(u)
+      continue self.decode_()
+    }
+    Malformed(bs) =>
+      if stream && self.t_need > 0 {
+        String::from_array(chars)
+      } else {
+        raise MalformedError(bs)
+      }
+    End => String::from_array(chars)
+    Refill(t) =>
+      if stream {
+        String::from_array(chars)
+      } else {
+        raise TruncatedError(t)
+      }
+  }
+}
+
+///|
+/// Consume the given byte sequence using the specified `Decoder` and return the resulting string incrementally.
+///
+/// This function calls `decode!` with the `stream` parameter set to `true`, indicating that more bytes will follow for decoding.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to consume the byte sequence.
+/// - `input`: The byte sequence to be consumed and decoded incrementally.
+///
+/// # Returns
+///
+/// A `String` representing the partially decoded content from the input byte sequence, as more bytes are expected.
+///
+/// # Errors
+///
+/// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
+pub fn consume!(self : Decoder, input : Bytes) -> String {
+  self.decode!(input, stream=true)
+}
+
+///|
+/// Finalize the decoding process and return the remaining decoded string.
+///
+/// This function calls `decode!` with the `stream` parameter set to `false`, indicating that no more bytes will be supplied
+/// and triggering the final decoding step to produce the remaining output.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to finalize the decoding process.
+///
+/// # Returns
+///
+/// A `String` representing the final part of the decoded content, after all byte sequences have been processed.
+///
+/// # Errors
+///
+/// `MalformedError`: This error is raised if the remaining byte sequence is not properly formatted according to the specified encoding.
+/// `TruncatedError`: This error is raised if the remaining byte sequence ends prematurely, implying that more data was expected for complete decoding.
+pub fn finish!(self : Decoder) -> String {
+  self.decode!(b"", stream=false)
+}
+
+///|
+/// Decode the given byte sequence using the specified `Decoder` and return the resulting string, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function can work in streaming mode where bytes are consumed incrementally.
+/// When `stream` is `false`, it indicates the end of the input and triggers the final decoding step.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to decode the byte sequence.
+/// - `input`: The byte sequence to be decoded.
+/// - `stream~`: A boolean indicating whether more bytes will be supplied for decoding. It defaults to `false`.
+///
+/// # Returns
+///
+/// A `String` representing the decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`).
+pub fn decode_lossy(
+  self : Decoder,
+  input : Bytes,
+  stream~ : Bool = false
+) -> String {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return String::default()
+  }
+
+  // drive decoder to decode
+  let chars = []
+  loop self.decode_() {
+    Uchar(u) => {
+      chars.push(u)
+      continue self.decode_()
+    }
+    Malformed(_) =>
+      if stream && self.t_need > 0 {
+        String::from_array(chars)
+      } else {
+        chars.push(U_REP)
+        continue self.decode_()
+      }
+    End => String::from_array(chars)
+    Refill(_) =>
+      if stream {
+        String::from_array(chars)
+      } else {
+        continue self.decode_()
+      }
+  }
+}
+
+///|
+/// Consume the given byte sequence using the specified `Decoder` and return the resulting string incrementally, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function calls `decode_lossy` with the `stream` parameter set to `true`, indicating that more bytes will follow for decoding.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to consume and decode the byte sequence.
+/// - `input`: The byte sequence to be consumed and decoded incrementally.
+///
+/// # Returns
+///
+/// A `String` representing the partially decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`), as more bytes are expected.
+pub fn lossy_consume(self : Decoder, input : Bytes) -> String {
+  self.decode_lossy(input, stream=true)
+}
+
+///|
+/// Finalize the lossy decoding process and return the remaining decoded string, replacing any invalid sequences with the Unicode Replacement Character (`U+FFFD`).
+///
+/// This function calls `decode_lossy` with the `stream` parameter set to `false`, indicating that no more bytes will be supplied
+/// and triggering the final decoding step to produce the remaining output.
+///
+/// # Parameters
+///
+/// - `self`: The `Decoder` instance used to finalize the lossy decoding process.
+///
+/// # Returns
+///
+/// A `String` representing the final part of the decoded content, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`), after all byte sequences have been processed.
+pub fn lossy_finish(self : Decoder) -> String {
+  self.decode_lossy(b"", stream=false)
+}
+
+///|
+fn i_cont(self : Decoder, input : Bytes) -> Unit {
+  // concat `input` to `i`, drop decoded `i`
+  let i_rem = @math.maximum(self.i_rem(), 0)
+  let new_len = i_rem + input.length()
+  // init a new `i`
+  let new_i = FixedArray::make(new_len, Byte::default())
+  if i_rem > 0 {
+    // copy the remainder of the old `i` into the new `i`
+    self.i.blit_to(new_i, len=i_rem, src_offset=self.i_pos)
+  }
+  // copy all `input` into new `i`, starting at the remainder of the old `i`
+  new_i.blit_from_bytes(i_rem, input, 0, input.length())
+  self.i = new_i
+  // reset position to starting position
+  self.i_pos = 0
+}
+
+// Implementations
+
+///|
+fn decode_(self : Decoder) -> Decode {
   (self.k)(self)
 }
 
@@ -126,21 +290,7 @@ fn ret(self : Decoder, k : Cont, v : Decode) -> Decode {
 
 ///|
 fn i_rem(self : Decoder) -> Int {
-  self.i_max - self.i_pos + 1
-}
-
-///|
-fn eoi(self : Decoder) -> Unit {
-  self.i = []
-  self.i_pos = 0
-  self.i_max = @int.min_value
-}
-
-///|
-fn refill(self : Decoder, k : Cont) -> Decode {
-  // only Bytes
-  self.eoi()
-  k(self)
+  self.i.length() - self.i_pos
 }
 
 ///|
@@ -150,17 +300,27 @@ fn t_need(self : Decoder, need : Int) -> Unit {
 }
 
 ///|
+fn eoi(self : Decoder) -> Unit {
+  self.i = FixedArray::default()
+}
+
+///|
+fn refill(self : Decoder, k : Cont) -> Decode {
+  self.eoi()
+  self.ret(k, Decode::Refill(Bytes::from_fixedarray(self.t)))
+}
+
+///|
 fn t_fill(k : Cont, decoder : Decoder) -> Decode {
   fn blit(decoder : Decoder, l : Int) -> Unit {
-    FixedArray::unsafe_blit(
-      decoder.i,
-      decoder.i_pos,
+    decoder.i.blit_to(
       decoder.t,
-      decoder.t_len,
-      l,
+      len=l,
+      dst_offset=decoder.t_len,
+      src_offset=decoder.i_pos,
     )
-    decoder.i_pos = decoder.i_pos + 1
-    decoder.t_len = decoder.t_len + 1
+    decoder.i_pos += l
+    decoder.t_len += l
   }
 
   let rem = decoder.i_rem()
@@ -183,50 +343,38 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
 ///|
 fn decode_utf_8(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_8)
-    // rem > 0
-    1 => {
-      let idx = self.i[self.i_pos].to_int()
-      let need = utf_8_len[idx]
-      if rem < need {
-        self.t_need(need)
-        t_fill(t_decode_utf_8, self)
+  if rem <= 0 {
+    Decode::End
+  } else {
+    let idx = self.i[self.i_pos].to_int()
+    let need = utf_8_len[idx]
+    if rem < need {
+      self.t_need(need)
+      t_fill(t_decode_utf_8, self)
+    } else {
+      let j = self.i_pos
+      if need == 0 {
+        self.i_pos += 1
+        self.ret(decode_utf_8, malformed(self.i, j, 1))
       } else {
-        let j = self.i_pos
-        if need == 0 {
-          self.i_pos = self.i_pos + 1
-          self.ret(
-            decode_utf_8,
-            malformed(Bytes::from_fixedarray(self.i), j, 1),
-          )
-        } else {
-          self.i_pos = self.i_pos + need
-          self.ret(
-            decode_utf_8,
-            r_utf_8(Bytes::from_fixedarray(self.i), j, need),
-          )
-        }
+        self.i_pos += need
+        self.ret(decode_utf_8, r_utf_8(self.i, j, need))
       }
     }
-    _ => abort("unreachable")
   }
 }
 
 ///|
 fn t_decode_utf_8(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    malformed(Bytes::from_fixedarray(self.t), 0, self.t_len)
+    self.ret(decode_utf_8, malformed(self.t, 0, self.t_len))
   } else {
-    r_utf_8(Bytes::from_fixedarray(self.t), 0, self.t_len)
+    self.ret(decode_utf_8, r_utf_8(self.t, 0, self.t_len))
   }
 }
 
 ///|
-fn r_utf_8(bytes : Bytes, offset : Int, length : Int) -> Decode {
+fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
   fn uchar(c : Int) {
     Uchar(Char::from_int(c))
   }
@@ -322,45 +470,32 @@ priv enum UTF16Decode {
 ///|
 fn decode_utf_16le(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_16le)
-    // rem > 0
-    1 =>
-      if rem < 2 {
-        self.t_need(2)
-        t_fill(t_decode_utf_16le, self)
-      } else {
-        let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        // mark
-        self.decode_utf_16le_lo(
-          r_utf_16(Bytes::from_fixedarray(self.i), j + 1, j),
-        )
-      }
-    _ => abort("unreachable")
+  if rem <= 0 {
+    Decode::End
+  } else if rem < 2 {
+    self.t_need(2)
+    t_fill(t_decode_utf_16le, self)
+  } else {
+    let j = self.i_pos
+    self.i_pos += 2
+    self.decode_utf_16le_lo(r_utf_16(self.i, j + 1, j))
   }
 }
 
 ///|
 fn t_decode_utf_16le(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16le,
-      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16le, malformed(self.t, 0, self.t_len))
   } else {
-    self.decode_utf_16le_lo(r_utf_16(Bytes::from_fixedarray(self.t), 1, 0))
+    self.decode_utf_16le_lo(r_utf_16(self.t, 1, 0))
   }
 }
 
 ///|
 fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
   match v {
-    UTF16Uchar(u) => Uchar(u)
-    UTF16Malformed(s) => Malformed(s)
+    UTF16Uchar(u) => self.ret(decode_utf_16le, Uchar(u))
+    UTF16Malformed(s) => self.ret(decode_utf_16le, Malformed(s))
     Hi(hi) => {
       let rem = self.i_rem()
       if rem < 2 {
@@ -368,8 +503,12 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16le_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j + 1, j)
+        let dcd = r_utf_16_lo(hi, self.i, j + 1, j)
+        match dcd {
+          Uchar(_) => self.i_pos += 2
+          _ => ()
+        }
+        self.ret(decode_utf_16le, dcd)
       }
     }
   }
@@ -380,42 +519,47 @@ fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
   if decoder.t_len < decoder.t_need {
     decoder.ret(
       decode_utf_16le,
-      malformed_pair(
-        false,
-        hi,
-        Bytes::from_fixedarray(decoder.t),
-        0,
-        decoder.t_len,
-      ),
+      malformed_pair(false, hi, decoder.t, 0, decoder.t_len),
     )
   } else {
-    decoder.ret(
-      decode_utf_16le,
-      r_utf_16_lo(hi, Bytes::from_fixedarray(decoder.t), 1, 0),
-    )
+    decoder.ret(decode_utf_16le, r_utf_16_lo(hi, decoder.t, 1, 0))
   }
 }
 
 ///|
-fn r_utf_16_lo(hi : Int, bytes : Bytes, offset0 : Int, offset1 : Int) -> Decode {
+fn r_utf_16_lo(
+  hi : Int,
+  bytes : FixedArray[Byte],
+  offset0 : Int,
+  offset1 : Int
+) -> Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
   if lo < 0xDC00 || lo > 0xDFFF {
-    malformed_pair(
-      offset0 < offset1,
-      hi,
-      bytes,
-      @math.minimum(offset0, offset1),
-      2,
-    )
+    // NOTE(jinser): only hi malformed, skip lo if lo is illegal
+    //
+    // For example, b"\xD8\x00\x00\x48" (BE)
+    // Since \xD8\x00 is *legal* hi, here will try to parse lo next,
+    // however the whole \xD8\x00\x00\x48 is *illegal* so the result will be a `Malformed[b"\xD8\x00\x00\x48"]`
+    //
+    // But \x00\x48 itself is a *legal* UTF16 code point with a value of `H`,
+    // the ideal result should be: `[Malformed(b"\xD8\x00"), Uchar('H')]`
+    //
+    // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
+    // �H
+    Malformed([bytes[offset0], bytes[offset1]])
   } else {
     Uchar(Char::from_int(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
   }
 }
 
 ///|
-fn r_utf_16(bytes : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
+fn r_utf_16(
+  bytes : FixedArray[Byte],
+  offset0 : Int,
+  offset1 : Int
+) -> UTF16Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let u = (b0 << 8) | b1
@@ -433,36 +577,24 @@ fn r_utf_16(bytes : Bytes, offset0 : Int, offset1 : Int) -> UTF16Decode {
 ///|
 fn decode_utf_16be(self : Decoder) -> Decode {
   let rem = self.i_rem()
-  match rem.compare(0) {
-    // rem < 0
-    -1 => Decode::End
-    // rem = 0
-    0 => self.refill(decode_utf_16be)
-    // rem > 0
-    1 =>
-      if rem < 2 {
-        self.t_need(2)
-        t_fill(t_decode_utf_16be, self)
-      } else {
-        let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        self.decode_utf_16be_lo(
-          r_utf_16(Bytes::from_fixedarray(self.i), j, j + 1),
-        )
-      }
-    _ => abort("unreachable")
+  if rem <= 0 {
+    Decode::End
+  } else if rem < 2 {
+    self.t_need(2)
+    t_fill(t_decode_utf_16be, self)
+  } else {
+    let j = self.i_pos
+    self.i_pos += 2
+    self.decode_utf_16be_lo(r_utf_16(self.i, j, j + 1))
   }
 }
 
 ///|
 fn t_decode_utf_16be(self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16be,
-      malformed(Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16be, malformed(self.t, 0, self.t_len))
   } else {
-    self.decode_utf_16be_lo(r_utf_16(Bytes::from_fixedarray(self.t), 0, 1))
+    self.decode_utf_16be_lo(r_utf_16(self.t, 0, 1))
   }
 }
 
@@ -478,11 +610,12 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
         t_fill(@tuple.curry(t_decode_utf_16be_lo)(hi), self)
       } else {
         let j = self.i_pos
-        self.i_pos = self.i_pos + 2
-        self.ret(
-          decode_utf_16be,
-          r_utf_16_lo(hi, Bytes::from_fixedarray(self.i), j, j + 1),
-        )
+        let dcd = r_utf_16_lo(hi, self.i, j, j + 1)
+        match dcd {
+          Uchar(_) => self.i_pos += 2
+          _ => ()
+        }
+        self.ret(decode_utf_16be, dcd)
       }
     }
   }
@@ -491,14 +624,8 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
 ///|
 fn t_decode_utf_16be_lo(hi : Int, self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(
-      decode_utf_16be,
-      malformed_pair(true, hi, Bytes::from_fixedarray(self.t), 0, self.t_len),
-    )
+    self.ret(decode_utf_16be, malformed_pair(true, hi, self.t, 0, self.t_len))
   } else {
-    self.ret(
-      decode_utf_16be,
-      r_utf_16_lo(hi, Bytes::from_fixedarray(self.t), 0, 1),
-    )
+    self.ret(decode_utf_16be, r_utf_16_lo(hi, self.t, 0, 1))
   }
 }
