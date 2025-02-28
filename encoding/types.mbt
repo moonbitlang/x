@@ -54,6 +54,9 @@ struct Decoder {
   // Continuation
   // Called with a `Decoder` state.
   mut k : Cont
+  // Encoding
+  // Used to estimate buffer size based on input
+  encoding : Encoding
 }
 
 ///|
