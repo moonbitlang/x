@@ -72,7 +72,6 @@ impl PlainDate {
   add_period(Self, Period) -> Self!
   add_weeks(Self, Int64) -> Self!
   add_years(Self, Int64) -> Self!
-  compare(Self, Self) -> Int
   day(Self) -> Int
   days_in_month(Self) -> Int
   days_in_week(Self) -> Int
@@ -86,7 +85,6 @@ impl PlainDate {
   month(Self) -> Int
   months_in_year(Self) -> Int
   of(Int, Int, Int) -> Self!
-  op_equal(Self, Self) -> Bool
   ordinal(Self) -> Int
   to_string(Self) -> String
   to_unix_day(Self) -> Int64
@@ -98,6 +96,8 @@ impl PlainDate {
   with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
+impl Compare for PlainDate
+impl Eq for PlainDate
 impl Show for PlainDate
 
 type PlainDateTime
@@ -201,15 +201,15 @@ impl Show for Zone
 type ZoneOffset
 impl ZoneOffset {
   abbreviation(Self) -> String
-  compare(Self, Self) -> Int
   from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
   of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self!
-  op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String
 }
+impl Compare for ZoneOffset
+impl Eq for ZoneOffset
 impl Show for ZoneOffset
 
 type ZonedDateTime

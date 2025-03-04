@@ -100,7 +100,7 @@ pub fn to_string[T : Show](self : Stack[T]) -> String {
 }
 
 ///|
-pub fn output[T : Show](self : Stack[T], logger : &Logger) -> Unit {
+pub impl[T : Show] Show for Stack[T] with output(self, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
@@ -553,7 +553,7 @@ test "to_array" {
 /// ```
 pub fn equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {
-    self.elements.equal(other.elements)
+    self.elements == other.elements
   } else {
     false
   }
