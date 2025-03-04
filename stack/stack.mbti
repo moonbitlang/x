@@ -21,7 +21,6 @@ impl Stack {
   new[T]() -> Self[T]
   of[T](FixedArray[T]) -> Self[T]
   op_equal[T : Eq](Self[T], Self[T]) -> Bool
-  output[T : Show](Self[T], &Logger) -> Unit
   peek[T](Self[T]) -> T?
   peek_exn[T](Self[T]) -> T
   pop[T](Self[T]) -> T?
@@ -36,6 +35,7 @@ impl Stack {
   unsafe_pop[T](Self[T]) -> T
 }
 impl[T : Default] Default for Stack[T]
+impl[T : Show] Show for Stack[T]
 
 // Type aliases
 

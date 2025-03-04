@@ -86,12 +86,15 @@ pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
 }
 
 ///|
-pub fn ZoneOffset::op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
+pub impl Eq for ZoneOffset with op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }
 
 ///|
-pub fn ZoneOffset::compare(self : ZoneOffset, other : ZoneOffset) -> Int {
+pub impl Compare for ZoneOffset with compare(
+  self : ZoneOffset,
+  other : ZoneOffset
+) -> Int {
   other.seconds - self.seconds
 }
 

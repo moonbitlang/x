@@ -105,12 +105,12 @@ pub impl Show for PlainDate with output(self : PlainDate, logger : &Logger) {
 }
 
 ///|
-pub fn op_equal(self : PlainDate, other : PlainDate) -> Bool {
+pub impl Eq for PlainDate with op_equal(self : PlainDate, other : PlainDate) -> Bool {
   self.compare(other) == 0
 }
 
 ///|
-pub fn compare(self : PlainDate, other : PlainDate) -> Int {
+pub impl Compare for PlainDate with compare(self : PlainDate, other : PlainDate) -> Int {
   if self.year > other.year {
     1
   } else if self.year < other.year {
