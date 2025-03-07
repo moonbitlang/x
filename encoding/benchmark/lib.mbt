@@ -30,7 +30,7 @@ fn random_bytes(
   n : Int,
   write_char : (@buffer.T, Char) -> Unit
 ) -> Bytes {
-  let buf = @buffer.new(size_hint=n)
+  let buf = @buffer.new(size_hint=n * 4)
   for _ in 0..<n {
     write_char(buf, random_chars(rand))
   }

@@ -2,10 +2,6 @@
 
 set -e
 
-gtime() {
-  sudo chrt -f 99 time -f '%e %M %c' $@ -a -o benchlog/bench.log 1> /dev/null
-}
-
 build_moonbit() {
   cd encoding/benchmark
   moon build --target all --release
@@ -14,38 +10,40 @@ build_moonbit() {
 setup() {
   build_moonbit
   mkdir -p benchlog
-  : > benchlog/bench.log
-  echo "prepare sudo for chrt..."
-  sudo true
 }
 
 
 setup
 
 all_bench=$(find encoding/benchmark/ -type d -name '*utf*')
+commit=$(git rev-parse --short HEAD)
 
 echo -e "\n==== wasm ===="
+cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  printf "   wasm(v8) ${bench_name}:\t" | tee -a benchlog/bench.log
-  gtime "moonrun ./target/wasm/release/build/${bench_path}/${bench_name}.wasm"
-  echo "" >> benchlog/bench.log
+  cmds+=("moonrun ./target/wasm/release/build/${bench_path}/${bench_name}.wasm")
+  cmds+=("-n")
+  cmds+=("wasm(v8) ${bench_name}")
 done
-echo "" >> benchlog/bench.log
+hyperfine "${cmds[@]}" --export-json benchlog/wasm.${commit}.json
 
 echo -e "\n==== wasm-gc ===="
+cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  printf "wasm-gc(v8) ${bench_name}:\t" | tee -a benchlog/bench.log
-  gtime "moonrun ./target/wasm-gc/release/build/${bench_path}/${bench_name}.wasm"
-  echo "" >> benchlog/bench.log
+  cmds+=("moonrun ./target/wasm-gc/release/build/${bench_path}/${bench_name}.wasm")
+  cmds+=("-n")
+  cmds+=("wasm-gc(v8) ${bench_name}")
 done
-echo "" >> benchlog/bench.log
+hyperfine "${cmds[@]}" --export-json benchlog/wasm-gc.${commit}.json
 
 echo -e "\n==== js ===="
+cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  printf " js(nodejs) ${bench_name}:\t" | tee -a benchlog/bench.log
-  gtime "node ./target/js/release/build/${bench_path}/${bench_name}.js"
-  echo "" >> benchlog/bench.log
+  cmds+=("node ./target/js/release/build/${bench_path}/${bench_name}.js")
+  cmds+=("-n")
+  cmds+=("js(nodejs) ${bench_name}")
 done
+hyperfine "${cmds[@]}" --export-json benchlog/js.${commit}.json
