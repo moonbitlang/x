@@ -53,48 +53,33 @@ fn random_utf16be(rand : @random.Rand, n : Int) -> Bytes {
 }
 
 ///|
-fn criterion_decoding(
-  criterion : @bm.Criterion,
-  encoding : @encoding.Encoding
-) -> Unit {
-  let (encoding_label, random) = match encoding {
-    UTF8 => ("UTF8", random_utf8)
-    UTF16 | UTF16LE => ("UTF16LE", random_utf16le)
-    UTF16BE => ("UTF16BE", random_utf16be)
+pub fn bench_decoding_streaming(encoding : @encoding.Encoding) -> Unit {
+  let random = match encoding {
+    UTF8 => random_utf8
+    UTF16 | UTF16LE => random_utf16le
+    UTF16BE => random_utf16be
   }
   let rand = @random.new()
-  let test_data = random(rand, 10240000)
+  let test_data = random(rand, 1024000)
   let test_data_group = test_data.to_array().chunks(1000).map(Bytes::from_array)
-
-  // streaming
   let decoder = @encoding.decoder(encoding)
-  criterion.add(
-    @bm.Task::new("decoding streaming [\{encoding_label}]", fn() {
-      for td in test_data_group {
-        guard decoder.consume?(td) is Ok(_)
+  for td in test_data_group {
+    guard decoder.consume?(td) is Ok(_)
 
-      }
-    }),
-  )
-
-  // batch
-  let decoder = @encoding.decoder(encoding)
-  criterion.add(
-    @bm.Task::new("decoding batch [\{encoding_label}]", fn() {
-      guard decoder.decode?(test_data) is Ok(_)
-
-    }),
-  )
+  }
+  println("decoded data \{test_data.length()}")
 }
 
 ///|
-test "benchmark decoding" {
-  let criterion = @bm.Criterion::new()
-  criterion_decoding(criterion, UTF8)
-  criterion_decoding(criterion, UTF16LE)
-  criterion_decoding(criterion, UTF16BE)
-  let result = criterion.run()
-  for r in result {
-    println(r.1.to_string())
+pub fn bench_decoding_batch(encoding : @encoding.Encoding) -> Unit {
+  let random = match encoding {
+    UTF8 => random_utf8
+    UTF16 | UTF16LE => random_utf16le
+    UTF16BE => random_utf16be
   }
+  let rand = @random.new()
+  let test_data = random(rand, 1024000)
+  let decoder = @encoding.decoder(encoding)
+  guard decoder.decode?(test_data) is Ok(_)
+  println("decoded data \{test_data.length()}")
 }
