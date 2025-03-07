@@ -1,7 +1,5 @@
 {
-  "import": [ ],
-  "test-import": [
+  "import": [
     "moonbitlang/x/encoding",
-    { "path": "moonbitlang/x/benchmark", "alias": "bm" }
-  ]
+  ],
 }
