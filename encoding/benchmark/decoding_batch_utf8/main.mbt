@@ -14,5 +14,6 @@
 
 ///|
 fn main {
-  @bench.bench_decoding_batch(UTF8);
+  let seed = @encoding.encode(UTF8, @sys.get_cli_args()[2])
+  @bench.bench_decoding_batch(UTF8, seed)
 }

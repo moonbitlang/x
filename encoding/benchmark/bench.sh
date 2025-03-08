@@ -22,7 +22,8 @@ echo -e "\n==== wasm ===="
 cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  cmds+=("moonrun ./target/wasm/release/build/${bench_path}/${bench_name}.wasm")
+  seed=$(head -c 500 /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9~!@#$%^&*_-' | fold -w 32 | head -n 1)
+  cmds+=("moonrun ./target/wasm/release/build/${bench_path}/${bench_name}.wasm '${seed}'")
   cmds+=("-n")
   cmds+=("wasm(v8) ${bench_name}")
 done
@@ -32,7 +33,8 @@ echo -e "\n==== wasm-gc ===="
 cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  cmds+=("moonrun ./target/wasm-gc/release/build/${bench_path}/${bench_name}.wasm")
+  seed=$(head -c 500 /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9~!@#$%^&*_-' | fold -w 32 | head -n 1)
+  cmds+=("moonrun ./target/wasm-gc/release/build/${bench_path}/${bench_name}.wasm '${seed}'")
   cmds+=("-n")
   cmds+=("wasm-gc(v8) ${bench_name}")
 done
@@ -42,7 +44,8 @@ echo -e "\n==== js ===="
 cmds=()
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
-  cmds+=("node ./target/js/release/build/${bench_path}/${bench_name}.js")
+  seed=$(head -c 500 /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9~!@#$%^&*_-' | fold -w 32 | head -n 1)
+  cmds+=("node ./target/js/release/build/${bench_path}/${bench_name}.js '${seed}'")
   cmds+=("-n")
   cmds+=("js(nodejs) ${bench_name}")
 done
