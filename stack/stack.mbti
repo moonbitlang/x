@@ -3,6 +3,51 @@ package moonbitlang/x/stack
 alias @moonbitlang/core/immut/list as @list
 
 // Values
+fn clear[T](Stack[T]) -> Unit
+
+fn drop[T](Stack[T]) -> Unit
+
+fn drop_result[T](Stack[T]) -> Result[Unit, Unit]
+
+fn each[T](Stack[T], (T) -> Unit) -> Unit
+
+fn equal[T : Eq](Stack[T], Stack[T]) -> Bool
+
+fn fold[T, U](Stack[T], init~ : U, (U, T) -> U) -> U
+
+fn is_empty[T](Stack[T]) -> Bool
+
+fn length[T](Stack[T]) -> Int
+
+fn new[T]() -> Stack[T]
+
+fn of[T](FixedArray[T]) -> Stack[T]
+
+fn op_equal[T : Eq](Stack[T], Stack[T]) -> Bool
+
+fn peek[T](Stack[T]) -> T?
+
+fn peek_exn[T](Stack[T]) -> T
+
+fn pop[T](Stack[T]) -> T?
+
+fn push[T](Stack[T], T) -> Unit
+
+fn push_array[T](Stack[T], Array[T]) -> Unit
+
+fn push_list[T](Stack[T], @list.T[T]) -> Unit
+
+fn push_stack[T](Stack[T], Stack[T]) -> Unit
+
+fn return_with_clear[T](Stack[T]) -> Stack[T]
+
+fn to_array[T : Default](Stack[T]) -> Array[T]
+
+fn to_list[T](Stack[T]) -> @list.T[T]
+
+fn to_string[T : Show](Stack[T]) -> String
+
+fn unsafe_pop[T](Stack[T]) -> T
 
 // Types and methods
 type Stack[T]
