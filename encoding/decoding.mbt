@@ -105,23 +105,25 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
     return String::default()
   }
 
+  // TODO: Estimate size_hint based on input and encoding more accurately
+  let builder = StringBuilder::new(size_hint=input.length())
+
   // drive decoder to decode
-  let chars = []
   loop self.decode_() {
     Uchar(u) => {
-      chars.push(u)
+      builder.write_char(u)
       continue self.decode_()
     }
     Malformed(bs) =>
       if stream && self.t_need > 0 {
-        String::from_array(chars)
+        builder.to_string()
       } else {
         raise MalformedError(bs)
       }
-    End => String::from_array(chars)
+    End => builder.to_string()
     Refill(t) =>
       if stream {
-        String::from_array(chars)
+        builder.to_string()
       } else {
         raise TruncatedError(t)
       }
