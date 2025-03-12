@@ -15,7 +15,7 @@ setup() {
 
 setup
 
-all_bench=$(find encoding/benchmark/ -type d -name '*utf*')
+all_bench=$(find encoding/benchmark/ -type d -name 'decoding*')
 commit=$(git rev-parse --short HEAD)
 
 echo -e "\n==== wasm ===="
