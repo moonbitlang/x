@@ -34,7 +34,7 @@ build_moonbit $d_compare
 build_moonbit .
 mkdir -p benchlog
 
-all_bench=$(find encoding/benchmark/ -type d -name '*utf*')
+all_bench=$(find encoding/benchmark/ -type d -name 'decoding*')
 
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
@@ -68,6 +68,6 @@ for bench_path in $all_bench; do
 done
 
 rm $d_compare -rf
-(for file in benchlog/wasm.*utf*.md; do cat "$file"; echo; done) > "benchlog/wasm.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
-(for file in benchlog/wasm-gc.*utf*.md; do cat "$file"; echo; done) > "benchlog/wasm-gc.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
-(for file in benchlog/js.*utf*.md; do cat "$file"; echo; done) > "benchlog/js.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
+(for file in benchlog/wasm.decoding*.md; do cat "$file"; echo; done) > "benchlog/wasm.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
+(for file in benchlog/wasm-gc.decoding*.md; do cat "$file"; echo; done) > "benchlog/wasm-gc.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
+(for file in benchlog/js.decoding*.md; do cat "$file"; echo; done) > "benchlog/js.${COMMIT_CURRENT}.${COMMIT_COMPARE}.md"
