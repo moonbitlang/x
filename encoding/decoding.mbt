@@ -31,19 +31,6 @@ let utf_8_len = [
 ]
 
 ///|
-fn estimate_utf_16_len(utf_8_bs : FixedArray[Byte]) -> Int {
-  let mut ascii_count = 0
-  let utf_8_bs_len = utf_8_bs.length()
-  for b in utf_8_bs {
-    // ASCII
-    if b <= 0x7F {
-      ascii_count += 1
-    }
-  }
-  utf_8_bs_len + ascii_count
-}
-
-///|
 /// Create and return a `Decoder` for the specified character encoding.
 ///
 /// The `Decoder` consumes byte sequences and decodes them into the original string format.
@@ -77,7 +64,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
     UTF16LE => decode_utf_16le
     UTF16BE => decode_utf_16be
   }
-  { i, i_pos, t, t_len, t_need, k, encoding }
+  { i, i_pos, t, t_len, t_need, k }
 }
 
 ///|
@@ -117,11 +104,9 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
   if self.i_rem() == 0 {
     return String::default()
   }
-  let size_hint = match self.encoding {
-    UTF16 | UTF16LE | UTF16BE => self.i_rem()
-    UTF8 => estimate_utf_16_len(self.i)
-  }
-  let builder = StringBuilder::new(size_hint~)
+
+  // TODO: Estimate size_hint based on input and encoding more accurately
+  let builder = StringBuilder::new(size_hint=input.length())
 
   // drive decoder to decode
   loop self.decode_() {
@@ -215,29 +200,25 @@ pub fn decode_lossy(
   if self.i_rem() == 0 {
     return String::default()
   }
-  let size_hint = match self.encoding {
-    UTF16 | UTF16LE | UTF16BE => self.i_rem()
-    UTF8 => estimate_utf_16_len(self.i)
-  }
-  let builder = StringBuilder::new(size_hint~)
 
   // drive decoder to decode
+  let chars = []
   loop self.decode_() {
     Uchar(u) => {
-      builder.write_char(u)
+      chars.push(u)
       continue self.decode_()
     }
     Malformed(_) =>
       if stream && self.t_need > 0 {
-        builder.to_string()
+        String::from_array(chars)
       } else {
-        builder.write_char(U_REP)
+        chars.push(U_REP)
         continue self.decode_()
       }
-    End => builder.to_string()
+    End => String::from_array(chars)
     Refill(_) =>
       if stream {
-        builder.to_string()
+        String::from_array(chars)
       } else {
         continue self.decode_()
       }
