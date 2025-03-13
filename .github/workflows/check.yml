@@ -65,7 +65,7 @@ jobs:
 
       - name: moon info
         run: |
-          moon info
+          moon info --target wasm,wasm-gc,js,native
           git diff --exit-code
 
       - name: format diff
