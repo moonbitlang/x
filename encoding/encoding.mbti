@@ -5,9 +5,21 @@ alias @moonbitlang/core/buffer as @buffer
 // Values
 const U_REP : Char = '�'
 
+fn consume(Decoder, Bytes) -> String!
+
+fn decode(Decoder, Bytes, stream~ : Bool = ..) -> String!
+
+fn decode_lossy(Decoder, Bytes, stream~ : Bool = ..) -> String
+
 fn decoder(Encoding) -> Decoder
 
 fn encode(Encoding, String) -> Bytes
+
+fn finish(Decoder) -> String!
+
+fn lossy_consume(Decoder, Bytes) -> String
+
+fn lossy_finish(Decoder) -> String
 
 fn to_utf16_bytes(Char) -> Bytes
 
