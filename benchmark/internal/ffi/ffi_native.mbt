@@ -13,16 +13,21 @@
 // limitations under the License.
 
 ///|
-extern type Instant
+type Instant Int64
 
 ///|
-pub fn instant_now() -> Instant {
-  // no implement now
-  panic()
-}
+extern "c" fn sleep(second : Int) = "sleep_second"
 
 ///|
-pub fn instant_elapsed_as_secs_f64(_x : Instant) -> Double {
-  // no implement now
-  panic()
+pub extern "c" fn instant_now() -> Instant = "instant_now"
+
+///|
+pub extern "c" fn instant_elapsed_as_secs_f64(before : Instant) -> Double = "instant_elapsed_as_secs_f64"
+
+///|
+test {
+  let start = instant_now()
+  sleep(1)
+  let elaps = instant_elapsed_as_secs_f64(start)
+  assert_eq!(elaps, 1)
 }
