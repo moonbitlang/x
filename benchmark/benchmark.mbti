@@ -1,6 +1,13 @@
 package moonbitlang/x/benchmark
 
 // Values
+fn add(Criterion, Task) -> Unit
+
+fn output(TaskResult, &Logger) -> Unit
+
+fn run(Task) -> TaskResult
+
+fn to_string(TaskResult) -> String
 
 // Types and methods
 type Criterion

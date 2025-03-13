@@ -1,15 +1,121 @@
 package moonbitlang/x/time
 
 // Values
+fn add_days(Period, Int) -> Period!
+
+fn add_duration(Duration, Duration) -> Duration!
+
+fn add_hours(Duration, Int64) -> Duration!
+
+fn add_minutes(Duration, Int64) -> Duration!
+
+fn add_months(Period, Int) -> Period!
+
+fn add_nanoseconds(Duration, Int64) -> Duration!
+
+fn add_period(Period, Period) -> Period!
+
+fn add_seconds(Duration, Int64) -> Duration!
+
+fn add_weeks(Period, Int) -> Period!
+
+fn add_years(Period, Int) -> Period!
+
+fn at_date(PlainTime, PlainDate) -> PlainDateTime
+
 fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
+fn day(PlainDate) -> Int
+
+fn days(Period) -> Int
+
+fn days_in_month(PlainDate) -> Int
+
+fn days_in_year(PlainDate) -> Int
+
+fn era(PlainDate) -> String
+
+fn era_year(PlainDate) -> Int
+
 fn fixed_zone(String, Int, abbrev~ : String = .., dst~ : Bool = ..) -> Zone!
+
+fn id(ZoneOffset) -> String
+
+fn in_leap_year(PlainDate) -> Bool
+
+fn is_dst(ZoneOffset) -> Bool
+
+fn is_fixed(Zone) -> Bool
+
+fn is_neg(Duration) -> Bool
+
+fn is_zero(Duration) -> Bool
+
+fn month(PlainDate) -> Int
+
+fn months(Period) -> Int
+
+fn multiply(Period, Int) -> Period!
+
+fn nanosecond_of_day(PlainTime) -> Int64
+
+fn nanoseconds(Duration) -> Int
+
+fn negated(Period) -> Period!
+
+fn offset(ZonedDateTime) -> ZoneOffset
+
+fn op_add(Duration, Duration) -> Duration!
+
+fn op_sub(Period, Period) -> Period!
+
+fn ordinal(PlainDate) -> Int
+
+fn second_of_day(PlainTime) -> Int
+
+fn seconds(Duration) -> Int64
+
+fn to_nanoseconds(Duration) -> Int64
+
+fn to_string(Duration) -> String
+
+fn to_total_months(Period) -> Int64
+
+fn to_unix_day(PlainDate) -> Int64
+
+fn to_unix_second(PlainDateTime) -> Int64
 
 fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime!
 
 let utc_offset : ZoneOffset
 
 let utc_zone : Zone
+
+fn weekday(PlainDate) -> Weekday
+
+fn with_day(PlainDate, Int) -> PlainDate!
+
+fn with_days(Period, Int) -> Period
+
+fn with_month(PlainDate, Int) -> PlainDate!
+
+fn with_months(Period, Int) -> Period
+
+fn with_nanoseconds(Duration, Int) -> Duration!
+
+fn with_ordinal(PlainDate, Int) -> PlainDate!
+
+fn with_seconds(Duration, Int64) -> Duration
+
+fn with_year(PlainDate, Int) -> PlainDate!
+
+fn with_years(Period, Int) -> Period
+
+fn year(PlainDate) -> Int
+
+fn years(Period) -> Int
+
+fn zone(ZonedDateTime) -> Zone
 
 // Types and methods
 type Duration
@@ -72,7 +178,6 @@ impl PlainDate {
   add_period(Self, Period) -> Self!
   add_weeks(Self, Int64) -> Self!
   add_years(Self, Int64) -> Self!
-  compare(Self, Self) -> Int
   day(Self) -> Int
   days_in_month(Self) -> Int
   days_in_week(Self) -> Int
@@ -86,7 +191,6 @@ impl PlainDate {
   month(Self) -> Int
   months_in_year(Self) -> Int
   of(Int, Int, Int) -> Self!
-  op_equal(Self, Self) -> Bool
   ordinal(Self) -> Int
   to_string(Self) -> String
   to_unix_day(Self) -> Int64
@@ -98,6 +202,8 @@ impl PlainDate {
   with_year(Self, Int) -> Self!
   year(Self) -> Int
 }
+impl Compare for PlainDate
+impl Eq for PlainDate
 impl Show for PlainDate
 
 type PlainDateTime
@@ -201,15 +307,15 @@ impl Show for Zone
 type ZoneOffset
 impl ZoneOffset {
   abbreviation(Self) -> String
-  compare(Self, Self) -> Int
   from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self!
   id(Self) -> String
   is_dst(Self) -> Bool
   of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self!
-  op_equal(Self, Self) -> Bool
   seconds(Self) -> Int
   to_string(Self) -> String
 }
+impl Compare for ZoneOffset
+impl Eq for ZoneOffset
 impl Show for ZoneOffset
 
 type ZonedDateTime
