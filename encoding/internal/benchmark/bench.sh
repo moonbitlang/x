@@ -3,7 +3,7 @@
 set -e
 
 build_moonbit() {
-  cd encoding/benchmark
+  cd encoding/internal/benchmark
   moon build --target all --release
   cd - > /dev/null
 }
@@ -15,7 +15,7 @@ setup() {
 
 setup
 
-all_bench=$(find encoding/benchmark/ -type d -name 'decoding*')
+all_bench=$(find encoding/internal/benchmark/ -type d -name 'decoding*')
 commit=$(git rev-parse --short HEAD)
 
 echo -e "\n==== wasm ===="
