@@ -2,6 +2,7 @@
 
 ## Pre-requisites
 - [hyperfine](https://github.com/sharkdp/hyperfine)
+- NodeJS
 
 ## Run
 
