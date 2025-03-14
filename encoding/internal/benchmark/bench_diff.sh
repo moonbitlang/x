@@ -12,8 +12,8 @@ hard_reset() {
   cd - > /dev/null
 }
 build_moonbit() {
-  echo "building ${1}/encoding/benchmark"
-  moon build --target all --release -C "${1}/encoding/benchmark"
+  echo "building ${1}/encoding/internal/benchmark"
+  moon build --target all --release -C "${1}/encoding/internal/benchmark"
 }
 
 COMMIT_COMPARE=$1
@@ -34,7 +34,7 @@ build_moonbit $d_compare
 build_moonbit .
 mkdir -p benchlog
 
-all_bench=$(find encoding/benchmark/ -type d -name 'decoding*')
+all_bench=$(find encoding/internal/benchmark/ -type d -name 'decoding*')
 
 for bench_path in $all_bench; do
   bench_name=$(basename $bench_path)
