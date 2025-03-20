@@ -34,11 +34,11 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
         flush(ctx.offset - 1)
         match read_char(ctx) {
           Some('b') => buf.add_char('\b')
-          Some('f') => buf.add_char('\x0C')
+          Some('f') => buf.add_char('\u{0C}')
           Some('n') => buf.add_char('\n')
           Some('r') => buf.add_char('\r')
           Some('t') => buf.add_char('\t')
-          Some('v') => buf.add_char('\x0B')
+          Some('v') => buf.add_char('\u{0B}')
           Some('\'') => buf.add_char('\'')
           Some('"') => buf.add_char('"')
           Some('\\') => buf.add_char('\\')
@@ -52,7 +52,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
                 }
               }
             }
-            buf.add_char('\x00')
+            buf.add_char('\u{00}')
           }
           Some('x') => {
             let c = lex_hex_digits!(ctx, 2)
