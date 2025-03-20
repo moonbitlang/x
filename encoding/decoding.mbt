@@ -131,6 +131,69 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
 }
 
 ///|
+/// Decodes the given byte sequence using the specified decoder and writes the
+/// result directly to a StringBuilder.
+/// Similar to `decode!`, but writes the result to an existing StringBuilder
+/// instead of creating a new String.
+///
+/// Parameters:
+///
+/// * `decoder` : The decoder instance used to decode the byte sequence.
+/// * `input` : The byte sequence to be decoded.
+/// * `output` : The StringBuilder where the decoded content will be written to.
+///
+/// Throws a `MalformedError` when the byte sequence is not properly formatted
+/// according to the specified encoding.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "decode_to" {
+///   let decoder = decoder(UTF8)
+///   let buf = StringBuilder::new()
+///   decoder.decode_to!(b"Hello", buf)
+///   inspect!(buf.to_string(), content="Hello")
+/// }
+/// ```
+pub fn Decoder::decode_to(
+  self : Decoder,
+  input : Bytes,
+  output : StringBuilder,
+  stream~ : Bool = false
+) -> Unit! {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return
+  }
+  // drive decoder to decode
+  loop self.decode_() {
+    Uchar(u) => {
+      output.write_char(u)
+      continue self.decode_()
+    }
+    Malformed(bs) =>
+      if stream && self.t_need > 0 {
+        return
+      } else {
+        raise MalformedError(bs)
+      }
+    End => return
+    Refill(t) => if stream { return } else { raise TruncatedError(t) }
+  }
+}
+
+///|
+pub fn decode_to(
+  input : Bytes,
+  output : StringBuilder,
+  encoding~ : Encoding
+) -> Unit! {
+  decoder(encoding).decode_to!(input, output)
+}
+
+///|
 /// Consume the given byte sequence using the specified `Decoder` and return the resulting string incrementally.
 ///
 /// This function calls `decode!` with the `stream` parameter set to `true`, indicating that more bytes will follow for decoding.
@@ -222,6 +285,38 @@ pub fn decode_lossy(
       } else {
         continue self.decode_()
       }
+  }
+}
+
+///|
+pub fn Decoder::decode_lossy_to(
+  self : Decoder,
+  input : Bytes,
+  output : StringBuilder,
+  stream~ : Bool = false
+) -> Unit {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return
+  }
+
+  // drive decoder to decode
+  loop self.decode_() {
+    Uchar(u) => {
+      output.write_char(u)
+      continue self.decode_()
+    }
+    Malformed(_) =>
+      if stream && self.t_need > 0 {
+        return
+      } else {
+        output.write_char(U_REP)
+        continue self.decode_()
+      }
+    End => return
+    Refill(_) => if stream { return } else { continue self.decode_() }
   }
 }
 
