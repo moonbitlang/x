@@ -50,6 +50,44 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 }
 
 ///|
+/// Encodes a string into the specified character encoding and writes the result
+/// directly into a buffer.
+///
+/// Parameters:
+///
+/// * `string` : The input string to be encoded.
+/// * `buffer` : The buffer where the encoded bytes will be written to.
+/// * `encoding` : The target encoding format. Defaults to UTF8 if not specified.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "encode_to" {
+///   let buf = @buffer.new()
+///   let text = "Hello, world"
+///   @encoding.encode_to(text, buf, encoding=UTF16)
+///   inspect!(buf.to_string(), content="Hello, world")
+/// }
+/// ```
+pub fn encode_to(
+  src : String,
+  buffer : @buffer.T,
+  encoding~ : Encoding
+) -> Unit {
+  match encoding {
+    UTF8 =>
+      for char in src {
+        write_utf8_char(buffer, char)
+      }
+    UTF16BE =>
+      for char in src {
+        write_utf16be_char(buffer, char)
+      }
+    UTF16 | UTF16LE => buffer.write_string(src)
+  }
+}
+
+///|
 /// Converts a Char to UTF-8 bytes.
 ///
 /// Note that this function incurs allocation overhead

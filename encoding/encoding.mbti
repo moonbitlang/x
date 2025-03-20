@@ -11,9 +11,13 @@ fn decode(Decoder, Bytes, stream~ : Bool = ..) -> String!
 
 fn decode_lossy(Decoder, Bytes, stream~ : Bool = ..) -> String
 
+fn decode_to(Bytes, StringBuilder, encoding~ : Encoding) -> Unit!
+
 fn decoder(Encoding) -> Decoder
 
 fn encode(Encoding, String) -> Bytes
+
+fn encode_to(String, @buffer.T, encoding~ : Encoding) -> Unit
 
 fn finish(Decoder) -> String!
 
@@ -43,6 +47,8 @@ impl Decoder {
   consume(Self, Bytes) -> String!
   decode(Self, Bytes, stream~ : Bool = ..) -> String!
   decode_lossy(Self, Bytes, stream~ : Bool = ..) -> String
+  decode_lossy_to(Self, Bytes, StringBuilder, stream~ : Bool = ..) -> Unit
+  decode_to(Self, Bytes, StringBuilder, stream~ : Bool = ..) -> Unit!
   finish(Self) -> String!
   lossy_consume(Self, Bytes) -> String
   lossy_finish(Self) -> String
