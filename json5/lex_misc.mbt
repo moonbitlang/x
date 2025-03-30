@@ -44,7 +44,7 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
         continue
       }
       Some(c) => {
-        if c > '\x7f' && non_ascii_whitespace.contains(c) {
+        if c > '\u{7f}' && non_ascii_whitespace.contains(c) {
           continue
         }
         ctx.offset -= 1

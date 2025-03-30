@@ -105,27 +105,92 @@ pub fn decode!(self : Decoder, input : Bytes, stream~ : Bool = false) -> String 
     return String::default()
   }
 
+  // TODO: Estimate size_hint based on input and encoding more accurately
+  let builder = StringBuilder::new(size_hint=input.length())
+
   // drive decoder to decode
-  let chars = []
   loop self.decode_() {
     Uchar(u) => {
-      chars.push(u)
+      builder.write_char(u)
       continue self.decode_()
     }
     Malformed(bs) =>
       if stream && self.t_need > 0 {
-        String::from_array(chars)
+        builder.to_string()
       } else {
         raise MalformedError(bs)
       }
-    End => String::from_array(chars)
+    End => builder.to_string()
     Refill(t) =>
       if stream {
-        String::from_array(chars)
+        builder.to_string()
       } else {
         raise TruncatedError(t)
       }
   }
+}
+
+///|
+/// Decodes the given byte sequence using the specified decoder and writes the
+/// result directly to a StringBuilder.
+/// Similar to `decode!`, but writes the result to an existing StringBuilder
+/// instead of creating a new String.
+///
+/// Parameters:
+///
+/// * `decoder` : The decoder instance used to decode the byte sequence.
+/// * `input` : The byte sequence to be decoded.
+/// * `output` : The StringBuilder where the decoded content will be written to.
+///
+/// Throws a `MalformedError` when the byte sequence is not properly formatted
+/// according to the specified encoding.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "decode_to" {
+///   let decoder = decoder(UTF8)
+///   let buf = StringBuilder::new()
+///   decoder.decode_to!(b"Hello", buf)
+///   inspect!(buf.to_string(), content="Hello")
+/// }
+/// ```
+pub fn Decoder::decode_to(
+  self : Decoder,
+  input : Bytes,
+  output : StringBuilder,
+  stream~ : Bool = false
+) -> Unit! {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return
+  }
+  // drive decoder to decode
+  loop self.decode_() {
+    Uchar(u) => {
+      output.write_char(u)
+      continue self.decode_()
+    }
+    Malformed(bs) =>
+      if stream && self.t_need > 0 {
+        return
+      } else {
+        raise MalformedError(bs)
+      }
+    End => return
+    Refill(t) => if stream { return } else { raise TruncatedError(t) }
+  }
+}
+
+///|
+pub fn decode_to(
+  input : Bytes,
+  output : StringBuilder,
+  encoding~ : Encoding
+) -> Unit! {
+  decoder(encoding).decode_to!(input, output)
 }
 
 ///|
@@ -220,6 +285,38 @@ pub fn decode_lossy(
       } else {
         continue self.decode_()
       }
+  }
+}
+
+///|
+pub fn Decoder::decode_lossy_to(
+  self : Decoder,
+  input : Bytes,
+  output : StringBuilder,
+  stream~ : Bool = false
+) -> Unit {
+  if input.length() > 0 {
+    self.i_cont(input)
+  }
+  if self.i_rem() == 0 {
+    return
+  }
+
+  // drive decoder to decode
+  loop self.decode_() {
+    Uchar(u) => {
+      output.write_char(u)
+      continue self.decode_()
+    }
+    Malformed(_) =>
+      if stream && self.t_need > 0 {
+        return
+      } else {
+        output.write_char(U_REP)
+        continue self.decode_()
+      }
+    End => return
+    Refill(_) => if stream { return } else { continue self.decode_() }
   }
 }
 

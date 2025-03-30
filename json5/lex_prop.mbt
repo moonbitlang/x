@@ -33,7 +33,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         c == '_' ||
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
-        (c > '\x7f' && non_ascii_id_start.contains(c)) {
+        (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
         let s = lex_ident!(ctx, ctx.offset, buffer~)
@@ -47,7 +47,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
     Some(c) => {
       if (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
-        (c > '\x7f' && non_ascii_id_start.contains(c)) {
+        (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
         let s = lex_ident!(ctx, ctx.offset - 1)
         return String(s)
       }
@@ -82,7 +82,7 @@ fn lex_ident(
           (c >= 'a' && c <= 'z') ||
           (c >= 'A' && c <= 'Z') ||
           (c >= '0' && c <= '9') ||
-          (c > '\x7f' && non_ascii_id_continue.contains(c)) {
+          (c > '\u{7f}' && non_ascii_id_continue.contains(c)) {
           buffer.add_char(c)
           start = ctx.offset
           continue
@@ -97,7 +97,7 @@ fn lex_ident(
         if (c >= 'a' && c <= 'z') ||
           (c >= 'A' && c <= 'Z') ||
           (c >= '0' && c <= '9') ||
-          (c > '\x7f' && non_ascii_id_continue.contains(c)) {
+          (c > '\u{7f}' && non_ascii_id_continue.contains(c)) {
           continue
         }
         ctx.offset -= 1

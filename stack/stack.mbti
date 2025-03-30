@@ -63,7 +63,9 @@ impl Stack {
   from_stack[T](Self[T]) -> Self[T]
   is_empty[T](Self[T]) -> Bool
   length[T](Self[T]) -> Int
+  #deprecated
   new[T]() -> Self[T]
+  #deprecated
   of[T](FixedArray[T]) -> Self[T]
   op_equal[T : Eq](Self[T], Self[T]) -> Bool
   peek[T](Self[T]) -> T?

@@ -112,7 +112,7 @@ fn lex_value(
       }
       Some('\'') => return String(lex_string!(ctx, '\''))
       Some(c) => {
-        if c > '\x7f' && non_ascii_whitespace.contains(c) {
+        if c > '\u{7f}' && non_ascii_whitespace.contains(c) {
           continue
         }
         invalid_char!(ctx, shift=-1)

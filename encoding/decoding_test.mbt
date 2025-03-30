@@ -25,6 +25,19 @@ test "streaming decoding UTF8 rabbit" {
 }
 
 ///|
+test "decode_to/UTF8/stream" {
+  let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(inputs[0], acc, stream=true)
+  inspect!(acc, content="abc")
+  decoder.decode_to!(inputs[1], acc, stream=true)
+  inspect!(acc, content="abc")
+  decoder.decode_to!(inputs[2], acc, stream=true)
+  inspect!(acc, content="abc🐰")
+}
+
+///|
 test "streaming decoding UTF16LE rabbit" {
   // UTF16LE(🐰) == <3DD8 30DC>
   let inputs = [
@@ -38,6 +51,28 @@ test "streaming decoding UTF16LE rabbit" {
   inspect!(decoder.consume!(inputs[4]), content="")
   inspect!(decoder.consume!(inputs[5]), content="🐰")
   assert_true!(decoder.finish!().is_empty())
+}
+
+///|
+test "decode_to/UTF16LE/stream" {
+  // UTF16LE(🐰) == <3DD8 30DC>
+  let inputs = [
+    b"\x3D", b"\xD8\x30\xDC", b"\x3D\xD8", b"\x30\xDC", b"\x3D\xD8\x30", b"\xDC",
+  ]
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(inputs[0], acc, stream=true)
+  inspect!(acc, content="")
+  decoder.decode_to!(inputs[1], acc, stream=true)
+  inspect!(acc, content="🐰")
+  decoder.decode_to!(inputs[2], acc, stream=true)
+  inspect!(acc, content="🐰")
+  decoder.decode_to!(inputs[3], acc, stream=true)
+  inspect!(acc, content="🐰🐰")
+  decoder.decode_to!(inputs[4], acc, stream=true)
+  inspect!(acc, content="🐰🐰")
+  decoder.decode_to!(inputs[5], acc, stream=true)
+  inspect!(acc, content="🐰🐰🐰")
 }
 
 ///|
@@ -205,6 +240,17 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
 }
 
 ///|
+test "decode_to/UTF16LE" {
+  let src = "你好👀"
+  let buf = @buffer.new(size_hint=src.to_bytes().length())
+  buf.write_bytes(src.to_bytes())
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="你好👀")
+}
+
+///|
 test "decoding String (UTF16LE encoded) to String (buffer.write_char)" {
   let src = "👋再见"
   let buf = @buffer.new(size_hint=10)
@@ -249,6 +295,22 @@ test "decoding UTF16 (alias for UTF16LE) encoded data to String" {
 }
 
 ///|
+test "decode_to/UTF16" {
+  let buf = @buffer.new(size_hint=20)
+  buf.write_bytes(b"\x65\x18")
+  buf.write_bytes(b"\x20\x18")
+  buf.write_bytes(b"\x73\x18")
+  buf.write_bytes(b"\x64\x18")
+  buf.write_bytes(b"\x73\x18")
+  buf.write_bytes(b"\x36\x18")
+  buf.write_bytes(b"\x20\x18")
+  let decoder = @encoding.decoder(UTF16)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="ᡥᠠᡳᡤᡳᠶᠠ")
+}
+
+///|
 test "decoding UTF16BE encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
@@ -265,6 +327,19 @@ test "decoding UTF16BE encoded data to String" {
 }
 
 ///|
+test "decode_to/UTF16BE" {
+  let buf = @buffer.new(size_hint=10)
+  buf.write_bytes(b"\xd8\x3d\xdc\x08")
+  buf.write_bytes(b"\xd8\x3d\xdc\x31")
+  buf.write_bytes(b"\xd8\x3d\xdc\x07")
+  buf.write_bytes(b"\xd8\x3d\xdc\x30")
+  let decoder = @encoding.decoder(UTF16BE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="🐈🐱🐇🐰")
+}
+
+///|
 test "decoding UTF8 encoded data to String" {
   let buf = @buffer.new(size_hint=10)
   buf.write_bytes(b"\xe4\xbd\xa0") // 你
@@ -274,6 +349,18 @@ test "decoding UTF8 encoded data to String" {
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode!(buf.to_bytes())
   inspect!(chars, content="你好👀")
+}
+
+///|
+test "decode_to/UTF8" {
+  let buf = @buffer.new(size_hint=10)
+  buf.write_bytes(b"\xe4\xbd\xa0") // 你
+  buf.write_bytes(b"\xe5\xa5\xbd") // 好
+  buf.write_bytes(b"\xf0\x9f\x91\x80") // 👀
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="你好👀")
 }
 
 ///|
@@ -324,6 +411,68 @@ test "decoding UTF16LE encoded data with UTF8" {
 }
 
 ///|
+test "decode_to/UTF16LE-UTF8/MalformedError" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  inspect!(
+    decoder.decode_to?(buf.to_bytes(), acc),
+    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+  )
+}
+
+///|
+test "decode_to/UTF16LE-UTF8/TruncatedError" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  let bytes = buf.to_bytes()
+  let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  let result = decoder.decode_to?(bytes_view, acc)
+  inspect!(
+    result,
+    content="Err(moonbitlang/x/encoding.TruncatedError.TruncatedError)",
+  )
+}
+
+///|
+test "decode_to/UTF16LE-UTF8/stream" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  let bytes = buf.to_bytes()
+  let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  let result = decoder.decode_to?(bytes_view, acc, stream=true)
+  inspect!(result, content="Ok(())")
+  inspect!(acc.to_string(), content="跑步🏃游泳")
+  let result = decoder.decode_to?([bytes[bytes.length() - 1]], acc, stream=true)
+  inspect!(result, content="Ok(())")
+  inspect!(acc.to_string(), content="跑步🏃游泳🏊")
+}
+
+///|
+test "decode_to/empty" {
+  let acc = StringBuilder::new()
+  let decoder = @encoding.decoder(UTF8)
+  decoder.decode_to!("", acc)
+  inspect!(acc.to_string(), content="")
+  @encoding.decode_to!("", acc, encoding=UTF8)
+  inspect!(acc.to_string(), content="")
+}
+
+///|
 test "decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -344,6 +493,20 @@ test "decoding UTF8 encoded data with UTF16LE" {
 }
 
 ///|
+test "decode_to/UTF8-UTF16LE" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf8_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  // NOTE: Happens to be legal UTF16LE
+  inspect!(acc.to_string(), content="럨ꖭ鿰莏룦뎳鿰誏")
+}
+
+///|
 test "decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -360,6 +523,21 @@ test "decoding UTF16BE encoded data with UTF8" {
   assert_true!(chars.is_err())
   inspect!(
     chars,
+    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+  )
+}
+
+///|
+test "decode_to/UTF16BE-UTF8" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16be_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  inspect!(
+    decoder.decode_to?(buf.to_bytes(), acc),
     content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
   )
 }
@@ -385,6 +563,20 @@ test "decoding UTF8 encoded data with UTF16BE" {
 }
 
 ///|
+test "decode_to/UTF8-UTF16BE" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf8_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF16BE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  // NOTE: Happens to be legal UTF16BE
+  inspect!(acc.to_string(), content="釦궥较룦뎳辊")
+}
+
+///|
 test "decoding UTF16LE encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -402,6 +594,20 @@ test "decoding UTF16LE encoded data with UTF16BE" {
     chars.to_array(),
     content="['톍', '敫', '㳘', '쏟', '㡮', '', '㳘', '쫟']",
   )
+}
+
+///|
+test "decode_to/UTF16LE-UTF16BE" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF16BE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  // NOTE: Happens to be legal UTF16BE
+  inspect!(acc.to_string(), content="톍敫㳘쏟㡮㳘쫟")
 }
 
 ///|
@@ -425,6 +631,20 @@ test "decoding UTF16BE encoded data with UTF16LE" {
 }
 
 ///|
+test "decode_to/UTF16BE-UTF16LE" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16be_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  decoder.decode_to!(buf.to_bytes(), acc)
+  // NOTE: Happens to be legal UTF16LE
+  inspect!(acc.to_string(), content="톍敫㳘쏟㡮㳘쫟")
+}
+
+///|
 test "lossy decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
   let buf = @buffer.new(size_hint=10)
@@ -444,6 +664,19 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
 }
 
 ///|
+test "decode_lossy_to/UTF16LE-UTF8" {
+  let src = "跑步🏃游泳🏊"
+  let buf = @buffer.new(size_hint=10)
+  for s in src {
+    @encoding.write_utf16le_char(buf, s)
+  }
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="эek<��n��")
+}
+
+///|
 test "lossy decoding UTF16LE incorrectly encoded data to String" {
   let src = b"\x00\xD8"
   assert_eq!(src, b"\x00\xd8")
@@ -452,6 +685,16 @@ test "lossy decoding UTF16LE incorrectly encoded data to String" {
   inspect!(chars, content="�")
   assert_eq!(chars.length(), 1)
   assert_eq!(chars[0], @encoding.U_REP)
+}
+
+///|
+test "decode_lossy_to/UTF16LE" {
+  let src = b"\x00\xD8"
+  assert_eq!(src, b"\x00\xd8")
+  let decoder = @encoding.decoder(UTF16LE)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(src, acc)
+  inspect!(acc.to_string(), content="�")
 }
 
 ///|
@@ -466,6 +709,16 @@ test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to Strin
 }
 
 ///|
+test "decode_lossy_to/UTF16" {
+  let src = b"\x00\xD8"
+  assert_eq!(src, b"\x00\xd8")
+  let decoder = @encoding.decoder(UTF16)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(src, acc)
+  inspect!(acc.to_string(), content="�")
+}
+
+///|
 test "lossy decoding UTF16BE incorrectly encoded data to String" {
   let src = b"\xD8\x00"
   assert_eq!(src, b"\xd8\x00")
@@ -474,6 +727,16 @@ test "lossy decoding UTF16BE incorrectly encoded data to String" {
   inspect!(chars, content="�")
   assert_eq!(chars.length(), 1)
   assert_eq!(chars[0], @encoding.U_REP)
+}
+
+///|
+test "decode_lossy_to/UTF16BE" {
+  let src = b"\xD8\x00"
+  assert_eq!(src, b"\xd8\x00")
+  let decoder = @encoding.decoder(UTF16BE)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(src, acc)
+  inspect!(acc.to_string(), content="�")
 }
 
 ///|
@@ -491,6 +754,18 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
 }
 
 ///|
+test "decode_lossy_to/UTF16BE" {
+  let src = b"\xD8\x00\x00\x48"
+  assert_eq!(src, b"\xd8\x00\x00\x48")
+  let decoder = @encoding.decoder(UTF16BE)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(src, acc)
+
+  // NOTE(jinser): should decode as many characters as possible
+  inspect!(acc.to_string(), content="�H") // ✅
+}
+
+///|
 /// Well-Formed UTF-8 Byte Sequences
 /// https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G27506
 test "lossy decoding UTF8 incorrectly encoded data to String" {
@@ -501,6 +776,25 @@ test "lossy decoding UTF8 incorrectly encoded data to String" {
   let chars = decoder.decode_lossy(buf.to_bytes())
   inspect!(chars, content="�")
   assert_eq!(chars[0], @encoding.U_REP)
+}
+
+///|
+test "decode_lossy_to/UTF8" {
+  let buf = @buffer.new(size_hint=10)
+  buf.write_bytes(b"\xE0\x9F\x80")
+  assert_eq!(buf.to_bytes(), b"\xe0\x9f\x80")
+  let decoder = @encoding.decoder(UTF8)
+  let acc = StringBuilder::new()
+  decoder.decode_lossy_to(buf.to_bytes(), acc)
+  inspect!(acc.to_string(), content="�")
+}
+
+///|
+test "decode_lossy_to/empty" {
+  let acc = StringBuilder::new()
+  let decoder = @encoding.decoder(UTF8)
+  decoder.decode_lossy_to("", acc)
+  inspect!(acc.to_string(), content="")
 }
 
 ///| https://learn.microsoft.com/en-us/windows/win32/intl/surrogates-and-supplementary-characters
