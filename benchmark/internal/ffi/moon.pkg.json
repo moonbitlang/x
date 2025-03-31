@@ -3,5 +3,8 @@
     "ffi_wasm.mbt": ["wasm", "wasm-gc"],
     "ffi_js.mbt": ["js"],
     "ffi_native.mbt": ["native"]
-  }
+  },
+  "native-stub": [
+    "native_stub.c"
+  ]
 }
