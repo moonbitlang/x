@@ -16,13 +16,13 @@
 extern type Instant
 
 ///|
-pub fn instant_now() -> Instant {
-  // no implement now
-  panic()
-}
+pub extern "c" fn instant_now() -> Instant = "instant_now_ffi"
 
 ///|
-pub fn instant_elapsed_as_secs_f64(_x : Instant) -> Double {
-  // no implement now
-  panic()
+extern "c" fn instant_as_secs_f64_ffi(i : Instant) -> Double = "instant_as_secs_f64_ffi"
+
+///|
+pub fn instant_elapsed_as_secs_f64(i : Instant) -> Double {
+  let now = instant_now()
+  instant_as_secs_f64_ffi(now) - instant_as_secs_f64_ffi(i)
 }
