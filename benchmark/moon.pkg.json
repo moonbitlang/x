@@ -1,5 +1,8 @@
 {
     "import": [
-        "moonbitlang/x/benchmark/internal/ffi"
+        {
+            "path": "moonbitlang/x/benchmark/internal/benchmark_ffi",
+            "alias": "ffi"
+        }
     ]
 }
