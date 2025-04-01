@@ -1,4 +1,4 @@
-package moonbitlang/x/sys/internal/ffi
+package "moonbitlang/x/sys/internal/ffi"
 
 // Values
 fn exit(Int) -> Unit

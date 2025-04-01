@@ -1,4 +1,4 @@
-package moonbitlang/x/fs
+package "moonbitlang/x/fs"
 
 // Values
 fn create_dir(String) -> Unit!

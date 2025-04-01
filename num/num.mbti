@@ -1,4 +1,4 @@
-package moonbitlang/x/num
+package "moonbitlang/x/num"
 
 // Values
 

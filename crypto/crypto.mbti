@@ -1,4 +1,4 @@
-package moonbitlang/x/crypto
+package "moonbitlang/x/crypto"
 
 // Values
 fn bytes_to_hex_string(FixedArray[Byte]) -> String
