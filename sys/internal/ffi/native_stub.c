@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-moonbit_bytes_t* get_env_vars() {
+MOONBIT_FFI_EXPORT moonbit_bytes_t* get_env_vars() {
 #ifdef _WIN32
     // Get environment block
     LPCH env_block = GetEnvironmentStrings();
@@ -98,7 +98,7 @@ moonbit_bytes_t* get_env_vars() {
 #endif
 }
 
-void set_env_var(moonbit_bytes_t key, moonbit_bytes_t value) {
+MOONBIT_FFI_EXPORT void set_env_var(moonbit_bytes_t key, moonbit_bytes_t value) {
 #ifdef _WIN32
     SetEnvironmentVariable(key, value);
 #else
@@ -106,7 +106,7 @@ void set_env_var(moonbit_bytes_t key, moonbit_bytes_t value) {
 #endif
 }
 
-void unset_env_var(moonbit_bytes_t key) {
+MOONBIT_FFI_EXPORT void unset_env_var(moonbit_bytes_t key) {
 #ifdef _WIN32
     SetEnvironmentVariable(key, NULL);
 #else
