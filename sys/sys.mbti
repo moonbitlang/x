@@ -1,4 +1,4 @@
-package moonbitlang/x/sys
+package "moonbitlang/x/sys"
 
 // Values
 fn exit(Int) -> Unit

@@ -1,6 +1,8 @@
-package moonbitlang/x/encoding
+package "moonbitlang/x/encoding"
 
-alias @moonbitlang/core/buffer as @buffer
+import(
+  "moonbitlang/core/buffer"
+)
 
 // Values
 const U_REP : Char = '�'

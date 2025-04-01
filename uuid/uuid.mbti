@@ -1,4 +1,4 @@
-package moonbitlang/x/uuid
+package "moonbitlang/x/uuid"
 
 // Values
 fn as_version(UUID, Version) -> UUID

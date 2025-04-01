@@ -1,4 +1,4 @@
-package moonbitlang/x/internal/ffi
+package "moonbitlang/x/internal/ffi"
 
 // Values
 fn byte_array_from_extern(XExternByteArray) -> Bytes

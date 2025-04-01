@@ -1,4 +1,4 @@
-package moonbitlang/x/benchmark/internal/ffi
+package "moonbitlang/x/benchmark/internal/ffi"
 
 // Values
 fn instant_elapsed_as_secs_f64(Instant) -> Double

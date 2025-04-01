@@ -1,4 +1,4 @@
-package moonbitlang/x/time
+package "moonbitlang/x/time"
 
 // Values
 fn add_days(Period, Int) -> Period!

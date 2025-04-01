@@ -1,6 +1,8 @@
-package moonbitlang/x/stack
+package "moonbitlang/x/stack"
 
-alias @moonbitlang/core/immut/list as @list
+import(
+  "moonbitlang/core/immut/list"
+)
 
 // Values
 fn clear[T](Stack[T]) -> Unit
