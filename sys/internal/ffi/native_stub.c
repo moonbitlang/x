@@ -17,7 +17,7 @@ MOONBIT_FFI_EXPORT moonbit_bytes_t* get_env_vars() {
     // Get environment block
     LPCH env_block = GetEnvironmentStrings();
     if (env_block == NULL) {
-        return moonbit_make_ref_array(0, NULL);
+        return (moonbit_bytes_t *)moonbit_make_ref_array(0, NULL);
     }
 
     // Count variables and create array
