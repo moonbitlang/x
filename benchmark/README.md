@@ -1,5 +1,9 @@
 # moonbitlang/x/benchmark
 
+⚠️Please note that this benchmark is a very temporary implementation and the credibility of the results may be low. Due to the lack of coordination in building the system, we need to measure the time twice (once for calculating Average Time and once for calculating the maximum and minimum values of a single measurement), so there may be situations where the average time is greater than the maximum time
+
+In the future, we will try more effective methods to benchmark
+
 ## Overview
 
 This section provides some benchmark APIs, which are unstable and may be removed or modified at any time.
