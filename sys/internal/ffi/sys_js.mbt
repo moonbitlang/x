@@ -20,7 +20,7 @@ pub fn get_cli_args() -> Array[String] {
 ///|
 extern "js" fn get_cli_args_internal() -> Array[String] =
   #| function() {
-  #|  return process.argv;
+  #|  return process.argv.slice(1);  // node has argv[0] as the node executable
   #| }
 
 ///|
