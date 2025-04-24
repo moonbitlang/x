@@ -16,7 +16,7 @@
 fn internal_get_cli_args() -> FixedArray[Bytes] = "$moonbit.get_cli_args"
 
 ///|
-fn get_cli_args_internal() -> Array[String] {
+pub fn get_cli_args() -> Array[String] {
   Array::from_fixed_array(
     internal_get_cli_args().map(fn {
       // Here we assume that the CLI arguments are encoded in well-formed UTF-8.
@@ -27,7 +27,7 @@ fn get_cli_args_internal() -> Array[String] {
 }
 
 ///|
-fn get_env_vars_internal() -> Map[String, String] {
+pub fn get_env_vars() -> Map[String, String] {
   let env_vars = get_env_vars_ffi().map(fn {
     env => @ffi.utf8_bytes_to_mbt_string(env)
   })
@@ -42,7 +42,7 @@ fn get_env_vars_internal() -> Map[String, String] {
 extern "C" fn get_env_vars_ffi() -> FixedArray[Bytes] = "get_env_vars"
 
 ///|
-fn set_env_var_internal(key : String, value : String) -> Unit {
+pub fn set_env_var(key : String, value : String) -> Unit {
   set_env_var_ffi(
     @ffi.mbt_string_to_utf8_bytes(key, true),
     @ffi.mbt_string_to_utf8_bytes(value, true),
@@ -53,7 +53,7 @@ fn set_env_var_internal(key : String, value : String) -> Unit {
 extern "C" fn set_env_var_ffi(_key : Bytes, _value : Bytes) -> Unit = "set_env_var"
 
 ///|
-fn unset_env_var_internal(key : String) -> Unit {
+pub fn unset_env_var(key : String) -> Unit {
   unset_env_var_ffi(@ffi.mbt_string_to_utf8_bytes(key, true))
 }
 
@@ -61,4 +61,4 @@ fn unset_env_var_internal(key : String) -> Unit {
 extern "C" fn unset_env_var_ffi(_key : Bytes) -> Unit = "unset_env_var"
 
 ///|
-extern "C" fn exit_internal(code : Int) -> Unit = "exit"
+pub extern "C" fn exit(code : Int) -> Unit = "exit"
