@@ -13,14 +13,19 @@
 // limitations under the License.
 
 ///|
+pub fn get_cli_args() -> Array[String] {
+  get_cli_args_internal()
+}
+
+///|
 extern "js" fn get_cli_args_internal() -> Array[String] =
   #| function() {
   #|  return process.argv.slice(1);  // node has argv[0] as the node executable
   #| }
 
 ///|
-fn get_env_vars_internal() -> Map[String, String] {
-  let tmp = get_env_vars_js()
+pub fn get_env_vars() -> Map[String, String] {
+  let tmp = get_env_vars_internal()
   let res = {}
   for i = 0; i < tmp.length(); i = i + 2 {
     res[tmp[i]] = tmp[i + 1]
@@ -29,7 +34,7 @@ fn get_env_vars_internal() -> Map[String, String] {
 }
 
 ///|
-extern "js" fn get_env_vars_js() -> Array[String] =
+extern "js" fn get_env_vars_internal() -> Array[String] =
   #| function() {
   #|   const env = process.env;
   #|   const result = [];
@@ -41,29 +46,29 @@ extern "js" fn get_env_vars_js() -> Array[String] =
   #| }
 
 ///|
-fn set_env_var_internal(key : String, value : String) -> Unit {
-  set_env_var_js(key, value)
+pub fn set_env_var(key : String, value : String) -> Unit {
+  set_env_var_internal(key, value)
 }
 
 ///|
-extern "js" fn set_env_var_js(key : String, value : String) -> Unit =
+extern "js" fn set_env_var_internal(key : String, value : String) -> Unit =
   #| function(key, value) {
   #|   process.env[key] = value;
   #| }
 
 ///|
-fn unset_env_var_internal(key : String) -> Unit {
-  unset_env_var_js(key)
+pub fn unset_env_var(key : String) -> Unit {
+  unset_env_var_internal(key)
 }
 
 ///|
-extern "js" fn unset_env_var_js(key : String) -> Unit =
+extern "js" fn unset_env_var_internal(key : String) -> Unit =
   #| function(key) {
   #|   delete process.env[key];
   #| }
 
 ///|
-extern "js" fn exit_internal(code : Int) -> Unit =
+pub extern "js" fn exit(code : Int) -> Unit =
   #| function(code) {
   #|   process.exit(code);
   #| }
