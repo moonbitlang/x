@@ -63,7 +63,7 @@ pub fn Duration::from_string(str : String) -> Duration!Error {
   for i = 2; i < str.length(); i = i + 1 {
     match str[i] {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' =>
-        buf.write_char(str[i])
+        buf.write_char(Int::unsafe_to_char(str.charcode_at(i)))
       'H' => {
         hours = @strconv.parse!(buf.to_string())
         buf.reset()

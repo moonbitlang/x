@@ -37,7 +37,7 @@ pub fn run(self : Task) -> TaskResult {
 }
 
 ///|
-pub fn to_string(self : TaskResult) -> String {
+pub impl Show for TaskResult with to_string(self) {
   $|Benchmark Task [\{self.task.name}] Count = \{self.task.count}
   $|----------------------------------------
   $|Average Time: \{self.average}s/per test
@@ -47,7 +47,7 @@ pub fn to_string(self : TaskResult) -> String {
 }
 
 ///|
-pub fn output(self : TaskResult, logger : &Logger) -> Unit {
+pub impl Show for TaskResult with output(self, logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

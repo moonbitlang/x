@@ -192,8 +192,8 @@ test "throws on multiple values" {
 
 ///|
 test "throws with control characters escaped in the message" {
-  let res = @json5.parse?("\x01")
-  inspect!(res, content="Err(Invalid character \x01 at line 1, column 0)")
+  let res = @json5.parse?("\u{01}")
+  inspect!(res, content="Err(Invalid character \u{01} at line 1, column 0)")
 }
 
 ///|
