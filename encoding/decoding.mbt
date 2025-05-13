@@ -477,7 +477,7 @@ fn t_decode_utf_8(self : Decoder) -> Decode {
 ///|
 fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
   fn uchar(c : Int) {
-    Uchar(Char::from_int(c))
+    Uchar(Int::unsafe_to_char(c))
   }
 
   match length {
@@ -651,7 +651,7 @@ fn r_utf_16_lo(
     // �H
     Malformed([bytes[offset0], bytes[offset1]])
   } else {
-    Uchar(Char::from_int(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
+    Uchar(Int::unsafe_to_char(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
   }
 }
 
@@ -665,7 +665,7 @@ fn r_utf_16(
   let b1 = bytes[offset1].to_int()
   let u = (b0 << 8) | b1
   if u < 0xD800 || u > 0xDFFF {
-    UTF16Uchar(Char::from_int(u))
+    UTF16Uchar(Int::unsafe_to_char(u))
   } else if u > 0xDBFF {
     UTF16Malformed(slice(bytes, @math.minimum(offset0, offset1), 2))
   } else {

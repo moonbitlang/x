@@ -28,7 +28,7 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
     Some('\\') => {
       lex_assert_char!(ctx, 'u')
       let c = lex_hex_digits!(ctx, 4)
-      let c = Char::from_int(c)
+      let c = Int::unsafe_to_char(c)
       if c == '$' ||
         c == '_' ||
         (c >= 'a' && c <= 'z') ||
@@ -76,7 +76,7 @@ fn lex_ident(
         flush(ctx.offset - 1)
         lex_assert_char!(ctx, 'u')
         let c = lex_hex_digits!(ctx, 4)
-        let c = Char::from_int(c)
+        let c = Int::unsafe_to_char(c)
         if c == '$' ||
           c == '_' ||
           (c >= 'a' && c <= 'z') ||

@@ -3,11 +3,7 @@ package "moonbitlang/x/benchmark"
 // Values
 fn add(Criterion, Task) -> Unit
 
-fn output(TaskResult, &Logger) -> Unit
-
 fn run(Task) -> TaskResult
-
-fn to_string(TaskResult) -> String
 
 // Types and methods
 type Criterion
@@ -29,10 +25,7 @@ pub struct TaskResult {
   max : Double
   min : Double
 }
-impl TaskResult {
-  output(Self, &Logger) -> Unit
-  to_string(Self) -> String
-}
+impl Show for TaskResult
 
 // Type aliases
 
