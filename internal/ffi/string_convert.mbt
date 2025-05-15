@@ -18,11 +18,11 @@ pub fn mbt_string_to_utf8_bytes(str : String, is_filename : Bool) -> Bytes {
   let len = str.length()
   let mut i = 0
   while i < len {
-    let mut c = str[i].to_int()
+    let mut c = str.charcode_at(i)
     if 0xD800 <= c && c <= 0xDBFF {
       c -= 0xD800
       i = i + 1
-      let l = str[i].to_int() - 0xDC00
+      let l = str.charcode_at(i) - 0xDC00
       c = (c << 10) + l + 0x10000
     }
 
@@ -58,14 +58,14 @@ pub fn utf8_bytes_to_mbt_string(bytes : Bytes) -> String {
   while i < len {
     let mut c = bytes[i].to_int()
     if c < 0x80 {
-      res.push(Char::from_int(c))
+      res.push(Int::unsafe_to_char(c))
       i += 1
     } else if c < 0xE0 {
       if i + 1 >= len {
         break
       }
       c = ((c & 0x1F) << 6) | (bytes[i + 1].to_int() & 0x3F)
-      res.push(Char::from_int(c))
+      res.push(Int::unsafe_to_char(c))
       i += 2
     } else if c < 0xF0 {
       if i + 2 >= len {
@@ -74,7 +74,7 @@ pub fn utf8_bytes_to_mbt_string(bytes : Bytes) -> String {
       c = ((c & 0x0F) << 12) |
         ((bytes[i + 1].to_int() & 0x3F) << 6) |
         (bytes[i + 2].to_int() & 0x3F)
-      res.push(Char::from_int(c))
+      res.push(Int::unsafe_to_char(c))
       i += 3
     } else {
       if i + 3 >= len {
@@ -85,8 +85,8 @@ pub fn utf8_bytes_to_mbt_string(bytes : Bytes) -> String {
         ((bytes[i + 2].to_int() & 0x3F) << 6) |
         (bytes[i + 3].to_int() & 0x3F)
       c -= 0x10000
-      res.push(Char::from_int((c >> 10) + 0xD800))
-      res.push(Char::from_int((c & 0x3FF) + 0xDC00))
+      res.push(Int::unsafe_to_char((c >> 10) + 0xD800))
+      res.push(Int::unsafe_to_char((c & 0x3FF) + 0xDC00))
       i += 4
     }
   }

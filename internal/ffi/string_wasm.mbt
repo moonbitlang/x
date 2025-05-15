@@ -34,7 +34,7 @@ fn finish_create_string(handle : XStringCreateHandle) -> XExternString = "__moon
 pub fn string_to_extern(s : String) -> XExternString {
   let handle = begin_create_string()
   for i = 0; i < s.length(); i = i + 1 {
-    string_append_char(handle, s[i])
+    string_append_char(handle, Int::unsafe_to_char(s.charcode_at(i)))
   }
   finish_create_string(handle)
 }
@@ -58,7 +58,7 @@ pub fn string_from_extern(e : XExternString) -> String {
     if ch == -1 {
       break
     } else {
-      buf.write_char(Char::from_int(ch))
+      buf.write_char(Int::unsafe_to_char(ch))
     }
   }
   finish_read_string(handle)

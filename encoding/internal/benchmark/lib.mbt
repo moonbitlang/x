@@ -21,7 +21,7 @@ fn random_chars(rand : @random.Rand) -> Char {
   if i >= 0xD800 && i <= 0xDFFF {
     return random_chars(rand)
   }
-  Char::from_int(i)
+  Int::unsafe_to_char(i)
 }
 
 ///|

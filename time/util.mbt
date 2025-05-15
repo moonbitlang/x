@@ -100,11 +100,11 @@ fn split(s : String, delimiter : Char) -> Array[String] {
   }
   let buf = StringBuilder::new(size_hint=0)
   for i = 0; i < s.length(); i = i + 1 {
-    if s[i] == delimiter {
+    if Int::unsafe_to_char(s.charcode_at(i)) == delimiter {
       spl.push(buf.to_string())
       buf.reset()
     } else {
-      buf.write_char(s[i])
+      buf.write_char(Int::unsafe_to_char(s.charcode_at(i)))
     }
   }
   spl.push(buf.to_string())

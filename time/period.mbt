@@ -46,7 +46,7 @@ pub fn Period::from_string(str : String) -> Period!Error {
   for i = 1; i < str.length(); i = i + 1 {
     match str[i] {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '-' =>
-        buf.write_char(str[i])
+        buf.write_char(Int::unsafe_to_char(str.charcode_at(i)))
       'Y' => {
         years = @strconv.parse!(buf.to_string())
         buf.reset()

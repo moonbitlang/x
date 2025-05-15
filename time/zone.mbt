@@ -127,7 +127,7 @@ fn ascii_to_string(b : FixedArray[Byte], start : Int) -> String {
   let result = StringBuilder::new()
   let mut start = start
   while b[start] != 0 {
-    result.write_char(Char::from_int(b[start].to_int()))
+    result.write_char(Int::unsafe_to_char(b[start].to_int()))
     start += 1
   }
   result.to_string()

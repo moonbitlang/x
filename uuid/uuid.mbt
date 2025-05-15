@@ -95,13 +95,13 @@ test "bytes" {
 }
 
 ///|
-fn hex_char_to_int64(c : Char) -> Int64!Error {
-  let d = if '0' <= c && c <= '9' {
-    c.to_int() - '0'.to_int()
-  } else if 'a' <= c && c <= 'f' {
-    c.to_int() - 'a'.to_int() + 10
-  } else if 'A' <= c && c <= 'F' {
-    c.to_int() - 'A'.to_int() + 10
+fn hex_char_to_int64(c : Int) -> Int64!Error {
+  let d = if '0'.to_int() <= c && c <= '9'.to_int() {
+    c - '0'
+  } else if 'a'.to_int() <= c && c <= 'f'.to_int() {
+    c - 'a' + 10
+  } else if 'A'.to_int() <= c && c <= 'F'.to_int() {
+    c - 'A' + 10
   } else {
     fail!("invalid syntax")
   }
@@ -120,7 +120,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
     if i >= hex.length() {
       fail!("not enough hexadecimal in UUID string")
     }
-    let c = hex[i]
+    let c = hex.charcode_at(i)
     if c == '-' {
       continue hi, i + 1, n
     } else {
@@ -134,7 +134,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
     if i >= hex.length() {
       fail!("not enough hexadecimal in UUID string")
     }
-    let c = hex[i]
+    let c = hex.charcode_at(i)
     if c == '-' {
       continue lo, i + 1, n
     } else {

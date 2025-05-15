@@ -56,11 +56,11 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
           }
           Some('x') => {
             let c = lex_hex_digits!(ctx, 2)
-            buf.add_char(Char::from_int(c))
+            buf.add_char(Int::unsafe_to_char(c))
           }
           Some('u') => {
             let c = lex_hex_digits!(ctx, 4)
-            buf.add_char(Char::from_int(c))
+            buf.add_char(Int::unsafe_to_char(c))
           }
           Some(c) => {
             if c >= '1' && c <= '9' {
