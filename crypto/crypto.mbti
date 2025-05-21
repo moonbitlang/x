@@ -60,7 +60,7 @@ impl ByteSource for FixedArray[Byte]
 impl ByteSource for Bytes
 impl ByteSource for @bytes.View
 
-pub trait CryptoHasher {
+pub(open) trait CryptoHasher {
   size(Self) -> Int
   block_size(Self) -> Int
   reset(Self) -> Unit
