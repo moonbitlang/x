@@ -31,7 +31,7 @@ test {
   )
 
   // buffered
-  let ctx = MD5Context::new()
+  let ctx = MD5::new()
   ctx.update(b"a")
   ctx.update(b"b")
   ctx.update(b"c")
@@ -53,7 +53,7 @@ test {
   )
 
   //buffered
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   ctx.update(b"a".to_fixedarray())
   ctx.update(b"b".to_fixedarray())
   ctx.update(b"c".to_fixedarray())

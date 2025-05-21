@@ -14,6 +14,8 @@ fn[Data : ByteSource] chacha20(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..)
 
 fn[Data : ByteSource] chacha8(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
+fn[H : CryptoHasher] hmac(H, FixedArray[Byte], FixedArray[Byte]) -> FixedArray[Byte]
+
 fn[Data : ByteSource] md5(Data) -> FixedArray[Byte]
 
 fn[Data : ByteSource] sha1(Data) -> FixedArray[Byte]
@@ -33,22 +35,22 @@ fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 fn uints_to_hex_string(Iter[UInt]) -> String
 
 // Types and methods
-type MD5Context
-fn MD5Context::finalize(Self) -> FixedArray[Byte]
-fn MD5Context::new() -> Self
-fn[Data : ByteSource] MD5Context::update(Self, Data) -> Unit
+type MD5
+fn MD5::new() -> Self
+fn[Data : ByteSource] MD5::update(Self, Data) -> Unit
+impl CryptoHasher for MD5
 
-type SM3Context
-fn SM3Context::finalize(Self) -> FixedArray[Byte]
-fn SM3Context::new() -> Self
-fn[Data : ByteSource] SM3Context::update(Self, Data) -> Unit
-fn SM3Context::update_from_iter(Self, Iter[Byte]) -> Unit
+type SHA256
+fn SHA256::new(reg~ : FixedArray[UInt] = ..) -> Self
+fn[Data : ByteSource] SHA256::update(Self, Data) -> Unit
+fn SHA256::update_from_iter(Self, Iter[Byte]) -> Unit
+impl CryptoHasher for SHA256
 
-type Sha256Context
-fn Sha256Context::finalize(Self) -> FixedArray[Byte]
-fn Sha256Context::new(reg~ : FixedArray[UInt] = ..) -> Self
-fn[Data : ByteSource] Sha256Context::update(Self, Data) -> Unit
-fn Sha256Context::update_from_iter(Self, Iter[Byte]) -> Unit
+type SM3
+fn SM3::new() -> Self
+fn[Data : ByteSource] SM3::update(Self, Data) -> Unit
+fn SM3::update_from_iter(Self, Iter[Byte]) -> Unit
+impl CryptoHasher for SM3
 
 // Type aliases
 
@@ -57,4 +59,12 @@ trait ByteSource
 impl ByteSource for FixedArray[Byte]
 impl ByteSource for Bytes
 impl ByteSource for @bytes.View
+
+pub trait CryptoHasher {
+  size(Self) -> Int
+  block_size(Self) -> Int
+  reset(Self) -> Unit
+  update(Self, FixedArray[Byte]) -> Unit
+  finalize(Self) -> FixedArray[Byte]
+}
 
