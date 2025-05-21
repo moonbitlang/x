@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-trait CryptoHasher {
+pub trait CryptoHasher {
   /// Returns the byte-length of hash output
   size(Self) -> Int
   /// Returns the underlying block size of the hasher
