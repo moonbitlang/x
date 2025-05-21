@@ -13,8 +13,8 @@
 // limitations under the License.
 
 ///|
-struct Sha256Context {
-  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+struct SHA256 {
+  mut reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
   mut buf : FixedArray[Byte]
   mut buf_index : Int
@@ -22,12 +22,12 @@ struct Sha256Context {
 
 ///| Instantiate a Sha256 context
 /// `reg` is the initial hash value. Defaults to Sha256's.
-pub fn Sha256Context::new(
+pub fn SHA256::new(
   reg~ : FixedArray[UInt] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
     0x5be0cd19,
   ],
-) -> Sha256Context {
+) -> SHA256 {
   { reg, len: 0, buf: FixedArray::make(64, Byte::default()), buf_index: 0 }
 }
 
@@ -46,7 +46,7 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 ]
 
 ///|
-fn pad(self : Sha256Context) -> FixedArray[Byte] {
+fn pad(self : SHA256) -> FixedArray[Byte] {
   let mut cnt = self.buf_index
   self.len += 8UL * cnt.to_uint64()
   self.buf[cnt] = b'\x80'
@@ -73,7 +73,7 @@ fn pad(self : Sha256Context) -> FixedArray[Byte] {
 
 ///|
 fn transform(
-  self : Sha256Context,
+  self : SHA256,
   data : FixedArray[Byte],
   offset~ : Int = 0,
 ) -> FixedArray[UInt] {
@@ -102,15 +102,11 @@ fn transform(
     let big_sigma_1 = rotate_right_u(e, 6) ^
       rotate_right_u(e, 11) ^
       rotate_right_u(e, 25)
-    let t_1 = h +
-      big_sigma_1 +
-      SM3Context::gg_1(e, f, g) +
-      sha256_t[index] +
-      w[index]
+    let t_1 = h + big_sigma_1 + SM3::gg_1(e, f, g) + sha256_t[index] + w[index]
     let big_sigma_0 = rotate_right_u(a, 2) ^
       rotate_right_u(a, 13) ^
       rotate_right_u(a, 22)
-    let t_2 = big_sigma_0 + SM3Context::ff_1(a, b, c)
+    let t_2 = big_sigma_0 + SM3::ff_1(a, b, c)
     h = g
     g = f
     f = e
@@ -132,7 +128,7 @@ fn transform(
 }
 
 ///|
-pub fn update_from_iter(self : Sha256Context, data : Iter[Byte]) -> Unit {
+pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -145,8 +141,16 @@ pub fn update_from_iter(self : Sha256Context, data : Iter[Byte]) -> Unit {
   })
 }
 
+///|
+pub impl CryptoHasher for SHA256 with update(
+  self : SHA256,
+  data : FixedArray[Byte],
+) -> Unit {
+  self.update(data)
+}
+
 ///| update the state of given context from new `data` 
-pub fn[Data : ByteSource] update(self : Sha256Context, data : Data) -> Unit {
+pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -173,7 +177,7 @@ pub fn[Data : ByteSource] update(self : Sha256Context, data : Data) -> Unit {
 
 ///|
 fn sha256_compute(
-  self : Sha256Context,
+  self : SHA256,
   data~ : Iter[Byte] = Iter::empty(),
 ) -> FixedArray[UInt] {
   self.update_from_iter(data)
@@ -186,21 +190,44 @@ fn sha256_compute(
   }
 }
 
+///|
+pub impl CryptoHasher for SHA256 with size(_self : SHA256) -> Int {
+  32
+}
+
+///|
+pub impl CryptoHasher for SHA256 with block_size(_self : SHA256) -> Int {
+  64
+}
+
+///|
+pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
+  self.reg = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+    0x5be0cd19,
+  ]
+  self.len = 0
+  self.buf = FixedArray::make(64, Byte::default())
+  self.buf_index = 0
+}
+
 ///| Compute the Sha256 digest from given Sha256Context
-pub fn finalize(self : Sha256Context) -> FixedArray[Byte] {
+pub impl CryptoHasher for SHA256 with finalize(self : SHA256) -> FixedArray[
+  Byte,
+] {
   arr_u32_to_u8be(self.sha256_compute().iter(), 256)
 }
 
 ///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
 pub fn[Data : ByteSource] sha256(data : Data) -> FixedArray[Byte] {
-  let ctx = Sha256Context::new()
+  let ctx = SHA256::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
 
 ///|
 pub fn sha256_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
-  let ctx = Sha256Context::new()
+  let ctx = SHA256::new()
   let _ = ctx.update_from_iter(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
 }
@@ -209,7 +236,7 @@ pub fn sha256_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
 test {
   // Sha256
   fn sha256_u32(data : FixedArray[Byte]) -> FixedArray[UInt] {
-    let ctx = Sha256Context::new()
+    let ctx = SHA256::new()
     let _ = ctx.update(data)
     ctx.sha256_compute()
   }
@@ -236,12 +263,12 @@ test {
     uints_to_hex_string(sha256_u32(b"\x61\x62\x63".to_fixedarray()).iter()),
   )
   let hash1 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
-  let ctx = Sha256Context::new()
+  let ctx = SHA256::new()
   ctx.update(b"\x61".to_fixedarray())
   ctx.update(b"\x62".to_fixedarray())
   ctx.update(b"\x63".to_fixedarray())
   assert_eq(hash1, bytes_to_hex_string(ctx.finalize()))
-  let ctx = Sha256Context::new()
+  let ctx = SHA256::new()
   let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(FixedArray::make(1, data[i]))
@@ -250,7 +277,7 @@ test {
     bytes_to_hex_string(ctx.finalize()),
     "625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )
-  let ctx = Sha256Context::new()
+  let ctx = SHA256::new()
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
