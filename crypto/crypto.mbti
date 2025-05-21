@@ -9,7 +9,7 @@ fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> Fix
 
 fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
 
-fn finalize(Sha256Context) -> FixedArray[Byte]
+fn hmac[H : CryptoHasher](H, FixedArray[Byte], FixedArray[Byte]) -> FixedArray[Byte]
 
 fn md5(FixedArray[Byte]) -> FixedArray[Byte]
 
@@ -29,35 +29,35 @@ fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
 fn uints_to_hex_string(Iter[UInt]) -> String
 
-fn update(Sha256Context, FixedArray[Byte]) -> Unit
-
-fn update_from_iter(Sha256Context, Iter[Byte]) -> Unit
-
 // Types and methods
-type MD5Context
-impl MD5Context {
-  finalize(Self) -> FixedArray[Byte]
+type MD5
+impl MD5 {
   new() -> Self
-  update(Self, FixedArray[Byte]) -> Unit
 }
+impl CryptoHasher for MD5
 
-type SM3Context
-impl SM3Context {
-  finalize(Self) -> FixedArray[Byte]
-  new() -> Self
-  update(Self, FixedArray[Byte]) -> Unit
-  update_from_iter(Self, Iter[Byte]) -> Unit
-}
-
-type Sha256Context
-impl Sha256Context {
-  finalize(Self) -> FixedArray[Byte]
+type SHA256
+impl SHA256 {
   new(reg~ : FixedArray[UInt] = ..) -> Self
-  update(Self, FixedArray[Byte]) -> Unit
   update_from_iter(Self, Iter[Byte]) -> Unit
 }
+impl CryptoHasher for SHA256
+
+type SM3
+impl SM3 {
+  new() -> Self
+  update_from_iter(Self, Iter[Byte]) -> Unit
+}
+impl CryptoHasher for SM3
 
 // Type aliases
 
 // Traits
+pub(open) trait CryptoHasher {
+  size(Self) -> Int
+  block_size(Self) -> Int
+  reset(Self) -> Unit
+  update(Self, FixedArray[Byte]) -> Unit
+  finalize(Self) -> FixedArray[Byte]
+}
 

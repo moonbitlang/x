@@ -17,15 +17,15 @@
 // SM3 is as secure as SHA256, providing similar performance. https://doi.org/10.3390/electronics8091033
 
 ///|
-struct SM3Context {
-  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+struct SM3 {
+  mut reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
   mut buf : FixedArray[Byte]
   mut buf_index : Int
 }
 
 ///| Instantiate a SM3 context
-pub fn SM3Context::new() -> SM3Context {
+pub fn SM3::new() -> SM3 {
   {
     reg: [
       0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
@@ -55,41 +55,41 @@ let t : FixedArray[UInt] = [ // pre calculated
 // FF_j = | X xor Y xor Z                       where 0 <= j <= 15
 //        | (X and Y) or (X and Z) or (Y and Z) where 16 <= j <=63
 ///|
-fn SM3Context::ff_0(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::ff_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
 }
 
 ///|
-fn SM3Context::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
   (x & y) | (x & z) | (y & z)
 }
 
 // GG_j = | X xor Y xor Z           where 0 <= j <= 15
 //        | (X and Y) or (~X and Z) where 16 <= j <= 63
 ///|
-fn SM3Context::gg_0(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::gg_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
 }
 
 ///|
-fn SM3Context::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
   ((y ^ z) & x) ^ z // equivalent of (x & y) | (x.lnot() & z), but faster
 }
 
 // P_0 = X xor (X <<< 9) xor (X <<< 17)
 // P_1 = X xor (X <<< 15) xor (X <<< 23)
 ///|
-fn SM3Context::p_0(x : UInt) -> UInt {
+fn SM3::p_0(x : UInt) -> UInt {
   x ^ rotate_left_u(x, 9) ^ rotate_left_u(x, 17)
 }
 
 ///|
-fn SM3Context::p_1(x : UInt) -> UInt {
+fn SM3::p_1(x : UInt) -> UInt {
   x ^ rotate_left_u(x, 15) ^ rotate_left_u(x, 23)
 }
 
 ///|
-fn SM3Context::pad(self : SM3Context) -> FixedArray[Byte] {
+fn SM3::pad(self : SM3) -> FixedArray[Byte] {
   let mut cnt = self.buf_index
   self.len += 8UL * cnt.to_uint64()
   self.buf[cnt] = b'\x80'
@@ -115,8 +115,8 @@ fn SM3Context::pad(self : SM3Context) -> FixedArray[Byte] {
 }
 
 ///|
-fn SM3Context::transform(
-  self : SM3Context,
+fn SM3::transform(
+  self : SM3,
   data : FixedArray[Byte],
   offset~ : Int = 0
 ) -> FixedArray[UInt] {
@@ -134,7 +134,7 @@ fn SM3Context::transform(
     w_0[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
   }
   for index = 16; index < 68; index = index + 1 {
-    w_0[index] = SM3Context::p_1(
+    w_0[index] = SM3::p_1(
         w_0[index - 16] ^ w_0[index - 9] ^ rotate_left_u(w_0[index - 3], 15),
       ) ^
       rotate_left_u(w_0[index - 13], 7) ^
@@ -154,8 +154,8 @@ fn SM3Context::transform(
   for index = 0; index < 16; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = SM3Context::ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = SM3Context::gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    let tt_1 = SM3::ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = SM3::gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
     c1 = rotate_left_u(b1, 9)
     b1 = a1
@@ -163,13 +163,13 @@ fn SM3Context::transform(
     h1 = g1
     g1 = rotate_left_u(f1, 19)
     f1 = e1
-    e1 = SM3Context::p_0(tt_2)
+    e1 = SM3::p_0(tt_2)
   }
   for index = 16; index < 64; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = SM3Context::ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = SM3Context::gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
+    let tt_1 = SM3::ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
+    let tt_2 = SM3::gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
     d1 = c1
     c1 = rotate_left_u(b1, 9)
     b1 = a1
@@ -177,7 +177,7 @@ fn SM3Context::transform(
     h1 = g1
     g1 = rotate_left_u(f1, 19)
     f1 = e1
-    e1 = SM3Context::p_0(tt_2)
+    e1 = SM3::p_0(tt_2)
   }
   a = a ^ a1
   b = b ^ b1
@@ -195,10 +195,7 @@ fn SM3Context::transform(
 }
 
 ///|
-pub fn SM3Context::update_from_iter(
-  self : SM3Context,
-  data : Iter[Byte]
-) -> Unit {
+pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -212,7 +209,7 @@ pub fn SM3Context::update_from_iter(
 }
 
 ///| update the state of given context from new `data` 
-pub fn SM3Context::update(self : SM3Context, data : FixedArray[Byte]) -> Unit {
+pub impl CryptoHasher for SM3 with update(self : SM3, data : FixedArray[Byte]) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -239,7 +236,7 @@ pub fn SM3Context::update(self : SM3Context, data : FixedArray[Byte]) -> Unit {
 
 ///|
 fn sm3_compute(
-  self : SM3Context,
+  self : SM3,
   data~ : Iter[Byte] = Iter::empty()
 ) -> FixedArray[UInt] {
   self.update_from_iter(data)
@@ -252,21 +249,42 @@ fn sm3_compute(
   }
 }
 
+///|
+pub impl CryptoHasher for SM3 with size(_self : SM3) -> Int {
+  32
+}
+
+///|
+pub impl CryptoHasher for SM3 with block_size(_self : SM3) -> Int {
+  64
+}
+
+///|
+pub impl CryptoHasher for SM3 with reset(self : SM3) -> Unit {
+  self.reg = [
+    0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
+    0xB0FB0E4E,
+  ]
+  self.len = 0
+  self.buf = FixedArray::make(64, 0)
+  self.buf_index = 0
+}
+
 ///| Compute the SM3 digest from given SM3Context
-pub fn SM3Context::finalize(self : SM3Context) -> FixedArray[Byte] {
+pub impl CryptoHasher for SM3 with finalize(self : SM3) -> FixedArray[Byte] {
   arr_u32_to_u8be(self.sm3_compute().iter(), 256)
 }
 
 ///| Compute the SM3 digest in `FixedArray[Byte]` of some `data`. Note that SM3 is big-endian.
 pub fn sm3(data : FixedArray[Byte]) -> FixedArray[Byte] {
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
 
 ///|
 pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   let _ = ctx.update_from_iter(data)
   arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
 }
@@ -274,7 +292,7 @@ pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
 ///|
 test {
   fn sm3_u32(data : FixedArray[Byte]) -> FixedArray[UInt] {
-    let ctx = SM3Context::new()
+    let ctx = SM3::new()
     let _ = ctx.update(data)
     ctx.sm3_compute()
   }
@@ -301,12 +319,12 @@ test {
     uints_to_hex_string(sm3_u32(b"\x61\x62\x63".to_fixedarray()).iter()),
   )
   let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   ctx.update(b"\x61".to_fixedarray())
   ctx.update(b"\x62".to_fixedarray())
   ctx.update(b"\x63".to_fixedarray())
   assert_eq!(hash1, bytes_to_hex_string(ctx.finalize()))
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(FixedArray::make(1, data[i]))
@@ -315,7 +333,7 @@ test {
     bytes_to_hex_string(ctx.finalize()),
     "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
-  let ctx = SM3Context::new()
+  let ctx = SM3::new()
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
