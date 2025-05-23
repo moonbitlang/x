@@ -488,7 +488,7 @@ test "decoding UTF8 encoded data with UTF16LE" {
   // NOTE: Happens to be legal UTF16LE
   inspect!(
     chars.iter().collect(),
-    content="['럨', '', 'ꖭ', '鿰', '莏', '룦', '', '뎳', '鿰', '誏']",
+    content="['럨', '\\u{e691}', 'ꖭ', '鿰', '莏', '룦', '\\u{e6b8}', '뎳', '鿰', '誏']",
   )
 }
 
@@ -558,7 +558,7 @@ test "decoding UTF8 encoded data with UTF16BE" {
   // NOTE: Happens to be legal UTF16BE
   inspect!(
     chars.to_array(),
-    content="['', '釦', '궥', '', '较', '', '룦', '뎳', '', '辊']",
+    content="['\\u{e8b7}', '釦', '궥', '\\u{f09f}', '较', '\\u{e6b8}', '룦', '뎳', '\\u{f09f}', '辊']",
   )
 }
 
@@ -592,7 +592,7 @@ test "decoding UTF16LE encoded data with UTF16BE" {
   // NOTE: Happens to be legal UTF16BE
   inspect!(
     chars.to_array(),
-    content="['톍', '敫', '㳘', '쏟', '㡮', '', '㳘', '쫟']",
+    content="['톍', '敫', '㳘', '쏟', '㡮', '\\u{f36c}', '㳘', '쫟']",
   )
 }
 
@@ -626,7 +626,7 @@ test "decoding UTF16BE encoded data with UTF16LE" {
   // NOTE: Happens to be legal UTF16LE
   inspect!(
     chars.to_array(),
-    content="['톍', '敫', '㳘', '쏟', '㡮', '', '㳘', '쫟']",
+    content="['톍', '敫', '㳘', '쏟', '㡮', '\\u{f36c}', '㳘', '쫟']",
   )
 }
 
