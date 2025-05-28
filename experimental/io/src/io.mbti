@@ -1,0 +1,15 @@
+package "moonbitlang/io"
+
+fn print(@string.View) -> Unit
+
+fn println(@string.View) -> Unit
+
+fn eprint(@string.View) -> Unit
+
+fn eprintln(@string.View) -> Unit
+
+fn read_char() -> Char!
+
+fn read_line() -> String!
+
+fn is_eof(Error) -> Bool
