@@ -71,7 +71,6 @@ fn write_bytes_to_file_internal(path : String, content : Bytes) -> Unit! {
     @ffi.byte_array_to_extern(content),
   )
   guard res != -1 else { raise IOError(get_error_message()) }
-
 }
 
 ///|
@@ -106,7 +105,6 @@ fn create_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "create
 fn create_dir_internal(path : String) -> Unit! {
   let res = create_dir_ffi(@ffi.string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
-
 }
 
 ///|
@@ -146,7 +144,6 @@ fn remove_file_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "remov
 fn remove_file_internal(path : String) -> Unit! {
   let res = remove_file_ffi(@ffi.string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
-
 }
 
 ///|
@@ -156,5 +153,4 @@ fn remove_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "remove
 fn remove_dir_internal(path : String) -> Unit! {
   let res = remove_dir_ffi(@ffi.string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
-
 }

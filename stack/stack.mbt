@@ -20,13 +20,13 @@
 /// let s : Stack[Int] = Stack::new()
 /// println(s) // Stack::[]
 /// ```
-pub fn new[T]() -> Stack[T] {
+pub fn[T] new() -> Stack[T] {
   { elements: Nil, len: 0 }
 }
 
 ///|
 #deprecated("use `@stack.new()` instead")
-pub fn Stack::new[T]() -> Stack[T] {
+pub fn[T] Stack::new() -> Stack[T] {
   { elements: Nil, len: 0 }
 }
 
@@ -44,7 +44,7 @@ test "new" {
 /// let s = Stack::from_list(@immut/list.of([1, 2, 3]))
 /// println(s) // Stack::[1, 2, 3]
 /// ```
-pub fn Stack::from_list[T](list : @immut/list.T[T]) -> Stack[T] {
+pub fn[T] Stack::from_list(list : @immut/list.T[T]) -> Stack[T] {
   { elements: list, len: list.length() }
 }
 
@@ -63,7 +63,7 @@ test "from_list" {
 /// let s = Stack::from_array([1, 2, 3])
 /// println(s) // Stack::from_array([3, 2, 1])
 /// ```
-pub fn Stack::from_array[T](array : Array[T]) -> Stack[T] {
+pub fn[T] Stack::from_array(array : Array[T]) -> Stack[T] {
   { elements: @immut/list.from_array(array), len: array.length() }
 }
 
@@ -83,12 +83,12 @@ test "from_array" {
 /// println(s) // Stack::of([3, 2, 1])
 /// ```
 #deprecated("use `@stack.of()` instead")
-pub fn Stack::of[T](array : FixedArray[T]) -> Stack[T] {
+pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
   { elements: @immut/list.of(array), len: array.length() }
 }
 
 ///|
-pub fn of[T](array : FixedArray[T]) -> Stack[T] {
+pub fn[T] of(array : FixedArray[T]) -> Stack[T] {
   { elements: @immut/list.of(array), len: array.length() }
 }
 
@@ -100,7 +100,7 @@ test "of" {
 }
 
 ///|
-pub fn to_string[T : Show](self : Stack[T]) -> String {
+pub fn[T : Show] to_string(self : Stack[T]) -> String {
   let mut res = "Stack::["
   self.elements.eachi(fn(i, t) {
     if i > 0 {
@@ -132,7 +132,7 @@ test "to_string" {
 /// let s1 = Stack::from_stack(s)
 /// println(s1) // output: Stack::[3, 2, 1]
 /// ```
-pub fn Stack::from_stack[T](other : Stack[T]) -> Stack[T] {
+pub fn[T] Stack::from_stack(other : Stack[T]) -> Stack[T] {
   { ..other }
 }
 
@@ -152,7 +152,7 @@ test "from_stack" {
 /// s.clear()
 /// println(s) // Stack::[]
 /// ```
-pub fn clear[T](self : Stack[T]) -> Unit {
+pub fn[T] clear(self : Stack[T]) -> Unit {
   self.elements = Nil
   self.len = 0
 }
@@ -172,7 +172,7 @@ test "clear" {
 /// let s = Stack::of([1, 2, 3]).return_with_clear()
 /// println(s) // Stack::[]
 /// ```
-pub fn return_with_clear[T](self : Stack[T]) -> Stack[T] {
+pub fn[T] return_with_clear(self : Stack[T]) -> Stack[T] {
   self.clear()
   self
 }
@@ -192,7 +192,7 @@ test "return_with_clear" {
 /// s.push(1)
 /// println(s) // Stack::[1]
 /// ```
-pub fn push[T](self : Stack[T], x : T) -> Unit {
+pub fn[T] push(self : Stack[T], x : T) -> Unit {
   self.elements = Cons(x, self.elements)
   self.len = self.len + 1
 }
@@ -214,7 +214,7 @@ test "push" {
 /// s.push_list(@immut/list.of[1, 2, 3])
 /// println(s) // Stack::[3, 2, 1]
 /// ```
-pub fn push_list[T](self : Stack[T], list : @immut/list.T[T]) -> Unit {
+pub fn[T] push_list(self : Stack[T], list : @immut/list.T[T]) -> Unit {
   list.each(fn(i) { self.push(i) })
 }
 
@@ -236,7 +236,7 @@ test "push_list" {
 /// s1.push_stack(s)
 /// println(s1) // Stack::[1, 2, 3]
 /// ```
-pub fn push_stack[T](self : Stack[T], stack : Stack[T]) -> Unit {
+pub fn[T] push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
   stack.elements.each(fn(i) { self.push(i) })
 }
 
@@ -258,7 +258,7 @@ test "push_stack" {
 /// s.push_array([1, 2, 3])
 /// println(s) // Stack::[3, 2, 1]
 /// ```
-pub fn push_array[T](self : Stack[T], array : Array[T]) -> Unit {
+pub fn[T] push_array(self : Stack[T], array : Array[T]) -> Unit {
   array.each(fn(i) { self.push(i) })
 }
 
@@ -282,7 +282,7 @@ test "push_array" {
 /// println(s) // Stack::[2, 3]
 /// println(s1.pop()) // None
 /// ```
-pub fn pop[T](self : Stack[T]) -> T? {
+pub fn[T] pop(self : Stack[T]) -> T? {
   match self.elements {
     Cons(hd, tl) => {
       self.elements = tl
@@ -318,7 +318,7 @@ test "pop" {
 /// println(s1.unsafe_pop()) // abort.
 /// ```
 /// @alert unsafe "Panic if the stack is empty."
-pub fn unsafe_pop[T](self : Stack[T]) -> T {
+pub fn[T] unsafe_pop(self : Stack[T]) -> T {
   match self.elements {
     Cons(hd, tl) => {
       self.elements = tl
@@ -347,7 +347,7 @@ test "unsafe_pop" {
 /// s.drop()
 /// println(s) // Stack::[2, 3]
 /// ```
-pub fn drop[T](self : Stack[T]) -> Unit {
+pub fn[T] drop(self : Stack[T]) -> Unit {
   match self.elements {
     Cons(_hd, tl) => {
       self.elements = tl
@@ -374,7 +374,7 @@ test "drop" {
 /// let s = Stack::of([1, 2, 3])
 /// let r = s.drop_result() // Ok(())
 /// ```
-pub fn drop_result[T](self : Stack[T]) -> Result[Unit, Unit] {
+pub fn[T] drop_result(self : Stack[T]) -> Result[Unit, Unit] {
   match self.elements {
     Cons(_hd, tl) => {
       self.elements = tl
@@ -405,7 +405,7 @@ test "drop_result" {
 /// println(s.peek()) // Some(1)
 /// println(s) // Stack::[1, 2, 3]
 /// ```
-pub fn peek[T](self : Stack[T]) -> T? {
+pub fn[T] peek(self : Stack[T]) -> T? {
   match self.elements {
     Cons(hd, _) => Some(hd)
     Nil => None
@@ -433,7 +433,7 @@ test "peek" {
 /// println(s) // Stack::[1, 2, 3]
 /// ```
 /// @alert unsafe "Panic if the stack is empty."
-pub fn peek_exn[T](self : Stack[T]) -> T {
+pub fn[T] peek_exn(self : Stack[T]) -> T {
   match self.elements {
     Cons(hd, _) => hd
     Nil => abort("top of the empty stack")
@@ -456,7 +456,7 @@ test "peek_exn" {
 /// println(Stack::of([1, 2, 3]).is_empty()) // false
 /// println(Stack::new().is_empty()) // true
 /// ```
-pub fn is_empty[T](self : Stack[T]) -> Bool {
+pub fn[T] is_empty(self : Stack[T]) -> Bool {
   self.len == 0
 }
 
@@ -468,7 +468,7 @@ test "is_empty" {
 }
 
 ///| Returns the number of elements of the Stack
-pub fn length[T](self : Stack[T]) -> Int {
+pub fn[T] length(self : Stack[T]) -> Int {
   self.len
 }
 
@@ -479,7 +479,7 @@ pub fn length[T](self : Stack[T]) -> Int {
 /// let s = Stack::of([1, 2, 3])
 /// s.each(fn(i) { println(i) })'
 /// ```
-pub fn each[T](self : Stack[T], f : (T) -> Unit) -> Unit {
+pub fn[T] each(self : Stack[T], f : (T) -> Unit) -> Unit {
   self.elements.each(f)
 }
 
@@ -510,7 +510,7 @@ test "iter" {
 /// let sum = s.fold(~init=0, fn(acc, i) { acc + i })
 /// println(sum) // 6
 /// ```
-pub fn fold[T, U](self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
+pub fn[T, U] fold(self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
   self.elements.fold(init~, f)
 }
 
@@ -528,7 +528,7 @@ test "fold" {
 /// ```
 /// println(Stack::of([1, 2, 3]).to_list()) // @immut/list.of([1, 2, 3])
 /// ```
-pub fn to_list[T](self : Stack[T]) -> @immut/list.T[T] {
+pub fn[T] to_list(self : Stack[T]) -> @immut/list.T[T] {
   self.elements
 }
 
@@ -544,7 +544,7 @@ test "to_list" {
 /// ```
 /// println(Stack::of([1, 2, 3]).to_array()) // [1, 2, 3]
 /// ```
-pub fn to_array[T : Default](self : Stack[T]) -> Array[T] {
+pub fn[T : Default] to_array(self : Stack[T]) -> Array[T] {
   self.elements.to_array()
 }
 
@@ -563,7 +563,7 @@ test "to_array" {
 /// ```
 /// println(Stack::of([2, 4, 6]).equal(Stack::of([2, 4, 6]))) // true
 /// ```
-pub fn equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
+pub fn[T : Eq] equal(self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {
     self.elements == other.elements
   } else {
@@ -572,7 +572,7 @@ pub fn equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
 }
 
 ///|
-pub fn op_equal[T : Eq](self : Stack[T], other : Stack[T]) -> Bool {
+pub fn[T : Eq] op_equal(self : Stack[T], other : Stack[T]) -> Bool {
   self.equal(other)
 }
 
