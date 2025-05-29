@@ -35,27 +35,21 @@ fn update_from_iter(Sha256Context, Iter[Byte]) -> Unit
 
 // Types and methods
 type MD5Context
-impl MD5Context {
-  finalize(Self) -> FixedArray[Byte]
-  new() -> Self
-  update(Self, FixedArray[Byte]) -> Unit
-}
+fn MD5Context::finalize(Self) -> FixedArray[Byte]
+fn MD5Context::new() -> Self
+fn MD5Context::update(Self, FixedArray[Byte]) -> Unit
 
 type SM3Context
-impl SM3Context {
-  finalize(Self) -> FixedArray[Byte]
-  new() -> Self
-  update(Self, FixedArray[Byte]) -> Unit
-  update_from_iter(Self, Iter[Byte]) -> Unit
-}
+fn SM3Context::finalize(Self) -> FixedArray[Byte]
+fn SM3Context::new() -> Self
+fn SM3Context::update(Self, FixedArray[Byte]) -> Unit
+fn SM3Context::update_from_iter(Self, Iter[Byte]) -> Unit
 
 type Sha256Context
-impl Sha256Context {
-  finalize(Self) -> FixedArray[Byte]
-  new(reg~ : FixedArray[UInt] = ..) -> Self
-  update(Self, FixedArray[Byte]) -> Unit
-  update_from_iter(Self, Iter[Byte]) -> Unit
-}
+fn Sha256Context::finalize(Self) -> FixedArray[Byte]
+fn Sha256Context::new(reg~ : FixedArray[UInt] = ..) -> Self
+fn Sha256Context::update(Self, FixedArray[Byte]) -> Unit
+fn Sha256Context::update_from_iter(Self, Iter[Byte]) -> Unit
 
 // Type aliases
 
