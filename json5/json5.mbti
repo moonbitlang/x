@@ -5,9 +5,7 @@ fn parse(String) -> Json!ParseError
 
 // Types and methods
 pub(all) type! ParseError ParseErrorData
-impl ParseError {
-  to_string(Self) -> String
-}
+fn ParseError::to_string(Self) -> String
 impl Show for ParseError
 
 pub(all) enum ParseErrorData {
