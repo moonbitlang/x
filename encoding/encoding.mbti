@@ -46,16 +46,14 @@ fn write_utf8_char(@buffer.T, Char) -> Unit
 
 // Types and methods
 type Decoder
-impl Decoder {
-  consume(Self, @bytes.View) -> String!
-  decode(Self, @bytes.View, stream~ : Bool = ..) -> String!
-  decode_lossy(Self, @bytes.View, stream~ : Bool = ..) -> String
-  decode_lossy_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit
-  decode_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit!
-  finish(Self) -> String!
-  lossy_consume(Self, @bytes.View) -> String
-  lossy_finish(Self) -> String
-}
+fn Decoder::consume(Self, @bytes.View) -> String!
+fn Decoder::decode(Self, @bytes.View, stream~ : Bool = ..) -> String!
+fn Decoder::decode_lossy(Self, @bytes.View, stream~ : Bool = ..) -> String
+fn Decoder::decode_lossy_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit
+fn Decoder::decode_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit!
+fn Decoder::finish(Self) -> String!
+fn Decoder::lossy_consume(Self, @bytes.View) -> String
+fn Decoder::lossy_finish(Self) -> String
 
 pub(all) enum Encoding {
   UTF8

@@ -62,13 +62,12 @@ pub fn bench_decoding_streaming(
     UTF16 | UTF16LE => random_utf16le
     UTF16BE => random_utf16be
   }
-  let rand = @random.new(seed~)
+  let rand = @random.Rand::new(generator=@random.chacha8(seed~))
   let test_data = random(rand, 1024000)
   let test_data_group = test_data.to_array().chunks(1000).map(Bytes::from_array)
   let decoder = @encoding.decoder(encoding)
   for td in test_data_group {
     guard decoder.consume?(td) is Ok(_)
-
   }
   println("decoded data \{test_data.length()}")
 }
@@ -83,7 +82,7 @@ pub fn bench_decoding_batch(
     UTF16 | UTF16LE => random_utf16le
     UTF16BE => random_utf16be
   }
-  let rand = @random.new(seed~)
+  let rand = @random.Rand::new(generator=@random.chacha8(seed~))
   let test_data = random(rand, 1024000)
   let decoder = @encoding.decoder(encoding)
   guard decoder.decode?(test_data) is Ok(_)
