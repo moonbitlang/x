@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-typealias XExternStringArray = @ffi.XExternStringArray
+typealias @ffi.XExternStringArray
 
 ///|
-typealias XExternString = @ffi.XExternString
+typealias @ffi.XExternString
 
 ///|
 pub fn get_cli_args() -> Array[String] {

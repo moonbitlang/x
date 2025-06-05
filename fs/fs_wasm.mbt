@@ -13,13 +13,13 @@
 // limitations under the License.
 
 ///|
-typealias XExternString = @ffi.XExternString
+typealias @ffi.XExternString
 
 ///|
-typealias XExternByteArray = @ffi.XExternByteArray
+typealias @ffi.XExternByteArray
 
 ///|
-typealias XExternStringArray = @ffi.XExternStringArray
+typealias @ffi.XExternStringArray
 
 ///|
 fn get_error_message_ffi() -> XExternString = "__moonbit_fs_unstable" "get_error_message"
