@@ -31,28 +31,19 @@ test "parses empty objects" {
 ///|
 test "parses double string property names" {
   let json = test_parse!("{\"a\":1}")
-  assert_eq!(
-    json,
-    Json::Object(Map::of([("a", Json::Number(1.0))])),
-  )
+  assert_eq!(json, Json::Object(Map::of([("a", Json::Number(1.0))])))
 }
 
 ///|
 test "parses single string property names" {
   let json = test_parse!("{a:1}")
-  assert_eq!(
-    json,
-    Json::Object(Map::of([("a", Json::Number(1.0))])),
-  )
+  assert_eq!(json, Json::Object(Map::of([("a", Json::Number(1.0))])))
 }
 
 ///|
 test "parses unquoted property names" {
   let json = test_parse!("{a:1}")
-  assert_eq!(
-    json,
-    Json::Object(Map::of([("a", Json::Number(1.0))])),
-  )
+  assert_eq!(json, Json::Object(Map::of([("a", Json::Number(1.0))])))
 }
 
 ///|
@@ -75,9 +66,7 @@ test "parses unicode property names" {
   let json = test_parse!("{ùńîċõďë:9}")
   assert_eq!(
     json,
-    Json::Object(
-      Map::of([("ùńîċõďë", Json::Number(9.0))]),
-    ),
+    Json::Object(Map::of([("ùńîċõďë", Json::Number(9.0))])),
   )
 }
 
@@ -99,12 +88,7 @@ test "parses escaped property names" {
 ///|
 test "preserves __proto__ property names" {
   let json = test_parse!("{\"__proto__\":1}")
-  assert_eq!(
-    json,
-    Json::Object(
-      Map::of([("__proto__", Json::Number(1.0))]),
-    ),
-  )
+  assert_eq!(json, Json::Object(Map::of([("__proto__", Json::Number(1.0))])))
 }
 
 ///|
@@ -113,10 +97,7 @@ test "parses multiple properties" {
   assert_eq!(
     json,
     Json::Object(
-      Map::of([
-        ("abc", Json::Number(1.0)),
-        ("def", Json::Number(2.0)),
-      ]),
+      Map::of([("abc", Json::Number(1.0)), ("def", Json::Number(2.0))]),
     ),
   )
 }
@@ -127,14 +108,7 @@ test "parses nested objects" {
   assert_eq!(
     json,
     Json::Object(
-      Map::of([
-        (
-          "a",
-          Json::Object(
-            Map::of([("b", Json::Number(2.0))]),
-          ),
-        ),
-      ]),
+      Map::of([("a", Json::Object(Map::of([("b", Json::Number(2.0))])))]),
     ),
   )
 }
@@ -156,13 +130,7 @@ test "parses array values" {
 ///|
 test "parses multiple array values" {
   let json = test_parse!("[1,2]")
-  assert_eq!(
-    json,
-    Json::Array([
-      Json::Number(1.0),
-      Json::Number(2.0),
-    ]),
-  )
+  assert_eq!(json, Json::Array([Json::Number(1.0), Json::Number(2.0)]))
 }
 
 ///|
@@ -172,10 +140,7 @@ test "parses nested arrays" {
     json,
     Json::Array([
       Json::Number(1.0),
-      Json::Array([
-        Json::Number(2.0),
-        Json::Number(3.0),
-      ]),
+      Json::Array([Json::Number(2.0), Json::Number(3.0)]),
     ]),
   )
 }
@@ -209,11 +174,7 @@ test "parses leading zeroes" {
   let json = test_parse!("[0,0.,0e0]")
   assert_eq!(
     json,
-    Json::Array([
-      Json::Number(0.0),
-      Json::Number(0.0),
-      Json::Number(0.0),
-    ]),
+    Json::Array([Json::Number(0.0), Json::Number(0.0), Json::Number(0.0)]),
   )
 }
 
@@ -248,25 +209,13 @@ test "parses signed numbers" {
 ///|
 test "parses leading decimal points" {
   let json = test_parse!("[.1,.23]")
-  assert_eq!(
-    json,
-    Json::Array([
-      Json::Number(0.1),
-      Json::Number(0.23),
-    ]),
-  )
+  assert_eq!(json, Json::Array([Json::Number(0.1), Json::Number(0.23)]))
 }
 
 ///|
 test "parses fractional numbers" {
   let json = test_parse!("[1.0,1.23]")
-  assert_eq!(
-    json,
-    Json::Array([
-      Json::Number(1.0),
-      Json::Number(1.23),
-    ]),
-  )
+  assert_eq!(json, Json::Array([Json::Number(1.0), Json::Number(1.23)]))
 }
 
 ///|
@@ -373,13 +322,7 @@ test "parses single quoted strings" {
 ///|
 test "parses quotes in strings" {
   let json = test_parse!("[\"\\\"\",\"'\"]")
-  assert_eq!(
-    json,
-    Json::Array([
-      Json::String("\""),
-      Json::String("'"),
-    ]),
-  )
+  assert_eq!(json, Json::Array([Json::String("\""), Json::String("'")]))
 }
 
 ///|

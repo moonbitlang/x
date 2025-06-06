@@ -68,7 +68,6 @@ pub fn bench_decoding_streaming(
   let decoder = @encoding.decoder(encoding)
   for td in test_data_group {
     guard decoder.consume?(td) is Ok(_)
-
   }
   println("decoded data \{test_data.length()}")
 }

@@ -30,7 +30,7 @@ pub(all) enum ParseErrorData {
 pub(all) type! ParseError ParseErrorData
 
 ///|
-fn parse_error[X](data : ParseErrorData) -> X!ParseError {
+fn[X] parse_error(data : ParseErrorData) -> X!ParseError {
   raise ParseError(data)
 }
 

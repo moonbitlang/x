@@ -725,7 +725,10 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
 ///|
 fn t_decode_utf_16be_lo(hi : Int, self : Decoder) -> Decode {
   if self.t_len < self.t_need {
-    self.ret(Decoder::decode_utf_16be, malformed_pair(true, hi, self.t, 0, self.t_len))
+    self.ret(
+      Decoder::decode_utf_16be,
+      malformed_pair(true, hi, self.t, 0, self.t_len),
+    )
   } else {
     self.ret(Decoder::decode_utf_16be, r_utf_16_lo(hi, self.t, 0, 1))
   }

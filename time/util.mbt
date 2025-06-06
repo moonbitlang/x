@@ -153,12 +153,12 @@ test "split" {
 }
 
 ///|
-fn int_overflow_err[T]() -> T!Error {
+fn[T] int_overflow_err() -> T!Error {
   raise Failure("Int overflow")
 }
 
 ///|
-fn int64_overflow_err[T]() -> T!Error {
+fn[T] int64_overflow_err() -> T!Error {
   raise Failure("Int64 overflow")
 }
 
