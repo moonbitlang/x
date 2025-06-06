@@ -61,7 +61,7 @@ pub fn Duration::from_string(str : String) -> Duration!Error {
   let mut nanoseconds = 0L
   let buf = StringBuilder::new(size_hint=0)
   for i = 2; i < str.length(); i = i + 1 {
-    match str[i] {
+    match str.charcode_at(i) {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' =>
         buf.write_char(Int::unsafe_to_char(str.charcode_at(i)))
       'H' => {

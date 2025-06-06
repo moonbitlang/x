@@ -95,7 +95,6 @@ fn write_bytes_to_file_internal(path : String, content : Bytes) -> Unit! {
   }
   guard fflush_ffi(file) == 0 else { raise IOError(get_error_message()) }
   guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
-
 }
 
 ///|
@@ -143,7 +142,6 @@ fn create_dir_internal(path : String) -> Unit! {
   guard create_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }
-
 }
 
 ///|
@@ -174,7 +172,6 @@ fn remove_dir_internal(path : String) -> Unit! {
   guard remove_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }
-
 }
 
 ///|
@@ -185,5 +182,4 @@ fn remove_file_internal(path : String) -> Unit! {
   guard remove_file_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }
-
 }

@@ -5,84 +5,82 @@ import(
 )
 
 // Values
-fn clear[T](Stack[T]) -> Unit
+fn[T] clear(Stack[T]) -> Unit
 
-fn drop[T](Stack[T]) -> Unit
+fn[T] drop(Stack[T]) -> Unit
 
-fn drop_result[T](Stack[T]) -> Result[Unit, Unit]
+fn[T] drop_result(Stack[T]) -> Result[Unit, Unit]
 
-fn each[T](Stack[T], (T) -> Unit) -> Unit
+fn[T] each(Stack[T], (T) -> Unit) -> Unit
 
-fn equal[T : Eq](Stack[T], Stack[T]) -> Bool
+fn[T : Eq] equal(Stack[T], Stack[T]) -> Bool
 
-fn fold[T, U](Stack[T], init~ : U, (U, T) -> U) -> U
+fn[T, U] fold(Stack[T], init~ : U, (U, T) -> U) -> U
 
-fn is_empty[T](Stack[T]) -> Bool
+fn[T] is_empty(Stack[T]) -> Bool
 
-fn length[T](Stack[T]) -> Int
+fn[T] length(Stack[T]) -> Int
 
-fn new[T]() -> Stack[T]
+fn[T] new() -> Stack[T]
 
-fn of[T](FixedArray[T]) -> Stack[T]
+fn[T] of(FixedArray[T]) -> Stack[T]
 
-fn op_equal[T : Eq](Stack[T], Stack[T]) -> Bool
+fn[T : Eq] op_equal(Stack[T], Stack[T]) -> Bool
 
-fn peek[T](Stack[T]) -> T?
+fn[T] peek(Stack[T]) -> T?
 
-fn peek_exn[T](Stack[T]) -> T
+fn[T] peek_exn(Stack[T]) -> T
 
-fn pop[T](Stack[T]) -> T?
+fn[T] pop(Stack[T]) -> T?
 
-fn push[T](Stack[T], T) -> Unit
+fn[T] push(Stack[T], T) -> Unit
 
-fn push_array[T](Stack[T], Array[T]) -> Unit
+fn[T] push_array(Stack[T], Array[T]) -> Unit
 
-fn push_list[T](Stack[T], @list.T[T]) -> Unit
+fn[T] push_list(Stack[T], @list.T[T]) -> Unit
 
-fn push_stack[T](Stack[T], Stack[T]) -> Unit
+fn[T] push_stack(Stack[T], Stack[T]) -> Unit
 
-fn return_with_clear[T](Stack[T]) -> Stack[T]
+fn[T] return_with_clear(Stack[T]) -> Stack[T]
 
-fn to_array[T : Default](Stack[T]) -> Array[T]
+fn[T : Default] to_array(Stack[T]) -> Array[T]
 
-fn to_list[T](Stack[T]) -> @list.T[T]
+fn[T] to_list(Stack[T]) -> @list.T[T]
 
-fn to_string[T : Show](Stack[T]) -> String
+fn[T : Show] to_string(Stack[T]) -> String
 
-fn unsafe_pop[T](Stack[T]) -> T
+fn[T] unsafe_pop(Stack[T]) -> T
 
 // Types and methods
 type Stack[T]
-impl Stack {
-  clear[T](Self[T]) -> Unit
-  drop[T](Self[T]) -> Unit
-  drop_result[T](Self[T]) -> Result[Unit, Unit]
-  each[T](Self[T], (T) -> Unit) -> Unit
-  equal[T : Eq](Self[T], Self[T]) -> Bool
-  fold[T, U](Self[T], init~ : U, (U, T) -> U) -> U
-  from_array[T](Array[T]) -> Self[T]
-  from_list[T](@list.T[T]) -> Self[T]
-  from_stack[T](Self[T]) -> Self[T]
-  is_empty[T](Self[T]) -> Bool
-  length[T](Self[T]) -> Int
-  #deprecated
-  new[T]() -> Self[T]
-  #deprecated
-  of[T](FixedArray[T]) -> Self[T]
-  op_equal[T : Eq](Self[T], Self[T]) -> Bool
-  peek[T](Self[T]) -> T?
-  peek_exn[T](Self[T]) -> T
-  pop[T](Self[T]) -> T?
-  push[T](Self[T], T) -> Unit
-  push_array[T](Self[T], Array[T]) -> Unit
-  push_list[T](Self[T], @list.T[T]) -> Unit
-  push_stack[T](Self[T], Self[T]) -> Unit
-  return_with_clear[T](Self[T]) -> Self[T]
-  to_array[T : Default](Self[T]) -> Array[T]
-  to_list[T](Self[T]) -> @list.T[T]
-  to_string[T : Show](Self[T]) -> String
-  unsafe_pop[T](Self[T]) -> T
-}
+fn[T] Stack::clear(Self[T]) -> Unit
+fn[T] Stack::drop(Self[T]) -> Unit
+fn[T] Stack::drop_result(Self[T]) -> Result[Unit, Unit]
+fn[T] Stack::each(Self[T], (T) -> Unit) -> Unit
+fn[T : Eq] Stack::equal(Self[T], Self[T]) -> Bool
+fn[T, U] Stack::fold(Self[T], init~ : U, (U, T) -> U) -> U
+fn[T] Stack::from_array(Array[T]) -> Self[T]
+fn[T] Stack::from_list(@list.T[T]) -> Self[T]
+fn[T] Stack::from_stack(Self[T]) -> Self[T]
+fn[T] Stack::is_empty(Self[T]) -> Bool
+fn[T] Stack::length(Self[T]) -> Int
+#deprecated
+fn[T] Stack::new() -> Self[T]
+#deprecated
+fn[T] Stack::of(FixedArray[T]) -> Self[T]
+fn[T : Eq] Stack::op_equal(Self[T], Self[T]) -> Bool
+fn[T] Stack::peek(Self[T]) -> T?
+fn[T] Stack::peek_exn(Self[T]) -> T
+fn[T] Stack::pop(Self[T]) -> T?
+fn[T] Stack::push(Self[T], T) -> Unit
+fn[T] Stack::push_array(Self[T], Array[T]) -> Unit
+fn[T] Stack::push_list(Self[T], @list.T[T]) -> Unit
+fn[T] Stack::push_stack(Self[T], Self[T]) -> Unit
+fn[T] Stack::return_with_clear(Self[T]) -> Self[T]
+fn[T : Default] Stack::to_array(Self[T]) -> Array[T]
+fn[T] Stack::to_list(Self[T]) -> @list.T[T]
+fn[T : Show] Stack::to_string(Self[T]) -> String
+fn[T] Stack::unsafe_pop(Self[T]) -> T
 impl[T : Default] Default for Stack[T]
 impl[T : Show] Show for Stack[T]
 

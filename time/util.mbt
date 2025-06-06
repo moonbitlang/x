@@ -28,7 +28,7 @@ fn remove_prefix_zero(s : String) -> String {
     return s
   }
   let mut i = 0
-  while i < s.length() && s[i] == '0' {
+  while i < s.length() && s.charcode_at(i) == '0' {
     i += 1
   }
   if i < s.length() {
@@ -71,7 +71,7 @@ fn remove_suffix_zero(s : String) -> String {
     return s
   }
   let mut i = s.length() - 1
-  while s[i] == '0' && i > 0 {
+  while s.charcode_at(i) == '0' && i > 0 {
     i -= 1
   }
   s.substring(end=i + 1)
@@ -153,12 +153,12 @@ test "split" {
 }
 
 ///|
-fn int_overflow_err[T]() -> T!Error {
+fn[T] int_overflow_err() -> T!Error {
   raise Failure("Int overflow")
 }
 
 ///|
-fn int64_overflow_err[T]() -> T!Error {
+fn[T] int64_overflow_err() -> T!Error {
   raise Failure("Int64 overflow")
 }
 

@@ -19,14 +19,12 @@ fn version(UUID) -> Version?
 
 // Types and methods
 type UUID
-impl UUID {
-  as_version(Self, Version) -> Self
-  hash(Self) -> Int
-  to_bytes(Self) -> Bytes
-  to_string(Self) -> String
-  variant(Self) -> Variant
-  version(Self) -> Version?
-}
+fn UUID::as_version(Self, Version) -> Self
+fn UUID::hash(Self) -> Int
+fn UUID::to_bytes(Self) -> Bytes
+fn UUID::to_string(Self) -> String
+fn UUID::variant(Self) -> Variant
+fn UUID::version(Self) -> Version?
 impl Compare for UUID
 impl Eq for UUID
 impl Show for UUID
