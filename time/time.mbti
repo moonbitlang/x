@@ -119,166 +119,156 @@ fn zone(ZonedDateTime) -> Zone
 
 // Types and methods
 type Duration
-impl Duration {
-  add_duration(Self, Self) -> Self!
-  add_hours(Self, Int64) -> Self!
-  add_minutes(Self, Int64) -> Self!
-  add_nanoseconds(Self, Int64) -> Self!
-  add_seconds(Self, Int64) -> Self!
-  from_string(String) -> Self!
-  is_neg(Self) -> Bool
-  is_zero(Self) -> Bool
-  nanoseconds(Self) -> Int
-  of(hours~ : Int64 = .., minutes~ : Int64 = .., seconds~ : Int64 = .., nanoseconds~ : Int64 = ..) -> Self!
-  op_add(Self, Self) -> Self!
-  seconds(Self) -> Int64
-  to_nanoseconds(Self) -> Int64
-  to_string(Self) -> String
-  with_nanoseconds(Self, Int) -> Self!
-  with_seconds(Self, Int64) -> Self
-  zero() -> Self
-}
+fn Duration::add_duration(Self, Self) -> Self!
+fn Duration::add_hours(Self, Int64) -> Self!
+fn Duration::add_minutes(Self, Int64) -> Self!
+fn Duration::add_nanoseconds(Self, Int64) -> Self!
+fn Duration::add_seconds(Self, Int64) -> Self!
+fn Duration::from_string(String) -> Self!
+fn Duration::is_neg(Self) -> Bool
+fn Duration::is_zero(Self) -> Bool
+fn Duration::nanoseconds(Self) -> Int
+fn Duration::of(hours~ : Int64 = .., minutes~ : Int64 = .., seconds~ : Int64 = .., nanoseconds~ : Int64 = ..) -> Self!
+fn Duration::op_add(Self, Self) -> Self!
+fn Duration::seconds(Self) -> Int64
+fn Duration::to_nanoseconds(Self) -> Int64
+fn Duration::to_string(Self) -> String
+fn Duration::with_nanoseconds(Self, Int) -> Self!
+fn Duration::with_seconds(Self, Int64) -> Self
+fn Duration::zero() -> Self
 impl Compare for Duration
 impl Eq for Duration
 impl Show for Duration
 
 type Period
-impl Period {
-  add_days(Self, Int) -> Self!
-  add_months(Self, Int) -> Self!
-  add_period(Self, Self) -> Self!
-  add_weeks(Self, Int) -> Self!
-  add_years(Self, Int) -> Self!
-  days(Self) -> Int
-  from_string(String) -> Self!
-  is_neg(Self) -> Bool
-  is_zero(Self) -> Bool
-  months(Self) -> Int
-  multiply(Self, Int) -> Self!
-  negated(Self) -> Self!
-  of(years~ : Int = .., months~ : Int = .., days~ : Int = ..) -> Self
-  op_add(Self, Self) -> Self!
-  op_sub(Self, Self) -> Self!
-  to_string(Self) -> String
-  to_total_months(Self) -> Int64
-  with_days(Self, Int) -> Self
-  with_months(Self, Int) -> Self
-  with_years(Self, Int) -> Self
-  years(Self) -> Int
-  zero() -> Self
-}
+fn Period::add_days(Self, Int) -> Self!
+fn Period::add_months(Self, Int) -> Self!
+fn Period::add_period(Self, Self) -> Self!
+fn Period::add_weeks(Self, Int) -> Self!
+fn Period::add_years(Self, Int) -> Self!
+fn Period::days(Self) -> Int
+fn Period::from_string(String) -> Self!
+fn Period::is_neg(Self) -> Bool
+fn Period::is_zero(Self) -> Bool
+fn Period::months(Self) -> Int
+fn Period::multiply(Self, Int) -> Self!
+fn Period::negated(Self) -> Self!
+fn Period::of(years~ : Int = .., months~ : Int = .., days~ : Int = ..) -> Self
+fn Period::op_add(Self, Self) -> Self!
+fn Period::op_sub(Self, Self) -> Self!
+fn Period::to_string(Self) -> String
+fn Period::to_total_months(Self) -> Int64
+fn Period::with_days(Self, Int) -> Self
+fn Period::with_months(Self, Int) -> Self
+fn Period::with_years(Self, Int) -> Self
+fn Period::years(Self) -> Int
+fn Period::zero() -> Self
 impl Compare for Period
 impl Eq for Period
 impl Show for Period
 
 type PlainDate
-impl PlainDate {
-  add_days(Self, Int64) -> Self!
-  add_months(Self, Int64) -> Self!
-  add_period(Self, Period) -> Self!
-  add_weeks(Self, Int64) -> Self!
-  add_years(Self, Int64) -> Self!
-  day(Self) -> Int
-  days_in_month(Self) -> Int
-  days_in_week(Self) -> Int
-  days_in_year(Self) -> Int
-  era(Self) -> String
-  era_year(Self) -> Int
-  from_string(String) -> Self!
-  from_unix_day(Int64) -> Self!
-  from_year_ord(Int, Int) -> Self!
-  in_leap_year(Self) -> Bool
-  month(Self) -> Int
-  months_in_year(Self) -> Int
-  of(Int, Int, Int) -> Self!
-  ordinal(Self) -> Int
-  to_string(Self) -> String
-  to_unix_day(Self) -> Int64
-  until(Self, Self) -> Period!
-  weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!
-  with_month(Self, Int) -> Self!
-  with_ordinal(Self, Int) -> Self!
-  with_year(Self, Int) -> Self!
-  year(Self) -> Int
-}
+fn PlainDate::add_days(Self, Int64) -> Self!
+fn PlainDate::add_months(Self, Int64) -> Self!
+fn PlainDate::add_period(Self, Period) -> Self!
+fn PlainDate::add_weeks(Self, Int64) -> Self!
+fn PlainDate::add_years(Self, Int64) -> Self!
+fn PlainDate::day(Self) -> Int
+fn PlainDate::days_in_month(Self) -> Int
+fn PlainDate::days_in_week(Self) -> Int
+fn PlainDate::days_in_year(Self) -> Int
+fn PlainDate::era(Self) -> String
+fn PlainDate::era_year(Self) -> Int
+fn PlainDate::from_string(String) -> Self!
+fn PlainDate::from_unix_day(Int64) -> Self!
+fn PlainDate::from_year_ord(Int, Int) -> Self!
+fn PlainDate::in_leap_year(Self) -> Bool
+fn PlainDate::month(Self) -> Int
+fn PlainDate::months_in_year(Self) -> Int
+fn PlainDate::of(Int, Int, Int) -> Self!
+fn PlainDate::ordinal(Self) -> Int
+fn PlainDate::to_string(Self) -> String
+fn PlainDate::to_unix_day(Self) -> Int64
+fn PlainDate::until(Self, Self) -> Period!
+fn PlainDate::weekday(Self) -> Weekday
+fn PlainDate::with_day(Self, Int) -> Self!
+fn PlainDate::with_month(Self, Int) -> Self!
+fn PlainDate::with_ordinal(Self, Int) -> Self!
+fn PlainDate::with_year(Self, Int) -> Self!
+fn PlainDate::year(Self) -> Int
 impl Compare for PlainDate
 impl Eq for PlainDate
 impl Show for PlainDate
 
 type PlainDateTime
-impl PlainDateTime {
-  add_days(Self, Int64) -> Self!
-  add_duration(Self, Duration) -> Self!
-  add_hours(Self, Int64) -> Self!
-  add_minutes(Self, Int64) -> Self!
-  add_months(Self, Int64) -> Self!
-  add_nanoseconds(Self, Int64) -> Self!
-  add_period(Self, Period) -> Self!
-  add_seconds(Self, Int64) -> Self!
-  add_weeks(Self, Int64) -> Self!
-  add_years(Self, Int64) -> Self!
-  day(Self) -> Int
-  days_in_month(Self) -> Int
-  days_in_week(Self) -> Int
-  days_in_year(Self) -> Int
-  era(Self) -> String
-  era_year(Self) -> Int
-  from_string(String) -> Self!
-  from_unix_second(Int64, Int, ZoneOffset) -> Self!
-  hour(Self) -> Int
-  in_leap_year(Self) -> Bool
-  minute(Self) -> Int
-  month(Self) -> Int
-  months_in_year(Self) -> Int
-  nanosecond(Self) -> Int
-  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = ..) -> Self!
-  ordinal(Self) -> Int
-  second(Self) -> Int
-  to_plain_date(Self) -> PlainDate
-  to_plain_time(Self) -> PlainTime
-  to_string(Self) -> String
-  to_unix_second(Self) -> Int64
-  weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!
-  with_hour(Self, Int) -> Self!
-  with_minute(Self, Int) -> Self!
-  with_month(Self, Int) -> Self!
-  with_nanosecond(Self, Int) -> Self!
-  with_ordinal(Self, Int) -> Self!
-  with_second(Self, Int) -> Self!
-  with_year(Self, Int) -> Self!
-  year(Self) -> Int
-}
+fn PlainDateTime::add_days(Self, Int64) -> Self!
+fn PlainDateTime::add_duration(Self, Duration) -> Self!
+fn PlainDateTime::add_hours(Self, Int64) -> Self!
+fn PlainDateTime::add_minutes(Self, Int64) -> Self!
+fn PlainDateTime::add_months(Self, Int64) -> Self!
+fn PlainDateTime::add_nanoseconds(Self, Int64) -> Self!
+fn PlainDateTime::add_period(Self, Period) -> Self!
+fn PlainDateTime::add_seconds(Self, Int64) -> Self!
+fn PlainDateTime::add_weeks(Self, Int64) -> Self!
+fn PlainDateTime::add_years(Self, Int64) -> Self!
+fn PlainDateTime::day(Self) -> Int
+fn PlainDateTime::days_in_month(Self) -> Int
+fn PlainDateTime::days_in_week(Self) -> Int
+fn PlainDateTime::days_in_year(Self) -> Int
+fn PlainDateTime::era(Self) -> String
+fn PlainDateTime::era_year(Self) -> Int
+fn PlainDateTime::from_string(String) -> Self!
+fn PlainDateTime::from_unix_second(Int64, Int, ZoneOffset) -> Self!
+fn PlainDateTime::hour(Self) -> Int
+fn PlainDateTime::in_leap_year(Self) -> Bool
+fn PlainDateTime::minute(Self) -> Int
+fn PlainDateTime::month(Self) -> Int
+fn PlainDateTime::months_in_year(Self) -> Int
+fn PlainDateTime::nanosecond(Self) -> Int
+fn PlainDateTime::of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = ..) -> Self!
+fn PlainDateTime::ordinal(Self) -> Int
+fn PlainDateTime::second(Self) -> Int
+fn PlainDateTime::to_plain_date(Self) -> PlainDate
+fn PlainDateTime::to_plain_time(Self) -> PlainTime
+fn PlainDateTime::to_string(Self) -> String
+fn PlainDateTime::to_unix_second(Self) -> Int64
+fn PlainDateTime::weekday(Self) -> Weekday
+fn PlainDateTime::with_day(Self, Int) -> Self!
+fn PlainDateTime::with_hour(Self, Int) -> Self!
+fn PlainDateTime::with_minute(Self, Int) -> Self!
+fn PlainDateTime::with_month(Self, Int) -> Self!
+fn PlainDateTime::with_nanosecond(Self, Int) -> Self!
+fn PlainDateTime::with_ordinal(Self, Int) -> Self!
+fn PlainDateTime::with_second(Self, Int) -> Self!
+fn PlainDateTime::with_year(Self, Int) -> Self!
+fn PlainDateTime::year(Self) -> Int
 impl Compare for PlainDateTime
 impl Eq for PlainDateTime
 impl Show for PlainDateTime
 
 type PlainTime
-impl PlainTime {
-  add_duration(Self, Duration) -> Self!
-  add_hours(Self, Int64) -> Self!
-  add_minutes(Self, Int64) -> Self!
-  add_nanoseconds(Self, Int64) -> Self!
-  add_seconds(Self, Int64) -> Self!
-  at_date(Self, PlainDate) -> PlainDateTime
-  from_nanosecond_of_day(Int64) -> Self!
-  from_second_of_day(Int) -> Self!
-  from_string(String) -> Self!
-  hour(Self) -> Int
-  minute(Self) -> Int
-  nanosecond(Self) -> Int
-  nanosecond_of_day(Self) -> Int64
-  of(Int, Int, Int, Int) -> Self!
-  second(Self) -> Int
-  second_of_day(Self) -> Int
-  to_string(Self) -> String
-  until(Self, Self) -> Duration!
-  with_hour(Self, Int) -> Self!
-  with_minute(Self, Int) -> Self!
-  with_nanosecond(Self, Int) -> Self!
-  with_second(Self, Int) -> Self!
-}
+fn PlainTime::add_duration(Self, Duration) -> Self!
+fn PlainTime::add_hours(Self, Int64) -> Self!
+fn PlainTime::add_minutes(Self, Int64) -> Self!
+fn PlainTime::add_nanoseconds(Self, Int64) -> Self!
+fn PlainTime::add_seconds(Self, Int64) -> Self!
+fn PlainTime::at_date(Self, PlainDate) -> PlainDateTime
+fn PlainTime::from_nanosecond_of_day(Int64) -> Self!
+fn PlainTime::from_second_of_day(Int) -> Self!
+fn PlainTime::from_string(String) -> Self!
+fn PlainTime::hour(Self) -> Int
+fn PlainTime::minute(Self) -> Int
+fn PlainTime::nanosecond(Self) -> Int
+fn PlainTime::nanosecond_of_day(Self) -> Int64
+fn PlainTime::of(Int, Int, Int, Int) -> Self!
+fn PlainTime::second(Self) -> Int
+fn PlainTime::second_of_day(Self) -> Int
+fn PlainTime::to_string(Self) -> String
+fn PlainTime::until(Self, Self) -> Duration!
+fn PlainTime::with_hour(Self, Int) -> Self!
+fn PlainTime::with_minute(Self, Int) -> Self!
+fn PlainTime::with_nanosecond(Self, Int) -> Self!
+fn PlainTime::with_second(Self, Int) -> Self!
 impl Compare for PlainTime
 impl Eq for PlainTime
 impl Show for PlainTime
@@ -296,73 +286,67 @@ impl Eq for Weekday
 impl Show for Weekday
 
 type Zone
-impl Zone {
-  from_tzif2(String, FixedArray[Byte]) -> Self!
-  is_fixed(Self) -> Bool
-  to_string(Self) -> String
-}
+fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self!
+fn Zone::is_fixed(Self) -> Bool
+fn Zone::to_string(Self) -> String
 impl Eq for Zone
 impl Show for Zone
 
 type ZoneOffset
-impl ZoneOffset {
-  abbreviation(Self) -> String
-  from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self!
-  id(Self) -> String
-  is_dst(Self) -> Bool
-  of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self!
-  seconds(Self) -> Int
-  to_string(Self) -> String
-}
+fn ZoneOffset::abbreviation(Self) -> String
+fn ZoneOffset::from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self!
+fn ZoneOffset::id(Self) -> String
+fn ZoneOffset::is_dst(Self) -> Bool
+fn ZoneOffset::of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self!
+fn ZoneOffset::seconds(Self) -> Int
+fn ZoneOffset::to_string(Self) -> String
 impl Compare for ZoneOffset
 impl Eq for ZoneOffset
 impl Show for ZoneOffset
 
 type ZonedDateTime
-impl ZonedDateTime {
-  add_days(Self, Int64) -> Self!
-  add_hours(Self, Int64) -> Self!
-  add_minutes(Self, Int64) -> Self!
-  add_months(Self, Int64) -> Self!
-  add_nanoseconds(Self, Int64) -> Self!
-  add_seconds(Self, Int64) -> Self!
-  add_weeks(Self, Int64) -> Self!
-  add_years(Self, Int64) -> Self!
-  day(Self) -> Int
-  days_in_month(Self) -> Int
-  days_in_week(Self) -> Int
-  days_in_year(Self) -> Int
-  era(Self) -> String
-  era_year(Self) -> Int
-  from_plain_datetime(PlainDateTime, zone~ : Zone = ..) -> Self
-  from_unix_second(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
-  hour(Self) -> Int
-  in_leap_year(Self) -> Bool
-  minute(Self) -> Int
-  month(Self) -> Int
-  months_in_year(Self) -> Int
-  nanosecond(Self) -> Int
-  of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
-  offset(Self) -> ZoneOffset
-  ordinal(Self) -> Int
-  second(Self) -> Int
-  to_plain_date(Self) -> PlainDate
-  to_plain_date_time(Self) -> PlainDateTime
-  to_plain_time(Self) -> PlainTime
-  to_string(Self) -> String
-  to_unix_second(Self) -> Int64
-  weekday(Self) -> Weekday
-  with_day(Self, Int) -> Self!
-  with_hour(Self, Int) -> Self!
-  with_minute(Self, Int) -> Self!
-  with_month(Self, Int) -> Self!
-  with_nanosecond(Self, Int) -> Self!
-  with_ordinal(Self, Int) -> Self!
-  with_second(Self, Int) -> Self!
-  with_year(Self, Int) -> Self!
-  year(Self) -> Int
-  zone(Self) -> Zone
-}
+fn ZonedDateTime::add_days(Self, Int64) -> Self!
+fn ZonedDateTime::add_hours(Self, Int64) -> Self!
+fn ZonedDateTime::add_minutes(Self, Int64) -> Self!
+fn ZonedDateTime::add_months(Self, Int64) -> Self!
+fn ZonedDateTime::add_nanoseconds(Self, Int64) -> Self!
+fn ZonedDateTime::add_seconds(Self, Int64) -> Self!
+fn ZonedDateTime::add_weeks(Self, Int64) -> Self!
+fn ZonedDateTime::add_years(Self, Int64) -> Self!
+fn ZonedDateTime::day(Self) -> Int
+fn ZonedDateTime::days_in_month(Self) -> Int
+fn ZonedDateTime::days_in_week(Self) -> Int
+fn ZonedDateTime::days_in_year(Self) -> Int
+fn ZonedDateTime::era(Self) -> String
+fn ZonedDateTime::era_year(Self) -> Int
+fn ZonedDateTime::from_plain_datetime(PlainDateTime, zone~ : Zone = ..) -> Self
+fn ZonedDateTime::from_unix_second(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
+fn ZonedDateTime::hour(Self) -> Int
+fn ZonedDateTime::in_leap_year(Self) -> Bool
+fn ZonedDateTime::minute(Self) -> Int
+fn ZonedDateTime::month(Self) -> Int
+fn ZonedDateTime::months_in_year(Self) -> Int
+fn ZonedDateTime::nanosecond(Self) -> Int
+fn ZonedDateTime::of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> Self!
+fn ZonedDateTime::offset(Self) -> ZoneOffset
+fn ZonedDateTime::ordinal(Self) -> Int
+fn ZonedDateTime::second(Self) -> Int
+fn ZonedDateTime::to_plain_date(Self) -> PlainDate
+fn ZonedDateTime::to_plain_date_time(Self) -> PlainDateTime
+fn ZonedDateTime::to_plain_time(Self) -> PlainTime
+fn ZonedDateTime::to_string(Self) -> String
+fn ZonedDateTime::to_unix_second(Self) -> Int64
+fn ZonedDateTime::weekday(Self) -> Weekday
+fn ZonedDateTime::with_day(Self, Int) -> Self!
+fn ZonedDateTime::with_hour(Self, Int) -> Self!
+fn ZonedDateTime::with_minute(Self, Int) -> Self!
+fn ZonedDateTime::with_month(Self, Int) -> Self!
+fn ZonedDateTime::with_nanosecond(Self, Int) -> Self!
+fn ZonedDateTime::with_ordinal(Self, Int) -> Self!
+fn ZonedDateTime::with_second(Self, Int) -> Self!
+fn ZonedDateTime::with_year(Self, Int) -> Self!
+fn ZonedDateTime::year(Self) -> Int
+fn ZonedDateTime::zone(Self) -> Zone
 impl Show for ZonedDateTime
 
 // Type aliases
