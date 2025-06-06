@@ -61,7 +61,7 @@ pub fn PlainDate::from_string(str : String) -> PlainDate!Error {
   // TODO: better parsing implementation.
   let mut s = str
   let mut neg = false
-  if s[0] == '-' {
+  if s.charcode_at(0) == '-' {
     neg = true
     s = s.substring(start=1)
   }

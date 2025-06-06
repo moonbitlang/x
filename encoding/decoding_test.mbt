@@ -750,7 +750,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
   inspect!(chars, content="�H") // ✅
   assert_eq!(chars.length(), 2)
   assert_eq!(Int::unsafe_to_char(chars.charcode_at(0)), @encoding.U_REP)
-  assert_eq!(chars[1], 'H')
+  assert_eq!(chars.charcode_at(1), 'H')
 }
 
 ///|

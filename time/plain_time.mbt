@@ -37,7 +37,7 @@ pub fn PlainTime::of(
 ///| Creates a PlainTime from a string, like '10:20:30.45678'.
 pub fn PlainTime::from_string(str : String) -> PlainTime!Error {
   // TODO: better parsing implementation
-  if str.length() < 5 || str.length() > 18 || str[2] != ':' {
+  if str.length() < 5 || str.length() > 18 || str.charcode_at(2) != ':' {
     fail!(invalid_time_err)
   }
   let mut hour = 0
@@ -47,12 +47,12 @@ pub fn PlainTime::from_string(str : String) -> PlainTime!Error {
   hour = @strconv.parse!(str.substring(end=2))
   minute = @strconv.parse!(str.substring(start=3, end=5))
   if str.length() > 7 {
-    if str[5] != ':' {
+    if str.charcode_at(5) != ':' {
       fail!(invalid_time_err)
     }
     second = @strconv.parse!(str.substring(start=6, end=8))
   }
-  if str.length() > 9 && str[8] == '.' {
+  if str.length() > 9 && str.charcode_at(8) == '.' {
     let nano_str = str.substring(start=9)
     nanosecond = @strconv.parse!(add_suffix_zero(nano_str, 9))
   }

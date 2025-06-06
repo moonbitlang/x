@@ -29,7 +29,8 @@ test "write_and_read" {
 ///|
 test "read_dir" {
   let path = "./fs"
-  let files = @fs.read_dir!(path)..sort()
+  let files = @fs.read_dir!(path)
+  files.sort()
   inspect!(
     files,
     content=
