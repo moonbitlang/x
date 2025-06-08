@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn parse(input : String) -> @json.JsonValue!ParseError {
+pub fn parse(input : String) -> Json!ParseError {
   let ctx = ParseContext::make(input)
   let val = parse_value!(ctx)
   lex_skip_whitespace!(ctx)
@@ -25,13 +25,13 @@ pub fn parse(input : String) -> @json.JsonValue!ParseError {
 }
 
 ///|
-fn parse_value(ctx : ParseContext) -> @json.JsonValue!ParseError {
+fn parse_value(ctx : ParseContext) -> Json!ParseError {
   let tok = lex_value!(ctx)
   parse_value2!(ctx, tok)
 }
 
 ///|
-fn parse_value2(ctx : ParseContext, tok : Token) -> @json.JsonValue!ParseError {
+fn parse_value2(ctx : ParseContext, tok : Token) -> Json!ParseError {
   match tok {
     Null => Json::null()
     True => Json::boolean(true)
@@ -45,7 +45,7 @@ fn parse_value2(ctx : ParseContext, tok : Token) -> @json.JsonValue!ParseError {
 }
 
 ///|
-fn parse_object(ctx : ParseContext) -> @json.JsonValue!ParseError {
+fn parse_object(ctx : ParseContext) -> Json!ParseError {
   let map = Map::new()
   for {
     let tok = lex_property_name!(ctx)
@@ -74,7 +74,7 @@ fn parse_object(ctx : ParseContext) -> @json.JsonValue!ParseError {
 }
 
 ///|
-fn parse_array(ctx : ParseContext) -> @json.JsonValue!ParseError {
+fn parse_array(ctx : ParseContext) -> Json!ParseError {
   let vec = []
   for {
     let tok = lex_value!(ctx, allow_rbracket=true)
