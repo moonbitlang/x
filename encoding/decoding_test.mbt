@@ -402,7 +402,7 @@ test "decoding UTF16LE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
-  let chars = decoder.decode?(buf.to_bytes())
+  let chars = try? decoder.decode(buf.to_bytes())
   assert_true(chars.is_err())
   inspect(
     chars,
@@ -420,7 +420,7 @@ test "decode_to/UTF16LE-UTF8/MalformedError" {
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
   inspect(
-    decoder.decode_to?(buf.to_bytes(), acc),
+    try? decoder.decode_to(buf.to_bytes(), acc),
     content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
   )
 }
@@ -436,7 +436,7 @@ test "decode_to/UTF16LE-UTF8/TruncatedError" {
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
-  let result = decoder.decode_to?(bytes_view, acc)
+  let result = try? decoder.decode_to(bytes_view, acc)
   inspect(
     result,
     content="Err(moonbitlang/x/encoding.TruncatedError.TruncatedError)",
@@ -454,10 +454,14 @@ test "decode_to/UTF16LE-UTF8/stream" {
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
-  let result = decoder.decode_to?(bytes_view, acc, stream=true)
+  let result = try? decoder.decode_to(bytes_view, acc, stream=true)
   inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳")
-  let result = decoder.decode_to?([bytes[bytes.length() - 1]], acc, stream=true)
+  let result = try? decoder.decode_to(
+      [bytes[bytes.length() - 1]],
+      acc,
+      stream=true,
+    )
   inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳🏊")
 }
@@ -519,7 +523,7 @@ test "decoding UTF16BE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
-  let chars = decoder.decode?(buf.to_bytes())
+  let chars = try? decoder.decode(buf.to_bytes())
   assert_true(chars.is_err())
   inspect(
     chars,
@@ -537,7 +541,7 @@ test "decode_to/UTF16BE-UTF8" {
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
   inspect(
-    decoder.decode_to?(buf.to_bytes(), acc),
+    try? decoder.decode_to(buf.to_bytes(), acc),
     content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
   )
 }
@@ -810,7 +814,7 @@ test "Not all UTF16LE is format-legal UTF16BE and vice versa" {
 
   // invalid in UTF16BE
   let decoder_utf16be = @encoding.decoder(UTF16BE)
-  let malformedError = decoder_utf16be.decode?(bytes_le)
+  let malformedError = try? decoder_utf16be.decode(bytes_le)
   assert_true(malformedError.is_err())
 
   // vice versa
@@ -823,6 +827,6 @@ test "Not all UTF16LE is format-legal UTF16BE and vice versa" {
 
   // invalid in UTF16LE
   let decoder_utf16le = @encoding.decoder(UTF16LE)
-  let malformedError = decoder_utf16le.decode?(bytes_be)
+  let malformedError = try? decoder_utf16le.decode(bytes_be)
   assert_true(malformedError.is_err())
 }

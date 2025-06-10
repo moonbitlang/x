@@ -17,8 +17,10 @@
 /// # Example
 ///
 /// ```
-/// let s : Stack[Int] = Stack::new()
-/// println(s) // Stack::[]
+/// test "new" {
+///   let s : Stack[Int] = @stack.new()
+///   assert_true(s.is_empty())
+/// }
 /// ```
 pub fn[T] new() -> Stack[T] {
   { elements: Nil, len: 0 }
@@ -41,8 +43,10 @@ test "new" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::from_list(@immut/list.of([1, 2, 3]))
-/// println(s) // Stack::[1, 2, 3]
+/// test "from_list" {
+///   let s = Stack::from_list(@immut/list.of([1, 2, 3]))
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 pub fn[T] Stack::from_list(list : @immut/list.T[T]) -> Stack[T] {
   { elements: list, len: list.length() }
@@ -60,8 +64,10 @@ test "from_list" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::from_array([1, 2, 3])
-/// println(s) // Stack::from_array([3, 2, 1])
+/// test "from_array" {
+///   let s = Stack::from_array([1, 2, 3])
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 pub fn[T] Stack::from_array(array : Array[T]) -> Stack[T] {
   { elements: @immut/list.from_array(array), len: array.length() }
@@ -79,8 +85,10 @@ test "from_array" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// println(s) // Stack::of([3, 2, 1])
+/// test "of" {
+///   let s = @stack.of([1, 2, 3])
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 #deprecated("use `@stack.of()` instead")
 pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
@@ -128,9 +136,11 @@ test "to_string" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let s1 = Stack::from_stack(s)
-/// println(s1) // output: Stack::[3, 2, 1]
+/// test "from_stack" {
+///   let s = @stack.of([1, 2, 3])
+///   let s1 = Stack::from_stack(s)
+///   assert_eq(s1.length(), 3)
+/// }
 /// ```
 pub fn[T] Stack::from_stack(other : Stack[T]) -> Stack[T] {
   { ..other }
@@ -148,9 +158,11 @@ test "from_stack" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// s.clear()
-/// println(s) // Stack::[]
+/// test "clear" {
+///   let s = @stack.of([1, 2, 3])
+///   s.clear()
+///   assert_eq(s.length(), 0)
+/// }
 /// ```
 pub fn[T] clear(self : Stack[T]) -> Unit {
   self.elements = Nil
@@ -169,8 +181,10 @@ test "clear" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3]).return_with_clear()
-/// println(s) // Stack::[]
+/// test "return_with_clear" {
+///   let s = @stack.of([1, 2, 3]).return_with_clear()
+///   assert_eq(s.length(), 0)
+/// }
 /// ```
 pub fn[T] return_with_clear(self : Stack[T]) -> Stack[T] {
   self.clear()
@@ -188,9 +202,11 @@ test "return_with_clear" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::new()
-/// s.push(1)
-/// println(s) // Stack::[1]
+/// test "push" {
+///   let s = @stack.new()
+///   s.push(1)
+///   assert_eq(s.length(), 1)
+/// }
 /// ```
 pub fn[T] push(self : Stack[T], x : T) -> Unit {
   self.elements = Cons(x, self.elements)
@@ -210,9 +226,11 @@ test "push" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::new()
-/// s.push_list(@immut/list.of[1, 2, 3])
-/// println(s) // Stack::[3, 2, 1]
+/// test "push_list" {
+///   let s = @stack.new()
+///   s.push_list(@immut/list.of([1, 2, 3]))
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 pub fn[T] push_list(self : Stack[T], list : @immut/list.T[T]) -> Unit {
   list.each(fn(i) { self.push(i) })
@@ -231,10 +249,12 @@ test "push_list" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let s1 : Stack[Int] = Stack::new()
-/// s1.push_stack(s)
-/// println(s1) // Stack::[1, 2, 3]
+/// test "push_stack" {
+///   let s = @stack.of([1, 2, 3])
+///   let s1 : Stack[Int] = @stack.new()
+///   s1.push_stack(s)
+///   assert_eq(s1.length(), 3)
+/// }
 /// ```
 pub fn[T] push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
   stack.elements.each(fn(i) { self.push(i) })
@@ -254,9 +274,11 @@ test "push_stack" {
 /// # Example
 ///
 /// ```
-/// let s : Stack[Int] = Stack::new()
-/// s.push_array([1, 2, 3])
-/// println(s) // Stack::[3, 2, 1]
+/// test "push_array" {
+///   let s : Stack[Int] = @stack.new()
+///   s.push_array([1, 2, 3])
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 pub fn[T] push_array(self : Stack[T], array : Array[T]) -> Unit {
   array.each(fn(i) { self.push(i) })
@@ -276,11 +298,13 @@ test "push_array" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let s1 : Stack[Int] = Stack::new()
-/// println(s.pop()) // Some(1)
-/// println(s) // Stack::[2, 3]
-/// println(s1.pop()) // None
+/// test "pop" {
+///   let s = @stack.of([1, 2, 3])
+///   let s1 : Stack[Int] = @stack.new()
+///   assert_eq(s.pop(), Some(1))
+///   assert_eq(s.length(), 2)
+///   assert_eq(s1.pop(), None)
+/// }
 /// ```
 pub fn[T] pop(self : Stack[T]) -> T? {
   match self.elements {
@@ -311,11 +335,13 @@ test "pop" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let s1 : Stack[Int] = Stack::new()
-/// println(s.unsafe_pop()) // 1
-/// println(s) // Stack::[2, 3]
-/// println(s1.unsafe_pop()) // abort.
+/// test "panic unsafe_pop" {
+///   let s = @stack.of([1, 2, 3])
+///   let s1 : Stack[Int] = @stack.new()
+///   assert_eq(s.unsafe_pop(), 1)
+///   assert_eq(s.length(), 2)
+///   s1.unsafe_pop() |> ignore
+/// }
 /// ```
 /// @alert unsafe "Panic if the stack is empty."
 pub fn[T] unsafe_pop(self : Stack[T]) -> T {
@@ -343,9 +369,11 @@ test "unsafe_pop" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// s.drop()
-/// println(s) // Stack::[2, 3]
+/// test "drop" {
+///   let s = @stack.of([1, 2, 3])
+///   s.drop()
+///   assert_eq(s.length(), 2)
+/// }
 /// ```
 pub fn[T] drop(self : Stack[T]) -> Unit {
   match self.elements {
@@ -371,8 +399,11 @@ test "drop" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let r = s.drop_result() // Ok(())
+/// test "drop_result" {
+///   let s = @stack.of([1, 2, 3])
+///   let r = s.drop_result() // Ok(())
+///   assert_eq(r, Ok(()))
+/// }
 /// ```
 pub fn[T] drop_result(self : Stack[T]) -> Result[Unit, Unit] {
   match self.elements {
@@ -401,9 +432,11 @@ test "drop_result" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::from_array([1, 2, 3])
-/// println(s.peek()) // Some(1)
-/// println(s) // Stack::[1, 2, 3]
+/// test "peek" {
+///   let s = Stack::from_array([1, 2, 3])
+///   assert_eq(s.peek(), Some(1))
+///   assert_eq(s.length(), 3)
+/// }
 /// ```
 pub fn[T] peek(self : Stack[T]) -> T? {
   match self.elements {
@@ -426,11 +459,13 @@ test "peek" {
 /// # Example
 ///
 /// ```
-/// let s = Stack::from_array([1, 2, 3])
-/// let s1 : Stack[Int] = Stack::new()
-/// println(s1.peek_exn()) // abort
-/// println(s.peek_exn()) // 1
-/// println(s) // Stack::[1, 2, 3]
+/// test "panic peek_exn" {
+///   let s = Stack::from_array([1, 2, 3])
+///   let s1 : Stack[Int] = @stack.new()
+///   println(s1.peek_exn()) // abort
+///   println(s.peek_exn()) // 1
+///   println(s) // Stack::[1, 2, 3]
+/// }
 /// ```
 /// @alert unsafe "Panic if the stack is empty."
 pub fn[T] peek_exn(self : Stack[T]) -> T {
@@ -453,8 +488,12 @@ test "peek_exn" {
 /// # Example
 ///
 /// ```
-/// println(Stack::of([1, 2, 3]).is_empty()) // false
-/// println(Stack::new().is_empty()) // true
+/// test "is_empty" {
+///   let s = @stack.of([1, 2, 3])
+///   assert_false(s.is_empty())
+///   let empty : Stack[Unit] = @stack.new()
+///   assert_true(empty.is_empty())
+/// }
 /// ```
 pub fn[T] is_empty(self : Stack[T]) -> Bool {
   self.len == 0
@@ -476,8 +515,12 @@ pub fn[T] length(self : Stack[T]) -> Int {
 /// 
 /// # Example
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// s.each(fn(i) { println(i) })'
+/// test "each" {
+///   let s = @stack.of([1, 2, 3])
+///   let mut sum = 0
+///   s.each(fn(i) { sum = sum + i })
+///   assert_eq(sum, 6)
+/// }
 /// ```
 pub fn[T] each(self : Stack[T], f : (T) -> Unit) -> Unit {
   self.elements.each(f)
@@ -506,9 +549,11 @@ test "iter" {
 /// 
 /// # Example
 /// ```
-/// let s = Stack::of([1, 2, 3])
-/// let sum = s.fold(~init=0, fn(acc, i) { acc + i })
-/// println(sum) // 6
+/// test "fold" {
+///   let s = @stack.of([1, 2, 3])
+///   let sum = s.fold(init=0, fn(acc, i) { acc + i })
+///   assert_eq(sum, 6)
+/// }
 /// ```
 pub fn[T, U] fold(self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
   self.elements.fold(init~, f)
@@ -526,7 +571,9 @@ test "fold" {
 /// # Example
 ///
 /// ```
-/// println(Stack::of([1, 2, 3]).to_list()) // @immut/list.of([1, 2, 3])
+/// test "to_list" {
+///   assert_eq(@stack.of([1, 2, 3]).to_list(), @immut/list.of([1, 2, 3]))
+/// }
 /// ```
 pub fn[T] to_list(self : Stack[T]) -> @immut/list.T[T] {
   self.elements
@@ -542,7 +589,9 @@ test "to_list" {
 /// # Example
 ///
 /// ```
-/// println(Stack::of([1, 2, 3]).to_array()) // [1, 2, 3]
+/// test "to_array" {
+///   assert_eq(@stack.of([1, 2, 3]).to_array(), [1, 2, 3])
+/// }
 /// ```
 pub fn[T : Default] to_array(self : Stack[T]) -> Array[T] {
   self.elements.to_array()
@@ -561,7 +610,9 @@ test "to_array" {
 /// # Example
 ///
 /// ```
-/// println(Stack::of([2, 4, 6]).equal(Stack::of([2, 4, 6]))) // true
+/// test "equal" {
+///   assert_true(@stack.of([2, 4, 6]).equal(@stack.of([2, 4, 6])))
+/// }
 /// ```
 pub fn[T : Eq] equal(self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {

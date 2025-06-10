@@ -22,15 +22,15 @@
 /// # Usage
 ///
 /// ```moonbit
-/// let u = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
-/// let u2 = @uuid.from_bytes(Bytes.of([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
-/// // assert_eq(u, u2) should be true
+/// let u1 = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
+/// let u2 = @uuid.from_bytes(@bytes.of([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
+/// assert_eq(u1, u2)
 /// ```
 ///
 /// Construct an RFC-4122-compliant v4 UUID:
 ///
 /// ```moonbit
-/// let u = @uuid
+/// let _u = @uuid
 ///   .from_hex("9558cfadb48547c70f9adf1f75cdef29")
 ///   .as_version(@uuid.V4)
 /// ```
@@ -90,8 +90,8 @@ test "bytes" {
       #|b"\xc9\x82\xfb\x68\xdf\x50\x4c\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
     ,
   )
-  assert_true(from_bytes?(Bytes::new(15)).is_err())
-  assert_true(from_bytes?(Bytes::new(17)).is_err())
+  assert_true((try? from_bytes(Bytes::new(15))).is_err())
+  assert_true((try? from_bytes(Bytes::new(17))).is_err())
 }
 
 ///|

@@ -62,9 +62,9 @@ pub(all) enum Encoding {
   UTF16BE
 }
 
-pub type! MalformedError Bytes
+pub suberror MalformedError Bytes
 
-pub type! TruncatedError Bytes
+pub suberror TruncatedError Bytes
 
 // Type aliases
 

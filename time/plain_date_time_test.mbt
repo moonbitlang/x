@@ -69,9 +69,9 @@ test "from_unix_second" {
     content="2024-04-27T22:22:09.000001",
   )
   assert_true(
-    @time.PlainDateTime::from_unix_second?(
+    (try? @time.PlainDateTime::from_unix_second(
       1714227729L, 1_000_000_000, @time.utc_offset,
-    ).is_err(),
+    )).is_err(),
   )
 }
 
@@ -93,13 +93,17 @@ test "from_string" {
     @time.PlainDateTime::from_string("2000-01-01T00:00:00.12345"),
     content="2000-01-01T00:00:00.12345",
   )
-  assert_true(@time.PlainDateTime::from_string?("9999-12-31T23:59:60").is_err())
   assert_true(
-    @time.PlainDateTime::from_string?("10000-12-31T23:59:60").is_err(),
+    (try? @time.PlainDateTime::from_string("9999-12-31T23:59:60")).is_err(),
   )
-  assert_true(@time.PlainDateTime::from_string?("2000-01-01 00:00:00").is_err())
-  assert_true(@time.PlainDateTime::from_string?("2000-01-01").is_err())
-  assert_true(@time.PlainDateTime::from_string?("00:00:00").is_err())
+  assert_true(
+    (try? @time.PlainDateTime::from_string("10000-12-31T23:59:60")).is_err(),
+  )
+  assert_true(
+    (try? @time.PlainDateTime::from_string("2000-01-01 00:00:00")).is_err(),
+  )
+  assert_true((try? @time.PlainDateTime::from_string("2000-01-01")).is_err())
+  assert_true((try? @time.PlainDateTime::from_string("00:00:00")).is_err())
 }
 
 ///|
@@ -142,9 +146,9 @@ test "add_years" {
   inspect(d.add_years(0L), content="2000-02-29T00:00:00")
   inspect(d.add_years(1L), content="2001-02-28T00:00:00")
   inspect(d.add_years(7999L), content="9999-02-28T00:00:00")
-  assert_true(d.add_years?(8000L).is_err())
+  assert_true((try? d.add_years(8000L)).is_err())
   inspect(d.add_years(-11999L), content="-9999-02-28T00:00:00")
-  assert_true(d.add_years?(-12000L).is_err())
+  assert_true((try? d.add_years(-12000L)).is_err())
 }
 
 ///|
@@ -153,9 +157,9 @@ test "add_months" {
   inspect(d.add_months(0L), content="2000-02-29T00:00:00")
   inspect(d.add_months(1L), content="2000-03-29T00:00:00")
   inspect(d.add_months(12L * 7999L), content="9999-02-28T00:00:00")
-  assert_true(d.add_months?(12L * 8000L).is_err())
+  assert_true((try? d.add_months(12L * 8000L)).is_err())
   inspect(d.add_months(12L * -11999L), content="-9999-02-28T00:00:00")
-  assert_true(d.add_months?(12L * -12000L).is_err())
+  assert_true((try? d.add_months(12L * -12000L)).is_err())
 }
 
 ///|
@@ -166,8 +170,8 @@ test "add_weeks" {
   inspect(d.add_weeks(-1L), content="2000-02-22T00:00:00")
   inspect(d.add_weeks(3L), content="2000-03-21T00:00:00")
   inspect(d.add_weeks(-3L), content="2000-02-08T00:00:00")
-  assert_true(d.add_weeks?(@int64.max_value).is_err())
-  assert_true(d.add_weeks?(@int64.min_value).is_err())
+  assert_true((try? d.add_weeks(@int64.max_value)).is_err())
+  assert_true((try? d.add_weeks(@int64.min_value)).is_err())
 }
 
 ///|
@@ -178,8 +182,8 @@ test "add_days" {
   inspect(d.add_days(-1L), content="2000-02-28T00:00:00")
   inspect(d.add_days(365L), content="2001-02-28T00:00:00")
   inspect(d.add_days(-365L), content="1999-03-01T00:00:00")
-  assert_true(d.add_days?(@int64.max_value).is_err())
-  assert_true(d.add_days?(@int64.min_value).is_err())
+  assert_true((try? d.add_days(@int64.max_value)).is_err())
+  assert_true((try? d.add_days(@int64.min_value)).is_err())
 }
 
 ///|
@@ -268,8 +272,8 @@ test "with_year" {
   inspect(d.with_year(0), content="0000-02-29T00:00:00")
   inspect(d.with_year(9999), content="9999-02-28T00:00:00")
   inspect(d.with_year(-9999), content="-9999-02-28T00:00:00")
-  assert_true(d.with_year?(10000).is_err())
-  assert_true(d.with_year?(-10000).is_err())
+  assert_true((try? d.with_year(10000)).is_err())
+  assert_true((try? d.with_year(-10000)).is_err())
 }
 
 ///|
@@ -278,8 +282,8 @@ test "with_month" {
   inspect(d.with_month(1), content="2000-01-31T00:00:00")
   inspect(d.with_month(2), content="2000-02-29T00:00:00")
   inspect(d.with_month(4), content="2000-04-30T00:00:00")
-  assert_true(d.with_month?(0).is_err())
-  assert_true(d.with_month?(13).is_err())
+  assert_true((try? d.with_month(0)).is_err())
+  assert_true((try? d.with_month(13)).is_err())
 }
 
 ///|
@@ -287,8 +291,8 @@ test "with_day" {
   let d = @time.PlainDateTime::of(2000, 2, 29)
   inspect(d.with_day(29), content="2000-02-29T00:00:00")
   inspect(d.with_day(1), content="2000-02-01T00:00:00")
-  assert_true(d.with_day?(0).is_err())
-  assert_true(d.with_day?(30).is_err())
+  assert_true((try? d.with_day(0)).is_err())
+  assert_true((try? d.with_day(30)).is_err())
 }
 
 ///|
@@ -296,8 +300,8 @@ test "with_ordinal" {
   let d = @time.PlainDateTime::of(2000, 2, 29)
   inspect(d.with_ordinal(1), content="2000-01-01T00:00:00")
   inspect(d.with_ordinal(366), content="2000-12-31T00:00:00")
-  assert_true(d.with_ordinal?(0).is_err())
-  assert_true(d.with_ordinal?(367).is_err())
+  assert_true((try? d.with_ordinal(0)).is_err())
+  assert_true((try? d.with_ordinal(367)).is_err())
 }
 
 ///|
@@ -307,8 +311,8 @@ test "with_hour" {
   inspect(d.with_hour(10), content="2000-01-01T10:00:00")
   inspect(d.with_hour(0), content="2000-01-01T00:00:00")
   inspect(d.with_hour(24), content="2000-01-01T24:00:00")
-  assert_true(d.with_hour?(-1).is_err())
-  assert_true(d.with_hour?(25).is_err())
+  assert_true((try? d.with_hour(-1)).is_err())
+  assert_true((try? d.with_hour(25)).is_err())
 }
 
 ///|
@@ -318,8 +322,8 @@ test "with_minute" {
   inspect(d.with_minute(10), content="2000-01-01T00:10:00")
   inspect(d.with_minute(0), content="2000-01-01T00:00:00")
   inspect(d.with_minute(59), content="2000-01-01T00:59:00")
-  assert_true(d.with_minute?(-1).is_err())
-  assert_true(d.with_minute?(60).is_err())
+  assert_true((try? d.with_minute(-1)).is_err())
+  assert_true((try? d.with_minute(60)).is_err())
 }
 
 ///|
@@ -329,8 +333,8 @@ test "with_second" {
   inspect(d.with_second(10), content="2000-01-01T00:00:10")
   inspect(d.with_second(0), content="2000-01-01T00:00:00")
   inspect(d.with_second(59), content="2000-01-01T00:00:59")
-  assert_true(d.with_second?(-1).is_err())
-  assert_true(d.with_second?(60).is_err())
+  assert_true((try? d.with_second(-1)).is_err())
+  assert_true((try? d.with_second(60)).is_err())
 }
 
 ///|
@@ -343,8 +347,8 @@ test "with_nanosecond" {
     d.with_nanosecond(999_999_999),
     content="2000-01-01T00:00:00.999999999",
   )
-  assert_true(d.with_nanosecond?(-1).is_err())
-  assert_true(d.with_nanosecond?(1_000_000_000).is_err())
+  assert_true((try? d.with_nanosecond(-1)).is_err())
+  assert_true((try? d.with_nanosecond(1_000_000_000)).is_err())
 }
 
 ///|
