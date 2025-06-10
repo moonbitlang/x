@@ -14,27 +14,27 @@
 
 ///|
 test "add_nanoseconds!" {
-  let d = PlainDateTime::of!(0, 1, 1)
-  inspect!(d.add_nanoseconds!(0L), content="0000-01-01T00:00:00")
-  inspect!(d.add_nanoseconds!(1L), content="0000-01-01T00:00:00.000000001")
-  inspect!(
-    d.add_nanoseconds!(nanoseconds_per_second),
+  let d = PlainDateTime::of(0, 1, 1)
+  inspect(d.add_nanoseconds(0L), content="0000-01-01T00:00:00")
+  inspect(d.add_nanoseconds(1L), content="0000-01-01T00:00:00.000000001")
+  inspect(
+    d.add_nanoseconds(nanoseconds_per_second),
     content="0000-01-01T00:00:01",
   )
-  inspect!(
-    d.add_nanoseconds!(nanoseconds_per_minute),
+  inspect(
+    d.add_nanoseconds(nanoseconds_per_minute),
     content="0000-01-01T00:01:00",
   )
-  inspect!(
-    d.add_nanoseconds!(nanoseconds_per_hour),
+  inspect(
+    d.add_nanoseconds(nanoseconds_per_hour),
     content="0000-01-01T01:00:00",
   )
-  inspect!(
-    d.add_nanoseconds!(nanoseconds_per_day),
+  inspect(
+    d.add_nanoseconds(nanoseconds_per_day),
     content="0000-01-02T00:00:00",
   )
-  inspect!(
-    d.add_nanoseconds!(nanoseconds_per_day * 366L),
+  inspect(
+    d.add_nanoseconds(nanoseconds_per_day * 366L),
     content="0001-01-01T00:00:00",
   )
 }

@@ -14,55 +14,55 @@
 
 ///|
 test "of" {
-  inspect!(@time.ZoneOffset::of!(), content="Z")
-  inspect!(@time.ZoneOffset::of!(hours=8), content="+08:00")
-  inspect!(@time.ZoneOffset::of!(hours=-8), content="-08:00")
-  inspect!(@time.ZoneOffset::of!(hours=18), content="+18:00")
-  inspect!(@time.ZoneOffset::of!(hours=-18), content="-18:00")
-  inspect!(
-    @time.ZoneOffset::of!(hours=1, minutes=30, seconds=30),
+  inspect(@time.ZoneOffset::of(), content="Z")
+  inspect(@time.ZoneOffset::of(hours=8), content="+08:00")
+  inspect(@time.ZoneOffset::of(hours=-8), content="-08:00")
+  inspect(@time.ZoneOffset::of(hours=18), content="+18:00")
+  inspect(@time.ZoneOffset::of(hours=-18), content="-18:00")
+  inspect(
+    @time.ZoneOffset::of(hours=1, minutes=30, seconds=30),
     content="+01:30:30",
   )
-  assert_true!(@time.ZoneOffset::of?(hours=19).is_err())
-  assert_true!(@time.ZoneOffset::of?(hours=-19).is_err())
-  assert_true!(@time.ZoneOffset::of?(minutes=60).is_err())
-  assert_true!(@time.ZoneOffset::of?(minutes=-60).is_err())
-  assert_true!(@time.ZoneOffset::of?(seconds=60).is_err())
-  assert_true!(@time.ZoneOffset::of?(seconds=-60).is_err())
-  assert_true!(
+  assert_true(@time.ZoneOffset::of?(hours=19).is_err())
+  assert_true(@time.ZoneOffset::of?(hours=-19).is_err())
+  assert_true(@time.ZoneOffset::of?(minutes=60).is_err())
+  assert_true(@time.ZoneOffset::of?(minutes=-60).is_err())
+  assert_true(@time.ZoneOffset::of?(seconds=60).is_err())
+  assert_true(@time.ZoneOffset::of?(seconds=-60).is_err())
+  assert_true(
     @time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30).is_err(),
   )
-  assert_true!(@time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30).is_err())
-  assert_true!(@time.ZoneOffset::of?(minutes=-30, seconds=30).is_err())
-  assert_true!(@time.ZoneOffset::of?(minutes=30, seconds=-30).is_err())
-  assert_true!(@time.ZoneOffset::of?(hours=18, minutes=1).is_err())
-  assert_true!(@time.ZoneOffset::of?(hours=-18, seconds=1).is_err())
+  assert_true(@time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30).is_err())
+  assert_true(@time.ZoneOffset::of?(minutes=-30, seconds=30).is_err())
+  assert_true(@time.ZoneOffset::of?(minutes=30, seconds=-30).is_err())
+  assert_true(@time.ZoneOffset::of?(hours=18, minutes=1).is_err())
+  assert_true(@time.ZoneOffset::of?(hours=-18, seconds=1).is_err())
 }
 
 ///|
 test "from_seconds" {
-  inspect!(@time.ZoneOffset::from_seconds!(8 * 60 * 60), content="+08:00")
-  inspect!(@time.ZoneOffset::from_seconds!(0), content="Z")
-  inspect!(@time.ZoneOffset::from_seconds!(18 * 60 * 60), content="+18:00")
-  inspect!(@time.ZoneOffset::from_seconds!(-18 * 60 * 60), content="-18:00")
-  assert_true!(@time.ZoneOffset::from_seconds?(19 * 60 * 60).is_err())
-  assert_true!(@time.ZoneOffset::from_seconds?(-19 * 60 * 60).is_err())
+  inspect(@time.ZoneOffset::from_seconds(8 * 60 * 60), content="+08:00")
+  inspect(@time.ZoneOffset::from_seconds(0), content="Z")
+  inspect(@time.ZoneOffset::from_seconds(18 * 60 * 60), content="+18:00")
+  inspect(@time.ZoneOffset::from_seconds(-18 * 60 * 60), content="-18:00")
+  assert_true(@time.ZoneOffset::from_seconds?(19 * 60 * 60).is_err())
+  assert_true(@time.ZoneOffset::from_seconds?(-19 * 60 * 60).is_err())
 }
 
 ///|
 test "utc" {
-  inspect!(@time.utc_offset, content="Z")
-  inspect!(@time.utc_offset.id(), content="Z")
-  inspect!(@time.utc_offset.seconds(), content="0")
-  inspect!(@time.utc_offset.is_dst(), content="false")
+  inspect(@time.utc_offset, content="Z")
+  inspect(@time.utc_offset.id(), content="Z")
+  inspect(@time.utc_offset.seconds(), content="0")
+  inspect(@time.utc_offset.is_dst(), content="false")
 }
 
 ///|
 test "compare" {
-  let o1 = @time.ZoneOffset::from_seconds!(10)
-  let o2 = @time.ZoneOffset::from_seconds!(-10)
-  inspect!(o1 > o2, content="false")
-  inspect!(o1 == o2, content="false")
-  inspect!(o1 < o2, content="true")
-  inspect!(o1 == o1, content="true")
+  let o1 = @time.ZoneOffset::from_seconds(10)
+  let o2 = @time.ZoneOffset::from_seconds(-10)
+  inspect(o1 > o2, content="false")
+  inspect(o1 == o2, content="false")
+  inspect(o1 < o2, content="true")
+  inspect(o1 == o1, content="true")
 }

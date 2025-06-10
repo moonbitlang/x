@@ -14,86 +14,86 @@
 
 ///|
 test "from_string" {
-  inspect!(@time.Duration::from_string!("PT0S"), content="PT0S")
-  inspect!(
-    @time.Duration::from_string!("PT1H2M3.456789S"),
+  inspect(@time.Duration::from_string("PT0S"), content="PT0S")
+  inspect(
+    @time.Duration::from_string("PT1H2M3.456789S"),
     content="PT1H2M3.456789S",
   )
-  inspect!(
-    @time.Duration::from_string!("PT-1H-2M-3.456789S"),
+  inspect(
+    @time.Duration::from_string("PT-1H-2M-3.456789S"),
     content="PT-1H-2M-3.456789S",
   )
-  inspect!(@time.Duration::from_string!("PT0.45S"), content="PT0.45S")
-  assert_true!(@time.Duration::from_string?("PT0.000.45S").is_err())
-  assert_true!(@time.Duration::from_string?("P1Y2M3DT4H5M6S").is_err())
+  inspect(@time.Duration::from_string("PT0.45S"), content="PT0.45S")
+  assert_true(@time.Duration::from_string?("PT0.000.45S").is_err())
+  assert_true(@time.Duration::from_string?("P1Y2M3DT4H5M6S").is_err())
 }
 
 ///|
 test "getters" {
-  let d = @time.Duration::of!(
+  let d = @time.Duration::of(
     hours=1L,
     minutes=2L,
     seconds=3L,
     nanoseconds=400L,
   )
-  inspect!(d.seconds(), content="3723")
-  inspect!(d.nanoseconds(), content="400")
+  inspect(d.seconds(), content="3723")
+  inspect(d.nanoseconds(), content="400")
 }
 
 ///|
 test "is_zero" {
-  inspect!(@time.Duration::zero().is_zero(), content="true")
-  inspect!(@time.Duration::of!().is_zero(), content="true")
-  inspect!(@time.Duration::of!(hours=1L).is_zero(), content="false")
-  inspect!(@time.Duration::of!(minutes=1L).is_zero(), content="false")
-  inspect!(@time.Duration::of!(seconds=1L).is_zero(), content="false")
-  inspect!(@time.Duration::of!(nanoseconds=1L).is_zero(), content="false")
+  inspect(@time.Duration::zero().is_zero(), content="true")
+  inspect(@time.Duration::of().is_zero(), content="true")
+  inspect(@time.Duration::of(hours=1L).is_zero(), content="false")
+  inspect(@time.Duration::of(minutes=1L).is_zero(), content="false")
+  inspect(@time.Duration::of(seconds=1L).is_zero(), content="false")
+  inspect(@time.Duration::of(nanoseconds=1L).is_zero(), content="false")
 }
 
 ///|
 test "is_neg" {
-  inspect!(@time.Duration::zero().is_neg(), content="false")
-  inspect!(@time.Duration::of!(seconds=1L).is_neg(), content="false")
-  inspect!(@time.Duration::of!(seconds=-1L).is_neg(), content="true")
-  inspect!(
-    @time.Duration::of!(seconds=-1L, nanoseconds=1L).is_neg(),
+  inspect(@time.Duration::zero().is_neg(), content="false")
+  inspect(@time.Duration::of(seconds=1L).is_neg(), content="false")
+  inspect(@time.Duration::of(seconds=-1L).is_neg(), content="true")
+  inspect(
+    @time.Duration::of(seconds=-1L, nanoseconds=1L).is_neg(),
     content="true",
   )
-  inspect!(@time.Duration::of!(nanoseconds=1L).is_neg(), content="false")
+  inspect(@time.Duration::of(nanoseconds=1L).is_neg(), content="false")
 }
 
 ///|
 test "add_seconds" {
-  inspect!(@time.Duration::zero().add_seconds!(0L), content="PT0S")
-  inspect!(@time.Duration::zero().add_seconds!(1L), content="PT1S")
-  inspect!(@time.Duration::zero().add_seconds!(-1L), content="PT-1S")
-  inspect!(
-    @time.Duration::zero().add_seconds!(@int64.max_value),
+  inspect(@time.Duration::zero().add_seconds(0L), content="PT0S")
+  inspect(@time.Duration::zero().add_seconds(1L), content="PT1S")
+  inspect(@time.Duration::zero().add_seconds(-1L), content="PT-1S")
+  inspect(
+    @time.Duration::zero().add_seconds(@int64.max_value),
     content="PT2562047788015215H30M7S",
   )
-  inspect!(
-    @time.Duration::zero().add_seconds!(@int64.min_value),
+  inspect(
+    @time.Duration::zero().add_seconds(@int64.min_value),
     content="PT-2562047788015215H-30M-8S",
   )
-  assert_true!(
-    @time.Duration::of!(seconds=1L).add_seconds?(@int64.max_value).is_err(),
+  assert_true(
+    @time.Duration::of(seconds=1L).add_seconds?(@int64.max_value).is_err(),
   )
-  assert_true!(
-    @time.Duration::of!(seconds=-1L).add_seconds?(@int64.min_value).is_err(),
+  assert_true(
+    @time.Duration::of(seconds=-1L).add_seconds?(@int64.min_value).is_err(),
   )
 }
 
 ///|
 test "with_seconds" {
-  let d = @time.Duration::of!(seconds=20L)
-  inspect!(d.with_seconds(20L), content="PT20S")
-  inspect!(d.with_seconds(30L), content="PT30S")
+  let d = @time.Duration::of(seconds=20L)
+  inspect(d.with_seconds(20L), content="PT20S")
+  inspect(d.with_seconds(30L), content="PT30S")
 }
 
 ///|
 test "with_nanoseconds" {
-  let d = @time.Duration::of!(nanoseconds=1000L)
-  inspect!(d.with_nanoseconds!(1000), content="PT0.000001S")
-  inspect!(d.with_nanoseconds!(2000), content="PT0.000002S")
-  assert_true!(d.with_nanoseconds?(1_000_000_000).is_err())
+  let d = @time.Duration::of(nanoseconds=1000L)
+  inspect(d.with_nanoseconds(1000), content="PT0.000001S")
+  inspect(d.with_nanoseconds(2000), content="PT0.000002S")
+  assert_true(d.with_nanoseconds?(1_000_000_000).is_err())
 }

@@ -14,28 +14,28 @@
 
 ///|
 test "create_from_valid" {
-  inspect!(create_from_valid(2001, 2, 29), content="2001-02-28")
-  inspect!(create_from_valid(-2001, 2, 29), content="-2001-02-28")
+  inspect(create_from_valid(2001, 2, 29), content="2001-02-28")
+  inspect(create_from_valid(-2001, 2, 29), content="-2001-02-28")
 }
 
 ///|
 test "date_to_fixed_days" {
-  inspect!(date_to_fixed_days(0, 1, 1), content="0")
-  inspect!(date_to_fixed_days(1, 1, 1), content="366")
-  inspect!(date_to_fixed_days(2, 1, 1), content="731")
-  inspect!(date_to_fixed_days(-1, 1, 1), content="-365")
-  inspect!(date_to_fixed_days(-1970, 1, 1), content="-719527")
-  inspect!(date_to_fixed_days(1970, 1, 1), content="719528")
+  inspect(date_to_fixed_days(0, 1, 1), content="0")
+  inspect(date_to_fixed_days(1, 1, 1), content="366")
+  inspect(date_to_fixed_days(2, 1, 1), content="731")
+  inspect(date_to_fixed_days(-1, 1, 1), content="-365")
+  inspect(date_to_fixed_days(-1970, 1, 1), content="-719527")
+  inspect(date_to_fixed_days(1970, 1, 1), content="719528")
 }
 
 ///|
 test "fixed_days_to_year_ord" {
-  inspect!(fixed_days_to_year_ord(0L), content="(0, 1)")
-  inspect!(fixed_days_to_year_ord(1L), content="(0, 2)")
-  inspect!(fixed_days_to_year_ord(366L), content="(1, 1)")
-  inspect!(fixed_days_to_year_ord(731L), content="(2, 1)")
-  inspect!(fixed_days_to_year_ord(719528L), content="(1970, 1)")
-  inspect!(fixed_days_to_year_ord(-365L), content="(-1, 1)")
-  inspect!(fixed_days_to_year_ord(-730L), content="(-2, 1)")
-  inspect!(fixed_days_to_year_ord(-719527L), content="(-1970, 1)")
+  inspect(fixed_days_to_year_ord(0L), content="(0, 1)")
+  inspect(fixed_days_to_year_ord(1L), content="(0, 2)")
+  inspect(fixed_days_to_year_ord(366L), content="(1, 1)")
+  inspect(fixed_days_to_year_ord(731L), content="(2, 1)")
+  inspect(fixed_days_to_year_ord(719528L), content="(1970, 1)")
+  inspect(fixed_days_to_year_ord(-365L), content="(-1, 1)")
+  inspect(fixed_days_to_year_ord(-730L), content="(-2, 1)")
+  inspect(fixed_days_to_year_ord(-719527L), content="(-1970, 1)")
 }

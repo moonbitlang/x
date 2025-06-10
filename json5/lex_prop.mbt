@@ -14,20 +14,20 @@
 
 ///|
 fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
-  lex_skip_whitespace!(ctx)
+  lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some('}') => RBrace
     Some('\'' | '"' as c) => {
-      let s = lex_string!(ctx, c)
+      let s = lex_string(ctx, c)
       String(s)
     }
     Some('$' | '_') => {
-      let s = lex_ident!(ctx, ctx.offset - 1)
+      let s = lex_ident(ctx, ctx.offset - 1)
       String(s)
     }
     Some('\\') => {
-      lex_assert_char!(ctx, 'u')
-      let c = lex_hex_digits!(ctx, 4)
+      lex_assert_char(ctx, 'u')
+      let c = lex_hex_digits(ctx, 4)
       let c = Int::unsafe_to_char(c)
       if c == '$' ||
         c == '_' ||
@@ -36,10 +36,10 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
         (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::make()
         buffer.add_char(c)
-        let s = lex_ident!(ctx, ctx.offset, buffer~)
+        let s = lex_ident(ctx, ctx.offset, buffer~)
         String(s)
       } else {
-        parse_error!(
+        parse_error(
           InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)),
         )
       }
@@ -48,12 +48,12 @@ fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
       if (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
         (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
-        let s = lex_ident!(ctx, ctx.offset - 1)
+        let s = lex_ident(ctx, ctx.offset - 1)
         return String(s)
       }
-      invalid_char!(ctx, shift=-1)
+      invalid_char(ctx, shift=-1)
     }
-    None => parse_error!(InvalidEof)
+    None => parse_error(InvalidEof)
   }
 }
 
@@ -74,8 +74,8 @@ fn lex_ident(
     match read_char(ctx) {
       Some('\\') => {
         flush(ctx.offset - 1)
-        lex_assert_char!(ctx, 'u')
-        let c = lex_hex_digits!(ctx, 4)
+        lex_assert_char(ctx, 'u')
+        let c = lex_hex_digits(ctx, 4)
         let c = Int::unsafe_to_char(c)
         if c == '$' ||
           c == '_' ||
@@ -87,7 +87,7 @@ fn lex_ident(
           start = ctx.offset
           continue
         } else {
-          parse_error!(
+          parse_error(
             InvalidIdentEscape(offset_to_position(ctx.input, ctx.offset - 6)),
           )
         }

@@ -40,7 +40,7 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
       Some('/') => {
-        lex_comment!(ctx)
+        lex_comment(ctx)
         continue
       }
       Some(c) => {
@@ -57,53 +57,53 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
 
 ///|
 fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
-  lex_skip_whitespace!(ctx)
+  lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some(']') => Token::RBracket
     Some(',') => Token::Comma
-    Some(_) => invalid_char!(ctx, shift=-1)
-    None => parse_error!(InvalidEof)
+    Some(_) => invalid_char(ctx, shift=-1)
+    None => parse_error(InvalidEof)
   }
 }
 
 ///|
 fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
-  lex_skip_whitespace!(ctx)
+  lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some(':') => Token::Colon
-    Some(_) => invalid_char!(ctx, shift=-1)
-    None => parse_error!(InvalidEof)
+    Some(_) => invalid_char(ctx, shift=-1)
+    None => parse_error(InvalidEof)
   }
 }
 
 ///|
 fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
-  lex_skip_whitespace!(ctx)
+  lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some('}') => Token::RBrace
     Some(',') => Token::Comma
-    Some(_) => invalid_char!(ctx, shift=-1)
-    None => parse_error!(InvalidEof)
+    Some(_) => invalid_char(ctx, shift=-1)
+    None => parse_error(InvalidEof)
   }
 }
 
 ///|
 fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
   match read_char(ctx) {
-    Some(c2) => if c == c2 { () } else { invalid_char!(ctx, shift=-1) }
-    None => parse_error!(InvalidEof)
+    Some(c2) => if c == c2 { () } else { invalid_char(ctx, shift=-1) }
+    None => parse_error(InvalidEof)
   }
 }
 
 ///|
 fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
-  lex_assert_char!(ctx, 'n')
-  lex_assert_char!(ctx, 'f')
-  lex_assert_char!(ctx, 'i')
-  lex_assert_char!(ctx, 'n')
-  lex_assert_char!(ctx, 'i')
-  lex_assert_char!(ctx, 't')
-  lex_assert_char!(ctx, 'y')
+  lex_assert_char(ctx, 'n')
+  lex_assert_char(ctx, 'f')
+  lex_assert_char(ctx, 'i')
+  lex_assert_char(ctx, 'n')
+  lex_assert_char(ctx, 'i')
+  lex_assert_char(ctx, 't')
+  lex_assert_char(ctx, 'y')
 }
 
 ///|
@@ -128,11 +128,11 @@ fn lex_comment(ctx : ParseContext) -> Unit!ParseError {
               Some('/') => return ()
               _ => ()
             }
-          None => parse_error!(InvalidEof)
+          None => parse_error(InvalidEof)
           _ => ()
         }
       }
-    Some(_) => invalid_char!(ctx, shift=-1)
-    None => parse_error!(InvalidEof)
+    Some(_) => invalid_char(ctx, shift=-1)
+    None => parse_error(InvalidEof)
   }
 }

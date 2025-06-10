@@ -29,7 +29,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
           flush(ctx.offset - 1)
           break
         }
-      Some('\n' | '\r') => invalid_char!(ctx, shift=-1)
+      Some('\n' | '\r') => invalid_char(ctx, shift=-1)
       Some('\\') => {
         flush(ctx.offset - 1)
         match read_char(ctx) {
@@ -48,32 +48,32 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
               Some(c) => {
                 ctx.offset -= 1
                 if c >= '0' && c <= '9' {
-                  invalid_char!(ctx)
+                  invalid_char(ctx)
                 }
               }
             }
             buf.add_char('\u{00}')
           }
           Some('x') => {
-            let c = lex_hex_digits!(ctx, 2)
+            let c = lex_hex_digits(ctx, 2)
             buf.add_char(Int::unsafe_to_char(c))
           }
           Some('u') => {
-            let c = lex_hex_digits!(ctx, 4)
+            let c = lex_hex_digits(ctx, 4)
             buf.add_char(Int::unsafe_to_char(c))
           }
           Some(c) => {
             if c >= '1' && c <= '9' {
-              invalid_char!(ctx, shift=-1)
+              invalid_char(ctx, shift=-1)
             }
             buf.add_char(c)
           }
-          None => parse_error!(InvalidEof)
+          None => parse_error(InvalidEof)
         }
         start = ctx.offset
       }
       Some(_) => continue
-      None => parse_error!(InvalidEof)
+      None => parse_error(InvalidEof)
     }
   }
   buf.to_string()
@@ -88,19 +88,19 @@ fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int!ParseError {
         if c >= 'A' {
           let d = (c.to_int() & (32).lnot()) - 'A'.to_int() + 10
           if d > 15 {
-            invalid_char!(ctx, shift=-1)
+            invalid_char(ctx, shift=-1)
           }
           r = (r << 4) | d
         } else if c >= '0' {
           let d = c.to_int() - '0'.to_int()
           if d > 9 {
-            invalid_char!(ctx, shift=-1)
+            invalid_char(ctx, shift=-1)
           }
           r = (r << 4) | d
         } else {
-          invalid_char!(ctx, shift=-1)
+          invalid_char(ctx, shift=-1)
         }
-      None => parse_error!(InvalidEof)
+      None => parse_error(InvalidEof)
     }
   }
   r

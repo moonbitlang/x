@@ -37,7 +37,7 @@ pub fn Period::zero() -> Period {
 pub fn Period::from_string(str : String) -> Period!Error {
   // TODO: better parsing impl
   if str.charcode_at(0) != 'P' {
-    fail!(invalid_period_err)
+    fail(invalid_period_err)
   }
   let buf = StringBuilder::new(size_hint=0)
   let mut years = 0
@@ -48,19 +48,19 @@ pub fn Period::from_string(str : String) -> Period!Error {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '-' =>
         buf.write_char(Int::unsafe_to_char(str.charcode_at(i)))
       'Y' => {
-        years = @strconv.parse!(buf.to_string())
+        years = @strconv.parse(buf.to_string())
         buf.reset()
       }
       'M' => {
-        months = @strconv.parse!(buf.to_string())
+        months = @strconv.parse(buf.to_string())
         buf.reset()
       }
       'D' => {
-        days = @strconv.parse!(buf.to_string())
+        days = @strconv.parse(buf.to_string())
         buf.reset()
         break
       }
-      _ => fail!(invalid_period_err)
+      _ => fail(invalid_period_err)
     }
   }
   Period::of(years~, months~, days~)
@@ -113,7 +113,7 @@ pub fn add_years(self : Period, years : Int) -> Period!Error {
   if years == 0 {
     return self
   }
-  let new_years = checked_add_int!(self.years, years)
+  let new_years = checked_add_int(self.years, years)
   Period::of(years=new_years, months=self.months, days=self.days)
 }
 
@@ -122,7 +122,7 @@ pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
   if weeks == 0 {
     return self
   }
-  let new_days = checked_add_int!(self.days, checked_mul_int!(weeks, 7))
+  let new_days = checked_add_int(self.days, checked_mul_int(weeks, 7))
   Period::of(years=self.years, months=self.months, days=new_days)
 }
 
@@ -131,7 +131,7 @@ pub fn add_months(self : Period, months : Int) -> Period!Error {
   if months == 0 {
     return self
   }
-  let new_months = checked_add_int!(self.months, months)
+  let new_months = checked_add_int(self.months, months)
   Period::of(years=self.years, months=new_months, days=self.days)
 }
 
@@ -140,7 +140,7 @@ pub fn add_days(self : Period, days : Int) -> Period!Error {
   if days == 0 {
     return self
   }
-  let new_days = checked_add_int!(self.days, days)
+  let new_days = checked_add_int(self.days, days)
   Period::of(years=self.years, months=self.months, days=new_days)
 }
 
@@ -150,19 +150,19 @@ pub fn add_period(self : Period, other : Period) -> Period!Error {
     return self
   }
   self
-  .add_years!(other.years())
-  .add_months!(other.months())
-  .add_days!(other.days())
+  .add_years(other.years())
+  .add_months(other.months())
+  .add_days(other.days())
 }
 
 ///|
 pub fn Period::op_add(self : Period, other : Period) -> Period!Error {
-  self.add_period!(other)
+  self.add_period(other)
 }
 
 ///|
 pub fn op_sub(self : Period, other : Period) -> Period!Error {
-  self.add_period!(other.negated!())
+  self.add_period(other.negated())
 }
 
 ///| Returns a new period with all elements in this period multiplied by the specified value.
@@ -173,15 +173,15 @@ pub fn multiply(self : Period, n : Int) -> Period!Error {
   if self.is_zero() || n == 1 {
     return self
   }
-  let years = checked_mul_int!(self.years, n)
-  let months = checked_mul_int!(self.months, n)
-  let days = checked_mul_int!(self.days, n)
+  let years = checked_mul_int(self.years, n)
+  let months = checked_mul_int(self.months, n)
+  let days = checked_mul_int(self.days, n)
   Period::of(years~, months~, days~)
 }
 
 ///| Returns a new period with all elements in this period negated.
 pub fn negated(self : Period) -> Period!Error {
-  self.multiply!(-1)
+  self.multiply(-1)
 }
 
 ///| Returns a new period with the specified amount of years.

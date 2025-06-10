@@ -48,10 +48,10 @@ let utf_8_len = [
 /// ```moonbit
 /// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
 /// let decoder = decoder(UTF8)
-/// inspect!(decoder.consume!(inputs[0]), content="abc")
-/// inspect!(decoder.consume!(inputs[1]), content="")
-/// inspect!(decoder.consume!(inputs[2]), content="🐰")
-/// assert_true!(decoder.finish!().is_empty())
+/// inspect(decoder.consume(inputs[0]), content="abc")
+/// inspect(decoder.consume(inputs[1]), content="")
+/// inspect(decoder.consume(inputs[2]), content="🐰")
+/// assert_true(decoder.finish().is_empty())
 pub fn decoder(encoding : Encoding) -> Decoder {
   let i = FixedArray::default()
   let i_pos = 0
@@ -93,15 +93,15 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 /// ```moonbit
 /// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
 /// let decoder = @encoding.decoder(UTF8)
-/// inspect!(decoder.decode!(inputs[0], stream=true), content="abc")
-/// inspect!(decoder.decode!(inputs[1], stream=true), content="")
-/// inspect!(decoder.decode!(inputs[2], stream=false), content="🐰")
+/// inspect(decoder.decode(inputs[0], stream=true), content="abc")
+/// inspect(decoder.decode(inputs[1], stream=true), content="")
+/// inspect(decoder.decode(inputs[2], stream=false), content="🐰")
 /// ```
-pub fn decode!(
+pub fn decode(
   self : Decoder,
   input : @bytes.View,
   stream~ : Bool = false
-) -> String {
+) -> String!Error {
   if input.length() > 0 {
     self.i_cont(input)
   }
@@ -155,8 +155,8 @@ pub fn decode!(
 /// test "decode_to" {
 ///   let decoder = decoder(UTF8)
 ///   let buf = StringBuilder::new()
-///   decoder.decode_to!(b"Hello", buf)
-///   inspect!(buf.to_string(), content="Hello")
+///   decoder.decode_to(b"Hello", buf)
+///   inspect(buf.to_string(), content="Hello")
 /// }
 /// ```
 pub fn Decoder::decode_to(
@@ -194,7 +194,7 @@ pub fn decode_to(
   output : StringBuilder,
   encoding~ : Encoding
 ) -> Unit! {
-  decoder(encoding).decode_to!(input, output)
+  decoder(encoding).decode_to(input, output)
 }
 
 ///|
@@ -215,8 +215,8 @@ pub fn decode_to(
 ///
 /// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
 /// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
-pub fn consume!(self : Decoder, input : @bytes.View) -> String {
-  self.decode!(input, stream=true)
+pub fn consume(self : Decoder, input : @bytes.View) -> String!Error {
+  self.decode(input, stream=true)
 }
 
 ///|
@@ -237,8 +237,8 @@ pub fn consume!(self : Decoder, input : @bytes.View) -> String {
 ///
 /// `MalformedError`: This error is raised if the remaining byte sequence is not properly formatted according to the specified encoding.
 /// `TruncatedError`: This error is raised if the remaining byte sequence ends prematurely, implying that more data was expected for complete decoding.
-pub fn finish!(self : Decoder) -> String {
-  self.decode!(b"", stream=false)
+pub fn finish(self : Decoder) -> String!Error {
+  self.decode(b"", stream=false)
 }
 
 ///|

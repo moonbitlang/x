@@ -18,7 +18,7 @@ let bytes_to_hex_string = @crypto.bytes_to_hex_string
 ///|
 test "sha1" {
   let a = "The quick brown fox jumps over the lazy dog"
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(a.to_bytes().to_fixedarray())),
     content="bd136cb58899c93173c33a90dde95ead0d0cf6df",
   )
@@ -26,7 +26,7 @@ test "sha1" {
   for i = 0; i < 1000; i = i + 1 {
     a.push(i.to_byte())
   }
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(FixedArray::from_array(a))),
     content="af0b191c2de46fe13fe0908f5a6a4e90e0cafc46",
   )
@@ -34,7 +34,7 @@ test "sha1" {
   for i = 0; i < 8192; i = i + 1 {
     a.push((i / 3).to_byte())
   }
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(FixedArray::from_array(a))),
     content="2d3fd26de8e0e1625911bb0417005813e6130aa9",
   )
@@ -42,7 +42,7 @@ test "sha1" {
   for i = 0; i < 8190; i = i + 1 {
     a.push((i / 5).to_byte())
   }
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(FixedArray::from_array(a))),
     content="c3be02b5a0cdbd6bd436159d860dfa99570f8efa",
   )
@@ -50,7 +50,7 @@ test "sha1" {
   for i = 0; i < 8182; i = i + 1 {
     a.push((i / 7).to_byte())
   }
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(FixedArray::from_array(a))),
     content="64ee7b834ef006980ead69a2ea09ce8c0194e728",
   )
@@ -58,7 +58,7 @@ test "sha1" {
   for i = 0; i < 8172; i = i + 1 {
     a.push((i / 11).to_byte())
   }
-  inspect!(
+  inspect(
     @crypto.bytes_to_hex_string(@crypto.sha1(FixedArray::from_array(a))),
     content="f27a48085ff2d00692599510e7627f3ce468c1a6",
   )

@@ -29,7 +29,7 @@ pub fn fixed_zone(
   abbrev~ : String = "",
   dst~ : Bool = false
 ) -> Zone!Error {
-  let offset = ZoneOffset::from_seconds!(offset_seconds, abbrev~, dst~)
+  let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
   Zone::{ id, offsets: [offset], transitions: [] }
 }
 
@@ -108,7 +108,7 @@ pub fn Zone::from_tzif2(id : String, data : FixedArray[Byte]) -> Zone!Error {
     let abbrev_index = abbrev_offset + data[offset + 5].to_int()
     let abbrev = ascii_to_string(data, abbrev_index)
     offsets.push(
-      ZoneOffset::from_seconds!(to_int_be(data, offset), abbrev~, dst~),
+      ZoneOffset::from_seconds(to_int_be(data, offset), abbrev~, dst~),
     )
   }
   { id, offsets, transitions }
@@ -323,22 +323,22 @@ test "Zone::from_tzif2" {
     49, 49, 46, 49, 46, 48, 10,
   ]
   let name = "America/Los_Angeles"
-  let zone = Zone::from_tzif2!(name, data)
-  inspect!(zone, content="America/Los_Angeles")
+  let zone = Zone::from_tzif2(name, data)
+  inspect(zone, content="America/Los_Angeles")
   let current_time_seconds = 1706659200L // Tuesday, January 30, 2024 4:00:00pm PST
-  let got = unix!(current_time_seconds, zone~)
-  inspect!(got, content="2024-01-30T16:00:00-08:00[PST]")
-  inspect!(got.offset(), content="-08:00")
-  inspect!(got.offset().is_dst(), content="false")
+  let got = unix(current_time_seconds, zone~)
+  inspect(got, content="2024-01-30T16:00:00-08:00[PST]")
+  inspect(got.offset(), content="-08:00")
+  inspect(got.offset().is_dst(), content="false")
   let current_time_seconds = 1754006400L // Thursday, July 31, 2025 5:00:00pm PDT
-  let got = unix!(current_time_seconds, zone~)
-  inspect!(got, content="2025-07-31T17:00:00-07:00[PDT]")
-  inspect!(got.offset(), content="-07:00")
-  inspect!(got.offset().is_dst(), content="true")
+  let got = unix(current_time_seconds, zone~)
+  inspect(got, content="2025-07-31T17:00:00-07:00[PDT]")
+  inspect(got.offset(), content="-07:00")
+  inspect(got.offset().is_dst(), content="true")
   // Behavior of a fixed-offset zone:
-  let zone = fixed_zone!(name, -25200, abbrev="PDT", dst=true)
-  let got = unix!(current_time_seconds, zone~)
-  inspect!(got, content="2025-07-31T17:00:00-07:00[PDT]")
-  inspect!(got.offset(), content="-07:00")
-  inspect!(got.offset().is_dst(), content="true")
+  let zone = fixed_zone(name, -25200, abbrev="PDT", dst=true)
+  let got = unix(current_time_seconds, zone~)
+  inspect(got, content="2025-07-31T17:00:00-07:00[PDT]")
+  inspect(got.offset(), content="-07:00")
+  inspect(got.offset().is_dst(), content="true")
 }

@@ -31,7 +31,7 @@ fn offset_to_position(input : String, offset : Int) -> Position {
 ///|
 fn[X] invalid_char(ctx : ParseContext, shift~ : Int = 0) -> X!ParseError {
   let offset = ctx.offset + shift
-  parse_error!(
+  parse_error(
     InvalidChar(
       offset_to_position(ctx.input, offset),
       Int::unsafe_to_char(ctx.input.charcode_at(offset)),

@@ -25,14 +25,14 @@ test "chachaEncrypt" {
   key[7] = 0
   let plaintext = "abc"
   let block = plaintext.to_bytes().to_fixedarray()
-  inspect!(bytes_to_hex_string(block), content="610062006300")
-  let encrypted = @crypto.chacha8!(key, 0, block)
+  inspect(bytes_to_hex_string(block), content="610062006300")
+  let encrypted = @crypto.chacha8(key, 0, block)
   let expected = "5f008d2fea5f"
-  assert_eq!(bytes_to_hex_string(encrypted), expected)
-  let encrypted = @crypto.chacha12!(key, 0, block)
+  assert_eq(bytes_to_hex_string(encrypted), expected)
+  let encrypted = @crypto.chacha12(key, 0, block)
   let expected = "faf4f86a6455"
-  assert_eq!(bytes_to_hex_string(encrypted), expected)
-  let encrypted = @crypto.chacha20!(key, 0, block)
+  assert_eq(bytes_to_hex_string(encrypted), expected)
+  let encrypted = @crypto.chacha20(key, 0, block)
   let expected = "17b882adc3f1"
-  assert_eq!(bytes_to_hex_string(encrypted), expected)
+  assert_eq(bytes_to_hex_string(encrypted), expected)
 }

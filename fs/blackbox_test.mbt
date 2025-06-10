@@ -18,20 +18,20 @@ test "write_and_read" {
   let path_2 = "./fs/test_2.txt"
   let content_1 = "Hello, World"
   let content_2 = "Hello, MoonBit"
-  @fs.write_bytes_to_file!(path_1, content_1.to_bytes())
-  let res_1 = @fs.read_file_to_bytes!(path_1)
-  inspect!(res_1.to_unchecked_string(), content=content_1)
-  @fs.write_string_to_file!(path_2, content_2)
-  let res_2 = @fs.read_file_to_string!(path_2)
-  inspect!(res_2, content=content_2)
+  @fs.write_bytes_to_file(path_1, content_1.to_bytes())
+  let res_1 = @fs.read_file_to_bytes(path_1)
+  inspect(res_1.to_unchecked_string(), content=content_1)
+  @fs.write_string_to_file(path_2, content_2)
+  let res_2 = @fs.read_file_to_string(path_2)
+  inspect(res_2, content=content_2)
 }
 
 ///|
 test "read_dir" {
   let path = "./fs"
-  let files = @fs.read_dir!(path)
+  let files = @fs.read_dir(path)
   files.sort()
-  inspect!(
+  inspect(
     files,
     content=
       #|["fs.mbt", "fs.mbti", "fs_js.mbt", "test_1.txt", "test_2.txt", "fs_wasm.mbt", "fs_native.mbt", "moon.pkg.json", "blackbox_test.mbt"]
@@ -42,11 +42,11 @@ test "read_dir" {
 ///|
 test "create_dir_and_remove_dir" {
   let path = "./fs/test_dir"
-  assert_false!(@fs.path_exists(path))
-  @fs.create_dir!(path)
-  assert_true!(@fs.path_exists(path))
-  assert_true!(@fs.is_dir!(path))
-  assert_false!(@fs.is_file!(path))
-  @fs.remove_dir!(path)
-  assert_false!(@fs.path_exists(path))
+  assert_false(@fs.path_exists(path))
+  @fs.create_dir(path)
+  assert_true(@fs.path_exists(path))
+  assert_true(@fs.is_dir(path))
+  assert_false(@fs.is_file(path))
+  @fs.remove_dir(path)
+  assert_false(@fs.path_exists(path))
 }
