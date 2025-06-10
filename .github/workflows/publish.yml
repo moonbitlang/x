@@ -30,7 +30,6 @@ jobs:
           git diff --exit-code
       - name: publish
         run: |
-          rm -r example
           echo $SECRET > ~/.moon/credentials.json
           moon publish
           rm ~/.moon/credentials.json
