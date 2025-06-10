@@ -24,7 +24,7 @@ fn write_bytes_to_file(String, Bytes) -> Unit!
 fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit!
 
 // Types and methods
-pub(all) type! IOError String
+pub(all) suberror IOError String
 impl Show for IOError
 
 // Type aliases

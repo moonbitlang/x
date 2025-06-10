@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub(all) type! IOError String derive(Show)
+pub(all) suberror IOError String derive(Show)
 
 ///| Reads the content of a file specified by the given path and returns its
 /// content as `Bytes`

@@ -4,7 +4,7 @@ package "moonbitlang/x/json5"
 fn parse(String) -> Json!ParseError
 
 // Types and methods
-pub(all) type! ParseError ParseErrorData
+pub(all) suberror ParseError ParseErrorData
 fn ParseError::to_string(Self) -> String
 impl Show for ParseError
 

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-pub type! MalformedError Bytes
+pub suberror MalformedError Bytes
 
 ///|
-pub type! TruncatedError Bytes
+pub suberror TruncatedError Bytes
 
 ///|
 pub(all) enum Encoding {
