@@ -33,18 +33,9 @@ test "add_nanoseconds" {
   inspect(time.add_nanoseconds(0L), content="00:00:00.000001")
   inspect(time.add_nanoseconds(1L), content="00:00:00.000001001")
   inspect(time.add_nanoseconds(123456789L), content="00:00:00.123457789")
-  inspect(
-    time.add_nanoseconds(@int64.min_value),
-    content="00:12:43.145225192",
-  )
-  inspect(
-    time.add_nanoseconds(@int64.max_value),
-    content="23:47:16.854776807",
-  )
-  inspect(
-    time.add_nanoseconds(nanoseconds_per_day),
-    content="00:00:00.000001",
-  )
+  inspect(time.add_nanoseconds(@int64.min_value), content="00:12:43.145225192")
+  inspect(time.add_nanoseconds(@int64.max_value), content="23:47:16.854776807")
+  inspect(time.add_nanoseconds(nanoseconds_per_day), content="00:00:00.000001")
 }
 
 ///|

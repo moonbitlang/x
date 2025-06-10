@@ -322,9 +322,7 @@ pub fn PlainDate::add_period(
   period : Period
 ) -> PlainDate!Error {
   let mut d = self
-  d = d
-    .add_months(period.to_total_months())
-    .add_days(period.days().to_int64())
+  d = d.add_months(period.to_total_months()).add_days(period.days().to_int64())
   d
 }
 
