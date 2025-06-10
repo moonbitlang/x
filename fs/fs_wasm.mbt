@@ -61,7 +61,7 @@ fn read_file_to_string_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  @ffi.utf8_bytes_to_mbt_string(read_file_to_bytes_internal!(path))
+  @ffi.utf8_bytes_to_mbt_string(read_file_to_bytes_internal(path))
 }
 
 ///|
@@ -84,7 +84,7 @@ fn write_string_to_file_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  write_bytes_to_file_internal!(
+  write_bytes_to_file_internal(
     path,
     @ffi.mbt_string_to_utf8_bytes(content, false),
   )

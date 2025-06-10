@@ -66,7 +66,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 ///   let buf = @buffer.new()
 ///   let text = "Hello, world"
 ///   @encoding.encode_to(text, buf, encoding=UTF16)
-///   inspect!(buf.to_string(), content="Hello, world")
+///   inspect(buf.to_string(), content="Hello, world")
 /// }
 /// ```
 pub fn encode_to(

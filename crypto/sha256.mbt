@@ -214,7 +214,7 @@ test {
     ctx.sha256_compute()
   }
 
-  inspect!(
+  inspect(
     uints_to_hex_string(
       sha256_u32(
         b"\x61\x62\x63".to_fixedarray(), // abc in utf-8
@@ -222,7 +222,7 @@ test {
     ),
     content="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
   )
-  inspect!(
+  inspect(
     uints_to_hex_string(
       sha256_u32(
         // abcd * 16 in utf-8
@@ -231,7 +231,7 @@ test {
     ),
     content="625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )
-  assert_eq!(
+  assert_eq(
     bytes_to_hex_string(sha256(b"\x61\x62\x63".to_fixedarray())),
     uints_to_hex_string(sha256_u32(b"\x61\x62\x63".to_fixedarray()).iter()),
   )
@@ -240,13 +240,13 @@ test {
   ctx.update(b"\x61".to_fixedarray())
   ctx.update(b"\x62".to_fixedarray())
   ctx.update(b"\x63".to_fixedarray())
-  assert_eq!(hash1, bytes_to_hex_string(ctx.finalize()))
+  assert_eq(hash1, bytes_to_hex_string(ctx.finalize()))
   let ctx = Sha256Context::new()
   let data = b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64"
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(FixedArray::make(1, data[i]))
   }
-  assert_eq!(
+  assert_eq(
     bytes_to_hex_string(ctx.finalize()),
     "625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )
@@ -254,7 +254,7 @@ test {
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
-  assert_eq!(
+  assert_eq(
     bytes_to_hex_string(ctx.finalize()),
     "625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
   )

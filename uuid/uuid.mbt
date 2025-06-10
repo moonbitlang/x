@@ -48,7 +48,7 @@ struct UUID {
 ///
 pub fn from_bytes(bytes : Bytes) -> UUID!Error {
   if bytes.length() != 16 {
-    fail!("requires 16 bytes")
+    fail("requires 16 bytes")
   }
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
@@ -84,14 +84,14 @@ test "bytes" {
       Int::to_byte,
     ),
   )
-  inspect!(
-    from_bytes!(buf).to_bytes(),
+  inspect(
+    from_bytes(buf).to_bytes(),
     content=
       #|b"\xc9\x82\xfb\x68\xdf\x50\x4c\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
     ,
   )
-  assert_true!(from_bytes?(Bytes::new(15)).is_err())
-  assert_true!(from_bytes?(Bytes::new(17)).is_err())
+  assert_true(from_bytes?(Bytes::new(15)).is_err())
+  assert_true(from_bytes?(Bytes::new(17)).is_err())
 }
 
 ///|
@@ -103,7 +103,7 @@ fn hex_char_to_int64(c : Int) -> Int64!Error {
   } else if 'A'.to_int() <= c && c <= 'F'.to_int() {
     c - 'A' + 10
   } else {
-    fail!("invalid syntax")
+    fail("invalid syntax")
   }
   d.to_int64()
 }
@@ -118,13 +118,13 @@ pub fn from_hex(hex : String) -> UUID!Error {
   // tooling around String yet
   let (hi, i) = for hi = 0L, i = 0, n = 0; n < 16; {
     if i >= hex.length() {
-      fail!("not enough hexadecimal in UUID string")
+      fail("not enough hexadecimal in UUID string")
     }
     let c = hex.charcode_at(i)
     if c == '-' {
       continue hi, i + 1, n
     } else {
-      let d = hex_char_to_int64!(c)
+      let d = hex_char_to_int64(c)
       continue hi | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -132,13 +132,13 @@ pub fn from_hex(hex : String) -> UUID!Error {
   }
   let (lo, i) = for lo = 0L, i = i, n = 0; n < 16; {
     if i >= hex.length() {
-      fail!("not enough hexadecimal in UUID string")
+      fail("not enough hexadecimal in UUID string")
     }
     let c = hex.charcode_at(i)
     if c == '-' {
       continue lo, i + 1, n
     } else {
-      let d = hex_char_to_int64!(c)
+      let d = hex_char_to_int64(c)
       continue lo | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -147,7 +147,7 @@ pub fn from_hex(hex : String) -> UUID!Error {
   if i == hex.length() {
     { hi, lo }
   } else {
-    fail!("badly formed hexadecimal UUID string")
+    fail("badly formed hexadecimal UUID string")
   }
 }
 

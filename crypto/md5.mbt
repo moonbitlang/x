@@ -239,7 +239,7 @@ test "md5_wb" {
   let hash = md5(
     "The quick brown fox jumps over the lazy dog".to_bytes().to_fixedarray(),
   )
-  inspect!(
+  inspect(
     bytes_to_hex_string(hash),
     content="b0986ae6ee1eefee8a4a399090126837",
   )
@@ -255,5 +255,5 @@ test {
   let ctx = MD5Context::new()
   md5_update(ctx, b"\x61\x62\x63".to_fixedarray())
   let res2 = bytes_to_hex_string(ctx.md5_compute())
-  assert_eq!(res1, res2)
+  assert_eq(res1, res2)
 }

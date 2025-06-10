@@ -20,33 +20,33 @@ fn sm3test(s : String) -> String {
 // additional
 ///|
 test "sm3-additional" {
-  assert_eq!(
+  assert_eq(
     sm3test(""),
     "1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b",
   )
-  assert_eq!(
+  assert_eq(
     sm3test("a"),
     "f4ccf00ef22555dd42706fd542022232a726a16062134c3c0ffe8fc7fa6cfe83",
   )
-  assert_eq!(
+  assert_eq(
     sm3test("message digest"),
     "2f2fba46cd6817494d1451bb2a9e9a82d8c60aa355e8e52889b5f0dd32492f7f",
   )
-  assert_eq!(
+  assert_eq(
     sm3test("abcdefghijklmnopqrstuvwxyz"),
     "0470a95f1d8c774444b3d25b23fc064ac928909ddc1dd4766ca9d5e0c6210ba3",
   )
-  assert_eq!(
+  assert_eq(
     sm3test("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
     "829b71880a21666e5a415d21f7f9fa10b5a8e7ad31f9e013fac1b849820c538b",
   )
-  assert_eq!(
+  assert_eq(
     sm3test(
       "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
     ),
     "e9ccf13e608c6a60e2677b932e3713e6bb146b3096aa20a3542ee694e7052474",
   )
-  assert_eq!(
+  assert_eq(
     sm3test(
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     ),

@@ -25,12 +25,12 @@ let decoder = @encoding.decoder(UTF8)
 
 // Consume byte chunks
 let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
-inspect!(decoder.consume!(inputs[0]), content="abc")
-inspect!(decoder.consume!(inputs[1]), content="")
-inspect!(decoder.consume!(inputs[2]), content="🐰")
+inspect(decoder.consume(inputs[0]), content="abc")
+inspect(decoder.consume(inputs[1]), content="")
+inspect(decoder.consume(inputs[2]), content="🐰")
 
 // Finish decoding
-assert_true!(decoder.finish!().is_empty())
+assert_true(decoder.finish().is_empty())
 ```
 
 ### Encoding
@@ -41,7 +41,7 @@ Encode a string to UTF-8 bytes:
 // Encode a string to UTF-8
 let src = "你好👀"
 let bytes = @encoding.encode(UTF8, src)
-inspect!(
+inspect(
   bytes,
   content=
     #|b"\xe4\xbd\xa0\xe5\xa5\xbd\xf0\x9f\x91\x80"
@@ -52,7 +52,7 @@ inspect!(
 Encode a single character to UTF-8 bytes:
 
 ```moonbit
-inspect!(
+inspect(
   @encoding.to_utf8_bytes('A'),
   content=
     #|b"\x41"

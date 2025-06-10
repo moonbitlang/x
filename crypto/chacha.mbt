@@ -25,7 +25,7 @@ fn flipWord(word : UInt) -> UInt {
 test "flipWord" {
   let word = 0x12345678U
   let flipped = flipWord(word)
-  inspect!(flipped, content="2018915346")
+  inspect(flipped, content="2018915346")
 }
 
 ///|
@@ -73,7 +73,7 @@ test "quarterRound" {
   state[14] = 0x2098d9d6U
   state[15] = 0x91dbd320U
   let newState = quarterRound(state, 2, 7, 8, 13)
-  inspect!(
+  inspect(
     newState,
     content="[2274701792, 3320640381, 3182986972, 3383111562, 1153568499, 865120127, 3657197835, 3484200914, 3832277632, 2953467441, 2538361882, 899586403, 1553404001, 3435166841, 546888150, 2447102752]",
   )
@@ -112,7 +112,7 @@ test "chachaBlockRound" {
   state[14] = 0x00000000U
   state[15] = 0x00000000U
   let newState = chachaBlockRound(state)
-  inspect!(
+  inspect(
     newState,
     content="[986087425, 3489031050, 2890662805, 2683391196, 1720476390, 1116253759, 2262580386, 3212003942, 2202368212, 756352536, 496298475, 669838588, 567302638, 1860562437, 1434237441, 2097484794]",
   )
@@ -155,12 +155,12 @@ test "chachaBlockLoop" {
   state[13] = 0
   state[14] = 0
   state[15] = 0
-  inspect!(
+  inspect(
     state,
     content="[1634760805, 857760878, 2036477234, 1797285236, 50462976, 117835012, 185207048, 252579084, 319951120, 387323156, 454695192, 522067228, 1, 0, 0, 0]",
   )
   let newState = chachaBlockLoop(state, 4)
-  inspect!(
+  inspect(
     newState,
     content="[2919080465, 647515738, 898727107, 777299107, 3407982512, 2489307765, 745530666, 2053399858, 1994399329, 139328223, 3709168053, 3118545354, 4170274417, 867477305, 1393604261, 3769539545]",
   )
@@ -197,7 +197,7 @@ test "zipWith" {
   state2[2] = 7
   state2[3] = 8
   let result = zipWith(UInt::op_add, state1, state2)
-  inspect!(result, content="[6, 8, 10, 12]")
+  inspect(result, content="[6, 8, 10, 12]")
 }
 
 ///| - chacha8: round = 4
@@ -246,7 +246,7 @@ test "chachaBlock" {
   key[6] = 0x18191a1bU
   key[7] = 0x1c1d1e1fU
   let keyStream = chachaBlock(key, 1, 0, 4)
-  inspect!(
+  inspect(
     keyStream,
     content="[1981443599, 3367155801, 4121555886, 386561433, 2964333518, 2044159387, 854489399, 1047687817, 1898967689, 4077872159, 3447861240, 3864461272, 1918276088, 967291955, 2780172371, 3650858720]",
   )
@@ -293,7 +293,7 @@ test "stateToBytes" {
   state[14] = 0x2098d9d6
   state[15] = 0x91dbd320
   let bytes = stateToBytes(state)
-  inspect!(
+  inspect(
     bytes_to_hex_string(bytes),
     content="879531e0c5ecf37d516461b1c9a62f8a44c20ef33390af7fd9fc690b2a5f714c53372767b00a5631974c541a359e99635c9710613d6316892098d9d691dbd320",
   )
@@ -312,7 +312,7 @@ pub fn chacha8(
   nonce~ : UInt = 0
 ) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
-    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
+    fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 4, nonce)
 }
@@ -330,7 +330,7 @@ pub fn chacha12(
   nonce~ : UInt = 0
 ) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
-    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
+    fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 6, nonce)
 }
@@ -348,7 +348,7 @@ pub fn chacha20(
   nonce~ : UInt = 0
 ) -> FixedArray[Byte]!Error {
   if key.length() != 8 {
-    fail!("Invalid key length -- key must be 8 32-bit unsigned integers")
+    fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key, counter, block, 10, nonce)
 }

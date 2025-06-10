@@ -76,7 +76,7 @@ fn read_file_to_string_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  let bytes = read_file_to_bytes_internal!(path)
+  let bytes = read_file_to_bytes_internal(path)
   @ffi.utf8_bytes_to_mbt_string(bytes)
 }
 
@@ -100,7 +100,7 @@ fn write_string_to_file_internal(
     )
   }
   let bytes = @ffi.mbt_string_to_utf8_bytes(content, false)
-  write_bytes_to_file_internal!(path, bytes)
+  write_bytes_to_file_internal(path, bytes)
 }
 
 ///|
