@@ -29,10 +29,7 @@ test "add_nanoseconds!" {
     d.add_nanoseconds(nanoseconds_per_hour),
     content="0000-01-01T01:00:00",
   )
-  inspect(
-    d.add_nanoseconds(nanoseconds_per_day),
-    content="0000-01-02T00:00:00",
-  )
+  inspect(d.add_nanoseconds(nanoseconds_per_day), content="0000-01-02T00:00:00")
   inspect(
     d.add_nanoseconds(nanoseconds_per_day * 366L),
     content="0001-01-01T00:00:00",

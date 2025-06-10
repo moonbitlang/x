@@ -30,10 +30,7 @@ test "from_string" {
   inspect(@time.PlainTime::from_string("23:59"), content="23:59:00")
   inspect(@time.PlainTime::from_string("24:00"), content="24:00:00")
   inspect(@time.PlainTime::from_string("23:59:59"), content="23:59:59")
-  inspect(
-    @time.PlainTime::from_string("01:00:00.123"),
-    content="01:00:00.123",
-  )
+  inspect(@time.PlainTime::from_string("01:00:00.123"), content="01:00:00.123")
   inspect(
     @time.PlainTime::from_string("01:00:00.0000123"),
     content="01:00:00.0000123",
@@ -242,13 +239,9 @@ test "with_nanosecond" {
     @time.PlainTime::of(1, 20, 30, 400).with_nanosecond(999_999_999),
     content="01:20:30.999999999",
   )
+  assert_true(@time.PlainTime::of(1, 20, 30, 400).with_nanosecond?(-1).is_err())
   assert_true(
-    @time.PlainTime::of(1, 20, 30, 400).with_nanosecond?(-1).is_err(),
-  )
-  assert_true(
-    @time.PlainTime::of(1, 20, 30, 400)
-    .with_nanosecond?(1_000_000_000)
-    .is_err(),
+    @time.PlainTime::of(1, 20, 30, 400).with_nanosecond?(1_000_000_000).is_err(),
   )
 }
 

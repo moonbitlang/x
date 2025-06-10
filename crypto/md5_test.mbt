@@ -50,8 +50,5 @@ test "md5_additional" { // Additional testsuites
     a[index] = (index % 256).to_byte()
   }
   let hash = @crypto.md5(FixedArray::from_array(a))
-  inspect(
-    bytes_to_hex_string(hash),
-    content="cbecbdb0fdd5cec1e242493b6008cc79",
-  )
+  inspect(bytes_to_hex_string(hash), content="cbecbdb0fdd5cec1e242493b6008cc79")
 }

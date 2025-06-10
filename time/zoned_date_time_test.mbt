@@ -141,10 +141,7 @@ test "add_years" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.add_years(1L),
-    content="2001-01-01T01:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.add_years(1L), content="2001-01-01T01:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -177,10 +174,7 @@ test "add_weeks" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.add_weeks(1L),
-    content="2000-01-08T01:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.add_weeks(1L), content="2000-01-08T01:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -195,10 +189,7 @@ test "add_days" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.add_days(1L),
-    content="2000-01-02T01:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.add_days(1L), content="2000-01-02T01:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -213,10 +204,7 @@ test "add_hours" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.add_hours(1L),
-    content="2000-01-01T02:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.add_hours(1L), content="2000-01-01T02:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -303,10 +291,7 @@ test "with_month" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.with_month(2),
-    content="2000-02-01T01:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.with_month(2), content="2000-02-01T01:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -321,10 +306,7 @@ test "with_day" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.with_day(31),
-    content="2000-01-31T01:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.with_day(31), content="2000-01-31T01:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|
@@ -357,10 +339,7 @@ test "with_hour" {
     second=3,
     zone~,
   )
-  inspect(
-    zdt.with_hour(12),
-    content="2000-01-01T12:02:03+08:00[Asia/Shanghai]",
-  )
+  inspect(zdt.with_hour(12), content="2000-01-01T12:02:03+08:00[Asia/Shanghai]")
 }
 
 ///|

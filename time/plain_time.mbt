@@ -141,12 +141,7 @@ pub fn PlainTime::from_nanosecond_of_day(nanosecond : Int64) -> PlainTime!Error 
   nanos -= minute * nanoseconds_per_minute
   let second = nanos / nanoseconds_per_second
   nanos -= second * nanoseconds_per_second
-  PlainTime::of(
-    hour.to_int(),
-    minute.to_int(),
-    second.to_int(),
-    nanos.to_int(),
-  )
+  PlainTime::of(hour.to_int(), minute.to_int(), second.to_int(), nanos.to_int())
 }
 
 ///| Adds specified hours to this time, and returns a new time.

@@ -93,15 +93,11 @@ test "from_string" {
     @time.PlainDateTime::from_string("2000-01-01T00:00:00.12345"),
     content="2000-01-01T00:00:00.12345",
   )
-  assert_true(
-    @time.PlainDateTime::from_string?("9999-12-31T23:59:60").is_err(),
-  )
+  assert_true(@time.PlainDateTime::from_string?("9999-12-31T23:59:60").is_err())
   assert_true(
     @time.PlainDateTime::from_string?("10000-12-31T23:59:60").is_err(),
   )
-  assert_true(
-    @time.PlainDateTime::from_string?("2000-01-01 00:00:00").is_err(),
-  )
+  assert_true(@time.PlainDateTime::from_string?("2000-01-01 00:00:00").is_err())
   assert_true(@time.PlainDateTime::from_string?("2000-01-01").is_err())
   assert_true(@time.PlainDateTime::from_string?("00:00:00").is_err())
 }
@@ -197,10 +193,7 @@ test "add_period" {
     d.add_period(@time.Period::of(months=1)),
     content="2000-03-29T00:00:00",
   )
-  inspect(
-    d.add_period(@time.Period::of(days=1)),
-    content="2000-03-01T00:00:00",
-  )
+  inspect(d.add_period(@time.Period::of(days=1)), content="2000-03-01T00:00:00")
   inspect(
     d.add_period(@time.Period::of(years=1, months=1, days=1)),
     content="2001-03-30T00:00:00",
@@ -235,19 +228,13 @@ test "add_seconds" {
   inspect(d.add_seconds(60L), content="0000-01-01T00:01:00")
   inspect(d.add_seconds(60L * 60L), content="0000-01-01T01:00:00")
   inspect(d.add_seconds(24L * 60L * 60L), content="0000-01-02T00:00:00")
-  inspect(
-    d.add_seconds(24L * 60L * 60L * 366L),
-    content="0001-01-01T00:00:00",
-  )
+  inspect(d.add_seconds(24L * 60L * 60L * 366L), content="0001-01-01T00:00:00")
 }
 
 ///|
 test "add_duration" {
   let d = @time.PlainDateTime::of(0, 1, 1)
-  inspect(
-    d.add_duration(@time.Duration::zero()),
-    content="0000-01-01T00:00:00",
-  )
+  inspect(d.add_duration(@time.Duration::zero()), content="0000-01-01T00:00:00")
   inspect(
     d.add_duration(@time.Duration::of(hours=1L)),
     content="0000-01-01T01:00:00",

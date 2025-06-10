@@ -29,9 +29,7 @@ test "of" {
   assert_true(@time.ZoneOffset::of?(minutes=-60).is_err())
   assert_true(@time.ZoneOffset::of?(seconds=60).is_err())
   assert_true(@time.ZoneOffset::of?(seconds=-60).is_err())
-  assert_true(
-    @time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30).is_err(),
-  )
+  assert_true(@time.ZoneOffset::of?(hours=1, minutes=-30, seconds=-30).is_err())
   assert_true(@time.ZoneOffset::of?(hours=-1, minutes=30, seconds=30).is_err())
   assert_true(@time.ZoneOffset::of?(minutes=-30, seconds=30).is_err())
   assert_true(@time.ZoneOffset::of?(minutes=30, seconds=-30).is_err())

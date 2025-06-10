@@ -30,12 +30,7 @@ test "from_string" {
 
 ///|
 test "getters" {
-  let d = @time.Duration::of(
-    hours=1L,
-    minutes=2L,
-    seconds=3L,
-    nanoseconds=400L,
-  )
+  let d = @time.Duration::of(hours=1L, minutes=2L, seconds=3L, nanoseconds=400L)
   inspect(d.seconds(), content="3723")
   inspect(d.nanoseconds(), content="400")
 }

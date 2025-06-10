@@ -18,10 +18,7 @@ test "of" {
     Duration::of(hours=1L, minutes=2L, seconds=3L, nanoseconds=456789L),
     content="PT1H2M3.000456789S",
   )
-  inspect(
-    Duration::of(seconds=-1L, nanoseconds=1000L),
-    content="PT-0.999999S",
-  )
+  inspect(Duration::of(seconds=-1L, nanoseconds=1000L), content="PT-0.999999S")
   inspect(
     Duration::of(seconds=-1L, nanoseconds=999_999_999L),
     content="PT-0.000000001S",
@@ -123,12 +120,7 @@ test "add_nanoseconds" {
 ///|
 test "op_add" {
   let p1 = Duration::of(hours=1L, minutes=1L, seconds=1L, nanoseconds=1000L)
-  let p2 = Duration::of(
-    hours=-1L,
-    minutes=-1L,
-    seconds=-1L,
-    nanoseconds=-1000L,
-  )
+  let p2 = Duration::of(hours=-1L, minutes=-1L, seconds=-1L, nanoseconds=-1000L)
   let p3 = Duration::of(
     seconds=@int64.max_value,
     nanoseconds=max_nanosecond.to_int64(),
