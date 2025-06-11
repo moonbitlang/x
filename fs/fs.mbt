@@ -43,7 +43,7 @@ pub fn read_file_to_bytes(path : String) -> Bytes! {
 pub fn read_file_to_string(
   path : String,
   encoding~ : String = "utf8"
-) -> String! {
+) -> String!IOError {
   read_file_to_string_internal(path, encoding~)
 }
 
@@ -53,7 +53,7 @@ pub fn read_file_to_string(
 ///
 /// - `path` : The path to the file where the bytes will be written.
 /// - `content` : A `Bytes` to be written to the file.
-pub fn write_bytes_to_file(path : String, content : Bytes) -> Unit! {
+pub fn write_bytes_to_file(path : String, content : Bytes) -> Unit!IOError {
   write_bytes_to_file_internal(path, content)
 }
 
@@ -68,7 +68,7 @@ pub fn write_string_to_file(
   path : String,
   content : String,
   encoding~ : String = "utf8"
-) -> Unit! {
+) -> Unit!IOError {
   write_string_to_file_internal(path, content, encoding~)
 }
 
@@ -92,7 +92,7 @@ pub fn path_exists(path : String) -> Bool {
 /// # Returns
 ///
 /// - An array of strings representing the file name and directory name in the directory.
-pub fn read_dir(path : String) -> Array[String]! {
+pub fn read_dir(path : String) -> Array[String]!IOError {
   read_dir_internal(path)
 }
 
@@ -103,7 +103,7 @@ pub fn read_dir(path : String) -> Array[String]! {
 ///
 /// - `path` : The path where the directory should be created.
 /// - `mode~` : The mode of the directory. Default is `777`.
-pub fn create_dir(path : String) -> Unit! {
+pub fn create_dir(path : String) -> Unit!IOError {
   create_dir_internal(path)
 }
 
@@ -116,7 +116,7 @@ pub fn create_dir(path : String) -> Unit! {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path is a directory, `false` otherwise.
-pub fn is_dir(path : String) -> Bool! {
+pub fn is_dir(path : String) -> Bool!IOError {
   is_dir_internal(path)
 }
 
@@ -129,7 +129,7 @@ pub fn is_dir(path : String) -> Bool! {
 /// # Returns
 ///
 /// - `Bool` : `true` if the path points to a file, `false` otherwise.
-pub fn is_file(path : String) -> Bool! {
+pub fn is_file(path : String) -> Bool!IOError {
   is_file_internal(path)
 }
 
@@ -138,7 +138,7 @@ pub fn is_file(path : String) -> Bool! {
 /// # Parameters
 ///
 /// - `path` : The string path to the directory that needs to be removed.
-pub fn remove_dir(path : String) -> Unit! {
+pub fn remove_dir(path : String) -> Unit!IOError {
   remove_dir_internal(path)
 }
 
@@ -147,6 +147,6 @@ pub fn remove_dir(path : String) -> Unit! {
 /// # Parameters
 ///
 /// - `path` : The path to the file that needs to be removed.
-pub fn remove_file(path : String) -> Unit! {
+pub fn remove_file(path : String) -> Unit!IOError {
   remove_file_internal(path)
 }
