@@ -1,0 +1,8 @@
+{
+  "virtual": {
+    "has-default": false
+  },
+  "import": [
+    "moonbitlang/logging/types"
+  ]
+}
