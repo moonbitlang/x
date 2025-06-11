@@ -25,7 +25,7 @@ pub(all) suberror IOError String derive(Show)
 /// # Returns
 ///
 /// - A `Bytes` representing the content of the file.
-pub fn read_file_to_bytes(path : String) -> Bytes! {
+pub fn read_file_to_bytes(path : String) -> Bytes!IOError {
   read_file_to_bytes_internal(path)
 }
 
