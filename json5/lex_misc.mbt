@@ -35,7 +35,7 @@ fn read_char(ctx : ParseContext) -> Char? {
 }
 
 ///|
-fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
+fn lex_skip_whitespace(ctx : ParseContext) -> Unit raise ParseError {
   for {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
@@ -56,7 +56,7 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit!ParseError {
 }
 
 ///|
-fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
+fn lex_after_array_value(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some(']') => Token::RBracket
@@ -67,7 +67,7 @@ fn lex_after_array_value(ctx : ParseContext) -> Token!ParseError {
 }
 
 ///|
-fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
+fn lex_after_property_name(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some(':') => Token::Colon
@@ -77,7 +77,7 @@ fn lex_after_property_name(ctx : ParseContext) -> Token!ParseError {
 }
 
 ///|
-fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
+fn lex_after_object_value(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some('}') => Token::RBrace
@@ -88,7 +88,7 @@ fn lex_after_object_value(ctx : ParseContext) -> Token!ParseError {
 }
 
 ///|
-fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
+fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit raise ParseError {
   match read_char(ctx) {
     Some(c2) => if c == c2 { () } else { invalid_char(ctx, shift=-1) }
     None => parse_error(InvalidEof)
@@ -96,7 +96,7 @@ fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit!ParseError {
 }
 
 ///|
-fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
+fn lex_infinity(ctx : ParseContext) -> Unit raise ParseError {
   lex_assert_char(ctx, 'n')
   lex_assert_char(ctx, 'f')
   lex_assert_char(ctx, 'i')
@@ -107,7 +107,7 @@ fn lex_infinity(ctx : ParseContext) -> Unit!ParseError {
 }
 
 ///|
-fn lex_comment(ctx : ParseContext) -> Unit!ParseError {
+fn lex_comment(ctx : ParseContext) -> Unit raise ParseError {
   match read_char(ctx) {
     Some('/') =>
       for {

@@ -3,11 +3,11 @@ package "moonbitlang/x/crypto"
 // Values
 fn bytes_to_hex_string(FixedArray[Byte]) -> String
 
-fn chacha12(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
+fn chacha12(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
+fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte]!
+fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
 fn finalize(Sha256Context) -> FixedArray[Byte]
 

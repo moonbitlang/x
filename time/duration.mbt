@@ -24,7 +24,7 @@ pub fn Duration::of(
   minutes~ : Int64 = 0L,
   seconds~ : Int64 = 0L,
   nanoseconds~ : Int64 = 0L
-) -> Duration!Error {
+) -> Duration raise Error {
   let hours_sec = checked_mul_int64(hours, seconds_per_hour)
   let minutes_sec = checked_mul_int64(minutes, seconds_per_minute)
   let mut secs = checked_add_int64(
@@ -37,7 +37,7 @@ pub fn Duration::of(
 }
 
 ///|
-fn create(secs : Int64, nanos : Int) -> Duration!Error {
+fn create(secs : Int64, nanos : Int) -> Duration raise Error {
   if nanos < min_nanosecond || nanos > max_nanosecond {
     fail(invalid_duration_err)
   }
@@ -50,7 +50,7 @@ pub fn Duration::zero() -> Duration {
 }
 
 ///| Parses a ISO 8601 format string like `PT[n]H[n]M[n].[n]S`.
-pub fn Duration::from_string(str : String) -> Duration!Error {
+pub fn Duration::from_string(str : String) -> Duration raise Error {
   // TODO: better parsing impl
   if str.substring(end=2) != "PT" {
     fail(invalid_duration_err)
@@ -164,7 +164,7 @@ pub fn is_neg(self : Duration) -> Bool {
 }
 
 ///| Adds specified hours to this duration, and returns a new duration.
-pub fn add_hours(self : Duration, hours : Int64) -> Duration!Error {
+pub fn add_hours(self : Duration, hours : Int64) -> Duration raise Error {
   if hours == 0L {
     return self
   }
@@ -176,7 +176,7 @@ pub fn add_hours(self : Duration, hours : Int64) -> Duration!Error {
 }
 
 ///| Adds specified minutes to this duration, and returns a new duration.
-pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!Error {
+pub fn add_minutes(self : Duration, minutes : Int64) -> Duration raise Error {
   if minutes == 0L {
     return self
   }
@@ -188,7 +188,7 @@ pub fn add_minutes(self : Duration, minutes : Int64) -> Duration!Error {
 }
 
 ///| Adds specified seconds to this duration, and returns a new duration.
-pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!Error {
+pub fn add_seconds(self : Duration, seconds : Int64) -> Duration raise Error {
   if seconds == 0L {
     return self
   }
@@ -197,7 +197,10 @@ pub fn add_seconds(self : Duration, seconds : Int64) -> Duration!Error {
 }
 
 ///| Adds specified nanoseconds to this duration, and returns a new duration.
-pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!Error {
+pub fn add_nanoseconds(
+  self : Duration,
+  nanoseconds : Int64
+) -> Duration raise Error {
   if nanoseconds == 0L {
     return self
   }
@@ -210,7 +213,7 @@ pub fn add_nanoseconds(self : Duration, nanoseconds : Int64) -> Duration!Error {
 }
 
 ///| Adds other duration to this duration, and returns a new duration.
-pub fn add_duration(self : Duration, other : Duration) -> Duration!Error {
+pub fn add_duration(self : Duration, other : Duration) -> Duration raise Error {
   if other.is_zero() {
     return self
   }
@@ -226,7 +229,7 @@ pub fn add_duration(self : Duration, other : Duration) -> Duration!Error {
 }
 
 ///|
-pub fn op_add(self : Duration, other : Duration) -> Duration!Error {
+pub fn op_add(self : Duration, other : Duration) -> Duration raise Error {
   self.add_duration(other)
 }
 
@@ -239,7 +242,10 @@ pub fn with_seconds(self : Duration, seconds : Int64) -> Duration {
 }
 
 ///| Returns a new duration with the specified nanosecond of second.
-pub fn with_nanoseconds(self : Duration, nanoseconds : Int) -> Duration!Error {
+pub fn with_nanoseconds(
+  self : Duration,
+  nanoseconds : Int
+) -> Duration raise Error {
   if nanoseconds == self.nanos {
     return self
   }

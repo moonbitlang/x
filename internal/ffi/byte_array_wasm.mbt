@@ -13,13 +13,16 @@
 // limitations under the License.
 
 ///|
-pub(all) extern type XByteArrayCreateHandle
+#external
+pub(all) type XByteArrayCreateHandle
 
 ///|
-pub(all) extern type XByteArrayReadHandle
+#external
+pub(all) type XByteArrayReadHandle
 
 ///|
-pub(all) extern type XExternByteArray
+#external
+pub(all) type XExternByteArray
 
 ///|
 fn begin_read_byte_array(s : XExternByteArray) -> XByteArrayReadHandle = "__moonbit_fs_unstable" "begin_read_byte_array"

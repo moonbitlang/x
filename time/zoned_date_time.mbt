@@ -30,7 +30,7 @@ pub fn date_time(
   second~ : Int = 0,
   nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   ZonedDateTime::of(
     year,
     month,
@@ -49,7 +49,7 @@ pub fn unix(
   second : Int64,
   nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   ZonedDateTime::from_unix_second(second, nanosecond~, zone~)
 }
 
@@ -64,7 +64,7 @@ pub fn ZonedDateTime::of(
   second~ : Int = 0,
   nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   let datetime = PlainDateTime::of(
     year,
     month,
@@ -92,7 +92,7 @@ pub fn ZonedDateTime::from_unix_second(
   second : Int64,
   nanosecond~ : Int = 0,
   zone~ : Zone = utc_zone
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)
   { datetime, zone, offset }
@@ -238,7 +238,7 @@ pub fn offset(self : ZonedDateTime) -> ZoneOffset {
 pub fn ZonedDateTime::add_years(
   self : ZonedDateTime,
   years : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_years(years), self.zone)
 }
 
@@ -246,7 +246,7 @@ pub fn ZonedDateTime::add_years(
 pub fn ZonedDateTime::add_months(
   self : ZonedDateTime,
   months : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_months(months), self.zone)
 }
 
@@ -254,7 +254,7 @@ pub fn ZonedDateTime::add_months(
 pub fn ZonedDateTime::add_weeks(
   self : ZonedDateTime,
   weeks : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_weeks(weeks), self.zone)
 }
 
@@ -262,7 +262,7 @@ pub fn ZonedDateTime::add_weeks(
 pub fn ZonedDateTime::add_days(
   self : ZonedDateTime,
   days : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_days(days), self.zone)
 }
 
@@ -270,7 +270,7 @@ pub fn ZonedDateTime::add_days(
 pub fn ZonedDateTime::add_hours(
   self : ZonedDateTime,
   hours : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_hours(hours), self.zone)
 }
 
@@ -278,7 +278,7 @@ pub fn ZonedDateTime::add_hours(
 pub fn ZonedDateTime::add_minutes(
   self : ZonedDateTime,
   minutes : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_minutes(minutes), self.zone)
 }
 
@@ -286,7 +286,7 @@ pub fn ZonedDateTime::add_minutes(
 pub fn ZonedDateTime::add_seconds(
   self : ZonedDateTime,
   seconds : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_seconds(seconds), self.zone)
 }
 
@@ -294,7 +294,7 @@ pub fn ZonedDateTime::add_seconds(
 pub fn ZonedDateTime::add_nanoseconds(
   self : ZonedDateTime,
   nanoseconds : Int64
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_nanoseconds(nanoseconds), self.zone)
 }
 
@@ -302,7 +302,7 @@ pub fn ZonedDateTime::add_nanoseconds(
 pub fn ZonedDateTime::with_year(
   self : ZonedDateTime,
   year : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_year(year), self.zone)
 }
 
@@ -310,7 +310,7 @@ pub fn ZonedDateTime::with_year(
 pub fn ZonedDateTime::with_month(
   self : ZonedDateTime,
   month : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_month(month), self.zone)
 }
 
@@ -318,7 +318,7 @@ pub fn ZonedDateTime::with_month(
 pub fn ZonedDateTime::with_day(
   self : ZonedDateTime,
   day : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_day(day), self.zone)
 }
 
@@ -326,7 +326,7 @@ pub fn ZonedDateTime::with_day(
 pub fn ZonedDateTime::with_ordinal(
   self : ZonedDateTime,
   ordinal : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_ordinal(ordinal), self.zone)
 }
 
@@ -334,7 +334,7 @@ pub fn ZonedDateTime::with_ordinal(
 pub fn ZonedDateTime::with_hour(
   self : ZonedDateTime,
   hour : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_hour(hour), self.zone)
 }
 
@@ -342,7 +342,7 @@ pub fn ZonedDateTime::with_hour(
 pub fn ZonedDateTime::with_minute(
   self : ZonedDateTime,
   minute : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_minute(minute), self.zone)
 }
 
@@ -350,7 +350,7 @@ pub fn ZonedDateTime::with_minute(
 pub fn ZonedDateTime::with_second(
   self : ZonedDateTime,
   second : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_second(second), self.zone)
 }
 
@@ -358,7 +358,7 @@ pub fn ZonedDateTime::with_second(
 pub fn ZonedDateTime::with_nanosecond(
   self : ZonedDateTime,
   nanosecond : Int
-) -> ZonedDateTime!Error {
+) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_nanosecond(nanosecond), self.zone)
 }
 

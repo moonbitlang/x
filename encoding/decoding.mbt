@@ -101,7 +101,7 @@ pub fn decode(
   self : Decoder,
   input : @bytes.View,
   stream~ : Bool = false
-) -> String!Error {
+) -> String raise Error {
   if input.length() > 0 {
     self.i_cont(input)
   }
@@ -164,7 +164,7 @@ pub fn Decoder::decode_to(
   input : @bytes.View,
   output : StringBuilder,
   stream~ : Bool = false
-) -> Unit! {
+) -> Unit raise {
   if input.length() > 0 {
     self.i_cont(input)
   }
@@ -193,7 +193,7 @@ pub fn decode_to(
   input : @bytes.View,
   output : StringBuilder,
   encoding~ : Encoding
-) -> Unit! {
+) -> Unit raise {
   decoder(encoding).decode_to(input, output)
 }
 
@@ -215,7 +215,7 @@ pub fn decode_to(
 ///
 /// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
 /// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
-pub fn consume(self : Decoder, input : @bytes.View) -> String!Error {
+pub fn consume(self : Decoder, input : @bytes.View) -> String raise Error {
   self.decode(input, stream=true)
 }
 
@@ -237,7 +237,7 @@ pub fn consume(self : Decoder, input : @bytes.View) -> String!Error {
 ///
 /// `MalformedError`: This error is raised if the remaining byte sequence is not properly formatted according to the specified encoding.
 /// `TruncatedError`: This error is raised if the remaining byte sequence ends prematurely, implying that more data was expected for complete decoding.
-pub fn finish(self : Decoder) -> String!Error {
+pub fn finish(self : Decoder) -> String raise Error {
   self.decode(b"", stream=false)
 }
 

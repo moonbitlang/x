@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-extern type Instant
+#external
+type Instant
 
 ///|
 pub extern "c" fn instant_now() -> Instant = "instant_now_ffi"
