@@ -1,27 +1,27 @@
 package "moonbitlang/x/fs"
 
 // Values
-fn create_dir(String) -> Unit!
+fn create_dir(String) -> Unit raise
 
-fn is_dir(String) -> Bool!
+fn is_dir(String) -> Bool raise
 
-fn is_file(String) -> Bool!
+fn is_file(String) -> Bool raise
 
 fn path_exists(String) -> Bool
 
-fn read_dir(String) -> Array[String]!
+fn read_dir(String) -> Array[String] raise
 
-fn read_file_to_bytes(String) -> Bytes!
+fn read_file_to_bytes(String) -> Bytes raise
 
-fn read_file_to_string(String, encoding~ : String = ..) -> String!
+fn read_file_to_string(String, encoding~ : String = ..) -> String raise
 
-fn remove_dir(String) -> Unit!
+fn remove_dir(String) -> Unit raise
 
-fn remove_file(String) -> Unit!
+fn remove_file(String) -> Unit raise
 
-fn write_bytes_to_file(String, Bytes) -> Unit!
+fn write_bytes_to_file(String, Bytes) -> Unit raise
 
-fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit!
+fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit raise
 
 // Types and methods
 pub(all) suberror IOError String

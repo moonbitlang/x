@@ -46,7 +46,7 @@ struct UUID {
 ///
 /// The produced UUID is not RFC-4122 compliant; see also `as_version()`.
 ///
-pub fn from_bytes(bytes : Bytes) -> UUID!Error {
+pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
   if bytes.length() != 16 {
     fail("requires 16 bytes")
   }
@@ -95,7 +95,7 @@ test "bytes" {
 }
 
 ///|
-fn hex_char_to_int64(c : Int) -> Int64!Error {
+fn hex_char_to_int64(c : Int) -> Int64 raise Error {
   let d = if '0'.to_int() <= c && c <= '9'.to_int() {
     c - '0'
   } else if 'a'.to_int() <= c && c <= 'f'.to_int() {
@@ -113,7 +113,7 @@ fn hex_char_to_int64(c : Int) -> Int64!Error {
 /// This function ignores dashes (`-`) in the given string. The remaining
 /// letters must be exactly 32 hexadecimals, or an error will be raised.
 ///
-pub fn from_hex(hex : String) -> UUID!Error {
+pub fn from_hex(hex : String) -> UUID raise Error {
   // XXX: ideally we should use strconv here, but we don't have sufficient
   // tooling around String yet
   let (hi, i) = for hi = 0L, i = 0, n = 0; n < 16; {

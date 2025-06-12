@@ -34,7 +34,7 @@ pub fn Period::zero() -> Period {
 }
 
 ///| Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
-pub fn Period::from_string(str : String) -> Period!Error {
+pub fn Period::from_string(str : String) -> Period raise Error {
   // TODO: better parsing impl
   if str.charcode_at(0) != 'P' {
     fail(invalid_period_err)
@@ -109,7 +109,7 @@ pub fn days(self : Period) -> Int {
 }
 
 ///| Adds specified years to this period, and returns a new period.
-pub fn add_years(self : Period, years : Int) -> Period!Error {
+pub fn add_years(self : Period, years : Int) -> Period raise Error {
   if years == 0 {
     return self
   }
@@ -118,7 +118,7 @@ pub fn add_years(self : Period, years : Int) -> Period!Error {
 }
 
 ///| Adds specified weeks to this period, and returns a new period.
-pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
+pub fn add_weeks(self : Period, weeks : Int) -> Period raise Error {
   if weeks == 0 {
     return self
   }
@@ -127,7 +127,7 @@ pub fn add_weeks(self : Period, weeks : Int) -> Period!Error {
 }
 
 ///| Adds specified months to this period, and returns a new period.
-pub fn add_months(self : Period, months : Int) -> Period!Error {
+pub fn add_months(self : Period, months : Int) -> Period raise Error {
   if months == 0 {
     return self
   }
@@ -136,7 +136,7 @@ pub fn add_months(self : Period, months : Int) -> Period!Error {
 }
 
 ///| Adds specified days to this period, and returns a new period.
-pub fn add_days(self : Period, days : Int) -> Period!Error {
+pub fn add_days(self : Period, days : Int) -> Period raise Error {
   if days == 0 {
     return self
   }
@@ -145,7 +145,7 @@ pub fn add_days(self : Period, days : Int) -> Period!Error {
 }
 
 ///| Adds other period to this period, and returns a new period.
-pub fn add_period(self : Period, other : Period) -> Period!Error {
+pub fn add_period(self : Period, other : Period) -> Period raise Error {
   if other.is_zero() {
     return self
   }
@@ -156,17 +156,17 @@ pub fn add_period(self : Period, other : Period) -> Period!Error {
 }
 
 ///|
-pub fn Period::op_add(self : Period, other : Period) -> Period!Error {
+pub fn Period::op_add(self : Period, other : Period) -> Period raise Error {
   self.add_period(other)
 }
 
 ///|
-pub fn op_sub(self : Period, other : Period) -> Period!Error {
+pub fn op_sub(self : Period, other : Period) -> Period raise Error {
   self.add_period(other.negated())
 }
 
 ///| Returns a new period with all elements in this period multiplied by the specified value.
-pub fn multiply(self : Period, n : Int) -> Period!Error {
+pub fn multiply(self : Period, n : Int) -> Period raise Error {
   if n == 0 {
     return Period::zero()
   }
@@ -180,7 +180,7 @@ pub fn multiply(self : Period, n : Int) -> Period!Error {
 }
 
 ///| Returns a new period with all elements in this period negated.
-pub fn negated(self : Period) -> Period!Error {
+pub fn negated(self : Period) -> Period raise Error {
   self.multiply(-1)
 }
 

@@ -153,17 +153,17 @@ test "split" {
 }
 
 ///|
-fn[T] int_overflow_err() -> T!Error {
+fn[T] int_overflow_err() -> T raise Error {
   raise Failure("Int overflow")
 }
 
 ///|
-fn[T] int64_overflow_err() -> T!Error {
+fn[T] int64_overflow_err() -> T raise Error {
   raise Failure("Int64 overflow")
 }
 
 ///| FIXME: use checked_add method of Int
-fn checked_add_int(x : Int, y : Int) -> Int!Error {
+fn checked_add_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() + y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
     int_overflow_err()
@@ -173,7 +173,7 @@ fn checked_add_int(x : Int, y : Int) -> Int!Error {
 }
 
 ///| FIXME: use checked_mul method of Int
-fn checked_mul_int(x : Int, y : Int) -> Int!Error {
+fn checked_mul_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() * y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
     int_overflow_err()
@@ -183,7 +183,7 @@ fn checked_mul_int(x : Int, y : Int) -> Int!Error {
 }
 
 ///| FIXME: use checked_add method of Int64
-fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
+fn checked_add_int64(x : Int64, y : Int64) -> Int64 raise Error {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
   if ((x ^ r) & (y ^ r)) < 0L {
@@ -194,7 +194,7 @@ fn checked_add_int64(x : Int64, y : Int64) -> Int64!Error {
 }
 
 ///| FIXME: use checked_mul method of Int64
-fn checked_mul_int64(x : Int64, y : Int64) -> Int64!Error {
+fn checked_mul_int64(x : Int64, y : Int64) -> Int64 raise Error {
   let r = x * y
   let abs_x = x.abs()
   let abs_y = y.abs()
@@ -299,7 +299,7 @@ fn floor(x : Double) -> Double {
 }
 
 ///|
-fn floor_div_int(x : Int, y : Int) -> Int!Error {
+fn floor_div_int(x : Int, y : Int) -> Int raise Error {
   if y == 0 {
     raise Failure("division by zero")
   }
@@ -323,7 +323,7 @@ test "floor_div_int" {
 }
 
 ///|
-fn floor_div_int64(x : Int64, y : Int64) -> Int64!Error {
+fn floor_div_int64(x : Int64, y : Int64) -> Int64 raise Error {
   if y == 0L {
     fail("division by zero")
   }
@@ -342,7 +342,7 @@ test "floor_div_int64" {
 }
 
 ///|
-fn floor_mod_int(x : Int, y : Int) -> Int!Error {
+fn floor_mod_int(x : Int, y : Int) -> Int raise Error {
   x - floor_div_int(x, y) * y
 }
 
@@ -362,7 +362,7 @@ test "floor_mod_int" {
 }
 
 ///|
-fn floor_mod_int64(x : Int64, y : Int64) -> Int64!Error {
+fn floor_mod_int64(x : Int64, y : Int64) -> Int64 raise Error {
   x - floor_div_int64(x, y) * y
 }
 

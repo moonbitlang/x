@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-priv extern type Handler
+#external
+priv type Handler
 
 ///|
 extern "C" fn fopen_ffi(path : Bytes, mode : Bytes) -> Handler = "moonbit_fopen_ffi"
@@ -58,7 +59,7 @@ fn get_error_message() -> String {
 }
 
 ///|
-fn read_file_to_bytes_internal(path : String) -> Bytes! {
+fn read_file_to_bytes_internal(path : String) -> Bytes raise {
   let file = fopen_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), b"rb\x00")
   guard is_null(file) == 0 else { raise IOError(get_error_message()) }
   guard fseek_ffi(file, 0, 2) == 0 else { raise IOError(get_error_message()) }
@@ -76,7 +77,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes! {
 fn read_file_to_string_internal(
   path : String,
   encoding~ : String = "utf8"
-) -> String! {
+) -> String raise {
   guard encoding == "utf8" else {
     raise IOError(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
@@ -86,7 +87,7 @@ fn read_file_to_string_internal(
 }
 
 ///|
-fn write_bytes_to_file_internal(path : String, content : Bytes) -> Unit! {
+fn write_bytes_to_file_internal(path : String, content : Bytes) -> Unit raise {
   let file = fopen_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), b"wb\x00")
   guard is_null(file) == 0 else { raise IOError(get_error_message()) }
   let bytes_written = fwrite_ffi(content, 1, content.length(), file)
@@ -102,7 +103,7 @@ fn write_string_to_file_internal(
   path : String,
   content : String,
   encoding~ : String = "utf8"
-) -> Unit! {
+) -> Unit raise {
   guard encoding == "utf8" else {
     raise IOError(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
@@ -127,7 +128,7 @@ extern "C" fn read_dir_ffi(path : Bytes) -> Handler = "moonbit_read_dir_ffi"
 fn handler_to_fixed_array(handler : Handler) -> FixedArray[Bytes] = "%identity"
 
 ///|
-fn read_dir_internal(path : String) -> Array[String]! {
+fn read_dir_internal(path : String) -> Array[String] raise {
   let res = read_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
   guard is_null(res) == 0 else { raise IOError(get_error_message()) }
   let files = Array::from_fixed_array(handler_to_fixed_array(res))
@@ -138,7 +139,7 @@ fn read_dir_internal(path : String) -> Array[String]! {
 extern "C" fn create_dir_ffi(path : Bytes) -> Int = "moonbit_create_dir_ffi"
 
 ///|
-fn create_dir_internal(path : String) -> Unit! {
+fn create_dir_internal(path : String) -> Unit raise {
   guard create_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }
@@ -148,7 +149,7 @@ fn create_dir_internal(path : String) -> Unit! {
 extern "C" fn is_dir_ffi(path : Bytes) -> Int = "moonbit_is_dir_ffi"
 
 ///|
-fn is_dir_internal(path : String) -> Bool! {
+fn is_dir_internal(path : String) -> Bool raise {
   let res = is_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
   guard res != -1 else { raise IOError(get_error_message()) }
   res == 1
@@ -158,7 +159,7 @@ fn is_dir_internal(path : String) -> Bool! {
 extern "C" fn is_file_ffi(path : Bytes) -> Int = "moonbit_is_file_ffi"
 
 ///|
-fn is_file_internal(path : String) -> Bool! {
+fn is_file_internal(path : String) -> Bool raise {
   let res = is_file_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
   guard res != -1 else { raise IOError(get_error_message()) }
   res == 1
@@ -168,7 +169,7 @@ fn is_file_internal(path : String) -> Bool! {
 extern "C" fn remove_dir_ffi(path : Bytes) -> Int = "moonbit_remove_dir_ffi"
 
 ///|
-fn remove_dir_internal(path : String) -> Unit! {
+fn remove_dir_internal(path : String) -> Unit raise {
   guard remove_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }
@@ -178,7 +179,7 @@ fn remove_dir_internal(path : String) -> Unit! {
 extern "C" fn remove_file_ffi(path : Bytes) -> Int = "moonbit_remove_file_ffi"
 
 ///|
-fn remove_file_internal(path : String) -> Unit! {
+fn remove_file_internal(path : String) -> Unit raise {
   guard remove_file_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
     raise IOError(get_error_message())
   }

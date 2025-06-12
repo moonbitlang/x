@@ -16,21 +16,29 @@ fn string_to_extern(String) -> XExternString
 fn utf8_bytes_to_mbt_string(Bytes) -> String
 
 // Types and methods
-pub(all) extern type XByteArrayCreateHandle
+#external
+pub(all) type XByteArrayCreateHandle
 
-pub(all) extern type XByteArrayReadHandle
+#external
+pub(all) type XByteArrayReadHandle
 
-pub(all) extern type XExternByteArray
+#external
+pub(all) type XExternByteArray
 
-pub(all) extern type XExternString
+#external
+pub(all) type XExternString
 
-pub(all) extern type XExternStringArray
+#external
+pub(all) type XExternStringArray
 
-pub(all) extern type XStringArrayReadHandle
+#external
+pub(all) type XStringArrayReadHandle
 
-pub(all) extern type XStringCreateHandle
+#external
+pub(all) type XStringCreateHandle
 
-pub(all) extern type XStringReadHandle
+#external
+pub(all) type XStringReadHandle
 
 // Type aliases
 

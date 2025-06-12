@@ -27,7 +27,7 @@ pub fn PlainDateTime::of(
   minute~ : Int = 0,
   second~ : Int = 0,
   nanosecond~ : Int = 0
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   {
     date: PlainDate::of(year, month, day),
     time: PlainTime::of(hour, minute, second, nanosecond),
@@ -39,7 +39,7 @@ pub fn PlainDateTime::from_unix_second(
   second : Int64,
   nanosecond : Int,
   offset : ZoneOffset
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if not(validate_nano(nanosecond)) {
     fail(invalid_date_time_err)
   }
@@ -60,7 +60,7 @@ pub fn to_unix_second(self : PlainDateTime) -> Int64 {
 }
 
 ///| Creates a PlainTime from a string, like '2008-08-08T20:00:00'.
-pub fn PlainDateTime::from_string(str : String) -> PlainDateTime!Error {
+pub fn PlainDateTime::from_string(str : String) -> PlainDateTime raise Error {
   // TODO: better parsing implementation
   let split = split(str, 'T')
   if split.length() != 2 {
@@ -172,7 +172,7 @@ pub fn PlainDateTime::nanosecond(self : PlainDateTime) -> Int {
 pub fn PlainDateTime::add_years(
   self : PlainDateTime,
   years : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_years(years) }
 }
 
@@ -180,7 +180,7 @@ pub fn PlainDateTime::add_years(
 pub fn PlainDateTime::add_months(
   self : PlainDateTime,
   months : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_months(months) }
 }
 
@@ -188,7 +188,7 @@ pub fn PlainDateTime::add_months(
 pub fn PlainDateTime::add_weeks(
   self : PlainDateTime,
   weeks : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_weeks(weeks) }
 }
 
@@ -196,7 +196,7 @@ pub fn PlainDateTime::add_weeks(
 pub fn PlainDateTime::add_days(
   self : PlainDateTime,
   days : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_days(days) }
 }
 
@@ -204,7 +204,7 @@ pub fn PlainDateTime::add_days(
 pub fn PlainDateTime::add_period(
   self : PlainDateTime,
   period : Period
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_period(period) }
 }
 
@@ -212,7 +212,7 @@ pub fn PlainDateTime::add_period(
 pub fn PlainDateTime::add_hours(
   self : PlainDateTime,
   hours : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if hours == 0L {
     return self
   }
@@ -223,7 +223,7 @@ pub fn PlainDateTime::add_hours(
 pub fn PlainDateTime::add_minutes(
   self : PlainDateTime,
   minutes : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if minutes == 0L {
     return self
   }
@@ -234,7 +234,7 @@ pub fn PlainDateTime::add_minutes(
 pub fn PlainDateTime::add_seconds(
   self : PlainDateTime,
   seconds : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if seconds == 0L {
     return self
   }
@@ -245,7 +245,7 @@ pub fn PlainDateTime::add_seconds(
 pub fn PlainDateTime::add_nanoseconds(
   self : PlainDateTime,
   nanoseconds : Int64
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if nanoseconds == 0L {
     return self
   }
@@ -256,7 +256,7 @@ pub fn PlainDateTime::add_nanoseconds(
 pub fn PlainDateTime::add_duration(
   self : PlainDateTime,
   duration : Duration
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if duration.is_zero() {
     return self
   }
@@ -267,7 +267,7 @@ pub fn PlainDateTime::add_duration(
 pub fn PlainDateTime::with_year(
   self : PlainDateTime,
   year : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_year(year) }
 }
 
@@ -275,7 +275,7 @@ pub fn PlainDateTime::with_year(
 pub fn PlainDateTime::with_month(
   self : PlainDateTime,
   month : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_month(month) }
 }
 
@@ -283,7 +283,7 @@ pub fn PlainDateTime::with_month(
 pub fn PlainDateTime::with_day(
   self : PlainDateTime,
   day : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_day(day) }
 }
 
@@ -291,7 +291,7 @@ pub fn PlainDateTime::with_day(
 pub fn PlainDateTime::with_ordinal(
   self : PlainDateTime,
   ordinal : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_ordinal(ordinal) }
 }
 
@@ -299,7 +299,7 @@ pub fn PlainDateTime::with_ordinal(
 pub fn PlainDateTime::with_hour(
   self : PlainDateTime,
   hour : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_hour(hour) }
 }
 
@@ -307,7 +307,7 @@ pub fn PlainDateTime::with_hour(
 pub fn PlainDateTime::with_minute(
   self : PlainDateTime,
   minute : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_minute(minute) }
 }
 
@@ -315,7 +315,7 @@ pub fn PlainDateTime::with_minute(
 pub fn PlainDateTime::with_second(
   self : PlainDateTime,
   second : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_second(second) }
 }
 
@@ -323,7 +323,7 @@ pub fn PlainDateTime::with_second(
 pub fn PlainDateTime::with_nanosecond(
   self : PlainDateTime,
   nanosecond : Int
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_nanosecond(nanosecond) }
 }
 
@@ -348,7 +348,7 @@ fn PlainDateTime::overflowing_add(
   m~ : Int64 = 0L,
   s~ : Int64 = 0L,
   ns~ : Int64 = 0L
-) -> PlainDateTime!Error {
+) -> PlainDateTime raise Error {
   if h == 0L && m == 0L && s == 0L && ns == 0L {
     return self
   }
