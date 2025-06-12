@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-extern type Instant
+#external
+type Instant
 
 ///|
 pub fn instant_now() -> Instant = "__moonbit_time_unstable" "instant_now"

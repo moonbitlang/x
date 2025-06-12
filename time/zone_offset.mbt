@@ -47,7 +47,7 @@ pub fn ZoneOffset::of(
   seconds~ : Int = 0,
   abbrev~ : String = "",
   dst~ : Bool = false
-) -> ZoneOffset!Error {
+) -> ZoneOffset raise Error {
   validate_offset(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() +
     minutes * seconds_per_minute.to_int() +
@@ -60,7 +60,7 @@ pub fn ZoneOffset::from_seconds(
   seconds : Int,
   abbrev~ : String = "",
   dst~ : Bool = false
-) -> ZoneOffset!Error {
+) -> ZoneOffset raise Error {
   if seconds == 0 {
     return utc_offset
   }
@@ -137,7 +137,7 @@ fn create_id(secs : Int) -> String {
 }
 
 ///|
-fn validate_offset(h : Int, m : Int, s : Int) -> Unit!Error {
+fn validate_offset(h : Int, m : Int, s : Int) -> Unit raise Error {
   if h < min_offset_hours || h > max_offset_hours {
     fail(invalid_offset_err)
   }

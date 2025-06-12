@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
+fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
   let buf = StringBuilder::make()
   let mut start = ctx.offset
   fn flush(end : Int) {
@@ -80,7 +80,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String!ParseError {
 }
 
 ///|
-fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int!ParseError {
+fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int raise ParseError {
   let mut r = 0
   for i = 0; i < n; i = i + 1 {
     match read_char(ctx) {

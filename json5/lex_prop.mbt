@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn lex_property_name(ctx : ParseContext) -> Token!ParseError {
+fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
     Some('}') => RBrace
@@ -62,7 +62,7 @@ fn lex_ident(
   ctx : ParseContext,
   start : Int,
   buffer~ : StringBuilder = StringBuilder::make()
-) -> String!ParseError {
+) -> String raise ParseError {
   let mut start = start
   fn flush(end : Int) {
     if start > 0 && end > start {

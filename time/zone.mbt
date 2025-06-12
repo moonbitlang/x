@@ -28,7 +28,7 @@ pub fn fixed_zone(
   offset_seconds : Int,
   abbrev~ : String = "",
   dst~ : Bool = false
-) -> Zone!Error {
+) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
   Zone::{ id, offsets: [offset], transitions: [] }
 }
@@ -78,7 +78,10 @@ const TZIF2_VERSION = 50
 const TZIF2_HEADER_SIZE : Int = 44
 
 ///| Creates a time zone from TZif2 data.
-pub fn Zone::from_tzif2(id : String, data : FixedArray[Byte]) -> Zone!Error {
+pub fn Zone::from_tzif2(
+  id : String,
+  data : FixedArray[Byte]
+) -> Zone raise Error {
   let magic = to_int_be(data, 0)
   if magic != TZIF_MAGIC_HEADER {
     raise Failure("invalid TZif magic: \{magic}, want \{TZIF_MAGIC_HEADER}")

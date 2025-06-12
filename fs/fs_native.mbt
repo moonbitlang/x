@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-priv extern type Handler
+#external
+priv type Handler
 
 ///|
 extern "C" fn fopen_ffi(path : Bytes, mode : Bytes) -> Handler = "moonbit_fopen_ffi"
