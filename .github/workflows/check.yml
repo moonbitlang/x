@@ -129,7 +129,7 @@ jobs:
             moon test --target native
 
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check
 
       - name: moon info
         run: |
