@@ -75,11 +75,6 @@ fn StringBuilder::make() -> StringBuilder {
 }
 
 ///|
-fn add_string(self : StringBuilder, s : String) -> Unit {
-  self.buffer = self.buffer + s
-}
-
-///|
 fn add_substring(
   self : StringBuilder,
   s : String,
