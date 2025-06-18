@@ -8,12 +8,6 @@ import(
 // Values
 const U_REP : Char = '�'
 
-fn consume(Decoder, @bytes.View) -> String raise
-
-fn decode(Decoder, @bytes.View, stream~ : Bool = ..) -> String raise
-
-fn decode_lossy(Decoder, @bytes.View, stream~ : Bool = ..) -> String
-
 fn decode_to(@bytes.View, StringBuilder, encoding~ : Encoding) -> Unit raise
 
 fn decoder(Encoding) -> Decoder
@@ -21,12 +15,6 @@ fn decoder(Encoding) -> Decoder
 fn encode(Encoding, String) -> Bytes
 
 fn encode_to(String, @buffer.T, encoding~ : Encoding) -> Unit
-
-fn finish(Decoder) -> String raise
-
-fn lossy_consume(Decoder, @bytes.View) -> String
-
-fn lossy_finish(Decoder) -> String
 
 fn to_utf16_bytes(Char) -> Bytes
 

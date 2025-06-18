@@ -1,121 +1,15 @@
 package "moonbitlang/x/time"
 
 // Values
-fn add_days(Period, Int) -> Period raise
-
-fn add_duration(Duration, Duration) -> Duration raise
-
-fn add_hours(Duration, Int64) -> Duration raise
-
-fn add_minutes(Duration, Int64) -> Duration raise
-
-fn add_months(Period, Int) -> Period raise
-
-fn add_nanoseconds(Duration, Int64) -> Duration raise
-
-fn add_period(Period, Period) -> Period raise
-
-fn add_seconds(Duration, Int64) -> Duration raise
-
-fn add_weeks(Period, Int) -> Period raise
-
-fn add_years(Period, Int) -> Period raise
-
-fn at_date(PlainTime, PlainDate) -> PlainDateTime
-
 fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime raise
 
-fn day(PlainDate) -> Int
-
-fn days(Period) -> Int
-
-fn days_in_month(PlainDate) -> Int
-
-fn days_in_year(PlainDate) -> Int
-
-fn era(PlainDate) -> String
-
-fn era_year(PlainDate) -> Int
-
 fn fixed_zone(String, Int, abbrev~ : String = .., dst~ : Bool = ..) -> Zone raise
-
-fn id(ZoneOffset) -> String
-
-fn in_leap_year(PlainDate) -> Bool
-
-fn is_dst(ZoneOffset) -> Bool
-
-fn is_fixed(Zone) -> Bool
-
-fn is_neg(Duration) -> Bool
-
-fn is_zero(Duration) -> Bool
-
-fn month(PlainDate) -> Int
-
-fn months(Period) -> Int
-
-fn multiply(Period, Int) -> Period raise
-
-fn nanosecond_of_day(PlainTime) -> Int64
-
-fn nanoseconds(Duration) -> Int
-
-fn negated(Period) -> Period raise
-
-fn offset(ZonedDateTime) -> ZoneOffset
-
-fn op_add(Duration, Duration) -> Duration raise
-
-fn op_sub(Period, Period) -> Period raise
-
-fn ordinal(PlainDate) -> Int
-
-fn second_of_day(PlainTime) -> Int
-
-fn seconds(Duration) -> Int64
-
-fn to_nanoseconds(Duration) -> Int64
-
-fn to_string(Duration) -> String
-
-fn to_total_months(Period) -> Int64
-
-fn to_unix_day(PlainDate) -> Int64
-
-fn to_unix_second(PlainDateTime) -> Int64
 
 fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime raise
 
 let utc_offset : ZoneOffset
 
 let utc_zone : Zone
-
-fn weekday(PlainDate) -> Weekday
-
-fn with_day(PlainDate, Int) -> PlainDate raise
-
-fn with_days(Period, Int) -> Period
-
-fn with_month(PlainDate, Int) -> PlainDate raise
-
-fn with_months(Period, Int) -> Period
-
-fn with_nanoseconds(Duration, Int) -> Duration raise
-
-fn with_ordinal(PlainDate, Int) -> PlainDate raise
-
-fn with_seconds(Duration, Int64) -> Duration
-
-fn with_year(PlainDate, Int) -> PlainDate raise
-
-fn with_years(Period, Int) -> Period
-
-fn year(PlainDate) -> Int
-
-fn years(Period) -> Int
-
-fn zone(ZonedDateTime) -> Zone
 
 // Types and methods
 type Duration

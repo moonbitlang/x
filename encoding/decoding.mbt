@@ -152,12 +152,10 @@ pub fn decode(
 /// Example:
 ///
 /// ```moonbit
-/// test "decode_to" {
 ///   let decoder = decoder(UTF8)
 ///   let buf = StringBuilder::new()
 ///   decoder.decode_to(b"Hello", buf)
 ///   inspect(buf.to_string(), content="Hello")
-/// }
 /// ```
 pub fn Decoder::decode_to(
   self : Decoder,
@@ -431,7 +429,7 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
     let need = decoder.t_need - decoder.t_len
     if rem < need {
       blit(decoder, rem)
-      decoder.refill(@tuple.curry(t_fill)(k))
+      decoder.refill(curry(t_fill)(k))
     } else {
       blit(decoder, need)
       k(decoder)
@@ -485,7 +483,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
     2 => {
       let b0 = bytes[offset].to_int()
       let b1 = bytes[offset + 1].to_int()
-      if (b1 >> 6) != 0b10 {
+      if b1 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         uchar(((b0 & 0x1F) << 6) | (b1 & 0x3F))
@@ -496,7 +494,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
       let b1 = bytes[offset + 1].to_int()
       let b2 = bytes[offset + 2].to_int()
       let c = ((b0 & 0x0F) << 12) | (((b1 & 0x3F) << 6) | (b2 & 0x3F))
-      if (b2 >> 6) != 0b10 {
+      if b2 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         match b0 {
@@ -513,7 +511,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
               uchar(c)
             }
           _ =>
-            if (b1 >> 6) != 0b10 {
+            if b1 >> 6 != 0b10 {
               malformed(bytes, offset, length)
             } else {
               uchar(c)
@@ -530,7 +528,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
         ((b1 & 0x3F) << 12) |
         ((b2 & 0x3F) << 6) |
         (b3 & 0x3F)
-      if (b3 >> 6) != 0b10 || (b2 >> 6) != 0b10 {
+      if b3 >> 6 != 0b10 || b2 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         match b0 {
@@ -547,7 +545,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
               uchar(c)
             }
           _ =>
-            if (b1 >> 6) != 0b10 {
+            if b1 >> 6 != 0b10 {
               malformed(bytes, offset, length)
             } else {
               uchar(c)
@@ -601,7 +599,7 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
       let rem = self.i_rem()
       if rem < 2 {
         self.t_need(2)
-        t_fill(@tuple.curry(t_decode_utf_16le_lo)(hi), self)
+        t_fill(curry(t_decode_utf_16le_lo)(hi), self)
       } else {
         let j = self.i_pos
         let dcd = r_utf_16_lo(hi, self.i, j + 1, j)
@@ -708,7 +706,7 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       let rem = self.i_rem()
       if rem < 2 {
         self.t_need(2)
-        t_fill(@tuple.curry(t_decode_utf_16be_lo)(hi), self)
+        t_fill(curry(t_decode_utf_16be_lo)(hi), self)
       } else {
         let j = self.i_pos
         let dcd = r_utf_16_lo(hi, self.i, j, j + 1)
@@ -720,6 +718,11 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       }
     }
   }
+}
+
+///|
+fn[T, U, V] curry(f : (T, U) -> V) -> (T) -> (U) -> V {
+  fn(x : T) { fn(y : U) -> V { f(x, y) } }
 }
 
 ///|

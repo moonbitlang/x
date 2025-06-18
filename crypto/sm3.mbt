@@ -54,6 +54,7 @@ let t : FixedArray[UInt] = [ // pre calculated
 // auxiliary functions
 // FF_j = | X xor Y xor Z                       where 0 <= j <= 15
 //        | (X and Y) or (X and Z) or (Y and Z) where 16 <= j <=63
+
 ///|
 fn SM3Context::ff_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
@@ -66,6 +67,7 @@ fn SM3Context::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
 
 // GG_j = | X xor Y xor Z           where 0 <= j <= 15
 //        | (X and Y) or (~X and Z) where 16 <= j <= 63
+
 ///|
 fn SM3Context::gg_0(x : UInt, y : UInt, z : UInt) -> UInt {
   x ^ y ^ z
@@ -78,6 +80,7 @@ fn SM3Context::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
 
 // P_0 = X xor (X <<< 9) xor (X <<< 17)
 // P_1 = X xor (X <<< 15) xor (X <<< 23)
+
 ///|
 fn SM3Context::p_0(x : UInt) -> UInt {
   x ^ rotate_left_u(x, 9) ^ rotate_left_u(x, 17)

@@ -27,11 +27,9 @@
 /// # Examples
 ///
 /// ```moonbit
-/// test "encode" {
 ///   let src = "Hello, World!"
 ///   let encoded_bytes = encode(UTF8, src)
 ///   assert_eq(encoded_bytes, @bytes.of([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]))
-/// }
 /// ```
 pub fn encode(encoding : Encoding, src : String) -> Bytes {
   // NOTE: special case: MoonBit String are already valid UTF16(LE) bytes
@@ -65,12 +63,10 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 /// Example:
 ///
 /// ```moonbit
-/// test "encode_to" {
 ///   let buf = @buffer.new()
 ///   let text = "Hello, world"
 ///   @encoding.encode_to(text, buf, encoding=UTF16)
 ///   inspect(buf.to_string(), content="Hello, world")
-/// }
 /// ```
 pub fn encode_to(
   src : String,

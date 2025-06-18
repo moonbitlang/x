@@ -15,7 +15,8 @@
 // An MD5 message-digest algorithm implementation based on
 // [RFC1321]       https://www.ietf.org/rfc/rfc1321.txt
 // [Ron Rivest]    https://people.csail.mit.edu/rivest/Md5.c
-// [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html 
+// [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html
+
 ///|
 struct MD5Context {
   state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
@@ -91,6 +92,7 @@ fn MD5Context::md5_compute(self : MD5Context) -> FixedArray[Byte] {
 //          G(X,Y,Z) = XZ v Y not(Z)
 //          H(X,Y,Z) = X xor Y xor Z
 //          I(X,Y,Z) = Y xor (X v not(Z))
+
 ///|
 fn MD5Context::f(x : UInt, y : UInt, z : UInt) -> UInt {
   (x & y) | (x.lnot() & z)

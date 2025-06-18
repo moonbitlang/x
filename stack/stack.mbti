@@ -5,51 +5,9 @@ import(
 )
 
 // Values
-fn[T] clear(Stack[T]) -> Unit
-
-fn[T] drop(Stack[T]) -> Unit
-
-fn[T] drop_result(Stack[T]) -> Result[Unit, Unit]
-
-fn[T] each(Stack[T], (T) -> Unit) -> Unit
-
-fn[T : Eq] equal(Stack[T], Stack[T]) -> Bool
-
-fn[T, U] fold(Stack[T], init~ : U, (U, T) -> U) -> U
-
-fn[T] is_empty(Stack[T]) -> Bool
-
-fn[T] length(Stack[T]) -> Int
-
 fn[T] new() -> Stack[T]
 
 fn[T] of(FixedArray[T]) -> Stack[T]
-
-fn[T : Eq] op_equal(Stack[T], Stack[T]) -> Bool
-
-fn[T] peek(Stack[T]) -> T?
-
-fn[T] peek_exn(Stack[T]) -> T
-
-fn[T] pop(Stack[T]) -> T?
-
-fn[T] push(Stack[T], T) -> Unit
-
-fn[T] push_array(Stack[T], Array[T]) -> Unit
-
-fn[T] push_list(Stack[T], @list.T[T]) -> Unit
-
-fn[T] push_stack(Stack[T], Stack[T]) -> Unit
-
-fn[T] return_with_clear(Stack[T]) -> Stack[T]
-
-fn[T : Default] to_array(Stack[T]) -> Array[T]
-
-fn[T] to_list(Stack[T]) -> @list.T[T]
-
-fn[T : Show] to_string(Stack[T]) -> String
-
-fn[T] unsafe_pop(Stack[T]) -> T
 
 // Types and methods
 type Stack[T]
