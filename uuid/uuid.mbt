@@ -152,9 +152,7 @@ pub fn from_hex(hex : String) -> UUID raise Error {
 }
 
 ///|
-let hex_table : Array[Int] = "0123456789abcdef"
-  .to_array()
-  .map(fn { c => c.to_int() })
+let hex_table : Array[Int] = "0123456789abcdef".to_array().map(c => c.to_int())
 
 ///|
 let dash : Int = '-'.to_int()
@@ -166,7 +164,7 @@ let segments = [8, 4, 4, 0, 4, 12]
 
 ///|
 let size : Int = (
-    segments.fold(fn { acc, x => acc + x }, init=0) + segments.length() - 2
+    segments.fold((acc, x) => acc + x, init=0) + segments.length() - 2
   ) *
   2
 

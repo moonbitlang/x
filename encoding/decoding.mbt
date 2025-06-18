@@ -429,7 +429,7 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
     let need = decoder.t_need - decoder.t_len
     if rem < need {
       blit(decoder, rem)
-      decoder.refill(@tuple.curry(t_fill)(k))
+      decoder.refill(curry(t_fill)(k))
     } else {
       blit(decoder, need)
       k(decoder)
@@ -599,7 +599,7 @@ fn decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
       let rem = self.i_rem()
       if rem < 2 {
         self.t_need(2)
-        t_fill(@tuple.curry(t_decode_utf_16le_lo)(hi), self)
+        t_fill(curry(t_decode_utf_16le_lo)(hi), self)
       } else {
         let j = self.i_pos
         let dcd = r_utf_16_lo(hi, self.i, j + 1, j)
@@ -706,7 +706,7 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       let rem = self.i_rem()
       if rem < 2 {
         self.t_need(2)
-        t_fill(@tuple.curry(t_decode_utf_16be_lo)(hi), self)
+        t_fill(curry(t_decode_utf_16be_lo)(hi), self)
       } else {
         let j = self.i_pos
         let dcd = r_utf_16_lo(hi, self.i, j, j + 1)
@@ -718,6 +718,11 @@ fn decode_utf_16be_lo(self : Decoder, decode : UTF16Decode) -> Decode {
       }
     }
   }
+}
+
+///|
+fn[T, U, V] curry(f : (T, U) -> V) -> (T) -> (U) -> V {
+  fn(x : T) { fn(y : U) -> V { f(x, y) } }
 }
 
 ///|
