@@ -17,10 +17,8 @@
 /// # Example
 ///
 /// ```
-/// test "new" {
 ///   let s : Stack[Int] = @stack.new()
 ///   assert_true(s.is_empty())
-/// }
 /// ```
 pub fn[T] new() -> Stack[T] {
   { elements: Nil, len: 0 }
@@ -43,10 +41,8 @@ test "new" {
 /// # Example
 ///
 /// ```
-/// test "from_list" {
 ///   let s = Stack::from_list(@immut/list.of([1, 2, 3]))
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 pub fn[T] Stack::from_list(list : @immut/list.T[T]) -> Stack[T] {
   { elements: list, len: list.length() }
@@ -64,10 +60,8 @@ test "from_list" {
 /// # Example
 ///
 /// ```
-/// test "from_array" {
 ///   let s = Stack::from_array([1, 2, 3])
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 pub fn[T] Stack::from_array(array : Array[T]) -> Stack[T] {
   { elements: @immut/list.from_array(array), len: array.length() }
@@ -85,10 +79,8 @@ test "from_array" {
 /// # Example
 ///
 /// ```
-/// test "of" {
 ///   let s = @stack.of([1, 2, 3])
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 #deprecated("use `@stack.of()` instead")
 pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
@@ -136,11 +128,9 @@ test "to_string" {
 /// # Example
 ///
 /// ```
-/// test "from_stack" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let s1 = Stack::from_stack(s)
 ///   assert_eq(s1.length(), 3)
-/// }
 /// ```
 pub fn[T] Stack::from_stack(other : Stack[T]) -> Stack[T] {
   { ..other }
@@ -158,11 +148,9 @@ test "from_stack" {
 /// # Example
 ///
 /// ```
-/// test "clear" {
 ///   let s = @stack.of([1, 2, 3])
 ///   s.clear()
 ///   assert_eq(s.length(), 0)
-/// }
 /// ```
 pub fn[T] clear(self : Stack[T]) -> Unit {
   self.elements = Nil
@@ -181,10 +169,8 @@ test "clear" {
 /// # Example
 ///
 /// ```
-/// test "return_with_clear" {
 ///   let s = @stack.of([1, 2, 3]).return_with_clear()
 ///   assert_eq(s.length(), 0)
-/// }
 /// ```
 pub fn[T] return_with_clear(self : Stack[T]) -> Stack[T] {
   self.clear()
@@ -202,11 +188,9 @@ test "return_with_clear" {
 /// # Example
 ///
 /// ```
-/// test "push" {
 ///   let s = @stack.new()
 ///   s.push(1)
 ///   assert_eq(s.length(), 1)
-/// }
 /// ```
 pub fn[T] push(self : Stack[T], x : T) -> Unit {
   self.elements = Cons(x, self.elements)
@@ -226,11 +210,9 @@ test "push" {
 /// # Example
 ///
 /// ```
-/// test "push_list" {
 ///   let s = @stack.new()
 ///   s.push_list(@immut/list.of([1, 2, 3]))
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 pub fn[T] push_list(self : Stack[T], list : @immut/list.T[T]) -> Unit {
   list.each(fn(i) { self.push(i) })
@@ -249,12 +231,10 @@ test "push_list" {
 /// # Example
 ///
 /// ```
-/// test "push_stack" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let s1 : Stack[Int] = @stack.new()
 ///   s1.push_stack(s)
 ///   assert_eq(s1.length(), 3)
-/// }
 /// ```
 pub fn[T] push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
   stack.elements.each(fn(i) { self.push(i) })
@@ -274,11 +254,9 @@ test "push_stack" {
 /// # Example
 ///
 /// ```
-/// test "push_array" {
 ///   let s : Stack[Int] = @stack.new()
 ///   s.push_array([1, 2, 3])
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 pub fn[T] push_array(self : Stack[T], array : Array[T]) -> Unit {
   array.each(fn(i) { self.push(i) })
@@ -298,13 +276,11 @@ test "push_array" {
 /// # Example
 ///
 /// ```
-/// test "pop" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let s1 : Stack[Int] = @stack.new()
 ///   assert_eq(s.pop(), Some(1))
 ///   assert_eq(s.length(), 2)
 ///   assert_eq(s1.pop(), None)
-/// }
 /// ```
 pub fn[T] pop(self : Stack[T]) -> T? {
   match self.elements {
@@ -332,17 +308,6 @@ test "pop" {
 ///| Pop an element from the top of the stack.
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
-/// # Example
-///
-/// ```
-/// test "panic unsafe_pop" {
-///   let s = @stack.of([1, 2, 3])
-///   let s1 : Stack[Int] = @stack.new()
-///   assert_eq(s.unsafe_pop(), 1)
-///   assert_eq(s.length(), 2)
-///   s1.unsafe_pop() |> ignore
-/// }
-/// ```
 /// @alert unsafe "Panic if the stack is empty."
 pub fn[T] unsafe_pop(self : Stack[T]) -> T {
   match self.elements {
@@ -369,11 +334,9 @@ test "unsafe_pop" {
 /// # Example
 ///
 /// ```
-/// test "drop" {
 ///   let s = @stack.of([1, 2, 3])
 ///   s.drop()
 ///   assert_eq(s.length(), 2)
-/// }
 /// ```
 pub fn[T] drop(self : Stack[T]) -> Unit {
   match self.elements {
@@ -399,11 +362,9 @@ test "drop" {
 /// # Example
 ///
 /// ```
-/// test "drop_result" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let r = s.drop_result() // Ok(())
 ///   assert_eq(r, Ok(()))
-/// }
 /// ```
 pub fn[T] drop_result(self : Stack[T]) -> Result[Unit, Unit] {
   match self.elements {
@@ -432,11 +393,9 @@ test "drop_result" {
 /// # Example
 ///
 /// ```
-/// test "peek" {
 ///   let s = Stack::from_array([1, 2, 3])
 ///   assert_eq(s.peek(), Some(1))
 ///   assert_eq(s.length(), 3)
-/// }
 /// ```
 pub fn[T] peek(self : Stack[T]) -> T? {
   match self.elements {
@@ -456,17 +415,6 @@ test "peek" {
 ///| Only the top element of the stack is returned and will not be pop or drop.
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
-/// # Example
-///
-/// ```
-/// test "panic peek_exn" {
-///   let s = Stack::from_array([1, 2, 3])
-///   let s1 : Stack[Int] = @stack.new()
-///   println(s1.peek_exn()) // abort
-///   println(s.peek_exn()) // 1
-///   println(s) // Stack::[1, 2, 3]
-/// }
-/// ```
 /// @alert unsafe "Panic if the stack is empty."
 pub fn[T] peek_exn(self : Stack[T]) -> T {
   match self.elements {
@@ -488,12 +436,10 @@ test "peek_exn" {
 /// # Example
 ///
 /// ```
-/// test "is_empty" {
 ///   let s = @stack.of([1, 2, 3])
 ///   assert_false(s.is_empty())
 ///   let empty : Stack[Unit] = @stack.new()
 ///   assert_true(empty.is_empty())
-/// }
 /// ```
 pub fn[T] is_empty(self : Stack[T]) -> Bool {
   self.len == 0
@@ -515,12 +461,10 @@ pub fn[T] length(self : Stack[T]) -> Int {
 /// 
 /// # Example
 /// ```
-/// test "each" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let mut sum = 0
 ///   s.each(fn(i) { sum = sum + i })
 ///   assert_eq(sum, 6)
-/// }
 /// ```
 pub fn[T] each(self : Stack[T], f : (T) -> Unit) -> Unit {
   self.elements.each(f)
@@ -549,11 +493,9 @@ test "iter" {
 /// 
 /// # Example
 /// ```
-/// test "fold" {
 ///   let s = @stack.of([1, 2, 3])
 ///   let sum = s.fold(init=0, fn(acc, i) { acc + i })
 ///   assert_eq(sum, 6)
-/// }
 /// ```
 pub fn[T, U] fold(self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
   self.elements.fold(init~, f)
@@ -571,9 +513,7 @@ test "fold" {
 /// # Example
 ///
 /// ```
-/// test "to_list" {
 ///   assert_eq(@stack.of([1, 2, 3]).to_list(), @immut/list.of([1, 2, 3]))
-/// }
 /// ```
 pub fn[T] to_list(self : Stack[T]) -> @immut/list.T[T] {
   self.elements
@@ -589,9 +529,7 @@ test "to_list" {
 /// # Example
 ///
 /// ```
-/// test "to_array" {
 ///   assert_eq(@stack.of([1, 2, 3]).to_array(), [1, 2, 3])
-/// }
 /// ```
 pub fn[T : Default] to_array(self : Stack[T]) -> Array[T] {
   self.elements.to_array()
@@ -610,9 +548,7 @@ test "to_array" {
 /// # Example
 ///
 /// ```
-/// test "equal" {
 ///   assert_true(@stack.of([2, 4, 6]).equal(@stack.of([2, 4, 6])))
-/// }
 /// ```
 pub fn[T : Eq] equal(self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {

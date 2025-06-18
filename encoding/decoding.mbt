@@ -152,12 +152,10 @@ pub fn decode(
 /// Example:
 ///
 /// ```moonbit
-/// test "decode_to" {
 ///   let decoder = decoder(UTF8)
 ///   let buf = StringBuilder::new()
 ///   decoder.decode_to(b"Hello", buf)
 ///   inspect(buf.to_string(), content="Hello")
-/// }
 /// ```
 pub fn Decoder::decode_to(
   self : Decoder,
