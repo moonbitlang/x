@@ -22,6 +22,7 @@ fn test_parse(input : String, loc~ : SourceLoc = _) -> Json raise Error {
 }
 
 //region objects
+
 ///|
 test "parses empty objects" {
   let json = test_parse("{}")
@@ -115,6 +116,7 @@ test "parses nested objects" {
 //endregion
 
 //region arrays
+
 ///|
 test "parses empty arrays" {
   let json = test_parse("[]")
@@ -147,6 +149,7 @@ test "parses nested arrays" {
 //endregion
 
 //region nulls
+
 ///|
 test "parses nulls" {
   let json = test_parse("null")
@@ -155,6 +158,7 @@ test "parses nulls" {
 //endregion
 
 //region booleans
+
 ///|
 test "parses true" {
   let json = test_parse("true")
@@ -169,6 +173,7 @@ test "parses false" {
 //endregion
 
 //region numbers
+
 ///|
 test "parses leading zeroes" {
   let json = test_parse("[0,0.,0e0]")
@@ -307,6 +312,7 @@ test "parses bare long hexadecimal number" {
 //endregion
 
 //region strings
+
 ///|
 test "parses double quoted strings" {
   let json = test_parse("\"abc\"")
@@ -340,6 +346,7 @@ test "parses escaped characters" {
 //endregion
 
 //region comments
+
 ///|
 test "parses single-line comments" {
   let json = test_parse("{//comment\n}")
@@ -360,6 +367,7 @@ test "parses multi-line comments" {
 //endregion
 
 //region whitespace
+
 ///|
 test "parses whitespace" {
   let json = test_parse("{\t\u000b\u000c \u00A0\uFEFF\n\r\u2028\u2029\u2003}")

@@ -483,7 +483,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
     2 => {
       let b0 = bytes[offset].to_int()
       let b1 = bytes[offset + 1].to_int()
-      if (b1 >> 6) != 0b10 {
+      if b1 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         uchar(((b0 & 0x1F) << 6) | (b1 & 0x3F))
@@ -494,7 +494,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
       let b1 = bytes[offset + 1].to_int()
       let b2 = bytes[offset + 2].to_int()
       let c = ((b0 & 0x0F) << 12) | (((b1 & 0x3F) << 6) | (b2 & 0x3F))
-      if (b2 >> 6) != 0b10 {
+      if b2 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         match b0 {
@@ -511,7 +511,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
               uchar(c)
             }
           _ =>
-            if (b1 >> 6) != 0b10 {
+            if b1 >> 6 != 0b10 {
               malformed(bytes, offset, length)
             } else {
               uchar(c)
@@ -528,7 +528,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
         ((b1 & 0x3F) << 12) |
         ((b2 & 0x3F) << 6) |
         (b3 & 0x3F)
-      if (b3 >> 6) != 0b10 || (b2 >> 6) != 0b10 {
+      if b3 >> 6 != 0b10 || b2 >> 6 != 0b10 {
         malformed(bytes, offset, length)
       } else {
         match b0 {
@@ -545,7 +545,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
               uchar(c)
             }
           _ =>
-            if (b1 >> 6) != 0b10 {
+            if b1 >> 6 != 0b10 {
               malformed(bytes, offset, length)
             } else {
               uchar(c)

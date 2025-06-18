@@ -13,6 +13,7 @@
 // limitations under the License.
 
 //region errors
+
 ///|
 test "throws on empty documents" {
   let res = try? @json5.parse("")

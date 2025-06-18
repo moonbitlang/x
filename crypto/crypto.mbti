@@ -9,8 +9,6 @@ fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> Fix
 
 fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn finalize(Sha256Context) -> FixedArray[Byte]
-
 fn md5(FixedArray[Byte]) -> FixedArray[Byte]
 
 fn sha1(FixedArray[Byte]) -> FixedArray[Byte]
@@ -28,10 +26,6 @@ fn sm3(FixedArray[Byte]) -> FixedArray[Byte]
 fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
 fn uints_to_hex_string(Iter[UInt]) -> String
-
-fn update(Sha256Context, FixedArray[Byte]) -> Unit
-
-fn update_from_iter(Sha256Context, Iter[Byte]) -> Unit
 
 // Types and methods
 type MD5Context

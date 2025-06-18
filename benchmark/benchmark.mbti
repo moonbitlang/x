@@ -1,9 +1,6 @@
 package "moonbitlang/x/benchmark"
 
 // Values
-fn add(Criterion, Task) -> Unit
-
-fn run(Task) -> TaskResult
 
 // Types and methods
 type Criterion

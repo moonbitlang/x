@@ -1,21 +1,9 @@
 package "moonbitlang/x/uuid"
 
 // Values
-fn as_version(UUID, Version) -> UUID
-
 fn from_bytes(Bytes) -> UUID raise
 
 fn from_hex(String) -> UUID raise
-
-fn hash(UUID) -> Int
-
-fn to_bytes(UUID) -> Bytes
-
-fn to_string(UUID) -> String
-
-fn variant(UUID) -> Variant
-
-fn version(UUID) -> Version?
 
 // Types and methods
 type UUID

@@ -18,6 +18,7 @@ fn sm3test(s : String) -> String {
 }
 
 // additional
+
 ///|
 test "sm3-additional" {
   assert_eq(

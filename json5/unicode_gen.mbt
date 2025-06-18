@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // This is a generated file. Do not edit.
+
 ///|
 let non_ascii_whitespace : CharClass = CharClass::of([
   ('\u00A0', '\u00A0'),
