@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///| Re-export from `@encoding`
+pub typealias @encoding.Encoding
+
 ///|
 pub(all) suberror IOError String derive(Show)
 
@@ -42,7 +45,7 @@ pub fn read_file_to_bytes(path : String) -> Bytes raise IOError {
 /// - A `String` representing the content of the file.
 pub fn read_file_to_string(
   path : String,
-  encoding~ : String = "utf8"
+  encoding~ : Encoding = UTF8
 ) -> String raise IOError {
   read_file_to_string_internal(path, encoding~)
 }
@@ -70,7 +73,7 @@ pub fn write_bytes_to_file(
 pub fn write_string_to_file(
   path : String,
   content : String,
-  encoding~ : String = "utf8"
+  encoding~ : Encoding = UTF8
 ) -> Unit raise IOError {
   write_string_to_file_internal(path, content, encoding~)
 }
