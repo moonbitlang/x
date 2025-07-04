@@ -24,7 +24,7 @@ pub(all) enum Encoding {
   UTF16 // alias for UTF16LE
   UTF16LE
   UTF16BE
-}
+} derive(Show)
 
 // Decoder
 
