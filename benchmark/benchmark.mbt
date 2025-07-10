@@ -38,12 +38,14 @@ pub fn run(self : Task) -> TaskResult {
 
 ///|
 pub impl Show for TaskResult with to_string(self) {
-  $|Benchmark Task [\{self.task.name}] Count = \{self.task.count}
-  $|----------------------------------------
-  $|Average Time: \{self.average}s/per test
-  $|Max Time Per Test: \{self.max}s/per test
-  $|Min Time Per Test: \{self.min}s/per test
-  $|----------------------------------------
+  (
+    $|Benchmark Task [\{self.task.name}] Count = \{self.task.count}
+    $|----------------------------------------
+    $|Average Time: \{self.average}s/per test
+    $|Max Time Per Test: \{self.max}s/per test
+    $|Min Time Per Test: \{self.min}s/per test
+    $|----------------------------------------
+  )
 }
 
 ///|

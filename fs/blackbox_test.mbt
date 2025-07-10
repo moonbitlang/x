@@ -33,9 +33,9 @@ test "read_dir" {
   files.sort()
   inspect(
     files,
-    content=
+    content=(
       #|["fs.mbt", "fs.mbti", "fs_js.mbt", "test_1.txt", "test_2.txt", "fs_wasm.mbt", "fs_native.mbt", "moon.pkg.json", "blackbox_test.mbt"]
-    ,
+    ),
   )
 }
 
