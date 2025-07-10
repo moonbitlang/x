@@ -30,8 +30,8 @@ pub fn run(self : Task) -> TaskResult {
     let per_now = @ffi.instant_now()
     (self.f)()
     let pre_time = @ffi.instant_elapsed_as_secs_f64(per_now)
-    max = @math.maximum(max, pre_time)
-    min = @math.minimum(min, pre_time)
+    max = @cmp.maximum(max, pre_time)
+    min = @cmp.minimum(min, pre_time)
   }
   { task: self, average: time / self.count.to_double(), max, min }
 }

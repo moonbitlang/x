@@ -13,15 +13,15 @@
 // limitations under the License.
 
 ///|
-typealias @ffi.XExternStringArray
+typealias @common_ffi.XExternStringArray
 
 ///|
-typealias @ffi.XExternString
+typealias @common_ffi.XExternString
 
 ///|
 pub fn get_cli_args() -> Array[String] {
   let args = get_cli_args_ffi()
-  @ffi.string_array_from_extern(args)
+  @common_ffi.string_array_from_extern(args)
 }
 
 ///|
@@ -30,7 +30,7 @@ fn get_cli_args_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "args_get"
 ///|
 pub fn get_env_vars() -> Map[String, String] {
   let env = get_env_vars_ffi()
-  let tmp = @ffi.string_array_from_extern(env)
+  let tmp = @common_ffi.string_array_from_extern(env)
   let res = {}
   for i = 0; i < tmp.length(); i = i + 2 {
     res[tmp[i]] = tmp[i + 1]
@@ -43,8 +43,8 @@ fn get_env_vars_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "get_env_v
 
 ///|
 pub fn set_env_var(key : String, value : String) -> Unit {
-  let key = @ffi.string_to_extern(key)
-  let value = @ffi.string_to_extern(value)
+  let key = @common_ffi.string_to_extern(key)
+  let value = @common_ffi.string_to_extern(value)
   set_env_var_ffi(key, value)
 }
 
@@ -53,7 +53,7 @@ fn set_env_var_ffi(key : XExternString, value : XExternString) = "__moonbit_fs_u
 
 ///|
 pub fn unset_env_var(key : String) -> Unit {
-  let key = @ffi.string_to_extern(key)
+  let key = @common_ffi.string_to_extern(key)
   unset_env_var_ffi(key)
 }
 

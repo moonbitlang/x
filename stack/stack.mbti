@@ -35,7 +35,7 @@ fn[T] Stack::push_array(Self[T], Array[T]) -> Unit
 fn[T] Stack::push_list(Self[T], @list.T[T]) -> Unit
 fn[T] Stack::push_stack(Self[T], Self[T]) -> Unit
 fn[T] Stack::return_with_clear(Self[T]) -> Self[T]
-fn[T : Default] Stack::to_array(Self[T]) -> Array[T]
+fn[T] Stack::to_array(Self[T]) -> Array[T]
 fn[T] Stack::to_list(Self[T]) -> @list.T[T]
 fn[T : Show] Stack::to_string(Self[T]) -> String
 fn[T] Stack::unsafe_pop(Self[T]) -> T

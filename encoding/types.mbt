@@ -64,6 +64,12 @@ priv enum Decode {
   Uchar(Char)
 } derive(Show)
 
+///|
+test {
+  // make unused warning happy
+  inspect(End.to_string(), content="End")
+}
+
 // helper constructor
 
 ///|
