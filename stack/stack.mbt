@@ -531,7 +531,7 @@ test "to_list" {
 /// ```
 ///   assert_eq(@stack.of([1, 2, 3]).to_array(), [1, 2, 3])
 /// ```
-pub fn[T : Default] to_array(self : Stack[T]) -> Array[T] {
+pub fn[T] to_array(self : Stack[T]) -> Array[T] {
   self.elements.to_array()
 }
 

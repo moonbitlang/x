@@ -106,10 +106,10 @@ test "throws on invalid new lines in strings" {
   let res = try? @json5.parse("\"\n\"")
   inspect(
     res,
-    content=
+    content=(
       #|Err(Invalid character 
       #| at line 1, column 1)
-    ,
+    ),
   )
 }
 

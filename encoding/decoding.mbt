@@ -359,7 +359,7 @@ pub fn lossy_finish(self : Decoder) -> String {
 ///|
 fn i_cont(self : Decoder, input : @bytes.View) -> Unit {
   // concat `input` to `i`, drop decoded `i`
-  let i_rem = @math.maximum(self.i_rem(), 0)
+  let i_rem = @cmp.maximum(self.i_rem(), 0)
   let new_len = i_rem + input.length()
   // init a new `i`
   let new_i = FixedArray::make(new_len, Byte::default())
@@ -665,7 +665,7 @@ fn r_utf_16(
   if u < 0xD800 || u > 0xDFFF {
     UTF16Uchar(Int::unsafe_to_char(u))
   } else if u > 0xDBFF {
-    UTF16Malformed(slice(bytes, @math.minimum(offset0, offset1), 2))
+    UTF16Malformed(slice(bytes, @cmp.minimum(offset0, offset1), 2))
   } else {
     Hi(u)
   }

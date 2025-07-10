@@ -17,22 +17,22 @@ test "get_env_vars" {
   let (k, v) = ("THIS_IS_A_TEST_FOR_ENV_VAR", "IT_WORKS")
   inspect(
     @sys.get_env_vars().get(k),
-    content=
+    content=(
       #|None
-    ,
+    ),
   )
   @sys.set_env_var(k, v)
   inspect(
     @sys.get_env_vars().get(k),
-    content=
+    content=(
       #|Some("IT_WORKS")
-    ,
+    ),
   )
   @sys.unset_env_var(k)
   inspect(
     @sys.get_env_vars().get(k),
-    content=
+    content=(
       #|None
-    ,
+    ),
   )
 }
