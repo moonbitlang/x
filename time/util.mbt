@@ -216,13 +216,15 @@ test "checked_add_int" {
   inspect(
     try? checked_add_int(@int.max_value, 1),
     content=
-      #|Err("Failure(Int overflow)")
+      #|Err(Failure("Int overflow"))
+
     ,
   )
   inspect(
     try? checked_add_int(@int.min_value, -1),
     content=
-      #|Err("Failure(Int overflow)")
+      #|Err(Failure("Int overflow"))
+
     ,
   )
 }
@@ -235,13 +237,15 @@ test "checked_mul_int" {
   inspect(
     try? checked_mul_int(@int.max_value, 2),
     content=
-      #|Err("Failure(Int overflow)")
+      #|Err(Failure("Int overflow"))
+
     ,
   )
   inspect(
     try? checked_mul_int(@int.min_value, 2),
     content=
-      #|Err("Failure(Int overflow)")
+      #|Err(Failure("Int overflow"))
+
     ,
   )
 }
@@ -254,13 +258,15 @@ test "checked_add_int64" {
   inspect(
     try? checked_add_int64(1L, @int64.max_value),
     content=
-      #|Err("Failure(Int64 overflow)")
+      #|Err(Failure("Int64 overflow"))
+
     ,
   )
   inspect(
     try? checked_add_int64(-1L, @int64.min_value),
     content=
-      #|Err("Failure(Int64 overflow)")
+      #|Err(Failure("Int64 overflow"))
+
     ,
   )
 }
@@ -273,13 +279,15 @@ test "checked_mul_int64" {
   inspect(
     try? checked_mul_int64(@int64.max_value, 2L),
     content=
-      #|Err("Failure(Int64 overflow)")
+      #|Err(Failure("Int64 overflow"))
+
     ,
   )
   inspect(
     try? checked_mul_int64(@int64.min_value, 2L),
     content=
-      #|Err("Failure(Int64 overflow)")
+      #|Err(Failure("Int64 overflow"))
+
     ,
   )
 }
@@ -317,7 +325,8 @@ test "floor_div_int" {
   inspect(
     try? floor_div_int(10, 0),
     content=
-      #|Err("Failure(division by zero)")
+      #|Err(Failure("division by zero"))
+
     ,
   )
 }
@@ -356,7 +365,8 @@ test "floor_mod_int" {
   inspect(
     try? floor_mod_int(10, 0),
     content=
-      #|Err("Failure(division by zero)")
+      #|Err(Failure("division by zero"))
+
     ,
   )
 }
