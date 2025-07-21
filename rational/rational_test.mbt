@@ -101,7 +101,7 @@ test "from_double" {
 
 ///|
 test "rational arbitrary" {
-  let samples : Array[@rational.T] = @quickcheck.samples(20)
+  let samples : Array[@rational.Rational64] = @quickcheck.samples(20)
   inspect(
     samples,
     content="[0, 0, 0, 0, 2/3, -2/5, 1, 1/6, 3/2, -1/2, 9/5, 5/3, -2, 7/12, -2/9, -8/15, 0, -5/6, 3/4, -3/7]",
