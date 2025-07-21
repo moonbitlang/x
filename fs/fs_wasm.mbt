@@ -54,14 +54,15 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
 ///|
 fn read_file_to_string_internal(
   path : String,
-  encoding~ : String = "utf8"
+  encoding~ : Encoding = UTF8
 ) -> String raise IOError {
-  guard encoding == "utf8" else {
-    raise IOError(
-      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
-    )
+  match encoding {
+    UTF8 => @ffi.utf8_bytes_to_mbt_string(read_file_to_bytes_internal(path))
+    _ =>
+      raise IOError(
+        "Unsupported encoding: \{encoding}, only \{Encoding::UTF8} is supported for now",
+      )
   }
-  @ffi.utf8_bytes_to_mbt_string(read_file_to_bytes_internal(path))
 }
 
 ///|
@@ -80,17 +81,19 @@ fn write_bytes_to_file_internal(
 fn write_string_to_file_internal(
   path : String,
   content : String,
-  encoding~ : String = "utf8"
+  encoding~ : Encoding = UTF8
 ) -> Unit raise IOError {
-  guard encoding == "utf8" else {
-    raise IOError(
-      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
-    )
+  match encoding {
+    UTF8 =>
+      write_bytes_to_file_internal(
+        path,
+        @ffi.mbt_string_to_utf8_bytes(content, false),
+      )
+    _ =>
+      raise IOError(
+        "Unsupported encoding: \{encoding}, only \{Encoding::UTF8} is supported for now",
+      )
   }
-  write_bytes_to_file_internal(
-    path,
-    @ffi.mbt_string_to_utf8_bytes(content, false),
-  )
 }
 
 ///|
