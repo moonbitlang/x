@@ -16,7 +16,7 @@ test {
     assert_eq(a - b, @rational.new(1L, 6L).unwrap())
     assert_eq(a * b, @rational.new(1L, 6L).unwrap())
     assert_eq(a / b, @rational.new(3L, 2L).unwrap())
-    assert_eq(a.neg(), @rational.new(-1L, 2L).unwrap())
+    assert_eq(-a, @rational.new(-1L, 2L).unwrap())
     assert_eq(a.reciprocal(), @rational.new(2L, 1L).unwrap())
     assert_eq(a.abs(), @rational.new(1L, 2L).unwrap())
 }

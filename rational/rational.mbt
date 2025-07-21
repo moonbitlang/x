@@ -13,24 +13,12 @@
 // limitations under the License.
 
 // TODO:
-// - Add a trait for `Integer` and make `Rational` generic as `Rational[T: Integer]`. Currently, the numerator and denominator are specific to `Int64` types.
 // - `to_double` method needs fix. See its comment.
 
 ///|
-/// Rational number type.
-///
-/// Invariants:
-/// - The denominator is always positive.
-/// - The numerator and denominator are always coprime.
-struct Rational64 {
-  numerator : Int64
-  denominator : Int64
-}
-
-///|
-fn gcd(a : Int64, b : Int64) -> Int64 {
+fn[T : Integral] gcd(a : T, b : T) -> T {
   for a = a, b = b {
-    if b == 0L {
+    if b.signum() == 0 {
       break a
     }
     continue b, a % b
@@ -77,16 +65,17 @@ fn gcd(a : Int64, b : Int64) -> Int64 {
 /// inspect(r6, content="None")
 /// ```
 ///
-pub fn new(numerator : Int64, denominator : Int64) -> Rational64? {
-  if denominator == 0L {
+pub fn[T : Integral] new(numerator : T, denominator : T) -> Rational[T]? {
+  if denominator.signum() == 0 {
     None
   } else {
-    let sign = if (numerator < 0L && denominator < 0L) ||
-      (numerator > 0L && denominator > 0L) {
-      1L
-    } else {
-      -1L
-    }
+    let sign = T::from_int(
+      if numerator.signum() == denominator.signum() {
+        1
+      } else {
+        -1
+      },
+    )
     let numerator = numerator.abs()
     let denominator = denominator.abs()
     let gcd = gcd(numerator, denominator)
@@ -96,7 +85,7 @@ pub fn new(numerator : Int64, denominator : Int64) -> Rational64? {
 
 ///|
 /// Creates a rational number without enforcing invariants.
-fn new_unchecked(numerator : Int64, denominator : Int64) -> Rational64 {
+fn[T : Integral] new_unchecked(numerator : T, denominator : T) -> Rational[T] {
   let gcd = gcd(numerator.abs(), denominator)
   { numerator: numerator / gcd, denominator: denominator / gcd }
 }
@@ -104,7 +93,7 @@ fn new_unchecked(numerator : Int64, denominator : Int64) -> Rational64 {
 ///|
 /// NOTE: we don't check overflow here, to align with the `op_add` of `Int64`.
 /// TODO: add a `checked_add` method.
-pub impl Add for Rational64 with op_add(self : Rational64, other : Rational64) -> Rational64 {
+pub impl[T : Integral] Add for Rational[T] with op_add(self, other) {
   new_unchecked(
     self.numerator * other.denominator + other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -129,7 +118,7 @@ pub impl Add for Rational64 with op_add(self : Rational64, other : Rational64) -
 /// inspect(a - b, content="1/6") // 1/2 - 1/3 = 1/6
 /// ```
 ///
-pub impl Sub for Rational64 with op_sub(self : Rational64, other : Rational64) -> Rational64 {
+pub impl[T : Integral] Sub for Rational[T] with op_sub(self, other) {
   new_unchecked(
     self.numerator * other.denominator - other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -155,7 +144,7 @@ pub impl Sub for Rational64 with op_sub(self : Rational64, other : Rational64) -
 /// inspect(c, content="1/3")
 /// ```
 ///
-pub impl Mul for Rational64 with op_mul(self : Rational64, other : Rational64) -> Rational64 {
+pub impl[T : Integral] Mul for Rational[T] with op_mul(self, other) {
   new_unchecked(
     self.numerator * other.numerator,
     self.denominator * other.denominator,
@@ -186,8 +175,8 @@ pub impl Mul for Rational64 with op_mul(self : Rational64, other : Rational64) -
 /// }
 /// ```
 ///
-pub impl Div for Rational64 with op_div(self : Rational64, other : Rational64) -> Rational64 {
-  if other.numerator < 0L {
+pub impl[T : Integral] Div for Rational[T] with op_div(self, other) {
+  if other.numerator.signum() < 0 {
     new_unchecked(
       self.numerator * -other.denominator,
       self.denominator * -other.numerator,
@@ -221,8 +210,8 @@ pub impl Div for Rational64 with op_div(self : Rational64, other : Rational64) -
 /// inspect(negative_three, content="-3")
 /// ```
 ///
-pub fn reciprocal(self : Rational64) -> Rational64 {
-  if self.numerator < 0L {
+pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
+  if self.numerator.signum() < 0 {
     new_unchecked(-self.denominator, -self.numerator)
   } else {
     new_unchecked(self.denominator, self.numerator)
@@ -242,15 +231,17 @@ pub fn reciprocal(self : Rational64) -> Rational64 {
 ///
 /// ```moonbit
 /// let positive = @rational.new(3L, 4L).unwrap()
-/// let negative = positive.neg()
+/// let negative = -positive
 /// inspect(negative.to_string(), content="-3/4")
 ///
 /// let negative_original = @rational.new(-5L, 2L).unwrap()
-/// let positive_result = negative_original.neg()
+/// let positive_result = -negative_original
 /// inspect(positive_result.to_string(), content="5/2")
 /// ```
 ///
-pub fn Rational64::neg(self : Rational64) -> Rational64 {
+pub impl[T : Integral] Neg for Rational[T] with op_neg(self : Rational[T]) -> Rational[
+  T,
+] {
   new_unchecked(-self.numerator, self.denominator)
 }
 
@@ -272,7 +263,7 @@ pub fn Rational64::neg(self : Rational64) -> Rational64 {
 /// inspect(negative.abs(), content="3/4")
 /// ```
 ///
-pub fn Rational64::abs(self : Rational64) -> Rational64 {
+pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
   new_unchecked(self.numerator.abs(), self.denominator)
 }
 
@@ -297,7 +288,10 @@ pub fn Rational64::abs(self : Rational64) -> Rational64 {
 /// inspect(a == c, content="false")
 /// ```
 ///
-pub impl Eq for Rational64 with op_equal(self : Rational64, other : Rational64) -> Bool {
+pub impl[T : Integral] Eq for Rational[T] with op_equal(
+  self : Rational[T],
+  other : Rational[T]
+) -> Bool {
   self.numerator * other.denominator == other.numerator * self.denominator
 }
 
@@ -329,9 +323,9 @@ pub impl Eq for Rational64 with op_equal(self : Rational64, other : Rational64) 
 /// inspect(e.compare(f), content="1")      // 5/6 > 1/2
 /// ```
 ///
-pub impl Compare for Rational64 with compare(
-  self : Rational64,
-  other : Rational64
+pub impl[T : Integral] Compare for Rational[T] with compare(
+  self : Rational[T],
+  other : Rational[T]
 ) -> Int {
   let left = self.numerator * other.denominator
   let right = other.numerator * self.denominator
@@ -533,7 +527,7 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
 ///
 /// * `self` : The rational number to ceiling.
 ///
-/// Returns the ceiling of the rational number as an `Int64`.
+/// Returns the ceiling of the rational number as a value of type `T`.
 ///
 /// Example:
 ///
@@ -548,13 +542,17 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
 /// inspect(r3.ceil(), content="2")
 /// ```
 ///
-pub fn Rational64::ceil(self : Rational64) -> Int64 {
-  let sign = if self.numerator < 0L { -1L } else { 1L }
+pub fn[T : Integral] Rational::ceil(self : Rational[T]) -> T {
+  let sign = if self.numerator.signum() < 0 {
+    T::from_int(-1)
+  } else {
+    T::from_int(1)
+  }
   let quotient = self.numerator / self.denominator
-  if self.numerator % self.denominator == 0L {
+  if self.numerator % self.denominator == T::from_int(0) {
     quotient
   } else {
-    quotient + (1L + sign) / 2L
+    quotient + (T::from_int(1) + sign) / T::from_int(2)
   }
 }
 
@@ -566,7 +564,7 @@ pub fn Rational64::ceil(self : Rational64) -> Int64 {
 ///
 /// * `self` : The rational number to floor.
 ///
-/// Returns the largest `Int64` value that is less than or equal to `self`.
+/// Returns the largest value of type `T` that is less than or equal to `self`.
 ///
 /// Example:
 ///
@@ -581,13 +579,17 @@ pub fn Rational64::ceil(self : Rational64) -> Int64 {
 /// inspect(r3.floor(), content="2")
 /// ```
 ///
-pub fn Rational64::floor(self : Rational64) -> Int64 {
-  let sign = if self.numerator < 0L { -1L } else { 1L }
+pub fn[T : Integral] Rational::floor(self : Rational[T]) -> T {
+  let sign = if self.numerator.signum() < 0 {
+    T::from_int(-1)
+  } else {
+    T::from_int(1)
+  }
   let quotient = self.numerator / self.denominator
-  if self.numerator % self.denominator == 0L {
+  if self.numerator % self.denominator == T::from_int(0) {
     quotient
   } else {
-    quotient + (-1L + sign) / 2L
+    quotient + (T::from_int(-1) + sign) / T::from_int(2)
   }
 }
 
@@ -598,26 +600,26 @@ pub fn Rational64::floor(self : Rational64) -> Int64 {
 ///
 /// * `self` : The rational number to truncate.
 ///
-/// Returns the integer part of the rational number as an `Int64`.
+/// Returns the integer part of the rational number as a value of type `T`.
 ///
 /// Example:
 ///
 /// ```moonbit
 /// let a = @rational.new(7L, 3L).unwrap() // 7/3 = 2.333...
-/// inspect(@rational.trunc(a), content="2")
+/// inspect(a.trunc(), content="2")
 ///
 /// let b = @rational.new(-7L, 3L).unwrap() // -7/3 = -2.333...
-/// inspect(@rational.trunc(b), content="-2")
+/// inspect(b.trunc(), content="-2")
 ///
 /// let c = @rational.new(5L, 2L).unwrap() // 5/2 = 2.5
-/// inspect(@rational.trunc(c), content="2")
+/// inspect(c.trunc(), content="2")
 ///
 /// let d = @rational.new(-5L, 2L).unwrap() // -5/2 = -2.5
-/// inspect(@rational.trunc(d), content="-2")
+/// inspect(d.trunc(), content="-2")
 /// ```
 ///
-pub fn Rational64::trunc(self : Rational64) -> Int64 {
-  if self.numerator < 0L {
+pub fn[T : Integral] Rational::trunc(self : Rational[T]) -> T {
+  if self.numerator.signum() < 0 {
     -(-self.numerator / self.denominator)
   } else {
     self.numerator / self.denominator
@@ -648,7 +650,7 @@ pub fn Rational64::trunc(self : Rational64) -> Int64 {
 /// inspect(r3.fract(), content="0")        // fractional part is 0
 /// ```
 ///
-pub fn fract(self : Rational64) -> Rational64 {
+pub fn[T : Integral] Rational::fract(self : Rational[T]) -> Rational[T] {
   new_unchecked(self.numerator % self.denominator, self.denominator)
 }
 
@@ -670,23 +672,23 @@ pub fn fract(self : Rational64) -> Rational64 {
 /// Example:
 ///
 /// ```moonbit
-/// let zero = @rational.new(0, 1).unwrap()
+/// let zero = @rational.new(0L, 1).unwrap()
 /// inspect(zero, content="0") 
 ///
-/// let integer = @rational.new(5, 1).unwrap()
+/// let integer = @rational.new(5L, 1).unwrap()
 /// inspect(integer, content="5")
 ///
-/// let fraction = @rational.new(3, 4).unwrap()
+/// let fraction = @rational.new(3L, 4).unwrap()
 /// inspect(fraction, content="3/4") 
 ///
-/// let negative = @rational.new(-7, 3).unwrap()
+/// let negative = @rational.new(-7L, 3).unwrap()
 /// inspect(negative, content="-7/3") 
 /// ```
 ///
-pub impl Show for Rational64 with output(self, logger) {
-  if self.numerator == 0L {
+pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
+  if self.numerator == T::from_int(0) {
     logger.write_char('0')
-  } else if self.denominator == 1L {
+  } else if self.denominator == T::from_int(1) {
     self.numerator.output(logger)
   } else {
     self.numerator.output(logger)
@@ -696,12 +698,15 @@ pub impl Show for Rational64 with output(self, logger) {
 }
 
 ///|
-pub impl @quickcheck.Arbitrary for Rational64 with arbitrary(size, rs) {
-  let numerator : Int64 = @quickcheck.Arbitrary::arbitrary(size, rs)
-  let denominator : Int64 = {
-    let d : Int64 = @quickcheck.Arbitrary::arbitrary(size, rs)
-    if d <= 0 {
-      -d + 1
+pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
+  size,
+  rs
+) {
+  let numerator : T = @quickcheck.Arbitrary::arbitrary(size, rs)
+  let denominator : T = {
+    let d : T = @quickcheck.Arbitrary::arbitrary(size, rs)
+    if d.signum() <= 0 {
+      -d + T::from_int(1) // Ensure positive denominator
     } else {
       d
     }
@@ -732,12 +737,12 @@ pub impl @quickcheck.Arbitrary for Rational64 with arbitrary(size, rs) {
 /// inspect(zero.is_integer(), content="true")
 /// ```
 ///
-pub fn is_integer(self : Rational64) -> Bool {
-  self.denominator == 1L
+pub fn[T : Integral] Rational::is_integer(self : Rational[T]) -> Bool {
+  self.denominator == T::from_int(1)
 }
 
 ///|
-pub fnalias Rational64::(neg, abs, ceil, floor, trunc)
+pub fnalias Rational::(abs, ceil, floor, trunc, is_integer, fract, reciprocal)
 
 ///|
 test "op_add" {
@@ -878,13 +883,13 @@ test "reciprocal" {
 test "neg" {
   // 1/2 -> -1/2
   let a = new_unchecked(1L, 2L)
-  let b = neg(a)
+  let b = -a
   assert_eq(b.numerator, -1L)
   assert_eq(b.denominator, 2L)
 
   // -1/2 -> 1/2
   let a = new_unchecked(-1L, 2L)
-  let b = neg(a)
+  let b = -a
   assert_eq(b.numerator, 1L)
   assert_eq(b.denominator, 2L)
 }
@@ -893,13 +898,13 @@ test "neg" {
 test "abs" {
   // 1/2 -> 1/2
   let a = new_unchecked(1L, 2L)
-  let b = abs(a)
+  let b = a.abs()
   assert_eq(b.numerator, 1L)
   assert_eq(b.denominator, 2L)
 
   // -1/2 -> 1/2
   let a = new_unchecked(-1L, 2L)
-  let b = abs(a)
+  let b = a.abs()
   assert_eq(b.numerator, 1L)
   assert_eq(b.denominator, 2L)
 }
@@ -921,22 +926,22 @@ test "to_double" {
 test "ceil" {
   // 1/2 -> 1
   let a = new_unchecked(1L, 2L)
-  let b = ceil(a)
+  let b = a.ceil()
   assert_eq(b, 1L)
 
   // -1/2 -> 0
   let a = new_unchecked(-1L, 2L)
-  let b = ceil(a)
+  let b = a.ceil()
   assert_eq(b, 0L)
 
   // -2/2 -> -1
   let a = new_unchecked(-2L, 2L)
-  let b = ceil(a)
+  let b = a.ceil()
   assert_eq(b, -1L)
 
   // 2/2 -> 1
   let a = new_unchecked(2L, 2L)
-  let b = ceil(a)
+  let b = a.ceil()
   assert_eq(b, 1L)
 }
 
@@ -944,22 +949,22 @@ test "ceil" {
 test "floor" {
   // 1/2 -> 0
   let a = new_unchecked(1L, 2L)
-  let b = floor(a)
+  let b = a.floor()
   assert_eq(b, 0L)
 
   // -1/2 -> -1
   let a = new_unchecked(-1L, 2L)
-  let b = floor(a)
+  let b = a.floor()
   assert_eq(b, -1L)
 
   // -2/2 -> -1
   let a = new_unchecked(-2L, 2L)
-  let b = floor(a)
+  let b = a.floor()
   assert_eq(b, -1L)
 
   // 2/2 -> 1
   let a = new_unchecked(2L, 2L)
-  let b = floor(a)
+  let b = a.floor()
   assert_eq(b, 1L)
 }
 
@@ -967,12 +972,12 @@ test "floor" {
 test "trunc" {
   // 1/2 -> 0
   let a = new_unchecked(1L, 2L)
-  let b = trunc(a)
+  let b = a.trunc()
   assert_eq(b, 0L)
 
   // -1/2 -> 0
   let a = new_unchecked(-1L, 2L)
-  let b = trunc(a)
+  let b = a.trunc()
   assert_eq(b, 0L)
 }
 
