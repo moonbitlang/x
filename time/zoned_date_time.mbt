@@ -29,7 +29,7 @@ pub fn date_time(
   minute~ : Int = 0,
   second~ : Int = 0,
   nanosecond~ : Int = 0,
-  zone~ : Zone = utc_zone
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   ZonedDateTime::of(
     year,
@@ -48,7 +48,7 @@ pub fn date_time(
 pub fn unix(
   second : Int64,
   nanosecond~ : Int = 0,
-  zone~ : Zone = utc_zone
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   ZonedDateTime::from_unix_second(second, nanosecond~, zone~)
 }
@@ -63,7 +63,7 @@ pub fn ZonedDateTime::of(
   minute~ : Int = 0,
   second~ : Int = 0,
   nanosecond~ : Int = 0,
-  zone~ : Zone = utc_zone
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   let datetime = PlainDateTime::of(
     year,
@@ -81,7 +81,7 @@ pub fn ZonedDateTime::of(
 /// The default time zone is UTC+0.
 pub fn ZonedDateTime::from_plain_datetime(
   datetime : PlainDateTime,
-  zone~ : Zone = utc_zone
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime {
   create_from_plain(datetime, zone)
 }
@@ -91,7 +91,7 @@ pub fn ZonedDateTime::from_plain_datetime(
 pub fn ZonedDateTime::from_unix_second(
   second : Int64,
   nanosecond~ : Int = 0,
-  zone~ : Zone = utc_zone
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)
@@ -119,7 +119,7 @@ pub fn ZonedDateTime::to_string(self : ZonedDateTime) -> String {
 ///|
 pub impl Show for ZonedDateTime with output(
   self : ZonedDateTime,
-  logger : &Logger
+  logger : &Logger,
 ) -> Unit {
   logger.write_string(self.to_string())
 }
@@ -237,7 +237,7 @@ pub fn offset(self : ZonedDateTime) -> ZoneOffset {
 ///| Adds specified years to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_years(
   self : ZonedDateTime,
-  years : Int64
+  years : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_years(years), self.zone)
 }
@@ -245,7 +245,7 @@ pub fn ZonedDateTime::add_years(
 ///| Adds specified months to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_months(
   self : ZonedDateTime,
-  months : Int64
+  months : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_months(months), self.zone)
 }
@@ -253,7 +253,7 @@ pub fn ZonedDateTime::add_months(
 ///| Adds specified weeks to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_weeks(
   self : ZonedDateTime,
-  weeks : Int64
+  weeks : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_weeks(weeks), self.zone)
 }
@@ -261,7 +261,7 @@ pub fn ZonedDateTime::add_weeks(
 ///| Adds specified days to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_days(
   self : ZonedDateTime,
-  days : Int64
+  days : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_days(days), self.zone)
 }
@@ -269,7 +269,7 @@ pub fn ZonedDateTime::add_days(
 ///| Adds specified hours to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_hours(
   self : ZonedDateTime,
-  hours : Int64
+  hours : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_hours(hours), self.zone)
 }
@@ -277,7 +277,7 @@ pub fn ZonedDateTime::add_hours(
 ///| Adds specified minutes to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_minutes(
   self : ZonedDateTime,
-  minutes : Int64
+  minutes : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_minutes(minutes), self.zone)
 }
@@ -285,7 +285,7 @@ pub fn ZonedDateTime::add_minutes(
 ///| Adds specified seconds to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_seconds(
   self : ZonedDateTime,
-  seconds : Int64
+  seconds : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_seconds(seconds), self.zone)
 }
@@ -293,7 +293,7 @@ pub fn ZonedDateTime::add_seconds(
 ///| Adds specified nanoseconds to this datetime, and returns a new datetime.
 pub fn ZonedDateTime::add_nanoseconds(
   self : ZonedDateTime,
-  nanoseconds : Int64
+  nanoseconds : Int64,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.add_nanoseconds(nanoseconds), self.zone)
 }
@@ -301,7 +301,7 @@ pub fn ZonedDateTime::add_nanoseconds(
 ///| Returns a new datetime with the specified year.
 pub fn ZonedDateTime::with_year(
   self : ZonedDateTime,
-  year : Int
+  year : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_year(year), self.zone)
 }
@@ -309,7 +309,7 @@ pub fn ZonedDateTime::with_year(
 ///| Returns a new datetime with the specified month.
 pub fn ZonedDateTime::with_month(
   self : ZonedDateTime,
-  month : Int
+  month : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_month(month), self.zone)
 }
@@ -317,7 +317,7 @@ pub fn ZonedDateTime::with_month(
 ///| Returns a new datetime with the specified day of the month.
 pub fn ZonedDateTime::with_day(
   self : ZonedDateTime,
-  day : Int
+  day : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_day(day), self.zone)
 }
@@ -325,7 +325,7 @@ pub fn ZonedDateTime::with_day(
 ///| Returns a new datetime with the specified ordinal day of the year.
 pub fn ZonedDateTime::with_ordinal(
   self : ZonedDateTime,
-  ordinal : Int
+  ordinal : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_ordinal(ordinal), self.zone)
 }
@@ -333,7 +333,7 @@ pub fn ZonedDateTime::with_ordinal(
 ///| Returns a new datetime with the specified hour.
 pub fn ZonedDateTime::with_hour(
   self : ZonedDateTime,
-  hour : Int
+  hour : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_hour(hour), self.zone)
 }
@@ -341,7 +341,7 @@ pub fn ZonedDateTime::with_hour(
 ///| Returns a new datetime with the specified minute.
 pub fn ZonedDateTime::with_minute(
   self : ZonedDateTime,
-  minute : Int
+  minute : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_minute(minute), self.zone)
 }
@@ -349,7 +349,7 @@ pub fn ZonedDateTime::with_minute(
 ///| Returns a new datetime with the specified second.
 pub fn ZonedDateTime::with_second(
   self : ZonedDateTime,
-  second : Int
+  second : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_second(second), self.zone)
 }
@@ -357,7 +357,7 @@ pub fn ZonedDateTime::with_second(
 ///| Returns a new datetime with the specified nanosecond.
 pub fn ZonedDateTime::with_nanosecond(
   self : ZonedDateTime,
-  nanosecond : Int
+  nanosecond : Int,
 ) -> ZonedDateTime raise Error {
   create_from_plain(self.datetime.with_nanosecond(nanosecond), self.zone)
 }

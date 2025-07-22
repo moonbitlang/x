@@ -15,7 +15,7 @@
 ///|
 fn lex_decimal_integer(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   for {
     match read_char(ctx) {
@@ -36,7 +36,7 @@ fn lex_decimal_integer(
 ///|
 fn lex_decimal_point_leading(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   match read_char(ctx) {
     Some(c) => {
@@ -53,7 +53,7 @@ fn lex_decimal_point_leading(
 ///|
 fn lex_decimal_point(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   match read_char(ctx) {
     Some('e' | 'E') => return lex_decimal_exponent(ctx, start~)
@@ -71,7 +71,7 @@ fn lex_decimal_point(
 ///|
 fn lex_decimal_fraction(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   for {
     match read_char(ctx) {
@@ -91,7 +91,7 @@ fn lex_decimal_fraction(
 ///|
 fn lex_decimal_exponent(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   match read_char(ctx) {
     Some('+') | Some('-') => return lex_decimal_exponent_sign(ctx, start~)
@@ -109,7 +109,7 @@ fn lex_decimal_exponent(
 ///|
 fn lex_decimal_exponent_sign(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   match read_char(ctx) {
     Some(c) => {
@@ -126,7 +126,7 @@ fn lex_decimal_exponent_sign(
 ///|
 fn lex_decimal_exponent_integer(
   ctx : ParseContext,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   for {
     match read_char(ctx) {
@@ -146,7 +146,7 @@ fn lex_decimal_exponent_integer(
 fn lex_zero(
   ctx : ParseContext,
   neg~ : Bool,
-  start~ : Int
+  start~ : Int,
 ) -> Double raise ParseError {
   match read_char(ctx) {
     Some('.') => return lex_decimal_point(ctx, start~)
@@ -203,7 +203,7 @@ fn lex_hexadecimal_integer(ctx : ParseContext, n : Int) -> Double {
 fn lex_number_end(
   ctx : ParseContext,
   start : Int,
-  end : Int
+  end : Int,
 ) -> Double raise ParseError {
   let s = ctx.input.substring(start~, end~)
   match (try? @strconv.parse_double(s)) {

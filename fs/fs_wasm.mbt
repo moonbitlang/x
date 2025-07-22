@@ -41,7 +41,7 @@ fn read_file_to_bytes_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable"
 ///|
 fn write_bytes_to_file_ffi(
   path : XExternString,
-  content : XExternByteArray
+  content : XExternByteArray,
 ) -> Int = "__moonbit_fs_unstable" "write_bytes_to_file_new"
 
 ///|
@@ -54,7 +54,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
 ///|
 fn read_file_to_string_internal(
   path : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> String raise IOError {
   guard encoding == "utf8" else {
     raise IOError(
@@ -67,7 +67,7 @@ fn read_file_to_string_internal(
 ///|
 fn write_bytes_to_file_internal(
   path : String,
-  content : Bytes
+  content : Bytes,
 ) -> Unit raise IOError {
   let res = write_bytes_to_file_ffi(
     @ffi.string_to_extern(path),
@@ -80,7 +80,7 @@ fn write_bytes_to_file_internal(
 fn write_string_to_file_internal(
   path : String,
   content : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> Unit raise IOError {
   guard encoding == "utf8" else {
     raise IOError(

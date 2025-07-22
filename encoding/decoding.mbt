@@ -100,7 +100,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 pub fn decode(
   self : Decoder,
   input : @bytes.View,
-  stream~ : Bool = false
+  stream~ : Bool = false,
 ) -> String raise Error {
   if input.length() > 0 {
     self.i_cont(input)
@@ -161,7 +161,7 @@ pub fn Decoder::decode_to(
   self : Decoder,
   input : @bytes.View,
   output : StringBuilder,
-  stream~ : Bool = false
+  stream~ : Bool = false,
 ) -> Unit raise {
   if input.length() > 0 {
     self.i_cont(input)
@@ -190,7 +190,7 @@ pub fn Decoder::decode_to(
 pub fn decode_to(
   input : @bytes.View,
   output : StringBuilder,
-  encoding~ : Encoding
+  encoding~ : Encoding,
 ) -> Unit raise {
   decoder(encoding).decode_to(input, output)
 }
@@ -257,7 +257,7 @@ pub fn finish(self : Decoder) -> String raise Error {
 pub fn decode_lossy(
   self : Decoder,
   input : @bytes.View,
-  stream~ : Bool = false
+  stream~ : Bool = false,
 ) -> String {
   if input.length() > 0 {
     self.i_cont(input)
@@ -295,7 +295,7 @@ pub fn Decoder::decode_lossy_to(
   self : Decoder,
   input : @bytes.View,
   output : StringBuilder,
-  stream~ : Bool = false
+  stream~ : Bool = false,
 ) -> Unit {
   if input.length() > 0 {
     self.i_cont(input)
@@ -630,7 +630,7 @@ fn r_utf_16_lo(
   hi : Int,
   bytes : FixedArray[Byte],
   offset0 : Int,
-  offset1 : Int
+  offset1 : Int,
 ) -> Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
@@ -657,7 +657,7 @@ fn r_utf_16_lo(
 fn r_utf_16(
   bytes : FixedArray[Byte],
   offset0 : Int,
-  offset1 : Int
+  offset1 : Int,
 ) -> UTF16Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()

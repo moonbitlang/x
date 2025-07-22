@@ -90,7 +90,7 @@ fn malformed_pair(
   hi : Int,
   bytes : FixedArray[Byte],
   offset : Int,
-  length : Int
+  length : Int,
 ) -> Decode {
   let bs1 = FixedArray::make(length, Byte::default())
   bytes.blit_to(bs1, len=length, src_offset=offset)

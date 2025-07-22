@@ -46,7 +46,7 @@ pub fn ZoneOffset::of(
   minutes~ : Int = 0,
   seconds~ : Int = 0,
   abbrev~ : String = "",
-  dst~ : Bool = false
+  dst~ : Bool = false,
 ) -> ZoneOffset raise Error {
   validate_offset(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() +
@@ -59,7 +59,7 @@ pub fn ZoneOffset::of(
 pub fn ZoneOffset::from_seconds(
   seconds : Int,
   abbrev~ : String = "",
-  dst~ : Bool = false
+  dst~ : Bool = false,
 ) -> ZoneOffset raise Error {
   if seconds == 0 {
     return utc_offset
@@ -93,7 +93,7 @@ pub impl Eq for ZoneOffset with op_equal(self : ZoneOffset, other : ZoneOffset) 
 ///|
 pub impl Compare for ZoneOffset with compare(
   self : ZoneOffset,
-  other : ZoneOffset
+  other : ZoneOffset,
 ) -> Int {
   other.seconds - self.seconds
 }

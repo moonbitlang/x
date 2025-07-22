@@ -71,7 +71,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 pub fn encode_to(
   src : String,
   buffer : @buffer.T,
-  encoding~ : Encoding
+  encoding~ : Encoding,
 ) -> Unit {
   match encoding {
     UTF8 =>

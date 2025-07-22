@@ -23,7 +23,7 @@ pub fn Duration::of(
   hours~ : Int64 = 0L,
   minutes~ : Int64 = 0L,
   seconds~ : Int64 = 0L,
-  nanoseconds~ : Int64 = 0L
+  nanoseconds~ : Int64 = 0L,
 ) -> Duration raise Error {
   let hours_sec = checked_mul_int64(hours, seconds_per_hour)
   let minutes_sec = checked_mul_int64(minutes, seconds_per_minute)
@@ -199,7 +199,7 @@ pub fn add_seconds(self : Duration, seconds : Int64) -> Duration raise Error {
 ///| Adds specified nanoseconds to this duration, and returns a new duration.
 pub fn add_nanoseconds(
   self : Duration,
-  nanoseconds : Int64
+  nanoseconds : Int64,
 ) -> Duration raise Error {
   if nanoseconds == 0L {
     return self
@@ -244,7 +244,7 @@ pub fn with_seconds(self : Duration, seconds : Int64) -> Duration {
 ///| Returns a new duration with the specified nanosecond of second.
 pub fn with_nanoseconds(
   self : Duration,
-  nanoseconds : Int
+  nanoseconds : Int,
 ) -> Duration raise Error {
   if nanoseconds == self.nanos {
     return self

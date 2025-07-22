@@ -23,7 +23,7 @@ struct Period {
 pub fn Period::of(
   years~ : Int = 0,
   months~ : Int = 0,
-  days~ : Int = 0
+  days~ : Int = 0,
 ) -> Period {
   { years, months, days }
 }

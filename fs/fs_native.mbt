@@ -27,7 +27,7 @@ extern "C" fn fread_ffi(
   ptr : Bytes,
   size : Int,
   nitems : Int,
-  stream : Handler
+  stream : Handler,
 ) -> Int = "moonbit_fread_ffi"
 
 ///|
@@ -35,7 +35,7 @@ extern "C" fn fwrite_ffi(
   ptr : Bytes,
   size : Int,
   nitems : Int,
-  stream : Handler
+  stream : Handler,
 ) -> Int = "moonbit_fwrite_ffi"
 
 ///|
@@ -76,7 +76,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
 ///|
 fn read_file_to_string_internal(
   path : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> String raise IOError {
   guard encoding == "utf8" else {
     raise IOError(
@@ -89,7 +89,7 @@ fn read_file_to_string_internal(
 ///|
 fn write_bytes_to_file_internal(
   path : String,
-  content : Bytes
+  content : Bytes,
 ) -> Unit raise IOError {
   let file = fopen_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), b"wb\x00")
   guard is_null(file) == 0 else { raise IOError(get_error_message()) }
@@ -105,7 +105,7 @@ fn write_bytes_to_file_internal(
 fn write_string_to_file_internal(
   path : String,
   content : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> Unit raise IOError {
   guard encoding == "utf8" else {
     raise IOError(

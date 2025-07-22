@@ -121,7 +121,7 @@ fn SM3Context::pad(self : SM3Context) -> FixedArray[Byte] {
 fn SM3Context::transform(
   self : SM3Context,
   data : FixedArray[Byte],
-  offset~ : Int = 0
+  offset~ : Int = 0,
 ) -> FixedArray[UInt] {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
@@ -200,7 +200,7 @@ fn SM3Context::transform(
 ///|
 pub fn SM3Context::update_from_iter(
   self : SM3Context,
-  data : Iter[Byte]
+  data : Iter[Byte],
 ) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
@@ -243,7 +243,7 @@ pub fn SM3Context::update(self : SM3Context, data : FixedArray[Byte]) -> Unit {
 ///|
 fn sm3_compute(
   self : SM3Context,
-  data~ : Iter[Byte] = Iter::empty()
+  data~ : Iter[Byte] = Iter::empty(),
 ) -> FixedArray[UInt] {
   self.update_from_iter(data)
   let msg = self.pad()

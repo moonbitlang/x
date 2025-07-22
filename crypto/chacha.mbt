@@ -34,13 +34,13 @@ fn quarterRound(
   w : Int,
   x : Int,
   y : Int,
-  z : Int
+  z : Int,
 ) -> FixedArray[UInt] {
   fn fullQuarterRound(
     a : UInt,
     b : UInt,
     c : UInt,
-    d : UInt
+    d : UInt,
   ) -> (UInt, UInt, UInt, UInt) {
     quarterRound4(quarterRound3(quarterRound2(quarterRound1((a, b, c, d)))))
   }
@@ -175,7 +175,7 @@ fn flipState(state : FixedArray[UInt]) -> FixedArray[UInt] {
 fn zipWith(
   op : (UInt, UInt) -> UInt,
   state1 : FixedArray[UInt],
-  state2 : FixedArray[UInt]
+  state2 : FixedArray[UInt],
 ) -> FixedArray[UInt] {
   let result = FixedArray::make(state1.length(), 0U)
   for i = 0; i < state1.length(); i = i + 1 {
@@ -207,7 +207,7 @@ fn chachaBlock(
   key : FixedArray[UInt],
   count : UInt,
   nonce : UInt,
-  round : UInt
+  round : UInt,
 ) -> FixedArray[UInt] {
   if key.length() != 8 {
     abort("Invalid key length -- key must be 256 bits")
@@ -309,7 +309,7 @@ pub fn chacha8(
   key : FixedArray[UInt],
   counter : UInt,
   block : FixedArray[Byte],
-  nonce~ : UInt = 0
+  nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -327,7 +327,7 @@ pub fn chacha12(
   key : FixedArray[UInt],
   counter : UInt,
   block : FixedArray[Byte],
-  nonce~ : UInt = 0
+  nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -345,7 +345,7 @@ pub fn chacha20(
   key : FixedArray[UInt],
   counter : UInt,
   block : FixedArray[Byte],
-  nonce~ : UInt = 0
+  nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -359,7 +359,7 @@ fn chacha(
   counter : UInt,
   block : FixedArray[Byte],
   round : UInt,
-  nonce : UInt
+  nonce : UInt,
 ) -> FixedArray[Byte] {
   if block.length() == 0 {
     return FixedArray::make(0, Byte::default())
@@ -375,7 +375,7 @@ fn chacha(
   fn zipWith(
     op : (Byte, Byte) -> Byte,
     state1 : FixedArray[Byte],
-    state2 : FixedArray[Byte]
+    state2 : FixedArray[Byte],
   ) -> FixedArray[Byte] {
     let result = FixedArray::make(state1.length(), Byte::default())
     for i = 0; i < state1.length(); i = i + 1 {
@@ -394,7 +394,7 @@ fn chacha(
 
   fn concatBytes(
     b1 : FixedArray[Byte],
-    b2 : FixedArray[Byte]
+    b2 : FixedArray[Byte],
   ) -> FixedArray[Byte] {
     let result = FixedArray::make(b1.length() + b2.length(), Byte::default())
     for i = 0; i < b1.length(); i = i + 1 {

@@ -41,7 +41,7 @@ fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int) = "__moonbi
 
 ///|
 fn finish_create_byte_array(
-  handle : XByteArrayCreateHandle
+  handle : XByteArrayCreateHandle,
 ) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
 
 ///|

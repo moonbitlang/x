@@ -42,7 +42,7 @@ pub fn read_file_to_bytes(path : String) -> Bytes raise IOError {
 /// - A `String` representing the content of the file.
 pub fn read_file_to_string(
   path : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> String raise IOError {
   read_file_to_string_internal(path, encoding~)
 }
@@ -55,7 +55,7 @@ pub fn read_file_to_string(
 /// - `content` : A `Bytes` to be written to the file.
 pub fn write_bytes_to_file(
   path : String,
-  content : Bytes
+  content : Bytes,
 ) -> Unit raise IOError {
   write_bytes_to_file_internal(path, content)
 }
@@ -70,7 +70,7 @@ pub fn write_bytes_to_file(
 pub fn write_string_to_file(
   path : String,
   content : String,
-  encoding~ : String = "utf8"
+  encoding~ : String = "utf8",
 ) -> Unit raise IOError {
   write_string_to_file_internal(path, content, encoding~)
 }
