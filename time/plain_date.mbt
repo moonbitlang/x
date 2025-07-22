@@ -23,7 +23,7 @@ struct PlainDate {
 pub fn PlainDate::of(
   year : Int,
   month : Int,
-  day : Int
+  day : Int,
 ) -> PlainDate raise Error {
   if not(validate_ymd(year, month, day)) {
     fail(invalid_date_err)
@@ -34,7 +34,7 @@ pub fn PlainDate::of(
 ///| Creates a PlainDate from year and ordinal day.
 pub fn PlainDate::from_year_ord(
   year : Int,
-  ordinal : Int
+  ordinal : Int,
 ) -> PlainDate raise Error {
   let valid = validate_year(year) && validate_ordinal(year, ordinal)
   if not(valid) {
@@ -269,7 +269,7 @@ pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate raise Error {
 ///| Adds specified years to this date, and returns a new date.
 pub fn PlainDate::add_years(
   self : PlainDate,
-  years : Int64
+  years : Int64,
 ) -> PlainDate raise Error {
   if years == 0L {
     return self
@@ -286,7 +286,7 @@ pub fn PlainDate::add_years(
 ///| Adds specified months to this date, and returns a new date.
 pub fn PlainDate::add_months(
   self : PlainDate,
-  months : Int64
+  months : Int64,
 ) -> PlainDate raise Error {
   if months == 0L {
     return self
@@ -309,7 +309,7 @@ pub fn PlainDate::add_months(
 ///| Adds specified weeks to this date, and returns a new date.
 pub fn PlainDate::add_weeks(
   self : PlainDate,
-  weeks : Int64
+  weeks : Int64,
 ) -> PlainDate raise Error {
   if weeks == 0L {
     return self
@@ -321,7 +321,7 @@ pub fn PlainDate::add_weeks(
 ///| Adds specified days to this date, and returns a new date.
 pub fn PlainDate::add_days(
   self : PlainDate,
-  days : Int64
+  days : Int64,
 ) -> PlainDate raise Error {
   if days == 0L {
     return self
@@ -335,7 +335,7 @@ pub fn PlainDate::add_days(
 ///| Adds a period to this date, and returns a new date.
 pub fn PlainDate::add_period(
   self : PlainDate,
-  period : Period
+  period : Period,
 ) -> PlainDate raise Error {
   let mut d = self
   d = d.add_months(period.to_total_months()).add_days(period.days().to_int64())
@@ -345,7 +345,7 @@ pub fn PlainDate::add_period(
 ///| Returns the period between this date and another date.
 pub fn PlainDate::until(
   self : PlainDate,
-  end : PlainDate
+  end : PlainDate,
 ) -> Period raise Error {
   let start_months = self.year.to_int64() * 12L + self.month.to_int64() - 1L
   let end_months = end.year.to_int64() * 12L + end.month.to_int64() - 1L

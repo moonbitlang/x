@@ -79,7 +79,7 @@ fn add_substring(
   self : StringBuilder,
   s : String,
   start : Int,
-  end : Int
+  end : Int,
 ) -> Unit {
   self.buffer = self.buffer + s.substring(start~, end~)
 }

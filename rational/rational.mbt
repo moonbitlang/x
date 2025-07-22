@@ -290,7 +290,7 @@ pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
 ///
 pub impl[T : Integral] Eq for Rational[T] with op_equal(
   self : Rational[T],
-  other : Rational[T]
+  other : Rational[T],
 ) -> Bool {
   self.numerator * other.denominator == other.numerator * self.denominator
 }
@@ -325,7 +325,7 @@ pub impl[T : Integral] Eq for Rational[T] with op_equal(
 ///
 pub impl[T : Integral] Compare for Rational[T] with compare(
   self : Rational[T],
-  other : Rational[T]
+  other : Rational[T],
 ) -> Int {
   let left = self.numerator * other.denominator
   let right = other.numerator * self.denominator
@@ -412,7 +412,7 @@ pub(all) suberror RationalError String derive(Show, ToJson)
 ///
 pub impl Eq for RationalError with op_equal(
   self : RationalError,
-  other : RationalError
+  other : RationalError,
 ) -> Bool {
   match (self, other) {
     (RationalError(e1), RationalError(e2)) => e1 == e2
@@ -700,7 +700,7 @@ pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
 ///|
 pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
   size,
-  rs
+  rs,
 ) {
   let numerator : T = @quickcheck.Arbitrary::arbitrary(size, rs)
   let denominator : T = {
