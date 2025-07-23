@@ -61,7 +61,9 @@ jobs:
             moon test --target native
 
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check
+        # Currently disabled to maintain the compatibility for @immut/list
+        # run: moon check --deny-warn
 
       - name: moon info
         run: |
