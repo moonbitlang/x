@@ -28,7 +28,7 @@ fn remove_prefix_zero(s : String) -> String {
     return s
   }
   let mut i = 0
-  while i < s.length() && s.charcode_at(i) == '0' {
+  while i < s.length() && s[i] == '0' {
     i += 1
   }
   if i < s.length() {
@@ -71,7 +71,7 @@ fn remove_suffix_zero(s : String) -> String {
     return s
   }
   let mut i = s.length() - 1
-  while s.charcode_at(i) == '0' && i > 0 {
+  while s[i] == '0' && i > 0 {
     i -= 1
   }
   s.substring(end=i + 1)
@@ -100,11 +100,11 @@ fn split(s : String, delimiter : Char) -> Array[String] {
   }
   let buf = StringBuilder::new(size_hint=0)
   for i = 0; i < s.length(); i = i + 1 {
-    if Int::unsafe_to_char(s.charcode_at(i)) == delimiter {
+    if s[i] == Char::to_int(delimiter) {
       spl.push(buf.to_string())
       buf.reset()
     } else {
-      buf.write_char(Int::unsafe_to_char(s.charcode_at(i)))
+      buf.write_char(Int::unsafe_to_char(s[i]))
     }
   }
   spl.push(buf.to_string())

@@ -17,7 +17,7 @@ fn offset_to_position(input : String, offset : Int) -> Position {
   let mut line = 1
   let mut column = 0
   for i = 0; i < offset; i = i + 1 {
-    let c = input.charcode_at(i)
+    let c = input[i]
     if c == '\n' {
       line += 1
       column = 0
@@ -34,7 +34,7 @@ fn[X] invalid_char(ctx : ParseContext, shift~ : Int = 0) -> X raise ParseError {
   parse_error(
     InvalidChar(
       offset_to_position(ctx.input, offset),
-      Int::unsafe_to_char(ctx.input.charcode_at(offset)),
+      Int::unsafe_to_char(ctx.input[offset]),
     ),
   )
 }

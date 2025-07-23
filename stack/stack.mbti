@@ -6,9 +6,6 @@ import(
 )
 
 // Values
-fn[T] new() -> Stack[T]
-
-fn[T] of(FixedArray[T]) -> Stack[T]
 
 // Types and methods
 type Stack[T]
@@ -19,26 +16,30 @@ fn[T] Stack::each(Self[T], (T) -> Unit) -> Unit
 fn[T : Eq] Stack::equal(Self[T], Self[T]) -> Bool
 fn[T, U] Stack::fold(Self[T], init~ : U, (U, T) -> U) -> U
 fn[T] Stack::from_array(Array[T]) -> Self[T]
+fn[T] Stack::from_iter(Iter[T]) -> Self[T]
+#deprecated
 fn[T] Stack::from_list(@list.T[T]) -> Self[T]
 fn[T] Stack::from_stack(Self[T]) -> Self[T]
 fn[T] Stack::is_empty(Self[T]) -> Bool
+fn[T] Stack::iter(Self[T]) -> Iter[T]
 fn[T] Stack::length(Self[T]) -> Int
-#deprecated
 fn[T] Stack::new() -> Self[T]
-#deprecated
+fnalias Stack::new
 fn[T] Stack::of(FixedArray[T]) -> Self[T]
+fnalias Stack::of
 fn[T : Eq] Stack::op_equal(Self[T], Self[T]) -> Bool
 fn[T] Stack::peek(Self[T]) -> T?
 fn[T] Stack::peek_exn(Self[T]) -> T
 fn[T] Stack::pop(Self[T]) -> T?
 fn[T] Stack::push(Self[T], T) -> Unit
 fn[T] Stack::push_array(Self[T], Array[T]) -> Unit
+#deprecated
 fn[T] Stack::push_list(Self[T], @list.T[T]) -> Unit
 fn[T] Stack::push_stack(Self[T], Self[T]) -> Unit
 fn[T] Stack::return_with_clear(Self[T]) -> Self[T]
 fn[T] Stack::to_array(Self[T]) -> Array[T]
+#deprecated
 fn[T] Stack::to_list(Self[T]) -> @list.T[T]
-fn[T : Show] Stack::to_string(Self[T]) -> String
 fn[T] Stack::unsafe_pop(Self[T]) -> T
 impl[T : Default] Default for Stack[T]
 impl[T : Show] Show for Stack[T]
