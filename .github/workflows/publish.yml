@@ -15,7 +15,9 @@ jobs:
           moon version --all
           moonrun --version
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check
+        # Temporarily disable this for backward API compatibility
+        # run: moon check --deny-warn
       - name: moon info
         run: |
           moon info
