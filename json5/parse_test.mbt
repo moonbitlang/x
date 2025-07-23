@@ -270,7 +270,7 @@ test "parses signed and unsigned Infinity" {
 test "parses NaN" {
   let json = test_parse("NaN")
   let ok = match json {
-    Json::Number(n) => n.is_nan()
+    Json::Number(n, ..) => n.is_nan()
     _ => false
   }
   assert_true(ok)
@@ -280,7 +280,7 @@ test "parses NaN" {
 test "parses signed NaN" {
   let json = test_parse("-NaN")
   let ok = match json {
-    Json::Number(n) => n.is_nan()
+    Json::Number(n, ..) => n.is_nan()
     _ => false
   }
   assert_true(ok)

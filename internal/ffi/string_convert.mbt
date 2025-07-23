@@ -18,11 +18,11 @@ pub fn mbt_string_to_utf8_bytes(str : String, is_filename : Bool) -> Bytes {
   let len = str.length()
   let mut i = 0
   while i < len {
-    let mut c = str.charcode_at(i)
+    let mut c = str[i]
     if 0xD800 <= c && c <= 0xDBFF {
       c -= 0xD800
       i = i + 1
-      let l = str.charcode_at(i) - 0xDC00
+      let l = str[i] - 0xDC00
       c = (c << 10) + l + 0x10000
     }
 

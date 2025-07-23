@@ -61,9 +61,9 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
   let mut nanoseconds = 0L
   let buf = StringBuilder::new(size_hint=0)
   for i = 2; i < str.length(); i = i + 1 {
-    match str.charcode_at(i) {
+    match str[i] {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' =>
-        buf.write_char(Int::unsafe_to_char(str.charcode_at(i)))
+        buf.write_char(Int::unsafe_to_char(str[i]))
       'H' => {
         hours = @strconv.parse(buf.to_string())
         buf.reset()
