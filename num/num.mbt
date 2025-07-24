@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#deprecated("The `Num` trait is deprecated.")
 pub trait Num {
   from_int(Int) -> Self
   op_add(Self, Self) -> Self
