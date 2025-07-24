@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Updated the READMEs by switching to `.mbt.md` format
+
+### Changed
+
+- Deprecated `Num` trait since it has never been open and no one can implement it
+
 ## [0.4.31]
 
 ### Added
