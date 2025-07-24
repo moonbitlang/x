@@ -4,12 +4,12 @@
 
 ### Fixed
 
-- Updated the READMEs by switching to `.mbt.md` format
+- Updated the READMEs by switching to `.mbt.md` format (#164)
 
 ### Changed
 
-- Deprecated `Num` trait since it has never been open and no one can implement it
-- Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek`
+- Deprecated `Num` trait since it has never been open and no one can implement it (#164)
+- Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek` (#164)
 
 ## [0.4.31]
 
