@@ -72,13 +72,13 @@ test "panic" {
 }
 ```
 
-If you don't want to remove the element, you can use the `peek` method and the unsafe version `peek_exn`.
+If you don't want to remove the element, you can use the `peek` method and the unsafe version `unsafe_peek`.
 
 ```moonbit
 test {
   let st = Stack::of([1, 2, 3])
   inspect(st.peek(), content="Some(1)") // Some(1)
-  inspect(st.peek_exn(), content="1") // 1
+  inspect(st.unsafe_peek(), content="1") // 1
 }
 ```
 

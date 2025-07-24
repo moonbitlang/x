@@ -45,3 +45,9 @@ pub fn[T] push_list(self : Stack[T], list : @immut/list.T[T]) -> Unit {
 pub fn[T] to_list(self : Stack[T]) -> @immut/list.T[T] {
   self.elements.iter() |> @immut/list.from_iter()
 }
+
+///|
+#deprecated("Use `unsafe_peek` instead")
+pub fn[T] peek_exn(self : Stack[T]) -> T {
+  self.elements.unsafe_head()
+}

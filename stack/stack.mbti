@@ -29,6 +29,7 @@ fn[T] Stack::of(FixedArray[T]) -> Self[T]
 fnalias Stack::of
 fn[T : Eq] Stack::op_equal(Self[T], Self[T]) -> Bool
 fn[T] Stack::peek(Self[T]) -> T?
+#deprecated
 fn[T] Stack::peek_exn(Self[T]) -> T
 fn[T] Stack::pop(Self[T]) -> T?
 fn[T] Stack::push(Self[T], T) -> Unit
@@ -40,6 +41,7 @@ fn[T] Stack::return_with_clear(Self[T]) -> Self[T]
 fn[T] Stack::to_array(Self[T]) -> Array[T]
 #deprecated
 fn[T] Stack::to_list(Self[T]) -> @list.T[T]
+fn[T] Stack::unsafe_peek(Self[T]) -> T
 fn[T] Stack::unsafe_pop(Self[T]) -> T
 impl[T : Default] Default for Stack[T]
 impl[T : Show] Show for Stack[T]
