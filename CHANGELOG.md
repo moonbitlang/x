@@ -9,6 +9,7 @@
 ### Changed
 
 - Deprecated `Num` trait since it has never been open and no one can implement it
+- Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek`
 
 ## [0.4.31]
 

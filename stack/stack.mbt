@@ -384,14 +384,14 @@ test "peek" {
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
 /// @alert unsafe "Panic if the stack is empty."
-pub fn[T] peek_exn(self : Stack[T]) -> T {
+pub fn[T] unsafe_peek(self : Stack[T]) -> T {
   self.elements.unsafe_head()
 }
 
 ///|
-test "peek_exn" {
+test "unsafe_peek" {
   let s : Stack[Int] = of([1, 2, 3])
-  inspect(s.peek_exn(), content="1")
+  inspect(s.unsafe_peek(), content="1")
   inspect(s, content="Stack::[1, 2, 3]")
   inspect(s.len, content="3")
 }
@@ -445,9 +445,9 @@ test "iter" {
   s.push(1)
   s.push(2)
   s.push(3)
-  inspect(s.peek_exn(), content="3")
+  inspect(s.unsafe_peek(), content="3")
   sum = 0
-  sub = s.peek_exn()
+  sub = s.unsafe_peek()
   s.each(fn(i) { sum = sum + i })
   s.each(fn(i) { sub = sub - i }) // 3 - 3 - 2 - 1
   inspect(sum, content="6")
