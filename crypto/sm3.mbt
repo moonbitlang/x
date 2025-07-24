@@ -215,7 +215,10 @@ pub fn SM3Context::update_from_iter(
 }
 
 ///| update the state of given context from new `data` 
-pub fn SM3Context::update(self : SM3Context, data : FixedArray[Byte]) -> Unit {
+pub fn[Data : ByteSource] SM3Context::update(
+  self : SM3Context,
+  data : Data,
+) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -261,7 +264,7 @@ pub fn SM3Context::finalize(self : SM3Context) -> FixedArray[Byte] {
 }
 
 ///| Compute the SM3 digest in `FixedArray[Byte]` of some `data`. Note that SM3 is big-endian.
-pub fn sm3(data : FixedArray[Byte]) -> FixedArray[Byte] {
+pub fn[Data : ByteSource] sm3(data : Data) -> FixedArray[Byte] {
   let ctx = SM3Context::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)

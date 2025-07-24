@@ -305,10 +305,10 @@ test "stateToBytes" {
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
-pub fn chacha8(
+pub fn[Data : ByteSource] chacha8(
   key : FixedArray[UInt],
   counter : UInt,
-  block : FixedArray[Byte],
+  block : Data,
   nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
@@ -323,10 +323,10 @@ pub fn chacha8(
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
-pub fn chacha12(
+pub fn[Data : ByteSource] chacha12(
   key : FixedArray[UInt],
   counter : UInt,
-  block : FixedArray[Byte],
+  block : Data,
   nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
@@ -341,10 +341,10 @@ pub fn chacha12(
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
-pub fn chacha20(
+pub fn[Data : ByteSource] chacha20(
   key : FixedArray[UInt],
   counter : UInt,
-  block : FixedArray[Byte],
+  block : Data,
   nonce~ : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
@@ -354,21 +354,19 @@ pub fn chacha20(
 }
 
 ///|
-fn chacha(
+fn[Data : ByteSource] chacha(
   key : FixedArray[UInt],
   counter : UInt,
-  block : FixedArray[Byte],
+  block : Data,
   round : UInt,
   nonce : UInt,
 ) -> FixedArray[Byte] {
   if block.length() == 0 {
     return FixedArray::make(0, Byte::default())
   }
-  fn takeToFixedArray(b : FixedArray[Byte], len : Int) -> FixedArray[Byte] {
+  fn takeToFixedArray(b : &ByteSource, len : Int) -> FixedArray[Byte] {
     let result = FixedArray::make(len, Byte::default())
-    for i = 0; i < len; i = i + 1 {
-      result[i] = b[i]
-    }
+    b.blit_to(result, len~, src_offset=0, dst_offset=0)
     result
   }
 
@@ -384,11 +382,9 @@ fn chacha(
     result
   }
 
-  fn dropBytes(b : FixedArray[Byte], len : Int) -> FixedArray[Byte] {
+  fn dropBytes(b : &ByteSource, len : Int) -> FixedArray[Byte] {
     let result = FixedArray::make(b.length() - len, Byte::default())
-    for i = 0; i < b.length() - len; i = i + 1 {
-      result[i] = b[len + i]
-    }
+    b.blit_to(result, len=b.length() - len, src_offset=len, dst_offset=0)
     result
   }
 

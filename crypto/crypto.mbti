@@ -1,28 +1,32 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/crypto"
 
+import(
+  "moonbitlang/core/bytes"
+)
+
 // Values
 fn bytes_to_hex_string(FixedArray[Byte]) -> String
 
-fn chacha12(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
+fn[Data : ByteSource] chacha12(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn chacha20(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
+fn[Data : ByteSource] chacha20(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn chacha8(FixedArray[UInt], UInt, FixedArray[Byte], nonce~ : UInt = ..) -> FixedArray[Byte] raise
+fn[Data : ByteSource] chacha8(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn md5(FixedArray[Byte]) -> FixedArray[Byte]
+fn[Data : ByteSource] md5(Data) -> FixedArray[Byte]
 
-fn sha1(FixedArray[Byte]) -> FixedArray[Byte]
+fn[Data : ByteSource] sha1(Data) -> FixedArray[Byte]
 
-fn sha224(FixedArray[Byte]) -> FixedArray[Byte]
+fn[Data : ByteSource] sha224(Data) -> FixedArray[Byte]
 
 fn sha224_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
-fn sha256(FixedArray[Byte]) -> FixedArray[Byte]
+fn[Data : ByteSource] sha256(Data) -> FixedArray[Byte]
 
 fn sha256_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
-fn sm3(FixedArray[Byte]) -> FixedArray[Byte]
+fn[Data : ByteSource] sm3(Data) -> FixedArray[Byte]
 
 fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
@@ -32,21 +36,25 @@ fn uints_to_hex_string(Iter[UInt]) -> String
 type MD5Context
 fn MD5Context::finalize(Self) -> FixedArray[Byte]
 fn MD5Context::new() -> Self
-fn MD5Context::update(Self, FixedArray[Byte]) -> Unit
+fn[Data : ByteSource] MD5Context::update(Self, Data) -> Unit
 
 type SM3Context
 fn SM3Context::finalize(Self) -> FixedArray[Byte]
 fn SM3Context::new() -> Self
-fn SM3Context::update(Self, FixedArray[Byte]) -> Unit
+fn[Data : ByteSource] SM3Context::update(Self, Data) -> Unit
 fn SM3Context::update_from_iter(Self, Iter[Byte]) -> Unit
 
 type Sha256Context
 fn Sha256Context::finalize(Self) -> FixedArray[Byte]
 fn Sha256Context::new(reg~ : FixedArray[UInt] = ..) -> Self
-fn Sha256Context::update(Self, FixedArray[Byte]) -> Unit
+fn[Data : ByteSource] Sha256Context::update(Self, Data) -> Unit
 fn Sha256Context::update_from_iter(Self, Iter[Byte]) -> Unit
 
 // Type aliases
 
 // Traits
+trait ByteSource
+impl ByteSource for FixedArray[Byte]
+impl ByteSource for Bytes
+impl ByteSource for @bytes.View
 
