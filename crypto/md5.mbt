@@ -28,7 +28,10 @@ struct MD5Context {
 let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
 ///| update the state of given context from new `data` 
-pub fn MD5Context::update(self : MD5Context, data : FixedArray[Byte]) -> Unit {
+pub fn[Data : ByteSource] MD5Context::update(
+  self : MD5Context,
+  data : Data,
+) -> Unit {
   md5_update(self, data)
 }
 
@@ -114,7 +117,7 @@ fn MD5Context::i(x : UInt, y : UInt, z : UInt) -> UInt {
 }
 
 ///|
-fn md5_update(ctx : MD5Context, data : FixedArray[Byte]) -> Unit {
+fn[Data : ByteSource] md5_update(ctx : MD5Context, data : Data) -> Unit {
   let input = FixedArray::make(16, 0U)
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let length = data.length()
@@ -230,7 +233,7 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
 ///| Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
-pub fn md5(data : FixedArray[Byte]) -> FixedArray[Byte] {
+pub fn[Data : ByteSource] md5(data : Data) -> FixedArray[Byte] {
   let ctx = MD5Context::new()
   md5_update(ctx, data)
   ctx.md5_compute()

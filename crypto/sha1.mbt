@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn sha1(input : FixedArray[Byte]) -> FixedArray[Byte] {
+pub fn[Data : ByteSource] sha1(input : Data) -> FixedArray[Byte] {
   // Padding
   let old_length = input.length()
   let bits = old_length.to_uint64() * 8
@@ -22,7 +22,7 @@ pub fn sha1(input : FixedArray[Byte]) -> FixedArray[Byte] {
     new_length += 64
   }
   let bytes = FixedArray::make(new_length, b'\x00')
-  input.blit_to(bytes, len=old_length)
+  input.blit_to(bytes, len=old_length, src_offset=0, dst_offset=0)
   bytes[old_length] = (0x80).to_byte()
   for i = new_length - 8; i < new_length; i = i + 1 {
     bytes[i] = (bits >> (56 - (i - (new_length - 8)) * 8)).to_byte()

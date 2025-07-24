@@ -146,7 +146,7 @@ pub fn update_from_iter(self : Sha256Context, data : Iter[Byte]) -> Unit {
 }
 
 ///| update the state of given context from new `data` 
-pub fn update(self : Sha256Context, data : FixedArray[Byte]) -> Unit {
+pub fn[Data : ByteSource] update(self : Sha256Context, data : Data) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -192,7 +192,7 @@ pub fn finalize(self : Sha256Context) -> FixedArray[Byte] {
 }
 
 ///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
-pub fn sha256(data : FixedArray[Byte]) -> FixedArray[Byte] {
+pub fn[Data : ByteSource] sha256(data : Data) -> FixedArray[Byte] {
   let ctx = Sha256Context::new()
   let _ = ctx.update(data)
   arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
