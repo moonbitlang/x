@@ -15,8 +15,8 @@
 ///|
 test "hmac-sha256 short key" {
   let h = SHA256::new()
-  let key = FixedArray::make(2, b'\x88')
-  let message = b"\x01\x02\x03".to_fixedarray()
+  let key = FixedArray::make(2, b'\x88').unsafe_reinterpret_as_bytes()
+  let message = b"\x01\x02\x03"
   inspect(
     bytes_to_hex_string(hmac(h, key, message)),
     content="a4516484974d883f34f4ea0459359ca09019bd07409ead28c9785808acb5962b",
@@ -26,8 +26,8 @@ test "hmac-sha256 short key" {
 ///|
 test "hmac-sha256 fit key" {
   let h = SHA256::new()
-  let key = FixedArray::make(64, b'\x88')
-  let message = b"\x01\x02\x03".to_fixedarray()
+  let key = FixedArray::make(64, b'\x88').unsafe_reinterpret_as_bytes()
+  let message = b"\x01\x02\x03"
   inspect(
     bytes_to_hex_string(hmac(h, key, message)),
     content="8ad8d49308ad8aeed002385f143de8a3f46a0de0feb15740c82eae99bdf36f89",
@@ -37,8 +37,8 @@ test "hmac-sha256 fit key" {
 ///|
 test "hmac-sha256 long key" {
   let h = SHA256::new()
-  let key = FixedArray::make(128, b'\x88')
-  let message = b"\x01\x02\x03".to_fixedarray()
+  let key = FixedArray::make(128, b'\x88').unsafe_reinterpret_as_bytes()
+  let message = b"\x01\x02\x03"
   inspect(
     bytes_to_hex_string(hmac(h, key, message)),
     content="7b50707a53d9ee7682f5527e061ec784ac80f0b95696b314030d3a08d109d960",
@@ -48,8 +48,8 @@ test "hmac-sha256 long key" {
 ///|
 test "hmac-md5" {
   let h = MD5::new()
-  let key = FixedArray::make(2, b'\x88')
-  let message = b"\x01\x02\x03".to_fixedarray()
+  let key = b"\x88\x88"
+  let message = b"\x01\x02\x03"
   inspect(
     bytes_to_hex_string(hmac(h, key, message)),
     content="2df61055719493098ea2c97cdd656367",
@@ -59,8 +59,8 @@ test "hmac-md5" {
 ///|
 test "hmac-sm3" {
   let h = SM3::new()
-  let key = FixedArray::make(2, b'\x88')
-  let message = b"\x01\x02\x03".to_fixedarray()
+  let key = b"\x88\x88"
+  let message = b"\x01\x02\x03"
   inspect(
     bytes_to_hex_string(hmac(h, key, message)),
     content="c4ffa25e4474ca5d732126bf5a0e87dfb83f697fdaddd0e40fdf087096b10724",

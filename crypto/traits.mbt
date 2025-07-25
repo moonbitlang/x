@@ -21,7 +21,7 @@ pub(open) trait CryptoHasher {
   /// Resets to initial state
   reset(Self) -> Unit
   /// Updates hash state with new data
-  update(Self, FixedArray[Byte]) -> Unit
+  update(Self, @bytes.View) -> Unit
   /// Returns the hash output
   finalize(Self) -> FixedArray[Byte]
 }

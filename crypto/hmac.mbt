@@ -28,23 +28,23 @@
 ///
 pub fn[H : CryptoHasher] hmac(
   hash : H,
-  key : FixedArray[Byte],
-  message : FixedArray[Byte],
+  key : @bytes.View,
+  message : @bytes.View,
 ) -> FixedArray[Byte] {
   let block_size = hash.block_size()
   let working_key = if key.length() > block_size {
     // if key is longer than block size, hash it
     hash.reset()
     hash.update(key)
-    hash.finalize()
+    hash.finalize().unsafe_reinterpret_as_bytes()[:]
   } else {
     key
   }
   let padded_key = if working_key.length() < block_size {
     // if key is shorter than block size, pad it with zeros
     let padded = FixedArray::make(block_size, b'\x00')
-    working_key.blit_to(padded, len=working_key.length())
-    padded
+    padded.blit_from_bytesview(0, working_key)
+    padded.unsafe_reinterpret_as_bytes()[:]
   } else {
     working_key
   }
@@ -54,19 +54,19 @@ pub fn[H : CryptoHasher] hmac(
   // calculate inner hash
   let inner_key = xor_bytes(padded_key, ipad)
   hash.reset()
-  hash.update(inner_key)
+  hash.update(inner_key.unsafe_reinterpret_as_bytes())
   hash.update(message)
   let inner_hash = hash.finalize()
   // calculate outer hash
   let outer_key = xor_bytes(padded_key, opad)
   hash.reset()
-  hash.update(outer_key)
-  hash.update(inner_hash)
+  hash.update(outer_key.unsafe_reinterpret_as_bytes())
+  hash.update(inner_hash.unsafe_reinterpret_as_bytes())
   hash.finalize()
 }
 
 ///|
-fn xor_bytes(a : FixedArray[Byte], b : FixedArray[Byte]) -> FixedArray[Byte] {
+fn[A : ByteSource, B : ByteSource] xor_bytes(a : A, b : B) -> FixedArray[Byte] {
   let result = FixedArray::make(a.length(), b'\x00')
   for i = 0; i < a.length(); i = i + 1 {
     result[i] = a[i] ^ b[i]
