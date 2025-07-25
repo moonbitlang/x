@@ -6,6 +6,8 @@
 
 - Add `ByteSource` trait for `@crypto` such that it accepts `FixedArray[Byte]`
   `Bytes` `@bytes.View` at the same time.
+- Add `CryptoHasher` trait for `@crypto` (#142)
+- Add `hmac` support based on `CryptoHasher` (#142)
 
 ### Fixed
 
@@ -16,6 +18,8 @@
 - Deprecated `Num` trait since it has never been open and no one can implement
   it (#164)
 - Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek` (#164)
+- Renamed `MD5Context` to `MD5`, `SM3Context` to `SM3`, `Sha256Context` to
+  `Sha256` in `@crypto` (#142)
 
 ## [0.4.31]
 
