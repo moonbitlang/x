@@ -14,7 +14,7 @@ fn[Data : ByteSource] chacha20(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..)
 
 fn[Data : ByteSource] chacha8(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
 
-fn[H : CryptoHasher] hmac(H, FixedArray[Byte], FixedArray[Byte]) -> FixedArray[Byte]
+fn[H : CryptoHasher] hmac(H, @bytes.View, @bytes.View) -> FixedArray[Byte]
 
 fn[Data : ByteSource] md5(Data) -> FixedArray[Byte]
 
@@ -69,7 +69,7 @@ pub(open) trait CryptoHasher {
   size(Self) -> Int
   block_size(Self) -> Int
   reset(Self) -> Unit
-  update(Self, FixedArray[Byte]) -> Unit
+  update(Self, @bytes.View) -> Unit
   finalize(Self) -> FixedArray[Byte]
 }
 

@@ -212,7 +212,7 @@ pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for SM3 with update(self : SM3, data : FixedArray[Byte]) -> Unit {
+pub impl CryptoHasher for SM3 with update(self : SM3, data : @bytes.View) -> Unit {
   self.update(data)
 }
 
