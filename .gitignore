@@ -2,3 +2,5 @@ target/
 .mooncakes/
 .clangd
 benchlog/
+.cache/
+compile_commands.json
