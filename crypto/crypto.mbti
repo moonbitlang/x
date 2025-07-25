@@ -53,6 +53,11 @@ fn SM3::update_from_iter(Self, Iter[Byte]) -> Unit
 impl CryptoHasher for SM3
 
 // Type aliases
+pub typealias MD5 as MD5Context
+
+pub typealias SM3 as SM3Context
+
+pub typealias SHA256 as Sha256Context
 
 // Traits
 trait ByteSource
