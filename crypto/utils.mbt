@@ -100,6 +100,16 @@ fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> FixedArray[Byte] {
   temp
 }
 
+///|
+fn arr_u32_to_u8be_into(x : Iter[UInt], buffer : FixedArray[Byte]) -> Unit {
+  x.eachi(fn(i, d) {
+    buffer[i * 4 + 0] = (d >> 24).to_byte()
+    buffer[i * 4 + 1] = (d >> 16).to_byte()
+    buffer[i * 4 + 2] = (d >> 8).to_byte()
+    buffer[i * 4 + 3] = d.to_byte()
+  })
+}
+
 ///| rotate a Int `x` left by `n` bit(s)
 fn rotate_left(x : Int, n : Int) -> Int {
   (x << n) | (x.reinterpret_as_uint() >> (32 - n)).reinterpret_as_int()
