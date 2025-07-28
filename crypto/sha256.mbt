@@ -14,9 +14,9 @@
 
 ///|
 struct SHA256 {
-  mut reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
-  mut buf : FixedArray[Byte]
+  buf : FixedArray[Byte]
   mut buf_index : Int
 }
 
@@ -44,32 +44,6 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
   0xc67178f2,
 ]
-
-///|
-fn pad(self : SHA256) -> FixedArray[Byte] {
-  let mut cnt = self.buf_index
-  self.len += 8UL * cnt.to_uint64()
-  self.buf[cnt] = b'\x80'
-  cnt += 1
-  if cnt > 56 {
-    let temp_arr = FixedArray::make(128, Byte::default())
-    self.buf.blit_to(temp_arr, len=cnt)
-    self.buf = temp_arr
-  }
-  while cnt % 64 != 56 {
-    self.buf[cnt] = b'\x00'
-    cnt += 1
-  }
-  self.buf[cnt] = (self.len >> 56).to_byte()
-  self.buf[cnt + 1] = (self.len >> 48).to_byte()
-  self.buf[cnt + 2] = (self.len >> 40).to_byte()
-  self.buf[cnt + 3] = (self.len >> 32).to_byte()
-  self.buf[cnt + 4] = (self.len >> 24).to_byte()
-  self.buf[cnt + 5] = (self.len >> 16).to_byte()
-  self.buf[cnt + 6] = (self.len >> 8).to_byte()
-  self.buf[cnt + 7] = (self.len >> 0).to_byte()
-  return self.buf
-}
 
 ///|
 fn transform(
@@ -180,18 +154,30 @@ pub fn finalize(self : SHA256) -> FixedArray[Byte] {
 }
 
 ///|
-fn sha256_compute(
-  self : SHA256,
-  data~ : Iter[Byte] = Iter::empty(),
-) -> FixedArray[UInt] {
-  self.update_from_iter(data)
-  let msg = self.pad()
-  if msg.length() > 64 {
-    let _ = self.transform(msg)
-    self.transform(msg, offset=64)
-  } else {
-    self.transform(msg)
+fn sha256_compute(self : SHA256) -> FixedArray[UInt] {
+  let mut cnt = self.buf_index
+  self.len += 8UL * cnt.to_uint64()
+  self.buf[cnt] = b'\x80'
+  cnt += 1
+  if cnt > 56 {
+    for i in cnt..<64 {
+      self.buf[i] = b'\x00'
+    }
+    let _ = self.transform(self.buf)
+    cnt = 0
   }
+  for i in cnt..<56 {
+    self.buf[i] = b'\x00'
+  }
+  self.buf[56] = (self.len >> 56).to_byte()
+  self.buf[57] = (self.len >> 48).to_byte()
+  self.buf[58] = (self.len >> 40).to_byte()
+  self.buf[59] = (self.len >> 32).to_byte()
+  self.buf[60] = (self.len >> 24).to_byte()
+  self.buf[61] = (self.len >> 16).to_byte()
+  self.buf[62] = (self.len >> 8).to_byte()
+  self.buf[63] = (self.len >> 0).to_byte()
+  self.transform(self.buf)
 }
 
 ///|
@@ -206,12 +192,16 @@ pub impl CryptoHasher for SHA256 with block_size(_self : SHA256) -> Int {
 
 ///|
 pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
-  self.reg = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
-    0x5be0cd19,
-  ]
+  self.reg[0] = 0x6a09e667
+  self.reg[1] = 0xbb67ae85
+  self.reg[2] = 0x3c6ef372
+  self.reg[3] = 0xa54ff53a
+  self.reg[4] = 0x510e527f
+  self.reg[5] = 0x9b05688c
+  self.reg[6] = 0x1f83d9ab
+  self.reg[7] = 0x5be0cd19
   self.len = 0
-  self.buf = FixedArray::make(64, Byte::default())
+  self.buf.fill(0)
   self.buf_index = 0
 }
 
@@ -225,16 +215,12 @@ pub impl CryptoHasher for SHA256 with finalize_into(
 
 ///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
 pub fn[Data : ByteSource] sha256(data : Data) -> FixedArray[Byte] {
-  let ctx = SHA256::new()
-  let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
+  SHA256::new()..update(data).finalize()
 }
 
 ///|
 pub fn sha256_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
-  let ctx = SHA256::new()
-  let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter(), 256)
+  SHA256::new()..update_from_iter(data).finalize()
 }
 
 ///|
