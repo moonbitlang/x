@@ -21,7 +21,7 @@
 struct Rational[T] {
   numerator : T
   denominator : T
-}
+} derive(Eq)
 
 ///|
 trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary {
