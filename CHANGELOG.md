@@ -12,6 +12,7 @@
 ### Fixed
 
 - Updated the READMEs by switching to `.mbt.md` format (#164)
+- Fixed the overflow for rational's equality check (#167)
 
 ### Changed
 
