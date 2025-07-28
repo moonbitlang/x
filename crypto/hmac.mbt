@@ -34,42 +34,32 @@ pub fn[H : CryptoHasher] hmac(
   let block_size = hash.block_size()
   let working_key = if key.length() > block_size {
     // if key is longer than block size, hash it
-    hash.reset()
-    hash.update(key)
-    hash.finalize().unsafe_reinterpret_as_bytes()[:]
+    hash..reset()..update(key).finalize().unsafe_reinterpret_as_bytes()[:]
   } else {
     key
   }
-  let padded_key = if working_key.length() < block_size {
-    // if key is shorter than block size, pad it with zeros
-    let padded = FixedArray::make(block_size, b'\x00')
-    padded.blit_from_bytesview(0, working_key)
-    padded.unsafe_reinterpret_as_bytes()[:]
-  } else {
-    working_key
-  }
-  // create inner and outer padding arrays
-  let ipad = FixedArray::make(block_size, b'\x36')
-  let opad = FixedArray::make(block_size, b'\x5c')
+  let padded_key = FixedArray::make(block_size, b'\x00')
+  padded_key.blit_from_bytesview(0, working_key)
   // calculate inner hash
-  let inner_key = xor_bytes(padded_key, ipad)
-  hash.reset()
-  hash.update(inner_key.unsafe_reinterpret_as_bytes())
-  hash.update(message)
-  let inner_hash = hash.finalize()
-  // calculate outer hash
-  let outer_key = xor_bytes(padded_key, opad)
-  hash.reset()
-  hash.update(outer_key.unsafe_reinterpret_as_bytes())
-  hash.update(inner_hash.unsafe_reinterpret_as_bytes())
-  hash.finalize()
-}
-
-///|
-fn[A : ByteSource, B : ByteSource] xor_bytes(a : A, b : B) -> FixedArray[Byte] {
-  let result = FixedArray::make(a.length(), b'\x00')
-  for i = 0; i < a.length(); i = i + 1 {
-    result[i] = a[i] ^ b[i]
+  for i = 0; i < block_size; i = i + 1 {
+    padded_key[i] = padded_key[i] ^ b'\x36'
   }
+  let inner_hash = hash
+    ..reset()
+    ..update(padded_key.unsafe_reinterpret_as_bytes())
+    ..update(message)
+    .finalize()
+  // calculate outer hash
+  for i = 0; i < block_size; i = i + 1 {
+    padded_key[i] = padded_key[i] ^ b'\x36' ^ b'\x5c'
+  }
+  let result = hash
+    ..reset()
+    ..update(padded_key.unsafe_reinterpret_as_bytes())
+    ..update(inner_hash.unsafe_reinterpret_as_bytes())
+    .finalize()
+  // clear sensitive data
+  padded_key.fill(0)
+  inner_hash.fill(0)
   result
 }
