@@ -309,32 +309,22 @@ pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
 
 ///|
 test {
-  fn sm3_u32(data : FixedArray[Byte]) -> FixedArray[UInt] {
-    let ctx = SM3::new()
-    let _ = ctx.update(data)
-    ctx.sm3_compute()
-  }
-
   inspect(
-    uints_to_hex_string(
-      sm3_u32(
-        b"\x61\x62\x63".to_fixedarray(), // abc in utf-8
-      ).iter(),
+    bytes_to_hex_string(
+      sm3(
+        b"\x61\x62\x63", // abc in utf-8
+      ),
     ),
     content="66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0",
   )
   inspect(
-    uints_to_hex_string(
-      sm3_u32(
+    bytes_to_hex_string(
+      sm3(
         // abcd * 16 in utf-8
-        b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64".to_fixedarray(),
-      ).iter(),
+        b"\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64\x61\x62\x63\x64",
+      ),
     ),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
-  )
-  assert_eq(
-    bytes_to_hex_string(sm3(b"\x61\x62\x63".to_fixedarray())),
-    uints_to_hex_string(sm3_u32(b"\x61\x62\x63".to_fixedarray()).iter()),
   )
   let hash1 = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
   let ctx = SM3::new()
@@ -347,16 +337,16 @@ test {
   for i = 0; i < data.length(); i = i + 1 {
     ctx.update(FixedArray::make(1, data[i]))
   }
-  assert_eq(
+  inspect(
     bytes_to_hex_string(ctx.finalize()),
-    "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+    content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
   let ctx = SM3::new()
   for i = 0; i < data.length(); i = i + 4 {
     ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
   }
-  assert_eq(
+  inspect(
     bytes_to_hex_string(ctx.finalize()),
-    "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+    content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
   )
 }
