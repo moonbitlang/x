@@ -88,18 +88,6 @@ fn bytes_u8_to_u32be(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
   uint32(x[i + 3])
 }
 
-///| convert an array of UInt to Bytes in big endian
-fn arr_u32_to_u8be(x : Iter[UInt], bits : Int) -> FixedArray[Byte] {
-  let temp = FixedArray::make(bits / 8, Byte::default())
-  x.eachi(fn(i, d) {
-    temp[i * 4 + 0] = (d >> 24).to_byte()
-    temp[i * 4 + 1] = (d >> 16).to_byte()
-    temp[i * 4 + 2] = (d >> 8).to_byte()
-    temp[i * 4 + 3] = d.to_byte()
-  })
-  temp
-}
-
 ///|
 fn arr_u32_to_u8be_into(x : Iter[UInt], buffer : FixedArray[Byte]) -> Unit {
   x.eachi(fn(i, d) {

@@ -14,22 +14,26 @@
 
 ///|
 pub fn[Data : ByteSource] sha224(data : Data) -> FixedArray[Byte] {
-  let ctx = SHA256::new(reg=[
+  let ret = FixedArray::make(28, Byte::default())
+  SHA256::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
     0xbefa4fa4,
   ])
-  let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
+  ..update(data)
+  .._finalize_into(ret, size=7)
+  ret
 }
 
 ///|
 pub fn sha224_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
-  let ctx = SHA256::new(reg=[
+  let ret = FixedArray::make(28, Byte::default())
+  SHA256::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
     0xbefa4fa4,
   ])
-  let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sha256_compute().iter().take(7), 224)
+  ..update_from_iter(data)
+  .._finalize_into(ret, size=7)
+  ret
 }
 
 ///|

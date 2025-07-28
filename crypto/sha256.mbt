@@ -46,22 +46,18 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 ]
 
 ///|
-fn transform(
-  self : SHA256,
-  data : FixedArray[Byte],
-  offset~ : Int = 0,
-) -> FixedArray[UInt] {
+fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let w = FixedArray::make(64, 0U)
-  let mut a = self.reg[0]
-  let mut b = self.reg[1]
-  let mut c = self.reg[2]
-  let mut d = self.reg[3]
-  let mut e = self.reg[4]
-  let mut f = self.reg[5]
-  let mut g = self.reg[6]
-  let mut h = self.reg[7]
+  let mut a = reg[0]
+  let mut b = reg[1]
+  let mut c = reg[2]
+  let mut d = reg[3]
+  let mut e = reg[4]
+  let mut f = reg[5]
+  let mut g = reg[6]
+  let mut h = reg[7]
   for index = 0; index < 16; index = index + 1 {
-    w[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
+    w[index] = bytes_u8_to_u32be(data, i=4 * index)
   }
   for index = 16; index < 64; index = index + 1 {
     let sigma_0 = rotate_right_u(w[index - 15], 7) ^
@@ -90,15 +86,14 @@ fn transform(
     b = a
     a = t_1 + t_2
   }
-  self.reg[0] += a
-  self.reg[1] += b
-  self.reg[2] += c
-  self.reg[3] += d
-  self.reg[4] += e
-  self.reg[5] += f
-  self.reg[6] += g
-  self.reg[7] += h
-  self.reg
+  reg[0] += a
+  reg[1] += b
+  reg[2] += c
+  reg[3] += d
+  reg[4] += e
+  reg[5] += f
+  reg[6] += g
+  reg[7] += h
 }
 
 ///|
@@ -109,8 +104,7 @@ pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
     if self.buf_index == 64 {
       self.buf_index = 0
       self.len += 512UL
-      let _ = self.transform(self.buf)
-
+      SHA256::transform(self.buf, self.reg)
     }
   })
 }
@@ -139,8 +133,7 @@ pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
     if self.buf_index == 64 {
       self.len += 512UL
       self.buf_index = 0
-      let _ = self.transform(self.buf)
-
+      SHA256::transform(self.buf, self.reg)
     }
     offset += min_len
   }
@@ -154,30 +147,38 @@ pub fn finalize(self : SHA256) -> FixedArray[Byte] {
 }
 
 ///|
-fn sha256_compute(self : SHA256) -> FixedArray[UInt] {
+/// @param size the size of the output, defaults to 8 (i.e. 64 bytes). 7 for Sha224.
+fn SHA256::_finalize_into(
+  self : SHA256,
+  buffer : FixedArray[Byte],
+  size~ : Int = 8,
+) -> Unit {
+  // Copy data
+  let data = FixedArray::make(64, Byte::default())
   let mut cnt = self.buf_index
-  self.len += 8UL * cnt.to_uint64()
-  self.buf[cnt] = b'\x80'
+  let len = self.len + 8 * cnt.to_uint64()
+  self.buf.blit_to(data, len=cnt)
+  let reg = self.reg.copy()
+
+  // Padding
+  data[cnt] = b'\x80'
   cnt += 1
   if cnt > 56 {
-    for i in cnt..<64 {
-      self.buf[i] = b'\x00'
-    }
-    let _ = self.transform(self.buf)
-    cnt = 0
+    SHA256::transform(data, reg)
+    data.fill(0)
   }
-  for i in cnt..<56 {
-    self.buf[i] = b'\x00'
-  }
-  self.buf[56] = (self.len >> 56).to_byte()
-  self.buf[57] = (self.len >> 48).to_byte()
-  self.buf[58] = (self.len >> 40).to_byte()
-  self.buf[59] = (self.len >> 32).to_byte()
-  self.buf[60] = (self.len >> 24).to_byte()
-  self.buf[61] = (self.len >> 16).to_byte()
-  self.buf[62] = (self.len >> 8).to_byte()
-  self.buf[63] = (self.len >> 0).to_byte()
-  self.transform(self.buf)
+  data[56] = (len >> 56).to_byte()
+  data[57] = (len >> 48).to_byte()
+  data[58] = (len >> 40).to_byte()
+  data[59] = (len >> 32).to_byte()
+  data[60] = (len >> 24).to_byte()
+  data[61] = (len >> 16).to_byte()
+  data[62] = (len >> 8).to_byte()
+  data[63] = (len >> 0).to_byte()
+  let _ = SHA256::transform(data, reg)
+
+  // Write result to buffer
+  arr_u32_to_u8be_into(reg.iter().take(size), buffer)
 }
 
 ///|
@@ -210,7 +211,7 @@ pub impl CryptoHasher for SHA256 with finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
 ) -> Unit {
-  arr_u32_to_u8be_into(self.sha256_compute().iter(), buffer)
+  self._finalize_into(buffer)
 }
 
 ///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
@@ -264,5 +265,26 @@ test {
   inspect(
     bytes_to_hex_string(ctx.finalize()),
     content="625b41490b883891943c5fa54ad45d7c900b9b6e91e159334e320b1f5215a209",
+  )
+}
+
+///|
+test "sha256 reentry" {
+  let string = b"abcd"
+  let ctx = SHA256::new()
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589",
+  )
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="3bc49b73e2fb201924d9dcce5fb6d6fd7cfbf58c49be8cc46439c05dc634b151",
+  )
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="887f2749b07e559d140605a4b9de9af5721e2accad06fade91301f0410ad5cdf",
   )
 }
