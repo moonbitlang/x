@@ -18,9 +18,9 @@
 
 ///|
 struct SM3 {
-  mut reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
-  mut buf : FixedArray[Byte]
+  buf : FixedArray[Byte]
   mut buf_index : Int
 }
 
@@ -92,49 +92,19 @@ fn SM3::p_1(x : UInt) -> UInt {
 }
 
 ///|
-fn SM3::pad(self : SM3) -> FixedArray[Byte] {
-  let mut cnt = self.buf_index
-  self.len += 8UL * cnt.to_uint64()
-  self.buf[cnt] = b'\x80'
-  cnt += 1
-  if cnt > 56 {
-    let temp_arr = FixedArray::make(128, Byte::default())
-    self.buf.blit_to(temp_arr, len=cnt)
-    self.buf = temp_arr
-  }
-  while cnt % 64 != 56 {
-    self.buf[cnt] = b'\x00'
-    cnt += 1
-  }
-  self.buf[cnt] = (self.len >> 56).to_byte()
-  self.buf[cnt + 1] = (self.len >> 48).to_byte()
-  self.buf[cnt + 2] = (self.len >> 40).to_byte()
-  self.buf[cnt + 3] = (self.len >> 32).to_byte()
-  self.buf[cnt + 4] = (self.len >> 24).to_byte()
-  self.buf[cnt + 5] = (self.len >> 16).to_byte()
-  self.buf[cnt + 6] = (self.len >> 8).to_byte()
-  self.buf[cnt + 7] = (self.len >> 0).to_byte()
-  return self.buf
-}
-
-///|
-fn SM3::transform(
-  self : SM3,
-  data : FixedArray[Byte],
-  offset~ : Int = 0,
-) -> FixedArray[UInt] {
+fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let w_0 = FixedArray::make(68, 0U)
   let w_1 = FixedArray::make(64, 0U)
-  let mut a = self.reg[0]
-  let mut b = self.reg[1]
-  let mut c = self.reg[2]
-  let mut d = self.reg[3]
-  let mut e = self.reg[4]
-  let mut f = self.reg[5]
-  let mut g = self.reg[6]
-  let mut h = self.reg[7]
+  let mut a = reg[0]
+  let mut b = reg[1]
+  let mut c = reg[2]
+  let mut d = reg[3]
+  let mut e = reg[4]
+  let mut f = reg[5]
+  let mut g = reg[6]
+  let mut h = reg[7]
   for index = 0; index < 16; index = index + 1 {
-    w_0[index] = bytes_u8_to_u32be(data, i=4 * index + offset)
+    w_0[index] = bytes_u8_to_u32be(data, i=4 * index)
   }
   for index = 16; index < 68; index = index + 1 {
     w_0[index] = SM3::p_1(
@@ -146,55 +116,42 @@ fn SM3::transform(
   for index = 0; index < 64; index = index + 1 {
     w_1[index] = w_0[index] ^ w_0[index + 4]
   }
-  let mut a1 = a
-  let mut b1 = b
-  let mut c1 = c
-  let mut d1 = d
-  let mut e1 = e
-  let mut f1 = f
-  let mut g1 = g
-  let mut h1 = h
   for index = 0; index < 16; index = index + 1 {
-    let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
-    let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = SM3::ff_0(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = SM3::gg_0(e1, f1, g1) + h1 + ss_1 + w_0[index]
-    d1 = c1
-    c1 = rotate_left_u(b1, 9)
-    b1 = a1
-    a1 = tt_1
-    h1 = g1
-    g1 = rotate_left_u(f1, 19)
-    f1 = e1
-    e1 = SM3::p_0(tt_2)
+    let ss_1 = rotate_left_u(rotate_left_u(a, 12) + e + t[index], 7)
+    let ss_2 = ss_1 ^ rotate_left_u(a, 12)
+    let tt_1 = SM3::ff_0(a, b, c) + d + ss_2 + w_1[index]
+    let tt_2 = SM3::gg_0(e, f, g) + h + ss_1 + w_0[index]
+    d = c
+    c = rotate_left_u(b, 9)
+    b = a
+    a = tt_1
+    h = g
+    g = rotate_left_u(f, 19)
+    f = e
+    e = SM3::p_0(tt_2)
   }
   for index = 16; index < 64; index = index + 1 {
-    let ss_1 = rotate_left_u(rotate_left_u(a1, 12) + e1 + t[index], 7)
-    let ss_2 = ss_1 ^ rotate_left_u(a1, 12)
-    let tt_1 = SM3::ff_1(a1, b1, c1) + d1 + ss_2 + w_1[index]
-    let tt_2 = SM3::gg_1(e1, f1, g1) + h1 + ss_1 + w_0[index]
-    d1 = c1
-    c1 = rotate_left_u(b1, 9)
-    b1 = a1
-    a1 = tt_1
-    h1 = g1
-    g1 = rotate_left_u(f1, 19)
-    f1 = e1
-    e1 = SM3::p_0(tt_2)
+    let ss_1 = rotate_left_u(rotate_left_u(a, 12) + e + t[index], 7)
+    let ss_2 = ss_1 ^ rotate_left_u(a, 12)
+    let tt_1 = SM3::ff_1(a, b, c) + d + ss_2 + w_1[index]
+    let tt_2 = SM3::gg_1(e, f, g) + h + ss_1 + w_0[index]
+    d = c
+    c = rotate_left_u(b, 9)
+    b = a
+    a = tt_1
+    h = g
+    g = rotate_left_u(f, 19)
+    f = e
+    e = SM3::p_0(tt_2)
   }
-  a = a ^ a1
-  b = b ^ b1
-  c = c ^ c1
-  d = d ^ d1
-  e = e ^ e1
-  f = f ^ f1
-  g = g ^ g1
-  h = h ^ h1
-  let t_arr : FixedArray[UInt] = [a, b, c, d, e, f, g, h]
-  for index = 0; index < 8; index = index + 1 {
-    self.reg[index] = t_arr[index]
-  }
-  return t_arr
+  reg[0] = reg[0] ^ a
+  reg[1] = reg[1] ^ b
+  reg[2] = reg[2] ^ c
+  reg[3] = reg[3] ^ d
+  reg[4] = reg[4] ^ e
+  reg[5] = reg[5] ^ f
+  reg[6] = reg[6] ^ g
+  reg[7] = reg[7] ^ h
 }
 
 ///|
@@ -205,8 +162,7 @@ pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
     if self.buf_index == 64 {
       self.buf_index = 0
       self.len += 512UL
-      let _ = self.transform(self.buf)
-
+      SM3::transform(self.buf, self.reg)
     }
   })
 }
@@ -235,8 +191,7 @@ pub fn[Data : ByteSource] SM3::update(self : SM3, data : Data) -> Unit {
     if self.buf_index == 64 {
       self.len += 512UL
       self.buf_index = 0
-      let _ = self.transform(self.buf)
-
+      SM3::transform(self.buf, self.reg)
     }
     offset += min_len
   }
@@ -250,18 +205,33 @@ pub fn SM3::finalize(self : SM3) -> FixedArray[Byte] {
 }
 
 ///|
-fn sm3_compute(
-  self : SM3,
-  data~ : Iter[Byte] = Iter::empty(),
-) -> FixedArray[UInt] {
-  self.update_from_iter(data)
-  let msg = self.pad()
-  if msg.length() > 64 {
-    let _ = self.transform(msg)
-    self.transform(msg, offset=64)
-  } else {
-    self.transform(msg)
+fn SM3::_finalize_into(self : SM3, buffer : FixedArray[Byte]) -> Unit {
+  // Copy data
+  let data : FixedArray[Byte] = FixedArray::make(64, 0)
+  let mut cnt = self.buf_index
+  self.buf.blit_to(data, len=cnt)
+  let len = self.len + 8 * cnt.to_uint64()
+  let reg = self.reg.copy()
+
+  // Padding
+  data[cnt] = b'\x80'
+  cnt += 1
+  if cnt > 56 {
+    SM3::transform(data, reg)
+    data.fill(0)
   }
+  data[56] = (len >> 56).to_byte()
+  data[57] = (len >> 48).to_byte()
+  data[58] = (len >> 40).to_byte()
+  data[59] = (len >> 32).to_byte()
+  data[60] = (len >> 24).to_byte()
+  data[61] = (len >> 16).to_byte()
+  data[62] = (len >> 8).to_byte()
+  data[63] = (len >> 0).to_byte()
+  SM3::transform(data, reg)
+
+  // Write result to buffer
+  arr_u32_to_u8be_into(reg.iter(), buffer)
 }
 
 ///|
@@ -276,12 +246,16 @@ pub impl CryptoHasher for SM3 with block_size(_self : SM3) -> Int {
 
 ///|
 pub impl CryptoHasher for SM3 with reset(self : SM3) -> Unit {
-  self.reg = [
-    0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
-    0xB0FB0E4E,
-  ]
+  self.reg[0] = 0x7380166F
+  self.reg[1] = 0x4914B2B9
+  self.reg[2] = 0x172442D7
+  self.reg[3] = 0xDA8A0600
+  self.reg[4] = 0xA96F30BC
+  self.reg[5] = 0x163138AA
+  self.reg[6] = 0xE38DEE4D
+  self.reg[7] = 0xB0FB0E4E
   self.len = 0
-  self.buf = FixedArray::make(64, 0)
+  self.buf.fill(0)
   self.buf_index = 0
 }
 
@@ -290,21 +264,17 @@ pub impl CryptoHasher for SM3 with finalize_into(
   self : SM3,
   buffer : FixedArray[Byte],
 ) -> Unit {
-  arr_u32_to_u8be_into(self.sm3_compute().iter(), buffer)
+  self._finalize_into(buffer)
 }
 
 ///| Compute the SM3 digest in `FixedArray[Byte]` of some `data`. Note that SM3 is big-endian.
 pub fn[Data : ByteSource] sm3(data : Data) -> FixedArray[Byte] {
-  let ctx = SM3::new()
-  let _ = ctx.update(data)
-  arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
+  SM3::new()..update(data).finalize()
 }
 
 ///|
 pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
-  let ctx = SM3::new()
-  let _ = ctx.update_from_iter(data)
-  arr_u32_to_u8be(ctx.sm3_compute().iter(), 256)
+  SM3::new()..update_from_iter(data).finalize()
 }
 
 ///|
@@ -348,5 +318,26 @@ test {
   inspect(
     bytes_to_hex_string(ctx.finalize()),
     content="debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
+  )
+}
+
+///|
+test "sm3 reentry" {
+  let string = b"abcd"
+  let ctx = SM3::new()
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="82ec580fe6d36ae4f81cae3c73f4a5b3b5a09c943172dc9053c69fd8e18dca1e",
+  )
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="b58b85b795b34879c354428f7c78cd1486c4ef25ea4c5d68e611ff41c15731ef",
+  )
+  ctx.update(string)
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="fd959b2560dadd0c0839144be6090cb665915156179c1fa6dc00292da7a2b9c2",
   )
 }
