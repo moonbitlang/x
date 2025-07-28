@@ -107,3 +107,18 @@ test "rational arbitrary" {
     content="[0, 0, 0, 0, 2/3, -2/5, 1, 1/6, 3/2, -1/2, 9/5, 5/3, -2, 7/12, -2/9, -8/15, 0, -5/6, 3/4, -3/7]",
   )
 }
+
+///|
+test "rational equality" {
+  let a = @rational.new(1L, 2L).unwrap()
+  let b = @rational.new(2L, 4L).unwrap()
+  let c = @rational.new(1L, 3L).unwrap()
+  inspect(a == b, content="true")
+  inspect(a == c, content="false")
+  let a = @rational.new(-3L, -9223372036854775808L).unwrap()
+  let b = @rational.new(-1L, -9223372036854775808L).unwrap()
+  inspect(a == b, content="true")
+  let x = @rational.new(-43L, 3689348814741910693L).unwrap()
+  let y = @rational.new(5L, -43L).unwrap()
+  inspect(x == y, content="true")
+}
