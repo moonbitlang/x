@@ -268,34 +268,6 @@ pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
 }
 
 ///|
-/// Compares two rational numbers for equality.
-///
-/// Parameters:
-///
-/// * `self` : The first rational number.
-/// * `other` : The second rational number.
-///
-/// Returns `true` if the two rational numbers are equal, `false` otherwise.
-///
-/// Example:
-///
-/// ```moonbit
-/// let a = @rational.new(1L, 2L).unwrap()  // 1/2
-/// let b = @rational.new(2L, 4L).unwrap()  // 2/4 = 1/2
-/// inspect(a == b, content="true")
-///
-/// let c = @rational.new(1L, 3L).unwrap()  // 1/3
-/// inspect(a == c, content="false")
-/// ```
-///
-pub impl[T : Integral] Eq for Rational[T] with op_equal(
-  self : Rational[T],
-  other : Rational[T],
-) -> Bool {
-  self.numerator * other.denominator == other.numerator * self.denominator
-}
-
-///|
 /// Compares two rational numbers and returns their ordering.
 ///
 /// Parameters:

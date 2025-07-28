@@ -117,8 +117,8 @@ test "rational equality" {
   inspect(a == c, content="false")
   let a = @rational.new(-3L, -9223372036854775808L).unwrap()
   let b = @rational.new(-1L, -9223372036854775808L).unwrap()
-  inspect(a == b, content="true")
+  inspect(a == b, content="false")
   let x = @rational.new(-43L, 3689348814741910693L).unwrap()
   let y = @rational.new(5L, -43L).unwrap()
-  inspect(x == y, content="true")
+  inspect(x == y, content="false")
 }
