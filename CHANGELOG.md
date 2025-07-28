@@ -4,10 +4,10 @@
 
 ### Added
 
-- Add `ByteSource` trait for `@crypto` such that it accepts `FixedArray[Byte]`
-  `Bytes` `@bytes.View` at the same time.
-- Add `CryptoHasher` trait for `@crypto` (#142)
-- Add `hmac` support based on `CryptoHasher` (#142)
+- Added `ByteSource` trait for `@crypto` such that it accepts `FixedArray[Byte]`
+  `Bytes` `@bytes.View` at the same time. (#165)
+- Added `CryptoHasher` trait for `@crypto` (#142)
+- Added `hmac` support based on `CryptoHasher` (#142)
 
 ### Fixed
 
@@ -21,6 +21,7 @@
 - Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek` (#164)
 - Renamed `MD5Context` to `MD5`, `SM3Context` to `SM3`, `Sha256Context` to
   `Sha256` in `@crypto` (#142)
+- `SHA256` and `SM3` can now `update` after `finalize` (#169) 
 
 ## [0.4.31]
 
