@@ -54,9 +54,17 @@ pub impl CryptoHasher for MD5 with update(self : MD5, data : @bytes.View) -> Uni
   md5_update(self, data)
 }
 
-///| an alias of `MD5Context::compute()`
-pub impl CryptoHasher for MD5 with finalize(self : MD5) -> FixedArray[Byte] {
+///|
+pub fn MD5::finalize(self : MD5) -> FixedArray[Byte] {
   self.md5_compute()
+}
+
+///| an alias of `MD5Context::compute()`
+pub impl CryptoHasher for MD5 with finalize_into(
+  self : MD5,
+  buffer : FixedArray[Byte],
+) -> Unit {
+  self.md5_compute().blit_to(buffer, len=16)
 }
 
 ///| Instantiate a MD5 context

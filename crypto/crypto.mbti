@@ -36,17 +36,20 @@ fn uints_to_hex_string(Iter[UInt]) -> String
 
 // Types and methods
 type MD5
+fn MD5::finalize(Self) -> FixedArray[Byte]
 fn MD5::new() -> Self
 fn[Data : ByteSource] MD5::update(Self, Data) -> Unit
 impl CryptoHasher for MD5
 
 type SHA256
+fn SHA256::finalize(Self) -> FixedArray[Byte]
 fn SHA256::new(reg~ : FixedArray[UInt] = ..) -> Self
 fn[Data : ByteSource] SHA256::update(Self, Data) -> Unit
 fn SHA256::update_from_iter(Self, Iter[Byte]) -> Unit
 impl CryptoHasher for SHA256
 
 type SM3
+fn SM3::finalize(Self) -> FixedArray[Byte]
 fn SM3::new() -> Self
 fn[Data : ByteSource] SM3::update(Self, Data) -> Unit
 fn SM3::update_from_iter(Self, Iter[Byte]) -> Unit
@@ -70,6 +73,6 @@ pub(open) trait CryptoHasher {
   block_size(Self) -> Int
   reset(Self) -> Unit
   update(Self, @bytes.View) -> Unit
-  finalize(Self) -> FixedArray[Byte]
+  finalize_into(Self, FixedArray[Byte]) -> Unit
 }
 

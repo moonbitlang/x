@@ -35,9 +35,7 @@ pub fn[H : CryptoHasher] hmac(
   let padded_key = FixedArray::make(block_size, b'\x00')
   if key.length() > block_size {
     // if key is longer than block size, hash it
-    let working_key = hash..reset()..update(key).finalize()
-    working_key.blit_to(padded_key, len=working_key.length())
-    working_key.fill(0)
+    hash..reset()..update(key)..finalize_into(padded_key)
   } else {
     padded_key.blit_from_bytesview(0, key)
   }
@@ -45,20 +43,22 @@ pub fn[H : CryptoHasher] hmac(
   for i = 0; i < block_size; i = i + 1 {
     padded_key[i] = padded_key[i] ^ b'\x36'
   }
-  let inner_hash = hash
-    ..reset()
-    ..update(padded_key.unsafe_reinterpret_as_bytes())
-    ..update(message)
-    .finalize()
+  let inner_hash = FixedArray::make(hash.size(), b'\x00')
+  hash
+  ..reset()
+  ..update(padded_key.unsafe_reinterpret_as_bytes())
+  ..update(message)
+  ..finalize_into(inner_hash)
   // calculate outer hash
   for i = 0; i < block_size; i = i + 1 {
     padded_key[i] = padded_key[i] ^ b'\x36' ^ b'\x5c'
   }
-  let result = hash
-    ..reset()
-    ..update(padded_key.unsafe_reinterpret_as_bytes())
-    ..update(inner_hash.unsafe_reinterpret_as_bytes())
-    .finalize()
+  let result = FixedArray::make(hash.size(), b'\x00')
+  hash
+  ..reset()
+  ..update(padded_key.unsafe_reinterpret_as_bytes())
+  ..update(inner_hash.unsafe_reinterpret_as_bytes())
+  ..finalize_into(result)
   // clear sensitive data
   padded_key.fill(0)
   inner_hash.fill(0)
