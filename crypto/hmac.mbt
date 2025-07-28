@@ -32,14 +32,15 @@ pub fn[H : CryptoHasher] hmac(
   message : @bytes.View,
 ) -> FixedArray[Byte] {
   let block_size = hash.block_size()
-  let working_key = if key.length() > block_size {
-    // if key is longer than block size, hash it
-    hash..reset()..update(key).finalize().unsafe_reinterpret_as_bytes()[:]
-  } else {
-    key
-  }
   let padded_key = FixedArray::make(block_size, b'\x00')
-  padded_key.blit_from_bytesview(0, working_key)
+  if key.length() > block_size {
+    // if key is longer than block size, hash it
+    let working_key = hash..reset()..update(key).finalize()
+    working_key.blit_to(padded_key, len=working_key.length())
+    working_key.fill(0)
+  } else {
+    padded_key.blit_from_bytesview(0, key)
+  }
   // calculate inner hash
   for i = 0; i < block_size; i = i + 1 {
     padded_key[i] = padded_key[i] ^ b'\x36'
