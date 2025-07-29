@@ -48,14 +48,15 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 ///|
 fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let w = FixedArray::make(64, 0U)
-  let mut a = reg[0]
-  let mut b = reg[1]
-  let mut c = reg[2]
-  let mut d = reg[3]
-  let mut e = reg[4]
-  let mut f = reg[5]
-  let mut g = reg[6]
-  let mut h = reg[7]
+  guard reg.length() == 8
+  let mut a = reg.unsafe_get(0)
+  let mut b = reg.unsafe_get(1)
+  let mut c = reg.unsafe_get(2)
+  let mut d = reg.unsafe_get(3)
+  let mut e = reg.unsafe_get(4)
+  let mut f = reg.unsafe_get(5)
+  let mut g = reg.unsafe_get(6)
+  let mut h = reg.unsafe_get(7)
   for index = 0; index < 16; index = index + 1 {
     w[index] = bytes_u8_to_u32be(data, i=4 * index)
   }
@@ -86,14 +87,14 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
     b = a
     a = t_1 + t_2
   }
-  reg[0] += a
-  reg[1] += b
-  reg[2] += c
-  reg[3] += d
-  reg[4] += e
-  reg[5] += f
-  reg[6] += g
-  reg[7] += h
+  reg.unsafe_set(0, reg.unsafe_get(0) + a)
+  reg.unsafe_set(1, reg.unsafe_get(1) + b)
+  reg.unsafe_set(2, reg.unsafe_get(2) + c)
+  reg.unsafe_set(3, reg.unsafe_get(3) + d)
+  reg.unsafe_set(4, reg.unsafe_get(4) + e)
+  reg.unsafe_set(5, reg.unsafe_get(5) + f)
+  reg.unsafe_set(6, reg.unsafe_get(6) + g)
+  reg.unsafe_set(7, reg.unsafe_get(7) + h)
 }
 
 ///|
@@ -167,15 +168,15 @@ fn SHA256::_finalize_into(
     SHA256::transform(data, reg)
     data.fill(0)
   }
-  data[56] = (len >> 56).to_byte()
-  data[57] = (len >> 48).to_byte()
-  data[58] = (len >> 40).to_byte()
-  data[59] = (len >> 32).to_byte()
-  data[60] = (len >> 24).to_byte()
-  data[61] = (len >> 16).to_byte()
-  data[62] = (len >> 8).to_byte()
-  data[63] = (len >> 0).to_byte()
-  let _ = SHA256::transform(data, reg)
+  data.unsafe_set(56, (len >> 56).to_byte())
+  data.unsafe_set(57, (len >> 48).to_byte())
+  data.unsafe_set(58, (len >> 40).to_byte())
+  data.unsafe_set(59, (len >> 32).to_byte())
+  data.unsafe_set(60, (len >> 24).to_byte())
+  data.unsafe_set(61, (len >> 16).to_byte())
+  data.unsafe_set(62, (len >> 8).to_byte())
+  data.unsafe_set(63, (len >> 0).to_byte())
+  SHA256::transform(data, reg)
 
   // Write result to buffer
   arr_u32_to_u8be_into(reg.iter().take(size), buffer)
