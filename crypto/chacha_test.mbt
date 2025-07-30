@@ -36,3 +36,24 @@ test "chachaEncrypt" {
   let expected = "17b882adc3f1"
   assert_eq(bytes_to_hex_string(encrypted), expected)
 }
+
+///|
+test (bench : @bench.T) {
+  let key = FixedArray::make(8, 0U)
+  key[0] = 0
+  key[1] = 0
+  key[2] = 0
+  key[3] = 0
+  key[4] = 0
+  key[5] = 0
+  key[6] = 0
+  key[7] = 0
+  let plaintext = "abc".repeat(100)
+  let block = plaintext.to_bytes().to_fixedarray()
+  bench.bench(fn() {
+    let _ = try! @crypto.chacha8(key, 0, block)
+    let _ = try! @crypto.chacha12(key, 0, block)
+    let _ = try! @crypto.chacha20(key, 0, block)
+
+  })
+}
