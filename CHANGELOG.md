@@ -14,6 +14,7 @@
 - Updated the READMEs by switching to `.mbt.md` format (#164)
 - Fixed the overflow for rational's equality check (#167)
 - Updated MoonBit toolchain support to 0.6.22, updated info file (#169)
+- Refactored ChaCha series to make them faster (#170)
 
 ### Changed
 
