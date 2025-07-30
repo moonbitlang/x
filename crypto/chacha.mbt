@@ -364,57 +364,21 @@ fn[Data : ByteSource] chacha(
   if block.length() == 0 {
     return FixedArray::make(0, Byte::default())
   }
-  fn takeToFixedArray(b : &ByteSource, len : Int) -> FixedArray[Byte] {
-    let result = FixedArray::make(len, Byte::default())
-    b.blit_to(result, len~, src_offset=0, dst_offset=0)
-    result
-  }
-
-  fn zipWith(
-    op : (Byte, Byte) -> Byte,
-    state1 : FixedArray[Byte],
-    state2 : FixedArray[Byte],
-  ) -> FixedArray[Byte] {
-    let result = FixedArray::make(state1.length(), Byte::default())
-    for i = 0; i < state1.length(); i = i + 1 {
-      result[i] = op(state1[i], state2[i])
+  let buffer = FixedArray::make(block.length(), Byte::default())
+  for i = 0; i < block.length(); i = i + 64 {
+    let keyStream = chachaBlock(
+      key,
+      counter + i.reinterpret_as_uint() / 64,
+      nonce,
+      round,
+    )
+    let pad = stateToBytes(keyStream)
+    let len = @cmp.minimum(block.length() - i, 64)
+    for j in 0..<len {
+      buffer[i + j] = pad[j] ^ block[i + j]
     }
-    result
   }
-
-  fn dropBytes(b : &ByteSource, len : Int) -> FixedArray[Byte] {
-    let result = FixedArray::make(b.length() - len, Byte::default())
-    b.blit_to(result, len=b.length() - len, src_offset=len, dst_offset=0)
-    result
-  }
-
-  fn concatBytes(
-    b1 : FixedArray[Byte],
-    b2 : FixedArray[Byte],
-  ) -> FixedArray[Byte] {
-    let result = FixedArray::make(b1.length() + b2.length(), Byte::default())
-    for i = 0; i < b1.length(); i = i + 1 {
-      result[i] = b1[i]
-    }
-    for i = 0; i < b2.length(); i = i + 1 {
-      result[b1.length() + i] = b2[i]
-    }
-    result
-  }
-
-  let keyStream = chachaBlock(key, counter, nonce, round)
-  let pad = stateToBytes(keyStream)
-  let len = if block.length() < 64 { block.length() } else { 64 }
-  let maskedBlock = zipWith(
-    Byte::lxor,
-    takeToFixedArray(pad, len),
-    takeToFixedArray(block, len),
-  )
-  let res = concatBytes(
-    maskedBlock,
-    chacha(key, counter + 1, dropBytes(block, len), round, nonce),
-  )
-  res
+  buffer
 }
 
 ///|
