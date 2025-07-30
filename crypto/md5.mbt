@@ -63,8 +63,9 @@ pub fn MD5::finalize(self : MD5) -> FixedArray[Byte] {
 pub impl CryptoHasher for MD5 with finalize_into(
   self : MD5,
   buffer : FixedArray[Byte],
+  offset~ : Int,
 ) -> Unit {
-  self.md5_compute().blit_to(buffer, len=16)
+  self.md5_compute().blit_to(buffer, len=16, src_offset=offset)
 }
 
 ///| Instantiate a MD5 context

@@ -35,7 +35,7 @@ pub fn[H : CryptoHasher] hmac(
   let padded_key = FixedArray::make(block_size, b'\x00')
   if key.length() > block_size {
     // if key is longer than block size, hash it
-    hash..reset()..update(key)..finalize_into(padded_key)
+    hash..reset()..update(key)..finalize_into(padded_key, offset=0)
   } else {
     padded_key.blit_from_bytesview(0, key)
   }
@@ -48,7 +48,7 @@ pub fn[H : CryptoHasher] hmac(
   ..reset()
   ..update(padded_key.unsafe_reinterpret_as_bytes())
   ..update(message)
-  ..finalize_into(inner_hash)
+  ..finalize_into(inner_hash, offset=0)
   // calculate outer hash
   for i = 0; i < block_size; i = i + 1 {
     padded_key[i] = padded_key[i] ^ b'\x36' ^ b'\x5c'
@@ -58,7 +58,7 @@ pub fn[H : CryptoHasher] hmac(
   ..reset()
   ..update(padded_key.unsafe_reinterpret_as_bytes())
   ..update(inner_hash.unsafe_reinterpret_as_bytes())
-  ..finalize_into(result)
+  ..finalize_into(result, offset=0)
   // clear sensitive data
   padded_key.fill(0)
   inner_hash.fill(0)
