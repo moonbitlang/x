@@ -89,12 +89,18 @@ fn bytes_u8_to_u32be(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
 }
 
 ///|
-fn arr_u32_to_u8be_into(x : Iter[UInt], buffer : FixedArray[Byte]) -> Unit {
-  x.eachi(fn(i, d) {
-    buffer[i * 4 + 0] = (d >> 24).to_byte()
-    buffer[i * 4 + 1] = (d >> 16).to_byte()
-    buffer[i * 4 + 2] = (d >> 8).to_byte()
-    buffer[i * 4 + 3] = d.to_byte()
+fn arr_u32_to_u8be_into(
+  x : Iter[UInt],
+  buffer : FixedArray[Byte],
+  offset : Int,
+) -> Unit {
+  let mut idx = offset
+  x.each(fn(d) {
+    buffer[idx + 0] = (d >> 24).to_byte()
+    buffer[idx + 1] = (d >> 16).to_byte()
+    buffer[idx + 2] = (d >> 8).to_byte()
+    buffer[idx + 3] = d.to_byte()
+    idx += 4
   })
 }
 

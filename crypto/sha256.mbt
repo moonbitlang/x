@@ -143,7 +143,7 @@ pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
 ///|
 pub fn finalize(self : SHA256) -> FixedArray[Byte] {
   let ret = FixedArray::make(32, Byte::default())
-  self.finalize_into(ret)
+  self._finalize_into(ret)
   ret
 }
 
@@ -153,6 +153,7 @@ fn SHA256::_finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
   size~ : Int = 8,
+  offset~ : Int = 0,
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(64, Byte::default())
@@ -179,7 +180,7 @@ fn SHA256::_finalize_into(
   SHA256::transform(data, reg)
 
   // Write result to buffer
-  arr_u32_to_u8be_into(reg.iter().take(size), buffer)
+  arr_u32_to_u8be_into(reg.iter().take(size), buffer, offset)
 }
 
 ///|
@@ -211,8 +212,9 @@ pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
 pub impl CryptoHasher for SHA256 with finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
+  offset~ : Int,
 ) -> Unit {
-  self._finalize_into(buffer)
+  self._finalize_into(buffer, offset~)
 }
 
 ///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.

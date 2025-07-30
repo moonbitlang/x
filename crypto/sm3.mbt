@@ -201,12 +201,16 @@ pub fn[Data : ByteSource] SM3::update(self : SM3, data : Data) -> Unit {
 ///|
 pub fn SM3::finalize(self : SM3) -> FixedArray[Byte] {
   let ret = FixedArray::make(32, Byte::default())
-  self.finalize_into(ret)
+  self._finalize_into(ret)
   ret
 }
 
 ///|
-fn SM3::_finalize_into(self : SM3, buffer : FixedArray[Byte]) -> Unit {
+fn SM3::_finalize_into(
+  self : SM3,
+  buffer : FixedArray[Byte],
+  offset~ : Int = 0,
+) -> Unit {
   // Copy data
   let data : FixedArray[Byte] = FixedArray::make(64, 0)
   let mut cnt = self.buf_index
@@ -232,7 +236,7 @@ fn SM3::_finalize_into(self : SM3, buffer : FixedArray[Byte]) -> Unit {
   SM3::transform(data, reg)
 
   // Write result to buffer
-  arr_u32_to_u8be_into(reg.iter(), buffer)
+  arr_u32_to_u8be_into(reg.iter(), buffer, offset)
 }
 
 ///|
@@ -264,8 +268,9 @@ pub impl CryptoHasher for SM3 with reset(self : SM3) -> Unit {
 pub impl CryptoHasher for SM3 with finalize_into(
   self : SM3,
   buffer : FixedArray[Byte],
+  offset~ : Int,
 ) -> Unit {
-  self._finalize_into(buffer)
+  self._finalize_into(buffer, offset~)
 }
 
 ///| Compute the SM3 digest in `FixedArray[Byte]` of some `data`. Note that SM3 is big-endian.
