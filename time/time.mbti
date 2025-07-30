@@ -12,6 +12,8 @@ let utc_offset : ZoneOffset
 
 let utc_zone : Zone
 
+// Errors
+
 // Types and methods
 type Duration
 fn Duration::add_duration(Self, Self) -> Self raise

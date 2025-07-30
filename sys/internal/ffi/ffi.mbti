@@ -12,6 +12,8 @@ fn set_env_var(String, String) -> Unit
 
 fn unset_env_var(String) -> Unit
 
+// Errors
+
 // Types and methods
 
 // Type aliases

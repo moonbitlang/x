@@ -33,6 +33,11 @@ fn write_utf16le_char(@buffer.T, Char) -> Unit
 
 fn write_utf8_char(@buffer.T, Char) -> Unit
 
+// Errors
+pub suberror MalformedError Bytes
+
+pub suberror TruncatedError Bytes
+
 // Types and methods
 type Decoder
 fn Decoder::consume(Self, @bytes.View) -> String raise
@@ -50,10 +55,6 @@ pub(all) enum Encoding {
   UTF16LE
   UTF16BE
 }
-
-pub suberror MalformedError Bytes
-
-pub suberror TruncatedError Bytes
 
 // Type aliases
 

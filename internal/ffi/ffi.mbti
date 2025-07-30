@@ -16,6 +16,8 @@ fn string_to_extern(String) -> XExternString
 
 fn utf8_bytes_to_mbt_string(Bytes) -> String
 
+// Errors
+
 // Types and methods
 #external
 pub(all) type XByteArrayCreateHandle

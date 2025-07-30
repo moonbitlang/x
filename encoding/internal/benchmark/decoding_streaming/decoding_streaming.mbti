@@ -3,6 +3,8 @@ package "moonbitlang/x/encoding/internal/benchmark/decoding_streaming"
 
 // Values
 
+// Errors
+
 // Types and methods
 
 // Type aliases

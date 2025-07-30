@@ -6,6 +6,8 @@ fn from_bytes(Bytes) -> UUID raise
 
 fn from_hex(String) -> UUID raise
 
+// Errors
+
 // Types and methods
 type UUID
 fn UUID::as_version(Self, Version) -> Self
