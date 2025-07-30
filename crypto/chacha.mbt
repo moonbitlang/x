@@ -170,35 +170,6 @@ test "chachaBlockLoop" {
   )
 }
 
-///|
-fn zipWith(
-  op : (UInt, UInt) -> UInt,
-  state1 : FixedArray[UInt],
-  state2 : FixedArray[UInt],
-) -> FixedArray[UInt] {
-  let result = FixedArray::make(state1.length(), 0U)
-  for i = 0; i < state1.length(); i = i + 1 {
-    result[i] = op(state1[i], state2[i])
-  }
-  result
-}
-
-///|
-test "zipWith" {
-  let state1 = FixedArray::make(4, 0U)
-  state1[0] = 1
-  state1[1] = 2
-  state1[2] = 3
-  state1[3] = 4
-  let state2 = FixedArray::make(4, 0U)
-  state2[0] = 5
-  state2[1] = 6
-  state2[2] = 7
-  state2[3] = 8
-  let result = zipWith(UInt::op_add, state1, state2)
-  inspect(result, content="[6, 8, 10, 12]")
-}
-
 ///| - chacha8: round = 4
 /// - chacha12: round = 6
 /// - chacha20: round = 10
