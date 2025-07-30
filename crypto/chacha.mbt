@@ -187,14 +187,14 @@ fn chachaBlock(
   state[1] = 0X3320646eU
   state[2] = 0X79622d32U
   state[3] = 0X6b206574U
-  state[4] = flipWord(key[0])
-  state[5] = flipWord(key[1])
-  state[6] = flipWord(key[2])
-  state[7] = flipWord(key[3])
-  state[8] = flipWord(key[4])
-  state[9] = flipWord(key[5])
-  state[10] = flipWord(key[6])
-  state[11] = flipWord(key[7])
+  state[4] = key[0]
+  state[5] = key[1]
+  state[6] = key[2]
+  state[7] = key[3]
+  state[8] = key[4]
+  state[9] = key[5]
+  state[10] = key[6]
+  state[11] = key[7]
   state[12] = count
   state[13] = nonce
   state[14] = nonce
@@ -202,7 +202,7 @@ fn chachaBlock(
   let mixedState = state.copy()
   mixedState.chachaBlockLoop(round)
   for i in 0..<16 {
-    mixedState[i] = flipWord(mixedState[i] + state[i])
+    mixedState[i] = mixedState[i] + state[i]
   }
   mixedState
 }
@@ -210,29 +210,29 @@ fn chachaBlock(
 ///|
 test "chachaBlock" {
   let key = FixedArray::make(8, 0U)
-  key[0] = 0x00010203U
-  key[1] = 0x04050607U
-  key[2] = 0x08090a0bU
-  key[3] = 0x0c0d0e0fU
-  key[4] = 0x10111213U
-  key[5] = 0x14151617U
-  key[6] = 0x18191a1bU
-  key[7] = 0x1c1d1e1fU
+  key[0] = flipWord(0x00010203U)
+  key[1] = flipWord(0x04050607U)
+  key[2] = flipWord(0x08090a0bU)
+  key[3] = flipWord(0x0c0d0e0fU)
+  key[4] = flipWord(0x10111213U)
+  key[5] = flipWord(0x14151617U)
+  key[6] = flipWord(0x18191a1bU)
+  key[7] = flipWord(0x1c1d1e1fU)
   let keyStream = chachaBlock(key, 1, 0, 4)
   inspect(
-    keyStream,
+    keyStream.map(flipWord),
     content="[1981443599, 3367155801, 4121555886, 386561433, 2964333518, 2044159387, 854489399, 1047687817, 1898967689, 4077872159, 3447861240, 3864461272, 1918276088, 967291955, 2780172371, 3650858720]",
   )
 
   // chachaBlock with different count and nonce
   let keyStream2 = chachaBlock(key, 2, 1, 6)
   inspect(
-    keyStream2,
+    keyStream2.map(flipWord),
     content="[3045418931, 1870601267, 1791152559, 1128609701, 2412731038, 2282963828, 1154847987, 1925524179, 4130821097, 3948066013, 1837610591, 4125132907, 3665873803, 4179097700, 1171003195, 102570666]",
   )
   let keyStream3 = chachaBlock(key, 2, 10, 6)
   inspect(
-    keyStream3,
+    keyStream3.map(flipWord),
     content="[1655341353, 1070113534, 1698503531, 4049551328, 4260831884, 3845590894, 3707238589, 4243437253, 44481274, 2151594893, 3326073229, 3492192335, 3505455555, 2232294460, 127722793, 1386042532]",
   )
 }
@@ -242,10 +242,10 @@ fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
   let result = FixedArray::make(4 * state.length(), b'\x00')
   for i = 0; i < 16; i = i + 1 {
     let word = state[i]
-    result[i * 4 + 3] = word.to_byte()
-    result[i * 4 + 2] = (word >> 8).to_byte()
-    result[i * 4 + 1] = (word >> 16).to_byte()
-    result[i * 4 + 0] = (word >> 24).to_byte()
+    result[i * 4 + 0] = word.to_byte()
+    result[i * 4 + 1] = (word >> 8).to_byte()
+    result[i * 4 + 2] = (word >> 16).to_byte()
+    result[i * 4 + 3] = (word >> 24).to_byte()
   }
   result
 }
@@ -272,7 +272,7 @@ test "stateToBytes" {
   let bytes = stateToBytes(state)
   inspect(
     bytes_to_hex_string(bytes),
-    content="879531e0c5ecf37d516461b1c9a62f8a44c20ef33390af7fd9fc690b2a5f714c53372767b00a5631974c541a359e99635c9710613d6316892098d9d691dbd320",
+    content="e03195877df3ecc5b16164518a2fa6c9f30ec2447faf90330b69fcd94c715f2a6727375331560ab01a544c9763999e356110975c8916633dd6d9982020d3db91",
   )
 }
 
@@ -291,7 +291,7 @@ pub fn[Data : ByteSource] chacha8(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key, counter, block, 4, nonce)
+  chacha(key.map(flipWord), counter, block, 4, nonce)
 }
 
 ///| Encrypts a block of data using the ChaCha12 algorithm.
@@ -309,7 +309,7 @@ pub fn[Data : ByteSource] chacha12(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key, counter, block, 6, nonce)
+  chacha(key.map(flipWord), counter, block, 6, nonce)
 }
 
 ///| Encrypts a block of data using the ChaCha20 algorithm.
@@ -327,7 +327,7 @@ pub fn[Data : ByteSource] chacha20(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key, counter, block, 10, nonce)
+  chacha(key.map(flipWord), counter, block, 10, nonce)
 }
 
 ///|
