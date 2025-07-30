@@ -256,23 +256,15 @@ test "chachaBlock" {
 
 ///|
 fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
-  fn from_array(arr : Array[UInt]) -> FixedArray[Byte] {
-    let rv = FixedArray::make(arr.length(), Byte::default())
-    for i = 0; i < arr.length(); i = i + 1 {
-      rv[i] = arr[i].to_byte()
-    }
-    rv
-  }
-
-  let result = Array::make(64, 0U)
+  let result = FixedArray::make(4 * state.length(), b'\x00')
   for i = 0; i < 16; i = i + 1 {
     let word = state[i]
-    result[i * 4 + 3] = word & 0xff
-    result[i * 4 + 2] = (word & 0xff00) >> 8
-    result[i * 4 + 1] = (word & 0xff0000) >> 16
-    result[i * 4 + 0] = (word & 0xff000000) >> 24
+    result[i * 4 + 3] = word.to_byte()
+    result[i * 4 + 2] = (word >> 8).to_byte()
+    result[i * 4 + 1] = (word >> 16).to_byte()
+    result[i * 4 + 0] = (word >> 24).to_byte()
   }
-  from_array(result)
+  result
 }
 
 ///|
