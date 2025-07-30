@@ -36,24 +36,26 @@ fn FixedArray::quarterRound(
   y : Int,
   z : Int,
 ) -> Unit {
-  fn fullQuarterRound(
-    a : UInt,
-    b : UInt,
-    c : UInt,
-    d : UInt,
-  ) -> (UInt, UInt, UInt, UInt) {
-    (a, b, c, d)
-    |> quarterRound1
-    |> quarterRound2
-    |> quarterRound3
-    |> quarterRound4
-  }
-
-  let t = fullQuarterRound(state[w], state[x], state[y], state[z])
-  state[w] = t.0
-  state[x] = t.1
-  state[y] = t.2
-  state[z] = t.3
+  let mut a = state[w]
+  let mut b = state[x]
+  let mut c = state[y]
+  let mut d = state[z]
+  a += b
+  d = d ^ a
+  d = rotate_left_u(d, 16)
+  c += d
+  b = b ^ c
+  b = rotate_left_u(b, 12)
+  a += b
+  d = d ^ a
+  d = rotate_left_u(d, 8)
+  c += d
+  b = b ^ c
+  b = rotate_left_u(b, 7)
+  state[w] = a
+  state[x] = b
+  state[y] = c
+  state[z] = d
 }
 
 ///|
@@ -379,36 +381,4 @@ fn[Data : ByteSource] chacha(
     }
   }
   buffer
-}
-
-///|
-fn quarterRound1(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
-  let aprime = t.0 + t.1
-  let dprime = t.3 ^ aprime
-  let dout = rotate_left_u(dprime, 16)
-  (aprime, t.1, t.2, dout)
-}
-
-///|
-fn quarterRound2(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
-  let cprime = t.2 + t.3
-  let bprime = t.1 ^ cprime
-  let bout = rotate_left_u(bprime, 12)
-  (t.0, bout, cprime, t.3)
-}
-
-///|
-fn quarterRound3(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
-  let aprime = t.0 + t.1
-  let dprime = t.3 ^ aprime
-  let dout = rotate_left_u(dprime, 8)
-  (aprime, t.1, t.2, dout)
-}
-
-///|
-fn quarterRound4(t : (UInt, UInt, UInt, UInt)) -> (UInt, UInt, UInt, UInt) {
-  let cprime = t.2 + t.3
-  let bprime = t.1 ^ cprime
-  let bout = rotate_left_u(bprime, 7)
-  (t.0, bout, cprime, t.3)
 }
