@@ -11,6 +11,12 @@ fn from_double(Double) -> Rational[Int64] raise RationalError
 
 fn[T : Integral] new(T, T) -> Rational[T]?
 
+// Errors
+pub(all) suberror RationalError String
+impl Eq for RationalError
+impl Show for RationalError
+impl ToJson for RationalError
+
 // Types and methods
 type Rational[T]
 fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
@@ -37,11 +43,6 @@ impl[T : Integral] Neg for Rational[T]
 impl[T : Integral] Show for Rational[T]
 impl[T : Integral] Sub for Rational[T]
 impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
-
-pub(all) suberror RationalError String
-impl Eq for RationalError
-impl Show for RationalError
-impl ToJson for RationalError
 
 // Type aliases
 pub typealias Rational[@bigint.BigInt] as BigRational

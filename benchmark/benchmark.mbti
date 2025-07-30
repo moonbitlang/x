@@ -3,6 +3,8 @@ package "moonbitlang/x/benchmark"
 
 // Values
 
+// Errors
+
 // Types and methods
 type Criterion
 fn Criterion::add(Self, Task) -> Unit

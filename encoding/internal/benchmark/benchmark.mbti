@@ -10,6 +10,8 @@ fn bench_decoding_batch(@encoding.Encoding, Bytes) -> Unit
 
 fn bench_decoding_streaming(@encoding.Encoding, Bytes) -> Unit
 
+// Errors
+
 // Types and methods
 
 // Type aliases

@@ -6,6 +6,8 @@ fn instant_elapsed_as_secs_f64(Instant) -> Double
 
 fn instant_now() -> Instant
 
+// Errors
+
 // Types and methods
 type Instant
 

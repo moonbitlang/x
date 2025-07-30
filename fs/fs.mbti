@@ -24,9 +24,11 @@ fn write_bytes_to_file(String, Bytes) -> Unit raise IOError
 
 fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit raise IOError
 
-// Types and methods
+// Errors
 pub(all) suberror IOError String
 impl Show for IOError
+
+// Types and methods
 
 // Type aliases
 

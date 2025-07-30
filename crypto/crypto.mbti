@@ -34,6 +34,8 @@ fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
 fn uints_to_hex_string(Iter[UInt]) -> String
 
+// Errors
+
 // Types and methods
 type MD5
 fn MD5::finalize(Self) -> FixedArray[Byte]

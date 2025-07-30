@@ -7,6 +7,8 @@ import(
 
 // Values
 
+// Errors
+
 // Types and methods
 type Stack[T]
 fn[T] Stack::clear(Self[T]) -> Unit
