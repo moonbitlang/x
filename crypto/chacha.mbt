@@ -29,20 +29,24 @@ test "flipWord" {
 }
 
 ///|
-fn quarterRound(
+fn FixedArray::quarterRound(
   state : FixedArray[UInt],
   w : Int,
   x : Int,
   y : Int,
   z : Int,
-) -> FixedArray[UInt] {
+) -> Unit {
   fn fullQuarterRound(
     a : UInt,
     b : UInt,
     c : UInt,
     d : UInt,
   ) -> (UInt, UInt, UInt, UInt) {
-    quarterRound4(quarterRound3(quarterRound2(quarterRound1((a, b, c, d)))))
+    (a, b, c, d)
+    |> quarterRound1
+    |> quarterRound2
+    |> quarterRound3
+    |> quarterRound4
   }
 
   let t = fullQuarterRound(state[w], state[x], state[y], state[z])
@@ -50,7 +54,6 @@ fn quarterRound(
   state[x] = t.1
   state[y] = t.2
   state[z] = t.3
-  state
 }
 
 ///|
@@ -72,24 +75,24 @@ test "quarterRound" {
   state[13] = 0x3d631689U
   state[14] = 0x2098d9d6U
   state[15] = 0x91dbd320U
-  let newState = quarterRound(state, 2, 7, 8, 13)
+  state.quarterRound(2, 7, 8, 13)
   inspect(
-    newState,
+    state,
     content="[2274701792, 3320640381, 3182986972, 3383111562, 1153568499, 865120127, 3657197835, 3484200914, 3832277632, 2953467441, 2538361882, 899586403, 1553404001, 3435166841, 546888150, 2447102752]",
   )
 }
 
 ///|
-fn chachaBlockRound(state : FixedArray[UInt]) -> FixedArray[UInt] {
-  let state1 = quarterRound(state, 0, 4, 8, 12)
-  let state2 = quarterRound(state1, 1, 5, 9, 13)
-  let state3 = quarterRound(state2, 2, 6, 10, 14)
-  let state4 = quarterRound(state3, 3, 7, 11, 15)
-  let state5 = quarterRound(state4, 0, 5, 10, 15)
-  let state6 = quarterRound(state5, 1, 6, 11, 12)
-  let state7 = quarterRound(state6, 2, 7, 8, 13)
-  let state8 = quarterRound(state7, 3, 4, 9, 14)
-  state8
+fn FixedArray::chachaBlockRound(state : FixedArray[UInt]) -> Unit {
+  state
+  ..quarterRound(0, 4, 8, 12)
+  ..quarterRound(1, 5, 9, 13)
+  ..quarterRound(2, 6, 10, 14)
+  ..quarterRound(3, 7, 11, 15)
+  ..quarterRound(0, 5, 10, 15)
+  ..quarterRound(1, 6, 11, 12)
+  ..quarterRound(2, 7, 8, 13)
+  ..quarterRound(3, 4, 9, 14)
 }
 
 ///|
@@ -111,18 +114,17 @@ test "chachaBlockRound" {
   state[13] = 0x00000000U
   state[14] = 0x00000000U
   state[15] = 0x00000000U
-  let newState = chachaBlockRound(state)
+  state.chachaBlockRound()
   inspect(
-    newState,
+    state,
     content="[986087425, 3489031050, 2890662805, 2683391196, 1720476390, 1116253759, 2262580386, 3212003942, 2202368212, 756352536, 496298475, 669838588, 567302638, 1860562437, 1434237441, 2097484794]",
   )
 }
 
 ///|
-fn chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> FixedArray[UInt] {
-  match n {
-    0 => state.copy()
-    _ => chachaBlockLoop(chachaBlockRound(state.copy()), n - 1)
+fn FixedArray::chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> Unit {
+  for i in 0U..<n {
+    state.chachaBlockRound()
   }
 }
 
@@ -159,16 +161,11 @@ test "chachaBlockLoop" {
     state,
     content="[1634760805, 857760878, 2036477234, 1797285236, 50462976, 117835012, 185207048, 252579084, 319951120, 387323156, 454695192, 522067228, 1, 0, 0, 0]",
   )
-  let newState = chachaBlockLoop(state, 4)
+  state.chachaBlockLoop(4)
   inspect(
-    newState,
+    state,
     content="[2919080465, 647515738, 898727107, 777299107, 3407982512, 2489307765, 745530666, 2053399858, 1994399329, 139328223, 3709168053, 3118545354, 4170274417, 867477305, 1393604261, 3769539545]",
   )
-}
-
-///|
-fn flipState(state : FixedArray[UInt]) -> FixedArray[UInt] {
-  state.map(flipWord)
 }
 
 ///|
@@ -229,9 +226,12 @@ fn chachaBlock(
   state[13] = nonce
   state[14] = nonce
   state[15] = nonce
-  let mixedState = chachaBlockLoop(state.copy(), round)
-  let combinedState = zipWith(UInt::op_add, state, mixedState)
-  flipState(combinedState)
+  let mixedState = state.copy()
+  mixedState.chachaBlockLoop(round)
+  for i in 0..<16 {
+    mixedState[i] = flipWord(mixedState[i] + state[i])
+  }
+  mixedState
 }
 
 ///|
