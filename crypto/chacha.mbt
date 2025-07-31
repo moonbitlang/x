@@ -176,35 +176,26 @@ test "chachaBlockLoop" {
 fn chachaBlock(
   key : FixedArray[UInt],
   count : UInt,
-  nonce : UInt,
+  nonce : FixedArray[UInt],
   round : UInt,
-) -> FixedArray[UInt] {
-  if key.length() != 8 {
-    abort("Invalid key length -- key must be 256 bits")
-  }
-  let state = FixedArray::make(16, 0U)
-  state[0] = 0X61707865U
-  state[1] = 0X3320646eU
-  state[2] = 0X79622d32U
-  state[3] = 0X6b206574U
-  state[4] = key[0]
-  state[5] = key[1]
-  state[6] = key[2]
-  state[7] = key[3]
-  state[8] = key[4]
-  state[9] = key[5]
-  state[10] = key[6]
-  state[11] = key[7]
-  state[12] = count
-  state[13] = nonce
-  state[14] = nonce
-  state[15] = nonce
-  let mixedState = state.copy()
-  mixedState.chachaBlockLoop(round)
+  state : FixedArray[UInt],
+) -> Unit {
+  guard key.length() == 8
+  guard nonce.length() == 3
+  guard state.length() == 16
+  let initial_state = FixedArray::make(16, 0U)
+  initial_state[0] = 0X61707865U
+  initial_state[1] = 0X3320646eU
+  initial_state[2] = 0X79622d32U
+  initial_state[3] = 0X6b206574U
+  key.blit_to(initial_state, len=8, dst_offset=4)
+  initial_state[12] = count
+  nonce.blit_to(initial_state, len=3, dst_offset=13)
+  initial_state.blit_to(state, len=16)
+  state.chachaBlockLoop(round)
   for i in 0..<16 {
-    mixedState[i] = mixedState[i] + state[i]
+    state[i] += initial_state[i]
   }
-  mixedState
 }
 
 ///|
@@ -218,21 +209,22 @@ test "chachaBlock" {
   key[5] = flipWord(0x14151617U)
   key[6] = flipWord(0x18191a1bU)
   key[7] = flipWord(0x1c1d1e1fU)
-  let keyStream = chachaBlock(key, 1, 0, 4)
+  let keyStream = FixedArray::make(16, 0U)
+  chachaBlock(key, 1, [0, 0, 0], 4, keyStream)
   inspect(
     keyStream.map(flipWord),
     content="[1981443599, 3367155801, 4121555886, 386561433, 2964333518, 2044159387, 854489399, 1047687817, 1898967689, 4077872159, 3447861240, 3864461272, 1918276088, 967291955, 2780172371, 3650858720]",
   )
 
   // chachaBlock with different count and nonce
-  let keyStream2 = chachaBlock(key, 2, 1, 6)
+  chachaBlock(key, 2, [1, 1, 1], 6, keyStream)
   inspect(
-    keyStream2.map(flipWord),
+    keyStream.map(flipWord),
     content="[3045418931, 1870601267, 1791152559, 1128609701, 2412731038, 2282963828, 1154847987, 1925524179, 4130821097, 3948066013, 1837610591, 4125132907, 3665873803, 4179097700, 1171003195, 102570666]",
   )
-  let keyStream3 = chachaBlock(key, 2, 10, 6)
+  chachaBlock(key, 2, [10, 10, 10], 6, keyStream)
   inspect(
-    keyStream3.map(flipWord),
+    keyStream.map(flipWord),
     content="[1655341353, 1070113534, 1698503531, 4049551328, 4260831884, 3845590894, 3707238589, 4243437253, 44481274, 2151594893, 3326073229, 3492192335, 3505455555, 2232294460, 127722793, 1386042532]",
   )
 }
@@ -282,6 +274,7 @@ test "stateToBytes" {
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
+#deprecated("Use ChaCha::chacha8 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha8(
   key : FixedArray[UInt],
   counter : UInt,
@@ -291,7 +284,7 @@ pub fn[Data : ByteSource] chacha8(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key.map(flipWord), counter, block, 4, nonce)
+  chacha(key.map(flipWord), counter, block, 4, [nonce, nonce, nonce])
 }
 
 ///| Encrypts a block of data using the ChaCha12 algorithm.
@@ -300,6 +293,7 @@ pub fn[Data : ByteSource] chacha8(
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
+#deprecated("Use ChaCha::chacha12 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha12(
   key : FixedArray[UInt],
   counter : UInt,
@@ -309,7 +303,7 @@ pub fn[Data : ByteSource] chacha12(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key.map(flipWord), counter, block, 6, nonce)
+  chacha(key.map(flipWord), counter, block, 6, [nonce, nonce, nonce])
 }
 
 ///| Encrypts a block of data using the ChaCha20 algorithm.
@@ -318,6 +312,7 @@ pub fn[Data : ByteSource] chacha12(
 /// - [block] is the block of data to be encrypted.
 /// - [nonce] is default to 0
 /// - Returns the encrypted block of data.
+#deprecated("Use ChaCha::chacha20 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha20(
   key : FixedArray[UInt],
   counter : UInt,
@@ -327,27 +322,30 @@ pub fn[Data : ByteSource] chacha20(
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
-  chacha(key.map(flipWord), counter, block, 10, nonce)
+  chacha(key.map(flipWord), counter, block, 10, [nonce, nonce, nonce])
 }
 
 ///|
+#coverage.skip
 fn[Data : ByteSource] chacha(
   key : FixedArray[UInt],
   counter : UInt,
   block : Data,
   round : UInt,
-  nonce : UInt,
+  nonce : FixedArray[UInt],
 ) -> FixedArray[Byte] {
   if block.length() == 0 {
     return FixedArray::make(0, Byte::default())
   }
   let buffer = FixedArray::make(block.length(), Byte::default())
+  let keyStream = FixedArray::make(16, 0U)
   for i = 0; i < block.length(); i = i + 64 {
-    let keyStream = chachaBlock(
+    chachaBlock(
       key,
       counter + i.reinterpret_as_uint() / 64,
       nonce,
       round,
+      keyStream,
     )
     let pad = stateToBytes(keyStream)
     let len = @cmp.minimum(block.length() - i, 64)
@@ -356,4 +354,125 @@ fn[Data : ByteSource] chacha(
     }
   }
   buffer
+}
+
+///|
+struct ChaCha {
+  key : FixedArray[UInt]
+  nonce : FixedArray[UInt]
+  key_stream : FixedArray[UInt]
+  mut counter : UInt
+  mut offset : Int
+  round : UInt
+}
+
+///|
+fn[K : ByteSource, N : ByteSource] ChaCha::new(
+  key : K,
+  nonce : N,
+  round : UInt,
+  counter : UInt,
+) -> ChaCha raise Error {
+  if key.length() != 32 {
+    fail("Invalid key length -- key must be 256 bits")
+  }
+  if nonce.length() != 12 {
+    fail("Invalid nonce length -- nonce must be 96 bits")
+  }
+  let key_ = FixedArray::make(8, 0U)
+  for i in 0..<8 {
+    key_[i] = (key[i * 4].to_uint() << 0) |
+      (key[i * 4 + 1].to_uint() << 8) |
+      (key[i * 4 + 2].to_uint() << 16) |
+      (key[i * 4 + 3].to_uint() << 24)
+  }
+  let nonce_ = FixedArray::make(3, 0U)
+  for i in 0..<3 {
+    nonce_[i] = nonce[i * 4].to_uint() |
+      (nonce[i * 4 + 1].to_uint() << 8) |
+      (nonce[i * 4 + 2].to_uint() << 16) |
+      (nonce[i * 4 + 3].to_uint() << 24)
+  }
+  ChaCha::{
+    key: key_,
+    nonce: nonce_,
+    key_stream: FixedArray::make(16, 0U),
+    round,
+    offset: 64,
+    counter,
+  }
+}
+
+///| Creates a ChaCha8 encryption context following the RFC 8439 standard.
+/// - [key] must be 256-bit (32 bytes), in little-endian order.
+/// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
+/// - [counter] is the counter value, defaulting to 0.
+///
+/// raise Error if the length of key or nonce is invalid.
+pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(
+  key : K,
+  nonce : N,
+  counter~ : UInt = 0,
+) -> ChaCha raise Error {
+  ChaCha::new(key, nonce, 4, counter)
+}
+
+///| Creates a ChaCha12 encryption context following the RFC 8439 standard.
+/// - [key] must be 256-bit (32 bytes), in little-endian order.
+/// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
+/// - [counter] is the counter value, defaulting to 0.
+///
+/// raise Error if the length of key or nonce is invalid.
+pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(
+  key : K,
+  nonce : N,
+  counter~ : UInt = 0,
+) -> ChaCha raise Error {
+  ChaCha::new(key, nonce, 6, counter)
+}
+
+///| Creates a ChaCha20 encryption context following the RFC 8439 standard.
+/// - [key] must be 256-bit (32 bytes), in little-endian order.
+/// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
+/// - [counter] is the counter value, defaulting to 0.
+///
+/// raise Error if the length of key or nonce is invalid.
+pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha20(
+  key : K,
+  nonce : N,
+  counter~ : UInt = 0,
+) -> ChaCha raise Error {
+  ChaCha::new(key, nonce, 10, counter)
+}
+
+///|
+/// Transforms the given data using the ChaCha encryption algorithm.
+/// - [data] is the data to be transformed.
+/// - [target] is the output buffer to store the transformed data.
+/// - [offset] is the offset in the target buffer where the transformed data will be written
+/// 
+/// If the length of [data] is less then the length of [target] minus [offset], it will panic.
+pub fn[D : ByteSource] ChaCha::transform(
+  self : Self,
+  data : D,
+  target : FixedArray[Byte],
+  offset~ : Int = 0,
+) -> Unit {
+  for i in 0..<data.length() {
+    if self.offset == 64 {
+      chachaBlock(
+        self.key,
+        self.counter,
+        self.nonce,
+        self.round,
+        self.key_stream,
+      )
+      self.offset = 0
+      self.counter += 1
+    }
+    target[offset + i] = (self.key_stream[self.offset / 4] >>
+      (self.offset % 4 * 8)).to_byte() ^
+      data[i]
+    self.offset += 1
+  }
 }
