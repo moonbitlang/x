@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/codec"
+
+import(
+  "moonbitlang/core/bytes"
+  "moonbitlang/core/string"
+)
+
+// Values
+fn base64_decode(@string.StringView, url_safe~ : Bool = ..) -> @bytes.View raise DecodeError
+
+fn base64_encode(@bytes.View, url_safe~ : Bool = ..) -> String
+
+// Errors
+type DecodeError
+impl Show for DecodeError
+
+// Types and methods
+type Base64Decoder
+fn Base64Decoder::decode_to(Self, @string.StringView, FixedArray[Byte], offset~ : Int = .., url_safe~ : Bool = ..) -> Int raise DecodeError
+fn Base64Decoder::new() -> Self
+
+type Base64Encoder
+fn Base64Encoder::encode_to(Self, @bytes.View, (Char) -> Unit, url_safe~ : Bool = .., padding~ : Bool = ..) -> Unit
+fn Base64Encoder::new() -> Self
+
+// Type aliases
+
+// Traits
+
