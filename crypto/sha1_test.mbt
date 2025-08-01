@@ -13,9 +13,6 @@
 // limitations under the License.
 
 ///|
-let bytes_to_hex_string = @crypto.bytes_to_hex_string
-
-///|
 test "sha1" {
   let a = "The quick brown fox jumps over the lazy dog"
   inspect(

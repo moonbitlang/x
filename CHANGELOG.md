@@ -23,7 +23,9 @@
 - Deprecated `Stack::peek_exn` and replace it with `Stack::unsafe_peek` (#164)
 - Renamed `MD5Context` to `MD5`, `SM3Context` to `SM3`, `Sha256Context` to
   `Sha256` in `@crypto` (#142)
-- `SHA256` and `SM3` can now `update` after `finalize` (#169) 
+- `SHA256` and `SM3` can now `update` after `finalize` (#169)
+- Deprecated `@crypto.chachax` series and replace them with `@crypto.ChaCha`
+  (#173)
 
 ## [0.4.31]
 

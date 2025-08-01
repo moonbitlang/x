@@ -18,7 +18,7 @@ let hex_digits : FixedArray[String] = [
 ]
 
 ///| print a sequence of byte in hex representation
-pub fn bytes_to_hex_string(input : FixedArray[Byte]) -> String {
+pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
     let byte = input[i]
