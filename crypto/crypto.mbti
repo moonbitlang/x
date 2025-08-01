@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-fn bytes_to_hex_string(FixedArray[Byte]) -> String
+fn[D : ByteSource] bytes_to_hex_string(D) -> String
 
 #deprecated
 fn[Data : ByteSource] chacha12(FixedArray[UInt], UInt, Data, nonce~ : UInt = ..) -> FixedArray[Byte] raise
