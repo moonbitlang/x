@@ -2,11 +2,11 @@
 package "moonbitlang/x/time"
 
 // Values
-fn date_time(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime raise
+fn date_time(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
 
-fn fixed_zone(String, Int, abbrev~ : String = .., dst~ : Bool = ..) -> Zone raise
+fn fixed_zone(String, Int, abbrev? : String, dst? : Bool) -> Zone raise
 
-fn unix(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> ZonedDateTime raise
+fn unix(Int64, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
 
 let utc_offset : ZoneOffset
 
@@ -25,7 +25,7 @@ fn Duration::from_string(String) -> Self raise
 fn Duration::is_neg(Self) -> Bool
 fn Duration::is_zero(Self) -> Bool
 fn Duration::nanoseconds(Self) -> Int
-fn Duration::of(hours~ : Int64 = .., minutes~ : Int64 = .., seconds~ : Int64 = .., nanoseconds~ : Int64 = ..) -> Self raise
+fn Duration::of(hours? : Int64, minutes? : Int64, seconds? : Int64, nanoseconds? : Int64) -> Self raise
 fn Duration::op_add(Self, Self) -> Self raise
 fn Duration::seconds(Self) -> Int64
 fn Duration::to_nanoseconds(Self) -> Int64
@@ -50,7 +50,7 @@ fn Period::is_zero(Self) -> Bool
 fn Period::months(Self) -> Int
 fn Period::multiply(Self, Int) -> Self raise
 fn Period::negated(Self) -> Self raise
-fn Period::of(years~ : Int = .., months~ : Int = .., days~ : Int = ..) -> Self
+fn Period::of(years? : Int, months? : Int, days? : Int) -> Self
 fn Period::op_add(Self, Self) -> Self raise
 fn Period::op_sub(Self, Self) -> Self raise
 fn Period::to_string(Self) -> String
@@ -122,7 +122,7 @@ fn PlainDateTime::minute(Self) -> Int
 fn PlainDateTime::month(Self) -> Int
 fn PlainDateTime::months_in_year(Self) -> Int
 fn PlainDateTime::nanosecond(Self) -> Int
-fn PlainDateTime::of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = ..) -> Self raise
+fn PlainDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int) -> Self raise
 fn PlainDateTime::ordinal(Self) -> Int
 fn PlainDateTime::second(Self) -> Int
 fn PlainDateTime::to_plain_date(Self) -> PlainDate
@@ -191,10 +191,10 @@ impl Show for Zone
 
 type ZoneOffset
 fn ZoneOffset::abbreviation(Self) -> String
-fn ZoneOffset::from_seconds(Int, abbrev~ : String = .., dst~ : Bool = ..) -> Self raise
+fn ZoneOffset::from_seconds(Int, abbrev? : String, dst? : Bool) -> Self raise
 fn ZoneOffset::id(Self) -> String
 fn ZoneOffset::is_dst(Self) -> Bool
-fn ZoneOffset::of(hours~ : Int = .., minutes~ : Int = .., seconds~ : Int = .., abbrev~ : String = .., dst~ : Bool = ..) -> Self raise
+fn ZoneOffset::of(hours? : Int, minutes? : Int, seconds? : Int, abbrev? : String, dst? : Bool) -> Self raise
 fn ZoneOffset::seconds(Self) -> Int
 fn ZoneOffset::to_string(Self) -> String
 impl Compare for ZoneOffset
@@ -216,15 +216,15 @@ fn ZonedDateTime::days_in_week(Self) -> Int
 fn ZonedDateTime::days_in_year(Self) -> Int
 fn ZonedDateTime::era(Self) -> String
 fn ZonedDateTime::era_year(Self) -> Int
-fn ZonedDateTime::from_plain_datetime(PlainDateTime, zone~ : Zone = ..) -> Self
-fn ZonedDateTime::from_unix_second(Int64, nanosecond~ : Int = .., zone~ : Zone = ..) -> Self raise
+fn ZonedDateTime::from_plain_datetime(PlainDateTime, zone? : Zone) -> Self
+fn ZonedDateTime::from_unix_second(Int64, nanosecond? : Int, zone? : Zone) -> Self raise
 fn ZonedDateTime::hour(Self) -> Int
 fn ZonedDateTime::in_leap_year(Self) -> Bool
 fn ZonedDateTime::minute(Self) -> Int
 fn ZonedDateTime::month(Self) -> Int
 fn ZonedDateTime::months_in_year(Self) -> Int
 fn ZonedDateTime::nanosecond(Self) -> Int
-fn ZonedDateTime::of(Int, Int, Int, hour~ : Int = .., minute~ : Int = .., second~ : Int = .., nanosecond~ : Int = .., zone~ : Zone = ..) -> Self raise
+fn ZonedDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> Self raise
 fn ZonedDateTime::offset(Self) -> ZoneOffset
 fn ZonedDateTime::ordinal(Self) -> Int
 fn ZonedDateTime::second(Self) -> Int

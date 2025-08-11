@@ -41,10 +41,10 @@ pub suberror TruncatedError Bytes
 // Types and methods
 type Decoder
 fn Decoder::consume(Self, @bytes.View) -> String raise
-fn Decoder::decode(Self, @bytes.View, stream~ : Bool = ..) -> String raise
-fn Decoder::decode_lossy(Self, @bytes.View, stream~ : Bool = ..) -> String
-fn Decoder::decode_lossy_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit
-fn Decoder::decode_to(Self, @bytes.View, StringBuilder, stream~ : Bool = ..) -> Unit raise
+fn Decoder::decode(Self, @bytes.View, stream? : Bool) -> String raise
+fn Decoder::decode_lossy(Self, @bytes.View, stream? : Bool) -> String
+fn Decoder::decode_lossy_to(Self, @bytes.View, StringBuilder, stream? : Bool) -> Unit
+fn Decoder::decode_to(Self, @bytes.View, StringBuilder, stream? : Bool) -> Unit raise
 fn Decoder::finish(Self) -> String raise
 fn Decoder::lossy_consume(Self, @bytes.View) -> String
 fn Decoder::lossy_finish(Self) -> String
