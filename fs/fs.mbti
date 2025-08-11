@@ -14,7 +14,7 @@ fn read_dir(String) -> Array[String] raise IOError
 
 fn read_file_to_bytes(String) -> Bytes raise IOError
 
-fn read_file_to_string(String, encoding~ : String = ..) -> String raise IOError
+fn read_file_to_string(String, encoding? : String) -> String raise IOError
 
 fn remove_dir(String) -> Unit raise IOError
 
@@ -22,7 +22,7 @@ fn remove_file(String) -> Unit raise IOError
 
 fn write_bytes_to_file(String, Bytes) -> Unit raise IOError
 
-fn write_string_to_file(String, String, encoding~ : String = ..) -> Unit raise IOError
+fn write_string_to_file(String, String, encoding? : String) -> Unit raise IOError
 
 // Errors
 pub(all) suberror IOError String

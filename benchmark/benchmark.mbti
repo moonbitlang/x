@@ -12,7 +12,7 @@ fn Criterion::new() -> Self
 fn Criterion::run(Self) -> Map[String, TaskResult]
 
 type Task
-fn Task::new(String, () -> Unit, count~ : Int = ..) -> Self
+fn Task::new(String, () -> Unit, count? : Int) -> Self
 fn Task::run(Self) -> TaskResult
 
 pub struct TaskResult {
