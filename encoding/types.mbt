@@ -29,7 +29,7 @@ pub(all) enum Encoding {
 // Decoder
 
 ///|
-priv type Cont (Decoder) -> Decode
+priv struct Cont((Decoder) -> Decode)
 
 ///|
 struct Decoder {

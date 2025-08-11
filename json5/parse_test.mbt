@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-fn test_parse(input : String, loc~ : SourceLoc = _) -> Json raise Error {
+#callsite(autofill(loc))
+fn test_parse(input : String, loc~ : SourceLoc) -> Json raise Error {
   let v = try? @json5.parse(input)
   match v {
     Ok(v) => v
