@@ -7,12 +7,17 @@ package "moonbitlang/x/benchmark"
 
 // Types and methods
 type Criterion
+#deprecated
 fn Criterion::add(Self, Task) -> Unit
+#deprecated
 fn Criterion::new() -> Self
+#deprecated
 fn Criterion::run(Self) -> Map[String, TaskResult]
 
 type Task
+#deprecated
 fn Task::new(String, () -> Unit, count? : Int) -> Self
+#deprecated
 fn Task::run(Self) -> TaskResult
 
 pub struct TaskResult {

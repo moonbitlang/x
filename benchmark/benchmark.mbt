@@ -13,11 +13,15 @@
 // limitations under the License.
 
 ///|
+#deprecated("Use moon bench instead")
+#coverage.skip
 pub fn Task::new(name : String, f : () -> Unit, count~ : Int = 10) -> Task {
   { name, f, count }
 }
 
 ///|
+#deprecated("Use moon bench instead")
+#coverage.skip
 pub fn run(self : Task) -> TaskResult {
   let now = @ffi.instant_now()
   for i = 1; i <= self.count; i = i + 1 {
@@ -54,16 +58,22 @@ pub impl Show for TaskResult with output(self, logger) -> Unit {
 }
 
 ///|
+#deprecated("Use moon bench instead")
+#coverage.skip
 pub fn Criterion::new() -> Criterion {
   { tasks: [] }
 }
 
 ///|
+#deprecated("Use moon bench instead")
+#coverage.skip
 pub fn add(self : Criterion, task : Task) -> Unit {
   self.tasks.push(task)
 }
 
 ///|
+#deprecated("Use moon bench instead")
+#coverage.skip
 pub fn Criterion::run(self : Criterion) -> Map[String, TaskResult] {
   let map = {}
   for task in self.tasks {

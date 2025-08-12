@@ -1,5 +1,7 @@
 # moonbitlang/x/benchmark
 
+Notice that this package is deprecated, use `moon bench` instead.
+
 ## Overview
 
 This section provides some benchmark APIs, which are unstable and may be removed or modified at any time.

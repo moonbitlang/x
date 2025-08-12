@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#deprecated("Use moon bench instead")
 struct Task {
   name : String
   f : () -> Unit
@@ -20,6 +21,7 @@ struct Task {
 }
 
 ///|
+#deprecated("Use moon bench instead")
 pub struct TaskResult {
   task : Task
   average : Double
@@ -28,6 +30,7 @@ pub struct TaskResult {
 }
 
 ///|
+#deprecated("Use moon bench instead")
 struct Criterion {
   tasks : Array[Task]
 }
