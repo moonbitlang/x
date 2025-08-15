@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Deprecated `bench` package. It is suggested to use the
+  [builtin benchmark](https://docs.moonbitlang.com/en/latest/language/benchmarks.html)
+  functionality (#177)
+
 ## [0.4.32]
 
 ### Added
