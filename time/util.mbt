@@ -92,7 +92,8 @@ test "remove_suffix_zero" {
   inspect(remove_suffix_zero("000"), content="0")
 }
 
-///| FIXME: use split method of String
+///|
+/// FIXME: use split method of String
 fn split(s : String, delimiter : Char) -> Array[String] {
   let spl = []
   if s.length() == 0 {
@@ -162,7 +163,8 @@ fn[T] int64_overflow_err() -> T raise Error {
   raise Failure("Int64 overflow")
 }
 
-///| FIXME: use checked_add method of Int
+///|
+/// FIXME: use checked_add method of Int
 fn checked_add_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() + y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
@@ -172,7 +174,8 @@ fn checked_add_int(x : Int, y : Int) -> Int raise Error {
   }
 }
 
-///| FIXME: use checked_mul method of Int
+///|
+/// FIXME: use checked_mul method of Int
 fn checked_mul_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() * y.to_int64()
   if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
@@ -182,7 +185,8 @@ fn checked_mul_int(x : Int, y : Int) -> Int raise Error {
   }
 }
 
-///| FIXME: use checked_add method of Int64
+///|
+/// FIXME: use checked_add method of Int64
 fn checked_add_int64(x : Int64, y : Int64) -> Int64 raise Error {
   let r = x + y
   // Overflow iff both arguments have the opposite sign of the result
@@ -193,7 +197,8 @@ fn checked_add_int64(x : Int64, y : Int64) -> Int64 raise Error {
   }
 }
 
-///| FIXME: use checked_mul method of Int64
+///|
+/// FIXME: use checked_mul method of Int64
 fn checked_mul_int64(x : Int64, y : Int64) -> Int64 raise Error {
   let r = x * y
   let abs_x = x.abs()

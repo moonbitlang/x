@@ -20,10 +20,11 @@ struct SHA256 {
   mut buf_index : Int
 }
 
-///| Instantiate a Sha256 context
+///|
+/// Instantiate a Sha256 context
 /// `reg` is the initial hash value. Defaults to Sha256's.
 pub fn SHA256::new(
-  reg~ : FixedArray[UInt] = [
+  reg? : FixedArray[UInt] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
     0x5be0cd19,
   ],
@@ -115,7 +116,8 @@ pub impl CryptoHasher for SHA256 with update(self : SHA256, data : @bytes.View) 
   self.update(data)
 }
 
-///| update the state of given context from new `data` 
+///|
+/// update the state of given context from new `data` 
 pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
   let mut offset = 0
   while offset < data.length() {
@@ -152,8 +154,8 @@ pub fn finalize(self : SHA256) -> FixedArray[Byte] {
 fn SHA256::_finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
-  size~ : Int = 8,
-  offset~ : Int = 0,
+  size? : Int = 8,
+  offset? : Int = 0,
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(64, Byte::default())
@@ -208,7 +210,8 @@ pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
   self.buf_index = 0
 }
 
-///| Compute the Sha256 digest from given Sha256Context
+///|
+/// Compute the Sha256 digest from given Sha256Context
 pub impl CryptoHasher for SHA256 with finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
@@ -217,7 +220,8 @@ pub impl CryptoHasher for SHA256 with finalize_into(
   self._finalize_into(buffer, offset~)
 }
 
-///| Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
+///|
+/// Compute the Sha256 digest in `Bytes` of some `data`. Note that Sha256 is big-endian.
 pub fn[Data : ByteSource] sha256(data : Data) -> FixedArray[Byte] {
   SHA256::new()..update(data).finalize()
 }

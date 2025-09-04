@@ -15,7 +15,8 @@
 // This file is partially derived from the Python project:
 //   https://github.com/python/cpython/blob/3.12/Lib/uuid.py
 
-///| The UUID variant.
+///|
+/// The UUID variant.
 pub(all) enum Variant {
   ReservedNCS
   RFC4122(Version)
@@ -23,7 +24,8 @@ pub(all) enum Variant {
   ReservedFuture
 } derive(Show)
 
-///| The UUID version number.
+///|
+/// The UUID version number.
 ///
 /// This is only used when the variant is `RFC4122`.
 ///
@@ -60,7 +62,8 @@ fn to_int64(self : Version) -> Int64 {
   }
 }
 
-///| Retrieves the variant of the UUID.
+///|
+/// Retrieves the variant of the UUID.
 pub fn variant(self : UUID) -> Variant {
   if (self.lo & (0x8000L << 48)) == 0L {
     ReservedNCS
@@ -77,7 +80,8 @@ pub fn variant(self : UUID) -> Variant {
   }
 }
 
-///| Retrieves the version number of the UUID.
+///|
+/// Retrieves the version number of the UUID.
 ///
 /// If the variant of the UUID is not `RFC4122`, returns `None`.
 ///
@@ -88,7 +92,8 @@ pub fn version(self : UUID) -> Version? {
   }
 }
 
-///| Converts this UUID to RFC-4122 with the given version number.
+///|
+/// Converts this UUID to RFC-4122 with the given version number.
 pub fn as_version(self : UUID, version : Version) -> UUID {
   let { hi, lo } = self
   // Set the variant to RFC 4122.

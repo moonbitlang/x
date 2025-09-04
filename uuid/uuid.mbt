@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| UUID that complies with RFC 4122.
+///|
+/// UUID that complies with RFC 4122.
 ///
 /// UUID objects are immutable, hashable and usable as mapping keys.
 /// The Display of UUIDs is like `12345678-1234-1234-1234-123456789abc`;
@@ -42,7 +43,8 @@ struct UUID {
   lo : Int64
 } derive(Eq, Compare)
 
-///| Constructs a UUID with the given big-endian bytes.
+///|
+/// Constructs a UUID with the given big-endian bytes.
 ///
 /// The produced UUID is not RFC-4122 compliant; see also `as_version()`.
 ///
@@ -64,7 +66,8 @@ pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
   { hi, lo }
 }
 
-///| The UUID as a 16-byte string.
+///|
+/// The UUID as a 16-byte string.
 pub fn to_bytes(self : UUID) -> Bytes {
   // XXX: replace with a cheaper way
   let rv = FixedArray::make(16, b'\x00')
@@ -108,7 +111,8 @@ fn hex_char_to_int64(c : Int) -> Int64 raise Error {
   d.to_int64()
 }
 
-///| Constructs a UUID with the given hexadecimal string.
+///|
+/// Constructs a UUID with the given hexadecimal string.
 ///
 /// This function ignores dashes (`-`) in the given string. The remaining
 /// letters must be exactly 32 hexadecimals, or an error will be raised.

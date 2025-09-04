@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| Time offset from UTC.
+///|
+/// Time offset from UTC.
 struct ZoneOffset {
   id : String // e.g. "Z", "+08:00", "-05:30", etc.
   abbrev : String // e.g. "PST", "CST", "EST", "UTC", etc.
@@ -32,7 +33,8 @@ let max_offset_seconds : Int = max_offset_hours * seconds_per_hour.to_int()
 ///|
 let min_offset_seconds : Int = min_offset_hours * seconds_per_hour.to_int()
 
-///| UTC+0 offset.
+///|
+/// UTC+0 offset.
 pub let utc_offset : ZoneOffset = ZoneOffset::{
   id: "Z",
   abbrev: "UTC",
@@ -40,13 +42,14 @@ pub let utc_offset : ZoneOffset = ZoneOffset::{
   dst: false,
 }
 
-///| Creates a offset from hours, minutes and seconds.
+///|
+/// Creates a offset from hours, minutes and seconds.
 pub fn ZoneOffset::of(
-  hours~ : Int = 0,
-  minutes~ : Int = 0,
-  seconds~ : Int = 0,
-  abbrev~ : String = "",
-  dst~ : Bool = false,
+  hours? : Int = 0,
+  minutes? : Int = 0,
+  seconds? : Int = 0,
+  abbrev? : String = "",
+  dst? : Bool = false,
 ) -> ZoneOffset raise Error {
   validate_offset(hours, minutes, seconds)
   let secs = hours * seconds_per_hour.to_int() +
@@ -55,11 +58,12 @@ pub fn ZoneOffset::of(
   ZoneOffset::from_seconds(secs, abbrev~, dst~)
 }
 
-///| Creates a offset from seconds.
+///|
+/// Creates a offset from seconds.
 pub fn ZoneOffset::from_seconds(
   seconds : Int,
-  abbrev~ : String = "",
-  dst~ : Bool = false,
+  abbrev? : String = "",
+  dst? : Bool = false,
 ) -> ZoneOffset raise Error {
   if seconds == 0 {
     return utc_offset
@@ -70,12 +74,14 @@ pub fn ZoneOffset::from_seconds(
   { id: create_id(seconds), abbrev, seconds, dst }
 }
 
-///| Returns the offset id, e.g. "Z", "+08:00", "-05:30", etc.
+///|
+/// Returns the offset id, e.g. "Z", "+08:00", "-05:30", etc.
 pub fn ZoneOffset::to_string(self : ZoneOffset) -> String {
   self.id
 }
 
-///| Returns the zone offset abbreviation, e.g. "PST", "CST", "EST", "UTC", etc.
+///|
+/// Returns the zone offset abbreviation, e.g. "PST", "CST", "EST", "UTC", etc.
 pub fn ZoneOffset::abbreviation(self : ZoneOffset) -> String {
   self.abbrev
 }
@@ -86,7 +92,7 @@ pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
 }
 
 ///|
-pub impl Eq for ZoneOffset with op_equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
+pub impl Eq for ZoneOffset with equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }
 
@@ -98,17 +104,20 @@ pub impl Compare for ZoneOffset with compare(
   other.seconds - self.seconds
 }
 
-///| Returns the offset id.
+///|
+/// Returns the offset id.
 pub fn id(self : ZoneOffset) -> String {
   self.id
 }
 
-///| Returns the total seconds of this offset.
+///|
+/// Returns the total seconds of this offset.
 pub fn ZoneOffset::seconds(self : ZoneOffset) -> Int {
   self.seconds
 }
 
-///| Checks if this offset is daylight saving time.
+///|
+/// Checks if this offset is daylight saving time.
 pub fn is_dst(self : ZoneOffset) -> Bool {
   self.dst
 }

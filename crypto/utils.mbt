@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| Converts a byte array to a hex string, without any prefix like "0x".
+///|
+/// Converts a byte array to a hex string, without any prefix like "0x".
 let hex_digits : FixedArray[String] = [
   "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f",
 ]
 
-///| print a sequence of byte in hex representation
+///|
+/// print a sequence of byte in hex representation
 pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
   let mut ret = ""
   for i = input.length() - 1; i >= 0; i = i - 1 {
@@ -42,7 +44,8 @@ fn uint_to_hex_string(input : UInt) -> String {
   ret.fold(String::op_add, init="")
 }
 
-///| print a sequence of uint in hex representation
+///|
+/// print a sequence of uint in hex representation
 pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
   input.map(uint_to_hex_string).fold(String::op_add, init="")
 }
@@ -52,10 +55,11 @@ fn uint32(x : Byte) -> UInt {
   x.to_int().reinterpret_as_uint()
 }
 
-///| convert 4 bytes a byte sequence to a UInt in little endian
+///|
+/// convert 4 bytes a byte sequence to a UInt in little endian
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn u8_to_u32le(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
+fn u8_to_u32le(x : FixedArray[Byte], i? : Int = 0) -> UInt {
   uint32(x[i]) |
   (uint32(x[i + 1]) << 8) |
   (uint32(x[i + 2]) << 16) |
@@ -78,10 +82,11 @@ fn u8_to_u32le(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
 //   )
 // }
 
-///| convert 4 bytes of a byte array to a UInt in big endian 
+///|
+/// convert 4 bytes of a byte array to a UInt in big endian 
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn bytes_u8_to_u32be(x : FixedArray[Byte], i~ : Int = 0) -> UInt {
+fn bytes_u8_to_u32be(x : FixedArray[Byte], i? : Int = 0) -> UInt {
   (uint32(x[i]) << 24) |
   (uint32(x[i + 1]) << 16) |
   (uint32(x[i + 2]) << 8) |
@@ -104,12 +109,14 @@ fn arr_u32_to_u8be_into(
   })
 }
 
-///| rotate a Int `x` left by `n` bit(s)
+///|
+/// rotate a Int `x` left by `n` bit(s)
 fn rotate_left(x : Int, n : Int) -> Int {
   (x << n) | (x.reinterpret_as_uint() >> (32 - n)).reinterpret_as_int()
 }
 
-///| rotate a UInt `x` left by `n` bit(s)
+///|
+/// rotate a UInt `x` left by `n` bit(s)
 fn rotate_left_u(x : UInt, n : Int) -> UInt {
   (x << n) | (x >> (32 - n))
 }

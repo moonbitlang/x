@@ -28,7 +28,7 @@ fn random_chars(rand : @random.Rand) -> Char {
 fn random_bytes(
   rand : @random.Rand,
   n : Int,
-  write_char : (@buffer.T, Char) -> Unit,
+  write_char : (@buffer.Buffer, Char) -> Unit,
 ) -> Bytes {
   let buf = @buffer.new(size_hint=n * 4)
   for _ in 0..<n {
