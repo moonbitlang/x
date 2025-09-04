@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Base 64 encoding and decoding
-// This implementation follows RFC 4648 for Base64 encoding and decoding.
+// This implementation follows RFC 4648 for  encoding and decoding.
 
 ///|
 /// index is between 0 and 63, inclusive.
@@ -44,19 +44,19 @@ fn char_to_index(char : Char, url_safe : Bool) -> Int raise DecodeError {
 }
 
 ///|
-struct Base64Encoder {
+struct Encoder {
   mut i : Int
   mut buffer : Int
 }
 
 ///|
-pub fn Base64Encoder::new() -> Base64Encoder {
+pub fn Encoder::new() -> Encoder {
   { i: 0, buffer: 0 }
 }
 
 ///|
-pub fn Base64Encoder::encode_to(
-  self : Base64Encoder,
+pub fn Encoder::encode_to(
+  self : Encoder,
   bytes : @bytes.View,
   cb : (Char) -> Unit,
   url_safe? : Bool = false,
@@ -103,10 +103,10 @@ pub fn Base64Encoder::encode_to(
 }
 
 ///|
-/// Encode binary to ascii text following Base64 defined in RFC 4648
-pub fn base64_encode(bytes : @bytes.View, url_safe? : Bool = false) -> String {
+/// Encode binary to ascii text following  defined in RFC 4648
+pub fn encode(bytes : @bytes.View, url_safe? : Bool = false) -> String {
   let builder = StringBuilder::new()
-  let encoder = Base64Encoder::new()
+  let encoder = Encoder::new()
   encoder.encode_to(
     bytes,
     fn(ch) { builder.write_char(ch) },
@@ -117,19 +117,19 @@ pub fn base64_encode(bytes : @bytes.View, url_safe? : Bool = false) -> String {
 }
 
 ///|
-struct Base64Decoder {
+struct Decoder {
   mut i : Int
   mut buffer : Int
 }
 
 ///|
-pub fn Base64Decoder::new() -> Base64Decoder {
+pub fn Decoder::new() -> Decoder {
   { i: 0, buffer: 0 }
 }
 
 ///|
-pub fn Base64Decoder::decode_to(
-  self : Base64Decoder,
+pub fn Decoder::decode_to(
+  self : Decoder,
   input : @string.View,
   output : FixedArray[Byte],
   offset? : Int = 0,
@@ -170,11 +170,11 @@ pub fn Base64Decoder::decode_to(
 }
 
 ///|
-pub fn base64_decode(
+pub fn decode(
   input : @string.View,
   url_safe? : Bool = false,
 ) -> @bytes.View raise DecodeError {
-  let decoder = Base64Decoder::new()
+  let decoder = Decoder::new()
   let output = FixedArray::make(input.length() * 3 / 4, b'\x00')
   let len = decoder.decode_to(input, output, url_safe~)
   output.unsafe_reinterpret_as_bytes()[:len]
