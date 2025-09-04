@@ -44,7 +44,8 @@ pub impl CryptoHasher for MD5 with reset(self : MD5) -> Unit {
   self.buffer = FixedArray::make(64, Byte::default())
 }
 
-///| update the state of given context from new `data` 
+///|
+/// update the state of given context from new `data` 
 pub fn[Data : ByteSource] MD5::update(self : MD5, data : Data) -> Unit {
   md5_update(self, data)
 }
@@ -59,7 +60,8 @@ pub fn MD5::finalize(self : MD5) -> FixedArray[Byte] {
   self.md5_compute()
 }
 
-///| an alias of `MD5Context::compute()`
+///|
+/// an alias of `MD5Context::compute()`
 pub impl CryptoHasher for MD5 with finalize_into(
   self : MD5,
   buffer : FixedArray[Byte],
@@ -68,7 +70,8 @@ pub impl CryptoHasher for MD5 with finalize_into(
   self.md5_compute().blit_to(buffer, len=16, src_offset=offset)
 }
 
-///| Instantiate a MD5 context
+///|
+/// Instantiate a MD5 context
 pub fn MD5::new() -> MD5 {
   padding[0] = b'\x80'
   {
@@ -78,7 +81,8 @@ pub fn MD5::new() -> MD5 {
   }
 }
 
-///| compute MD5 digest from given context
+///|
+/// compute MD5 digest from given context
 fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
   let input = FixedArray::make(16, 0U)
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
@@ -258,7 +262,8 @@ fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
   state[3] += d
 }
 
-///| Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
+///|
+/// Compute the MD5 digest of some `data` based on [RFC1321](https://www.ietf.org/rfc/rfc1321.txt).
 /// - Note that MD5 is considered _cryptographically broken_.
 /// Unless mandated, more secure alternatives should be preferred.
 pub fn[Data : ByteSource] md5(data : Data) -> FixedArray[Byte] {

@@ -15,7 +15,8 @@
 ///|
 pub(all) suberror IOError String derive(Show)
 
-///| Reads the content of a file specified by the given path and returns its
+///|
+/// Reads the content of a file specified by the given path and returns its
 /// content as `Bytes`
 ///
 /// # Parameters
@@ -29,7 +30,8 @@ pub fn read_file_to_bytes(path : String) -> Bytes raise IOError {
   read_file_to_bytes_internal(path)
 }
 
-///| Reads the content of a file specified by the given path and returns its
+///|
+/// Reads the content of a file specified by the given path and returns its
 /// content as `String`.
 ///
 /// # Parameters
@@ -42,12 +44,13 @@ pub fn read_file_to_bytes(path : String) -> Bytes raise IOError {
 /// - A `String` representing the content of the file.
 pub fn read_file_to_string(
   path : String,
-  encoding~ : String = "utf8",
+  encoding? : String = "utf8",
 ) -> String raise IOError {
   read_file_to_string_internal(path, encoding~)
 }
 
-///| Writes a `Bytes` to a file at the specified path.
+///|
+/// Writes a `Bytes` to a file at the specified path.
 ///
 /// # Parameters
 ///
@@ -60,7 +63,8 @@ pub fn write_bytes_to_file(
   write_bytes_to_file_internal(path, content)
 }
 
-///| Writes a `String` to a file at the specified path.
+///|
+/// Writes a `String` to a file at the specified path.
 ///
 /// # Parameters
 ///
@@ -70,12 +74,13 @@ pub fn write_bytes_to_file(
 pub fn write_string_to_file(
   path : String,
   content : String,
-  encoding~ : String = "utf8",
+  encoding? : String = "utf8",
 ) -> Unit raise IOError {
   write_string_to_file_internal(path, content, encoding~)
 }
 
-///| Checks if a path exists.
+///|
+/// Checks if a path exists.
 ///
 /// # Parameters
 /// - `path`: A `String` representing the file path.
@@ -86,7 +91,8 @@ pub fn path_exists(path : String) -> Bool {
   path_exists_internal(path)
 }
 
-///| Reads the contents of a directory and returns an array of filenames.
+///|
+/// Reads the contents of a directory and returns an array of filenames.
 ///
 /// # Parameters
 ///
@@ -99,7 +105,8 @@ pub fn read_dir(path : String) -> Array[String] raise IOError {
   read_dir_internal(path)
 }
 
-///| Creates a directory at the specified path.
+///|
+/// Creates a directory at the specified path.
 /// Note: nested directories are not supported for native backend
 ///
 /// # Parameters
@@ -110,7 +117,8 @@ pub fn create_dir(path : String) -> Unit raise IOError {
   create_dir_internal(path)
 }
 
-///| Checks if the given path is a directory.
+///|
+/// Checks if the given path is a directory.
 ///
 /// # Parameters
 ///
@@ -123,7 +131,8 @@ pub fn is_dir(path : String) -> Bool raise IOError {
   is_dir_internal(path)
 }
 
-///| Check if the given path points to a file.
+///|
+/// Check if the given path points to a file.
 ///
 /// # Parameters
 ///
@@ -136,7 +145,8 @@ pub fn is_file(path : String) -> Bool raise IOError {
   is_file_internal(path)
 }
 
-///| Removes a directory at the specified path.
+///|
+/// Removes a directory at the specified path.
 ///
 /// # Parameters
 ///
@@ -145,7 +155,8 @@ pub fn remove_dir(path : String) -> Unit raise IOError {
   remove_dir_internal(path)
 }
 
-///| Removes a file at the specified path.
+///|
+/// Removes a file at the specified path.
 ///
 /// # Parameters
 ///

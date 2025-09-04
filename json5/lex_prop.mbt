@@ -61,7 +61,7 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
 fn lex_ident(
   ctx : ParseContext,
   start : Int,
-  buffer~ : StringBuilder = StringBuilder::make(),
+  buffer? : StringBuilder = StringBuilder::make(),
 ) -> String raise ParseError {
   let mut start = start
   fn flush(end : Int) {

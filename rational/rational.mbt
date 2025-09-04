@@ -93,7 +93,7 @@ fn[T : Integral] new_unchecked(numerator : T, denominator : T) -> Rational[T] {
 ///|
 /// NOTE: we don't check overflow here, to align with the `op_add` of `Int64`.
 /// TODO: add a `checked_add` method.
-pub impl[T : Integral] Add for Rational[T] with op_add(self, other) {
+pub impl[T : Integral] Add for Rational[T] with add(self, other) {
   new_unchecked(
     self.numerator * other.denominator + other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -118,7 +118,7 @@ pub impl[T : Integral] Add for Rational[T] with op_add(self, other) {
 /// inspect(a - b, content="1/6") // 1/2 - 1/3 = 1/6
 /// ```
 ///
-pub impl[T : Integral] Sub for Rational[T] with op_sub(self, other) {
+pub impl[T : Integral] Sub for Rational[T] with sub(self, other) {
   new_unchecked(
     self.numerator * other.denominator - other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -144,7 +144,7 @@ pub impl[T : Integral] Sub for Rational[T] with op_sub(self, other) {
 /// inspect(c, content="1/3")
 /// ```
 ///
-pub impl[T : Integral] Mul for Rational[T] with op_mul(self, other) {
+pub impl[T : Integral] Mul for Rational[T] with mul(self, other) {
   new_unchecked(
     self.numerator * other.numerator,
     self.denominator * other.denominator,
@@ -175,7 +175,7 @@ pub impl[T : Integral] Mul for Rational[T] with op_mul(self, other) {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Div for Rational[T] with op_div(self, other) {
+pub impl[T : Integral] Div for Rational[T] with div(self, other) {
   if other.numerator.signum() < 0 {
     new_unchecked(
       self.numerator * -other.denominator,
@@ -239,7 +239,7 @@ pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
 /// inspect(positive_result.to_string(), content="5/2")
 /// ```
 ///
-pub impl[T : Integral] Neg for Rational[T] with op_neg(self : Rational[T]) -> Rational[
+pub impl[T : Integral] Neg for Rational[T] with neg(self : Rational[T]) -> Rational[
   T,
 ] {
   new_unchecked(-self.numerator, self.denominator)
@@ -382,7 +382,7 @@ pub(all) suberror RationalError String derive(Show, ToJson(style="legacy"))
 /// inspect(error1 == error3, content="false")
 /// ```
 ///
-pub impl Eq for RationalError with op_equal(
+pub impl Eq for RationalError with equal(
   self : RationalError,
   other : RationalError,
 ) -> Bool {

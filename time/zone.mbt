@@ -12,33 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| Time zone.
+///|
+/// Time zone.
 struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int)] // (timestamp, offset_index)
 } derive(Eq)
 
-///| UTC time zone.
+///|
+/// UTC time zone.
 pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset], transitions: [] }
 
-///| Creates a time zone with fixed offset from time zone id and offset seconds.
+///|
+/// Creates a time zone with fixed offset from time zone id and offset seconds.
 pub fn fixed_zone(
   id : String,
   offset_seconds : Int,
-  abbrev~ : String = "",
-  dst~ : Bool = false,
+  abbrev? : String = "",
+  dst? : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
   Zone::{ id, offsets: [offset], transitions: [] }
 }
 
-///| Checks if this zone only has one offset.
+///|
+/// Checks if this zone only has one offset.
 pub fn is_fixed(self : Zone) -> Bool {
   self.offsets.length() == 1
 }
 
-///| Returns the fixed zone id (e.g. "UTC", "America/Los_Angeles", etc.)
+///|
+/// Returns the fixed zone id (e.g. "UTC", "America/Los_Angeles", etc.)
 pub fn Zone::to_string(self : Zone) -> String {
   self.id
 }
@@ -77,7 +82,8 @@ const TZIF2_VERSION = 50
 ///|
 const TZIF2_HEADER_SIZE : Int = 44
 
-///| Creates a time zone from TZif2 data.
+///|
+/// Creates a time zone from TZif2 data.
 pub fn Zone::from_tzif2(
   id : String,
   data : FixedArray[Byte],
@@ -117,7 +123,8 @@ pub fn Zone::from_tzif2(
   { id, offsets, transitions }
 }
 
-///| Helper function to convert bytes to 32-bit Int (big-endian)
+///|
+/// Helper function to convert bytes to 32-bit Int (big-endian)
 fn to_int_be(b : FixedArray[Byte], start : Int) -> Int {
   (b[start].to_int() << 24) |
   (b[start + 1].to_int() << 16) |
@@ -125,7 +132,8 @@ fn to_int_be(b : FixedArray[Byte], start : Int) -> Int {
   b[start + 3].to_int()
 }
 
-///| Helper function to convert a null-terminated ASCII string to a MoonBit String.
+///|
+/// Helper function to convert a null-terminated ASCII string to a MoonBit String.
 fn ascii_to_string(b : FixedArray[Byte], start : Int) -> String {
   let result = StringBuilder::new()
   let mut start = start

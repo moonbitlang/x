@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| The Unicode Replacement Character, which is used to replace invalid or unrecognized sequences during lossy decoding.
+///|
+/// The Unicode Replacement Character, which is used to replace invalid or unrecognized sequences during lossy decoding.
 /// https://unicode.org/charts/nameslist/n_FFF0.html
 pub const U_REP = '\u{FFFD}'
 
@@ -100,7 +101,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 pub fn decode(
   self : Decoder,
   input : @bytes.View,
-  stream~ : Bool = false,
+  stream? : Bool = false,
 ) -> String raise Error {
   if input.length() > 0 {
     self.i_cont(input)
@@ -161,7 +162,7 @@ pub fn Decoder::decode_to(
   self : Decoder,
   input : @bytes.View,
   output : StringBuilder,
-  stream~ : Bool = false,
+  stream? : Bool = false,
 ) -> Unit raise {
   if input.length() > 0 {
     self.i_cont(input)
@@ -257,7 +258,7 @@ pub fn finish(self : Decoder) -> String raise Error {
 pub fn decode_lossy(
   self : Decoder,
   input : @bytes.View,
-  stream~ : Bool = false,
+  stream? : Bool = false,
 ) -> String {
   if input.length() > 0 {
     self.i_cont(input)
@@ -295,7 +296,7 @@ pub fn Decoder::decode_lossy_to(
   self : Decoder,
   input : @bytes.View,
   output : StringBuilder,
-  stream~ : Bool = false,
+  stream? : Bool = false,
 ) -> Unit {
   if input.length() > 0 {
     self.i_cont(input)

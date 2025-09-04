@@ -170,7 +170,8 @@ test "chachaBlockLoop" {
   )
 }
 
-///| - chacha8: round = 4
+///|
+/// - chacha8: round = 4
 /// - chacha12: round = 6
 /// - chacha20: round = 10
 fn chachaBlock(
@@ -268,7 +269,8 @@ test "stateToBytes" {
   )
 }
 
-///| Encrypts a block of data using the ChaCha8 algorithm.
+///|
+/// Encrypts a block of data using the ChaCha8 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -279,7 +281,7 @@ pub fn[Data : ByteSource] chacha8(
   key : FixedArray[UInt],
   counter : UInt,
   block : Data,
-  nonce~ : UInt = 0,
+  nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -287,7 +289,8 @@ pub fn[Data : ByteSource] chacha8(
   chacha(key.map(flipWord), counter, block, 4, [nonce, nonce, nonce])
 }
 
-///| Encrypts a block of data using the ChaCha12 algorithm.
+///|
+/// Encrypts a block of data using the ChaCha12 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -298,7 +301,7 @@ pub fn[Data : ByteSource] chacha12(
   key : FixedArray[UInt],
   counter : UInt,
   block : Data,
-  nonce~ : UInt = 0,
+  nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -306,7 +309,8 @@ pub fn[Data : ByteSource] chacha12(
   chacha(key.map(flipWord), counter, block, 6, [nonce, nonce, nonce])
 }
 
-///| Encrypts a block of data using the ChaCha20 algorithm.
+///|
+/// Encrypts a block of data using the ChaCha20 algorithm.
 /// - [key] must be 8 32-bit unsigned integers.
 /// - [counter] is the counter value.
 /// - [block] is the block of data to be encrypted.
@@ -317,7 +321,7 @@ pub fn[Data : ByteSource] chacha20(
   key : FixedArray[UInt],
   counter : UInt,
   block : Data,
-  nonce~ : UInt = 0,
+  nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
   if key.length() != 8 {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -403,7 +407,8 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
   }
 }
 
-///| Creates a ChaCha8 encryption context following the RFC 8439 standard.
+///|
+/// Creates a ChaCha8 encryption context following the RFC 8439 standard.
 /// - [key] must be 256-bit (32 bytes), in little-endian order.
 /// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
 /// - [counter] is the counter value, defaulting to 0.
@@ -412,12 +417,13 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(
   key : K,
   nonce : N,
-  counter~ : UInt = 0,
+  counter? : UInt = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 4, counter)
 }
 
-///| Creates a ChaCha12 encryption context following the RFC 8439 standard.
+///|
+/// Creates a ChaCha12 encryption context following the RFC 8439 standard.
 /// - [key] must be 256-bit (32 bytes), in little-endian order.
 /// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
 /// - [counter] is the counter value, defaulting to 0.
@@ -426,12 +432,13 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(
   key : K,
   nonce : N,
-  counter~ : UInt = 0,
+  counter? : UInt = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 6, counter)
 }
 
-///| Creates a ChaCha20 encryption context following the RFC 8439 standard.
+///|
+/// Creates a ChaCha20 encryption context following the RFC 8439 standard.
 /// - [key] must be 256-bit (32 bytes), in little-endian order.
 /// - [nonce] must be a 96-bit (12 bytes) bytes, in little-endian order.
 /// - [counter] is the counter value, defaulting to 0.
@@ -440,7 +447,7 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha20(
   key : K,
   nonce : N,
-  counter~ : UInt = 0,
+  counter? : UInt = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 10, counter)
 }
@@ -456,7 +463,7 @@ pub fn[D : ByteSource] ChaCha::transform(
   self : Self,
   data : D,
   target : FixedArray[Byte],
-  offset~ : Int = 0,
+  offset? : Int = 0,
 ) -> Unit {
   for i in 0..<data.length() {
     if self.offset == 64 {

@@ -801,7 +801,8 @@ test "decode_lossy_to/empty" {
   inspect(acc.to_string(), content="")
 }
 
-///| https://learn.microsoft.com/en-us/windows/win32/intl/surrogates-and-supplementary-characters
+///|
+/// https://learn.microsoft.com/en-us/windows/win32/intl/surrogates-and-supplementary-characters
 /// > The first (high) surrogate is a 16-bit code value in the range U+D800 to U+DBFF.
 /// > The second (low) surrogate is a 16-bit code value in the range U+DC00 to U+DFFF.
 test "Not all UTF16LE is format-legal UTF16BE and vice versa" {

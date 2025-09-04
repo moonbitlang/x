@@ -15,7 +15,7 @@
 ///|
 #deprecated("Use moon bench instead")
 #coverage.skip
-pub fn Task::new(name : String, f : () -> Unit, count~ : Int = 10) -> Task {
+pub fn Task::new(name : String, f : () -> Unit, count? : Int = 10) -> Task {
   { name, f, count }
 }
 

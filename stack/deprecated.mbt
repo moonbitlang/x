@@ -15,35 +15,37 @@
 ///|
 #deprecated("use `@stack.from_iter(list.iter())` instead")
 #coverage.skip
-pub fn[T] Stack::from_list(list : @immut/list.T[T]) -> Stack[T] {
+pub fn[T] Stack::from_list(list : @list.List[T]) -> Stack[T] {
   { elements: @list.from_iter(list.iter()), len: list.length() }
 }
 
-///| Push a list into the stack.
+///|
+/// Push a list into the stack.
 /// 
 /// # Example
 ///
 /// ```
 ///   let s = @stack.new()
-///   @immut/list.of([1, 2, 3]).each(s.push(_))
+///   @list.of([1, 2, 3]).each(s.push(_))
 ///   assert_eq(s.length(), 3)
 /// ```
 #deprecated("use `list.each(stack.push(_)` instead")
 #coverage.skip
-pub fn[T] push_list(self : Stack[T], list : @immut/list.T[T]) -> Unit {
+pub fn[T] push_list(self : Stack[T], list : @list.List[T]) -> Unit {
   list.each(fn(i) { self.push(i) })
 }
 
-///| Convert stack to list.
+///|
+/// Convert stack to list.
 ///
 /// # Example
 ///
 /// ```
-///   assert_eq(@stack.of([1, 2, 3]).to_list(), @immut/list.of([1, 2, 3]))
+///   assert_eq(@stack.of([1, 2, 3]).iter() |> @list.from_iter(), @list.of([1, 2, 3]))
 /// ```
-#deprecated("Use `stack.iter() |> @immut/list.from_iter()` instead")
-pub fn[T] to_list(self : Stack[T]) -> @immut/list.T[T] {
-  self.elements.iter() |> @immut/list.from_iter()
+#deprecated("Use `stack.iter() |> @list.from_iter()` instead")
+pub fn[T] to_list(self : Stack[T]) -> @list.List[T] {
+  self.elements.iter() |> @list.from_iter()
 }
 
 ///|
