@@ -34,20 +34,32 @@ pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
 }
 
 ///|
-fn uint_to_hex_string(input : UInt) -> String {
-  let ret = FixedArray::make(8, "0")
-  let mut mut_input = input
-  for cnt = 7; cnt >= 0; cnt = cnt - 1 {
-    ret[cnt] = hex_digits[(mut_input & 0xf).reinterpret_as_int()]
-    mut_input = mut_input >> 4
+const HEX_DIGITS = "0123456789abcdef"
+
+///|
+/// convert a sequence of `UInt` to hex representation
+pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
+  let buffer = StringBuilder::new()
+  let rems : FixedArray[Int] = FixedArray::make(8, 0)
+  for x in input {
+    let mut value = x
+    for i in 0..<8 {
+      let rem = value & 0x0f
+      let quot = value >> 4
+      value = quot
+      rems[8 - i - 1] = rem.reinterpret_as_int()
+    }
+    for xdigit in rems {
+      buffer.write_char(HEX_DIGITS[xdigit] |> Int::unsafe_to_char)
+    }
   }
-  ret.fold(String::op_add, init="")
+  buffer.to_string()
 }
 
 ///|
-/// print a sequence of uint in hex representation
-pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
-  input.map(uint_to_hex_string).fold(String::op_add, init="")
+test "uints_to_hex_string" {
+  let xs : Array[UInt] = [0x12345678, 0xabcdcdab]
+  inspect(uints_to_hex_string(xs.iter()), content="12345678abcdcdab")
 }
 
 ///|
