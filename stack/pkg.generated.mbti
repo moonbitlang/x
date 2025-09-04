@@ -2,7 +2,7 @@
 package "moonbitlang/x/stack"
 
 import(
-  "moonbitlang/core/immut/list"
+  "moonbitlang/core/list"
 )
 
 // Values
@@ -20,7 +20,7 @@ fn[T, U] Stack::fold(Self[T], init~ : U, (U, T) -> U) -> U
 fn[T] Stack::from_array(Array[T]) -> Self[T]
 fn[T] Stack::from_iter(Iter[T]) -> Self[T]
 #deprecated
-fn[T] Stack::from_list(@list.T[T]) -> Self[T]
+fn[T] Stack::from_list(@list.List[T]) -> Self[T]
 fn[T] Stack::from_stack(Self[T]) -> Self[T]
 fn[T] Stack::is_empty(Self[T]) -> Bool
 fn[T] Stack::iter(Self[T]) -> Iter[T]
@@ -37,12 +37,12 @@ fn[T] Stack::pop(Self[T]) -> T?
 fn[T] Stack::push(Self[T], T) -> Unit
 fn[T] Stack::push_array(Self[T], Array[T]) -> Unit
 #deprecated
-fn[T] Stack::push_list(Self[T], @list.T[T]) -> Unit
+fn[T] Stack::push_list(Self[T], @list.List[T]) -> Unit
 fn[T] Stack::push_stack(Self[T], Self[T]) -> Unit
 fn[T] Stack::return_with_clear(Self[T]) -> Self[T]
 fn[T] Stack::to_array(Self[T]) -> Array[T]
 #deprecated
-fn[T] Stack::to_list(Self[T]) -> @list.T[T]
+fn[T] Stack::to_list(Self[T]) -> @list.List[T]
 fn[T] Stack::unsafe_peek(Self[T]) -> T
 fn[T] Stack::unsafe_pop(Self[T]) -> T
 impl[T : Default] Default for Stack[T]
