@@ -7,17 +7,19 @@ import(
 )
 
 // Values
-fn decode(@string.View, url_safe? : Bool) -> @bytes.View raise DecodeError
+fn decode(@string.View, url_safe? : Bool) -> Bytes raise DecodeError
 
 fn encode(@bytes.View, url_safe? : Bool) -> String
 
 // Errors
-type DecodeError
+pub suberror DecodeError {
+  InvalidChar(Char)
+}
 impl Show for DecodeError
 
 // Types and methods
 type Decoder
-fn Decoder::decode_to(Self, @string.View, FixedArray[Byte], offset? : Int, url_safe? : Bool) -> Int raise DecodeError
+fn Decoder::decode_to(Self, @string.View, (Byte) -> Unit, url_safe? : Bool) -> Unit raise DecodeError
 fn Decoder::new() -> Self
 
 type Encoder
