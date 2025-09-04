@@ -39,7 +39,7 @@ fn char_to_index(char : Char, url_safe : Bool) -> Int raise DecodeError {
     '+' if !url_safe => 62
     '_' if url_safe => 63
     '/' if !url_safe => 63
-    _ => raise InvalidLastSymbol(char)
+    _ => raise InvalidChar(char)
   }
 }
 
@@ -55,6 +55,7 @@ pub fn Encoder::new() -> Encoder {
 }
 
 ///|
+#locals(cb)
 pub fn Encoder::encode_to(
   self : Encoder,
   bytes : @bytes.View,
@@ -128,14 +129,13 @@ pub fn Decoder::new() -> Decoder {
 }
 
 ///|
+#locals(cb)
 pub fn Decoder::decode_to(
   self : Decoder,
   input : @string.View,
-  output : FixedArray[Byte],
-  offset? : Int = 0,
+  cb : (Byte) -> Unit,
   url_safe? : Bool = false,
-) -> Int raise DecodeError {
-  let mut offset = offset
+) -> Unit raise DecodeError {
   for ch in input {
     match self.i % 4 {
       0 => {
@@ -144,43 +144,47 @@ pub fn Decoder::decode_to(
       }
       1 => {
         let idx = char_to_index(ch, url_safe)
-        output[offset] = (self.buffer | (idx >> 4)).to_byte()
-        offset += 1
+        cb((self.buffer | (idx >> 4)).to_byte())
         self.buffer = (idx & 0b1111) << 4
         self.i = 2
       }
       2 if ch != '=' => {
         let idx = char_to_index(ch, url_safe)
-        output[offset] = (self.buffer | (idx >> 2)).to_byte()
-        offset += 1
+        cb((self.buffer | (idx >> 2)).to_byte())
         self.buffer = (idx & 0b11) << 6
         self.i = 3
       }
       3 if ch != '=' => {
         let idx = char_to_index(ch, url_safe)
-        output[offset] = (self.buffer | idx).to_byte()
-        offset += 1
+        cb((self.buffer | idx).to_byte())
         self.buffer = 0
         self.i = 0
       }
       _ => break
     }
   }
-  offset
 }
 
 ///|
 pub fn decode(
   input : @string.View,
   url_safe? : Bool = false,
-) -> @bytes.View raise DecodeError {
+) -> Bytes raise DecodeError {
   let decoder = Decoder::new()
   let output = FixedArray::make(input.length() * 3 / 4, b'\x00')
-  let len = decoder.decode_to(input, output, url_safe~)
-  output.unsafe_reinterpret_as_bytes()[:len]
+  let mut i = 0
+  decoder.decode_to(
+    input,
+    fn(byte) {
+      output[i] = byte
+      i += 1
+    },
+    url_safe~,
+  )
+  Bytes::from_fixedarray(output, len=i)
 }
 
 ///|
-suberror DecodeError {
-  InvalidLastSymbol(Char)
+pub suberror DecodeError {
+  InvalidChar(Char)
 } derive(Show)
