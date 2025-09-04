@@ -59,8 +59,8 @@ pub fn Base64Encoder::encode_to(
   self : Base64Encoder,
   bytes : @bytes.View,
   cb : (Char) -> Unit,
-  url_safe~ : Bool = false,
-  padding~ : Bool = false,
+  url_safe? : Bool = false,
+  padding? : Bool = false,
 ) -> Unit {
   for byte in bytes {
     let byte = byte.to_int()
@@ -102,8 +102,9 @@ pub fn Base64Encoder::encode_to(
   }
 }
 
-///| Encode binary to ascii text following Base64 defined in RFC 4648
-pub fn base64_encode(bytes : @bytes.View, url_safe~ : Bool = false) -> String {
+///|
+/// Encode binary to ascii text following Base64 defined in RFC 4648
+pub fn base64_encode(bytes : @bytes.View, url_safe? : Bool = false) -> String {
   let builder = StringBuilder::new()
   let encoder = Base64Encoder::new()
   encoder.encode_to(
@@ -131,8 +132,8 @@ pub fn Base64Decoder::decode_to(
   self : Base64Decoder,
   input : @string.View,
   output : FixedArray[Byte],
-  offset~ : Int = 0,
-  url_safe~ : Bool = false,
+  offset? : Int = 0,
+  url_safe? : Bool = false,
 ) -> Int raise DecodeError {
   let mut offset = offset
   for ch in input {
@@ -171,7 +172,7 @@ pub fn Base64Decoder::decode_to(
 ///|
 pub fn base64_decode(
   input : @string.View,
-  url_safe~ : Bool = false,
+  url_safe? : Bool = false,
 ) -> @bytes.View raise DecodeError {
   let decoder = Base64Decoder::new()
   let output = FixedArray::make(input.length() * 3 / 4, b'\x00')
