@@ -34,7 +34,7 @@ test "read_dir" {
   inspect(
     files,
     content=(
-      #|["fs.mbt", "fs.mbti", "fs_js.mbt", "test_1.txt", "test_2.txt", "fs_native.c", "fs_wasm.mbt", "fs_native.mbt", "moon.pkg.json", "blackbox_test.mbt"]
+      #|["fs.mbt", "fs_js.mbt", "test_1.txt", "test_2.txt", "fs_native.c", "fs_wasm.mbt", "fs_native.mbt", "moon.pkg.json", "blackbox_test.mbt", "pkg.generated.mbti"]
     ),
   )
 }
