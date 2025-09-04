@@ -58,5 +58,5 @@ test "base64 decode" {
 
 ///|
 test "base64 decode with errors" {
-  inspect(try? decode("中文"), content="Err(InvalidLastSymbol('中'))")
+  inspect(try? decode("中文"), content="Err(InvalidChar('中'))")
 }
