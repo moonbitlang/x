@@ -11,21 +11,13 @@ package "moonbitlang/x/num"
 
 // Traits
 pub trait Num {
-  #deprecated
   from_int(Int) -> Self
-  #deprecated
   op_add(Self, Self) -> Self
-  #deprecated
   op_sub(Self, Self) -> Self
-  #deprecated
   op_mul(Self, Self) -> Self
-  #deprecated
   op_div(Self, Self) -> Self
-  #deprecated
   op_neg(Self) -> Self
-  #deprecated
   abs(Self) -> Self
-  #deprecated
   signum(Self) -> Self
 }
 

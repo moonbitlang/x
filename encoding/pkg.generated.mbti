@@ -15,7 +15,7 @@ fn decoder(Encoding) -> Decoder
 
 fn encode(Encoding, String) -> Bytes
 
-fn encode_to(String, @buffer.T, encoding~ : Encoding) -> Unit
+fn encode_to(String, @buffer.Buffer, encoding~ : Encoding) -> Unit
 
 fn to_utf16_bytes(Char) -> Bytes
 
@@ -25,13 +25,13 @@ fn to_utf16le_bytes(Char) -> Bytes
 
 fn to_utf8_bytes(Char) -> Bytes
 
-fn write_utf16_char(@buffer.T, Char) -> Unit
+fn write_utf16_char(@buffer.Buffer, Char) -> Unit
 
-fn write_utf16be_char(@buffer.T, Char) -> Unit
+fn write_utf16be_char(@buffer.Buffer, Char) -> Unit
 
-fn write_utf16le_char(@buffer.T, Char) -> Unit
+fn write_utf16le_char(@buffer.Buffer, Char) -> Unit
 
-fn write_utf8_char(@buffer.T, Char) -> Unit
+fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 
 // Errors
 pub suberror MalformedError Bytes
