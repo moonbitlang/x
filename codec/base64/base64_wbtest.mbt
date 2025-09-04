@@ -30,42 +30,33 @@ impl Show for CustomBytes with output(self, logger) {
 
 ///|
 test "base64 encode" {
-  inspect(base64_encode(b"light w"), content="bGlnaHQgdw==")
-  inspect(base64_encode(b"light wo"), content="bGlnaHQgd28=")
-  inspect(base64_encode(b"light wor"), content="bGlnaHQgd29y")
-  inspect(base64_encode(b"light work"), content="bGlnaHQgd29yaw==")
-  inspect(base64_encode(b"light work."), content="bGlnaHQgd29yay4=")
-  inspect(
-    base64_encode(b"a Ā 𐀀 文 🦄"),
-    content="YSDEgCDwkICAIOaWhyDwn6aE",
-  )
+  inspect(encode(b"light w"), content="bGlnaHQgdw==")
+  inspect(encode(b"light wo"), content="bGlnaHQgd28=")
+  inspect(encode(b"light wor"), content="bGlnaHQgd29y")
+  inspect(encode(b"light work"), content="bGlnaHQgd29yaw==")
+  inspect(encode(b"light work."), content="bGlnaHQgd29yay4=")
+  inspect(encode(b"a Ā 𐀀 文 🦄"), content="YSDEgCDwkICAIOaWhyDwn6aE")
 }
 
 ///|
 test "base64 decode" {
-  inspect(base64_decode("bGlnaHQgdw==") |> CustomBytes(_), content="light w")
+  inspect(decode("bGlnaHQgdw==") |> CustomBytes(_), content="light w")
   inspect(
-    base64_decode("bGlnaHQgd28="),
+    decode("bGlnaHQgd28="),
     content=(
       #|b"\x6c\x69\x67\x68\x74\x20\x77\x6f"
     ),
   )
-  inspect(base64_decode("bGlnaHQgd29y") |> CustomBytes(_), content="light wor")
+  inspect(decode("bGlnaHQgd29y") |> CustomBytes(_), content="light wor")
+  inspect(decode("bGlnaHQgd29yaw==") |> CustomBytes(_), content="light work")
+  inspect(decode("bGlnaHQgd29yay4=") |> CustomBytes(_), content="light work.")
   inspect(
-    base64_decode("bGlnaHQgd29yaw==") |> CustomBytes(_),
-    content="light work",
-  )
-  inspect(
-    base64_decode("bGlnaHQgd29yay4=") |> CustomBytes(_),
-    content="light work.",
-  )
-  inspect(
-    base64_decode("YSDEgCDwkICAIOaWhyDwn6aE") |> CustomBytes(_),
+    decode("YSDEgCDwkICAIOaWhyDwn6aE") |> CustomBytes(_),
     content="a \\xc4\\x80 \\xf0\\x90\\x80\\x80 \\xe6\\x96\\x87 \\xf0\\x9f\\xa6\\x84",
   )
 }
 
 ///|
 test "base64 decode with errors" {
-  inspect(try? base64_decode("中文"), content="Err(InvalidLastSymbol('中'))")
+  inspect(try? decode("中文"), content="Err(InvalidLastSymbol('中'))")
 }
