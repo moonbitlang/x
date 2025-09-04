@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.4.33]
+
+### Fixed
+
+- Updated MoonBit toolchain support to 0.6.26, updated info file (#180)
+
 ### Changed
 
 - Deprecated `bench` package. It is suggested to use the
