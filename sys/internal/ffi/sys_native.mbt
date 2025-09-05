@@ -50,6 +50,7 @@ pub fn set_env_var(key : String, value : String) -> Unit {
 }
 
 ///|
+#borrow(_key, _value)
 extern "C" fn set_env_var_ffi(_key : Bytes, _value : Bytes) -> Unit = "set_env_var"
 
 ///|
@@ -58,6 +59,7 @@ pub fn unset_env_var(key : String) -> Unit {
 }
 
 ///|
+#borrow(_key)
 extern "C" fn unset_env_var_ffi(_key : Bytes) -> Unit = "unset_env_var"
 
 ///|
