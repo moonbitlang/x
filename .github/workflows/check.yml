@@ -73,7 +73,7 @@ jobs:
           moon fmt
           git diff --exit-code
 
-  bleeding-build:
+  nightly-build:
     strategy:
       fail-fast: false
       matrix:
@@ -92,12 +92,12 @@ jobs:
       - name: install
         if: ${{ matrix.os.name != 'windows-latest' }}
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s nightly
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
         env:
-          MOONBIT_INSTALL_VERSION: bleeding
+          MOONBIT_INSTALL_VERSION: nightly
         if: ${{ matrix.os.name == 'windows-latest' }}
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
@@ -139,7 +139,7 @@ jobs:
           moon fmt
           git diff --exit-code
 
-  coverage-check-bleeding:
+  coverage-check-nightly:
     runs-on: macos-latest
     continue-on-error: true
     steps:
@@ -147,7 +147,7 @@ jobs:
 
       - name: install
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s nightly
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: moon test
