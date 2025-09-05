@@ -15,13 +15,11 @@ jobs:
           - name: ubuntu-latest
             path: ubuntu_x86_64_moon_setup
           - name: macos-latest
-            path: mac_intel_moon_setup
-          - name: macos-14
             path: mac_m1_moon_setup
           - name: windows-latest
 
     runs-on: ${{ matrix.os.name }}
-    continue-on-error: ${{ matrix.os.name == 'macos-14' }}
+    continue-on-error: ${{ matrix.os.name == 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -83,13 +81,11 @@ jobs:
           - name: ubuntu-latest
             path: ubuntu_x86_64_moon_setup
           - name: macos-latest
-            path: mac_intel_moon_setup
-          - name: macos-14
             path: mac_m1_moon_setup
           - name: windows-latest
 
     runs-on: ${{ matrix.os.name }}
-    continue-on-error: ${{ matrix.os.name == 'macos-14' }}
+    continue-on-error: ${{ matrix.os.name == 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -144,7 +140,7 @@ jobs:
           git diff --exit-code
 
   coverage-check-bleeding:
-    runs-on: macos-14
+    runs-on: macos-latest
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
