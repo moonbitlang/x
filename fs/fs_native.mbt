@@ -17,12 +17,14 @@
 priv type Handler
 
 ///|
+#borrow(path, mode)
 extern "C" fn fopen_ffi(path : Bytes, mode : Bytes) -> Handler = "moonbitlang_x_fs_fopen_ffi"
 
 ///|
 extern "C" fn is_null(ptr : Handler) -> Int = "moonbitlang_x_fs_is_null"
 
 ///|
+#borrow(ptr)
 extern "C" fn fread_ffi(
   ptr : Bytes,
   size : Int,
@@ -31,6 +33,7 @@ extern "C" fn fread_ffi(
 ) -> Int = "moonbitlang_x_fs_fread_ffi"
 
 ///|
+#borrow(ptr)
 extern "C" fn fwrite_ffi(
   ptr : Bytes,
   size : Int,
@@ -117,6 +120,7 @@ fn write_string_to_file_internal(
 }
 
 ///|
+#borrow(path)
 extern "C" fn stat_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_stat_ffi"
 
 ///|
@@ -125,6 +129,7 @@ fn path_exists_internal(path : String) -> Bool {
 }
 
 ///|
+#borrow(path)
 extern "C" fn read_dir_ffi(path : Bytes) -> Handler = "moonbitlang_x_fs_read_dir_ffi"
 
 ///|
@@ -139,6 +144,7 @@ fn read_dir_internal(path : String) -> Array[String] raise IOError {
 }
 
 ///|
+#borrow(path)
 extern "C" fn create_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_create_dir_ffi"
 
 ///|
@@ -149,6 +155,7 @@ fn create_dir_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
+#borrow(path)
 extern "C" fn is_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_is_dir_ffi"
 
 ///|
@@ -159,6 +166,7 @@ fn is_dir_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
+#borrow(path)
 extern "C" fn is_file_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_is_file_ffi"
 
 ///|
@@ -169,6 +177,7 @@ fn is_file_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
+#borrow(path)
 extern "C" fn remove_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_remove_dir_ffi"
 
 ///|
@@ -179,6 +188,7 @@ fn remove_dir_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
+#borrow(path)
 extern "C" fn remove_file_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_remove_file_ffi"
 
 ///|
