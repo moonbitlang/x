@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.4.34]
+
+### Fixed
+
+- Updated MoonBit toolchain support to 0.6.26, updated C FFI annotations (#181)
+- Improved performance on `@crypto.uint_to_hex_string` (#179)
+
 ## [0.4.33]
 
 ### Fixed
