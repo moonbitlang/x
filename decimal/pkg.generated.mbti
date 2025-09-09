@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/decimal"
+
+import(
+  "moonbitlang/core/bigint"
+  "moonbitlang/core/json"
+)
+
+// Values
+let max_scale : Int
+
+fn neg_one() -> Decimal
+
+fn one() -> Decimal
+
+fn zero() -> Decimal
+
+// Errors
+
+// Types and methods
+pub struct Decimal {
+  coefficient : @bigint.BigInt
+  scale : Int
+}
+fn Decimal::abs(Self) -> Self
+fn Decimal::coefficient(Self) -> @bigint.BigInt
+fn Decimal::from_bigint(@bigint.BigInt) -> Self
+fn Decimal::from_double(Double, Int) -> Self?
+fn Decimal::from_int(Int) -> Self
+fn Decimal::from_string(String) -> Self?
+fn Decimal::is_negative(Self) -> Bool
+fn Decimal::is_positive(Self) -> Bool
+fn Decimal::is_zero(Self) -> Bool
+fn Decimal::neg(Self) -> Self
+fn Decimal::new(@bigint.BigInt, Int) -> Self?
+fn Decimal::round(Self, Int) -> Self?
+fn Decimal::scale(Self) -> Int
+fn Decimal::scale_to(Self, Int) -> Self?
+fn Decimal::signum(Self) -> Int
+fn Decimal::to_bigint(Self) -> @bigint.BigInt
+fn Decimal::to_double(Self) -> Double
+fn Decimal::to_int(Self) -> Int?
+fn Decimal::to_string(Self) -> String
+fn Decimal::truncate(Self, Int) -> Self?
+impl Add for Decimal
+impl Compare for Decimal
+impl Default for Decimal
+impl Div for Decimal
+impl Eq for Decimal
+impl Hash for Decimal
+impl Mul for Decimal
+impl Neg for Decimal
+impl Show for Decimal
+impl Sub for Decimal
+impl ToJson for Decimal
+impl @json.FromJson for Decimal
+impl @moonbitlang/core/quickcheck.Arbitrary for Decimal
+
+// Type aliases
+
+// Traits
+
