@@ -31,7 +31,6 @@ fn Decimal::from_string(String) -> Self?
 fn Decimal::is_negative(Self) -> Bool
 fn Decimal::is_positive(Self) -> Bool
 fn Decimal::is_zero(Self) -> Bool
-fn Decimal::neg(Self) -> Self
 fn Decimal::new(@bigint.BigInt, Int) -> Self?
 fn Decimal::round(Self, Int) -> Self?
 fn Decimal::scale(Self) -> Int
