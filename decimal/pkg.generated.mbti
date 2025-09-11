@@ -4,6 +4,8 @@ package "moonbitlang/x/decimal"
 import(
   "moonbitlang/core/bigint"
   "moonbitlang/core/json"
+  "moonbitlang/core/quickcheck"
+  "moonbitlang/core/quickcheck/splitmix"
 )
 
 // Values
@@ -23,23 +25,48 @@ pub struct Decimal {
   scale : Int
 }
 fn Decimal::abs(Self) -> Self
+fn Decimal::add(Self, Self) -> Self // from trait `Add`
+fn Decimal::arbitrary(Int, @splitmix.RandomState) -> Self // from trait `@quickcheck.Arbitrary`
 fn Decimal::coefficient(Self) -> @bigint.BigInt
+fn Decimal::compare(Self, Self) -> Int // from trait `Compare`
+fn Decimal::default() -> Self // from trait `Default`
+fn Decimal::div(Self, Self) -> Self // from trait `Div`
+fn Decimal::equal(Self, Self) -> Bool // from trait `Eq`
 fn Decimal::from_bigint(@bigint.BigInt) -> Self
 fn Decimal::from_double(Double, Int) -> Self?
 fn Decimal::from_int(Int) -> Self
+fn Decimal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError // from trait `@json.FromJson`
 fn Decimal::from_string(String) -> Self?
+fn Decimal::hash(Self) -> Int // from trait `Hash`
+fn Decimal::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Decimal::is_negative(Self) -> Bool
 fn Decimal::is_positive(Self) -> Bool
 fn Decimal::is_zero(Self) -> Bool
-fn Decimal::neg(Self) -> Self
+fn Decimal::mul(Self, Self) -> Self // from trait `Mul`
+fn Decimal::neg(Self) -> Self // from trait `Neg`
 fn Decimal::new(@bigint.BigInt, Int) -> Self?
+#deprecated
+fn Decimal::op_add(Self, Self) -> Self // from trait `Add`
+#deprecated
+fn Decimal::op_div(Self, Self) -> Self // from trait `Div`
+#deprecated
+fn Decimal::op_equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn Decimal::op_mul(Self, Self) -> Self // from trait `Mul`
+#deprecated
+fn Decimal::op_neg(Self) -> Self // from trait `Neg`
+#deprecated
+fn Decimal::op_sub(Self, Self) -> Self // from trait `Sub`
+fn Decimal::output(Self, &Logger) -> Unit // from trait `Show`
 fn Decimal::round(Self, Int) -> Self?
 fn Decimal::scale(Self) -> Int
 fn Decimal::scale_to(Self, Int) -> Self?
 fn Decimal::signum(Self) -> Int
+fn Decimal::sub(Self, Self) -> Self // from trait `Sub`
 fn Decimal::to_bigint(Self) -> @bigint.BigInt
 fn Decimal::to_double(Self) -> Double
 fn Decimal::to_int(Self) -> Int?
+fn Decimal::to_json(Self) -> Json // from trait `ToJson`
 fn Decimal::to_string(Self) -> String
 fn Decimal::truncate(Self, Int) -> Self?
 impl Add for Decimal
@@ -54,7 +81,7 @@ impl Show for Decimal
 impl Sub for Decimal
 impl ToJson for Decimal
 impl @json.FromJson for Decimal
-impl @moonbitlang/core/quickcheck.Arbitrary for Decimal
+impl @quickcheck.Arbitrary for Decimal
 
 // Type aliases
 
