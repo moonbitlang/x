@@ -470,12 +470,6 @@ pub fn abs(self : Decimal) -> Decimal {
 }
 
 ///|
-/// Returns the negation of the decimal.
-pub fn neg(self : Decimal) -> Decimal {
-  { coefficient: -self.coefficient, scale: self.scale }
-}
-
-///|
 /// Returns the coefficient (significant digits) of the decimal.
 pub fn coefficient(self : Decimal) -> @bigint.BigInt {
   self.coefficient
@@ -716,7 +710,7 @@ pub impl Div for Decimal with div(self : Decimal, other : Decimal) -> Decimal {
 ///|
 /// Returns the negation of the decimal.
 pub impl Neg for Decimal with neg(self : Decimal) -> Decimal {
-  self.neg()
+  { coefficient: -self.coefficient, scale: self.scale }
 }
 
 ///|
