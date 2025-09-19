@@ -71,7 +71,7 @@ test "decimal_creation" {
 
 ///|
 test "decimal_string_conversion" {
-  // Test to_string
+  // Test to_string with various formats
   let d1 = match @decimal.Decimal::from_string("123.45") {
     Some(d) => d
     None => fail("Failed to parse")
@@ -87,38 +87,23 @@ test "decimal_string_conversion" {
     None => fail("Failed to parse")
   }
   inspect(d3.to_string(), content="-42")
-  let d4 = match @decimal.Decimal::from_string("0") {
+  let d4 = match @decimal.Decimal::from_string("1000.0") {
     Some(d) => d
     None => fail("Failed to parse")
   }
-  inspect(d4.to_string(), content="0")
-  let d5 = match @decimal.Decimal::from_string("1000.0") {
-    Some(d) => d
-    None => fail("Failed to parse")
-  }
-  inspect(d5.to_string(), content="1000")
-  let d6 = match @decimal.Decimal::from_string("0.0001") {
-    Some(d) => d
-    None => fail("Failed to parse")
-  }
-  inspect(d6.to_string(), content="0.0001")
+  inspect(d4.to_string(), content="1000")
 
-  // Test edge cases
-  let d7 = match @decimal.Decimal::new(12345N, 2) {
+  // Test edge cases with manual construction
+  let d5 = match @decimal.Decimal::new(12345N, 2) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to construct")
   }
-  inspect(d7.to_string(), content="123.45")
-  let d8 = match @decimal.Decimal::new(1N, 3) {
+  inspect(d5.to_string(), content="123.45")
+  let d6 = match @decimal.Decimal::new(-1N, 3) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to construct")
   }
-  inspect(d8.to_string(), content="0.001")
-  let d9 = match @decimal.Decimal::new(-1N, 3) {
-    Some(d) => d
-    None => fail("Failed to parse")
-  }
-  inspect(d9.to_string(), content="-0.001")
+  inspect(d6.to_string(), content="-0.001")
 }
 
 ///|
@@ -202,47 +187,47 @@ test "decimal_comparison" {
 }
 
 ///|
-test "decimal_rounding" {
+test "decimal_rounding_and_scaling" {
   let d = match @decimal.Decimal::from_string("3.14159") {
     Some(d) => d
     None => fail("Failed to parse")
   }
 
-  // Test round
+  // Test round (standard rounding)
   let rounded = match d.round(2) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to round")
   }
   inspect(rounded.to_string(), content="3.14")
-  let rounded2 = match d.round(3) {
+  let rounded3 = match d.round(3) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to round")
   }
-  inspect(rounded2.to_string(), content="3.142")
+  inspect(rounded3.to_string(), content="3.142")
 
-  // Test truncate
+  // Test truncate (always truncates)
   let truncated = match d.truncate(2) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to truncate")
   }
   inspect(truncated.to_string(), content="3.14")
-  let truncated2 = match d.truncate(3) {
+  let truncated3 = match d.truncate(3) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to truncate")
   }
-  inspect(truncated2.to_string(), content="3.141")
+  inspect(truncated3.to_string(), content="3.141")
 
-  // Test scale_to
-  let scaled = match d.scale_to(4) {
+  // Test scale_to (adds zeros or truncates)
+  let scaled_up = match d.scale_to(6) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to scale")
   }
-  inspect(scaled.to_string(), content="3.1415")
-  let scaled2 = match d.scale_to(6) {
+  inspect(scaled_up.to_string(), content="3.141590")
+  let scaled_down = match d.scale_to(2) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to scale")
   }
-  inspect(scaled2.to_string(), content="3.141590")
+  inspect(scaled_down.to_string(), content="3.14")
 }
 
 ///|
@@ -385,19 +370,102 @@ test "decimal_financial_example" {
 }
 
 ///|
-test "decimal_precision_limits" {
-  // Test max_scale
-  let max_scale_str = "0." + "1".repeat(@decimal.max_scale)
-  let max_scale_decimal = match @decimal.Decimal::from_string(max_scale_str) {
+test "decimal_divide_api_rounding" {
+  // 1 / 3 with 4 decimal places
+  let one = @decimal.Decimal::from_int(1)
+  let three = @decimal.Decimal::from_int(3)
+  let q1 = match one.divide(three, 4, HalfUp) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(q1.to_string(), content="0.3333")
+
+  // 1 / 2 with 0 decimal places: HalfUp -> 1, HalfEven -> 0
+  let two = @decimal.Decimal::from_int(2)
+  let half_up = match one.divide(two, 0, HalfUp) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(half_up.to_string(), content="1")
+  let half_even = match one.divide(two, 0, HalfEven) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(half_even.to_string(), content="0")
+
+  // 1 / 8 at 2 decimals: 0.125 -> HalfUp 0.13, HalfEven 0.12
+  let eight = @decimal.Decimal::from_int(8)
+  let up_case = match one.divide(eight, 2, HalfUp) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(up_case.to_string(), content="0.13")
+  let even_case = match one.divide(eight, 2, HalfEven) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(even_case.to_string(), content="0.12")
+
+  // RoundingMode::Up vs Down on a positive remainder case (2 / 3 at 2 dp)
+  let two_thirds_up = match @decimal.Decimal::from_int(2).divide(three, 2, Up) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(two_thirds_up.to_string(), content="0.67")
+  let two_thirds_down = match
+    @decimal.Decimal::from_int(2).divide(three, 2, Down) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(two_thirds_down.to_string(), content="0.66")
+
+  // Division by zero returns None
+  let dz = one.divide(@decimal.zero(), 2, HalfUp)
+  inspect(dz, content="None")
+}
+
+///|
+test "decimal_rounding_modes_comprehensive" {
+  let one = @decimal.Decimal::from_int(1)
+  let three = @decimal.Decimal::from_int(3)
+
+  // Test all rounding modes with divide
+  let div_half_up = match one.divide(three, 4, HalfUp) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(div_half_up.to_string(), content="0.3333")
+  let div_half_even = match one.divide(three, 4, HalfEven) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(div_half_even.to_string(), content="0.3333")
+  let div_down = match one.divide(three, 4, Down) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(div_down.to_string(), content="0.3333")
+  let div_up = match one.divide(three, 4, Up) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(div_up.to_string(), content="0.3334")
+
+  // Test tie-breaking with 0.5
+  let half = match @decimal.Decimal::from_string("0.5") {
     Some(d) => d
     None => fail("Failed to parse")
   }
-  inspect(max_scale_decimal.scale(), content="28")
-
-  // Test exceeding max_scale should fail
-  let too_many_places = "0." + "1".repeat(@decimal.max_scale + 1)
-  let result = @decimal.Decimal::from_string(too_many_places)
-  inspect(result, content="None")
+  let half_up = match half.divide(@decimal.one(), 0, HalfUp) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(half_up.to_string(), content="1")
+  let half_even = match half.divide(@decimal.one(), 0, HalfEven) {
+    Some(d) => d
+    None => fail("divide failed")
+  }
+  inspect(half_even.to_string(), content="0")
 }
 
 ///|
@@ -432,20 +500,11 @@ test "decimal_error_handling" {
   let invalid3 = @decimal.Decimal::from_string("")
   inspect(invalid3, content="None")
 
-  // Test division by zero
-  // let a = match @decimal.Decimal::from_string("10.0") {
-  //   Some(d) => d
-  //   None => fail("Failed to parse")
-  // }
-  // let zero = @decimal.zero()
-  // let div_result = a.div(zero)
-  // inspect(div_result, content="None")
+  // Test division by zero with operator (aborts, so we can't test it directly)
 
-  // Test invalid scale in new
+  // Test invalid scale (negative values are not allowed)
   let invalid_scale1 = @decimal.Decimal::new(123N, -1)
   inspect(invalid_scale1, content="None")
-  let invalid_scale2 = @decimal.Decimal::new(123N, @decimal.max_scale + 1)
-  inspect(invalid_scale2, content="None")
 }
 
 ///|
@@ -453,14 +512,14 @@ test "decimal_normalization" {
   // Test that trailing zeros are removed
   let d1 = match @decimal.Decimal::new(12300N, 3) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to construct")
   }
   inspect(d1.to_string(), content="12.3")
   inspect(d1.coefficient(), content="123")
   inspect(d1.scale(), content="1")
   let d2 = match @decimal.Decimal::new(123000N, 4) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to construct")
   }
   inspect(d2.to_string(), content="12.3")
   inspect(d2.coefficient(), content="123")
@@ -469,9 +528,35 @@ test "decimal_normalization" {
   // Test zero normalization
   let d3 = match @decimal.Decimal::new(0N, 5) {
     Some(d) => d
-    None => fail("Failed to parse")
+    None => fail("Failed to construct")
   }
   inspect(d3.to_string(), content="0")
   inspect(d3.coefficient(), content="0")
   inspect(d3.scale(), content="0")
+}
+
+///|
+test "decimal_edge_cases_boundary" {
+  // Test negative zero (should be normalized to zero)
+  let neg_zero = match @decimal.Decimal::new(-0N, 0) {
+    Some(d) => d
+    None => fail("Failed to construct")
+  }
+  inspect(neg_zero.to_string(), content="0")
+
+  // Test very small positive number
+  let tiny = match
+    @decimal.Decimal::from_string("0.0000000000000000000000000001") {
+    Some(d) => d
+    None => fail("Failed to parse")
+  }
+  inspect(tiny.to_string(), content="0.0000000000000000000000000001")
+
+  // Test large number
+  let large = match
+    @decimal.Decimal::from_string("99999999999999999999999999999.99") {
+    Some(d) => d
+    None => fail("Failed to parse")
+  }
+  inspect(large.to_string(), content="99999999999999999999999999999.99")
 }

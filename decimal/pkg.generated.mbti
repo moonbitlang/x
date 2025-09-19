@@ -7,7 +7,7 @@ import(
 )
 
 // Values
-let max_scale : Int
+const DEFAULT_SCALE : Int = 28
 
 fn neg_one() -> Decimal
 
@@ -24,6 +24,7 @@ pub struct Decimal {
 }
 fn Decimal::abs(Self) -> Self
 fn Decimal::coefficient(Self) -> @bigint.BigInt
+fn Decimal::divide(Self, Self, Int, RoundingMode) -> Self?
 fn Decimal::from_bigint(@bigint.BigInt) -> Self
 fn Decimal::from_double(Double, Int) -> Self?
 fn Decimal::from_int(Int) -> Self
@@ -54,6 +55,13 @@ impl Sub for Decimal
 impl ToJson for Decimal
 impl @json.FromJson for Decimal
 impl @moonbitlang/core/quickcheck.Arbitrary for Decimal
+
+pub(all) enum RoundingMode {
+  HalfUp
+  Down
+  Up
+  HalfEven
+}
 
 // Type aliases
 

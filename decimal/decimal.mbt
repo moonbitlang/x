@@ -20,12 +20,12 @@
 ///
 /// The decimal is represented as a coefficient (BigInt) and a scale (Int):
 /// - coefficient: The significant digits as a BigInt
-/// - scale: The number of decimal places (0 <= scale <= max_scale)
+/// - scale: The number of decimal places (scale >= 0)
 ///
 /// For example: 123.45 is represented as coefficient=12345, scale=2
 ///
 /// Invariants:
-/// - 0 <= scale <= max_scale (default 28)
+/// - scale is non-negative
 /// - coefficient and scale are normalized (no trailing zeros in coefficient)
 /// - Zero is represented as coefficient=0, scale=0
 ///
@@ -49,8 +49,23 @@ pub struct Decimal {
 }
 
 ///|
-/// Maximum number of decimal places (scale) allowed.
-pub let max_scale = 28
+/// Default number of decimal places used by operator-based division.
+/// This provides a consistent precision for the `/` operator and other
+/// operations that require a default scale.
+pub const DEFAULT_SCALE : Int = 28
+
+///|
+/// Rounding strategy for operations that need rounding.
+pub(all) enum RoundingMode {
+  /// Round half away from zero (standard rounding)
+  HalfUp
+  /// Round towards zero (truncate)
+  Down
+  /// Round away from zero
+  Up
+  /// Round to nearest, ties to even (banker's rounding)
+  HalfEven
+}
 
 ///|
 /// Creates a decimal from a coefficient and scale.
@@ -71,7 +86,7 @@ pub let max_scale = 28
 /// ```
 ///
 pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
-  if scale < 0 || scale > max_scale {
+  if scale < 0 {
     None
   } else {
     Some(normalize({ coefficient, scale }))
@@ -83,6 +98,36 @@ pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
 /// Used internally for performance-critical operations.
 fn new_unchecked(coefficient : @bigint.BigInt, scale : Int) -> Decimal {
   { coefficient, scale }
+}
+
+///|
+/// Applies rounding logic based on remainder, divisor, quotient and rounding mode.
+fn apply_rounding(
+  remainder : @bigint.BigInt,
+  divisor : @bigint.BigInt,
+  quotient : @bigint.BigInt,
+  mode : RoundingMode,
+) -> Bool {
+  if remainder.is_zero() {
+    false
+  } else {
+    match mode {
+      RoundingMode::Down => false
+      RoundingMode::Up => true
+      RoundingMode::HalfUp => 2N * remainder >= divisor
+      RoundingMode::HalfEven => {
+        let twice = 2N * remainder
+        if twice > divisor {
+          true
+        } else if twice < divisor {
+          false
+        } else {
+          // tie: increment if quotient is odd
+          quotient % 2N != 0N
+        }
+      }
+    }
+  }
 }
 
 ///|
@@ -173,9 +218,6 @@ fn parse_decimal_string(s : String) -> Decimal? {
 
   // Parse fractional part
   let scale = fractional_part.length()
-  if scale > max_scale {
-    return None
-  }
   let fractional_coefficient = if fractional_part.is_empty() {
     0N
   } else {
@@ -264,7 +306,7 @@ pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
   if d.is_nan() {
     return None
   }
-  if precision < 0 || precision > max_scale {
+  if precision < 0 {
     return None
   }
   let multiplier = Double::pow(10.0, precision.to_double())
@@ -482,11 +524,11 @@ pub fn scale(self : Decimal) -> Int {
 }
 
 ///|
-/// Rounds the decimal to the specified number of decimal places.
+/// Rounds the decimal to the specified number of decimal places using standard rounding.
 ///
 /// Parameters:
 /// * `self` : The decimal to round
-/// * `places` : Number of decimal places (0 <= places <= max_scale)
+/// * `places` : Number of decimal places (places >= 0)
 ///
 /// Returns `Some(decimal)` if places is valid, `None` otherwise.
 ///
@@ -504,11 +546,10 @@ pub fn scale(self : Decimal) -> Int {
 /// ```
 ///
 pub fn round(self : Decimal, places : Int) -> Decimal? {
-  if places < 0 || places > max_scale {
+  if places < 0 {
     return None
   }
   if places >= self.scale {
-    // No rounding needed
     return Some(self)
   }
   let places_to_remove = self.scale - places
@@ -516,13 +557,80 @@ pub fn round(self : Decimal, places : Int) -> Decimal? {
     @bigint.BigInt::from_int(places_to_remove),
   )
   let remainder = self.coefficient % divisor
-  let half_divisor = divisor / 2N
-  let rounded_coeff = if remainder >= half_divisor {
-    self.coefficient / divisor + 1N
-  } else {
-    self.coefficient / divisor
-  }
+  let quotient = self.coefficient / divisor
+  let needs_increment = apply_rounding(remainder, divisor, quotient, HalfUp)
+  let rounded_coeff = if needs_increment { quotient + 1N } else { quotient }
   Decimal::new(rounded_coeff, places)
+}
+
+///|
+/// Divides two decimals with the specified `scale` and `rounding` mode.
+///
+/// Returns `Some(decimal)` on success; `None` if `scale` is invalid or divisor is zero.
+pub fn Decimal::divide(
+  self : Decimal,
+  other : Decimal,
+  scale : Int,
+  rounding : RoundingMode,
+) -> Decimal? {
+  if other.is_zero() {
+    return None
+  }
+  if scale < 0 {
+    return None
+  }
+
+  // Compute exponent adjustment so that the resulting decimal has `scale` fractional digits
+  let exp = scale - self.scale + other.scale
+
+  // Work with positive values for division and rounding; track sign separately
+  let a = if self.coefficient < 0N {
+    -self.coefficient
+  } else {
+    self.coefficient
+  }
+  let b = if other.coefficient < 0N {
+    -other.coefficient
+  } else {
+    other.coefficient
+  }
+  let negative = (self.coefficient < 0N) != (other.coefficient < 0N)
+  let (num, den) = if exp >= 0 {
+    (a * @bigint.BigInt::from_int(10).pow(@bigint.BigInt::from_int(exp)), b)
+  } else {
+    (a, b * @bigint.BigInt::from_int(10).pow(@bigint.BigInt::from_int(-exp)))
+  }
+  let q = num / den
+  let r = num % den
+
+  // Apply rounding based on remainder
+  let needs_increment = if r.is_zero() {
+    false
+  } else {
+    match rounding {
+      RoundingMode::Down => false
+      RoundingMode::Up => true
+      RoundingMode::HalfUp => 2N * r >= den
+      RoundingMode::HalfEven => {
+        let twice = 2N * r
+        if twice > den {
+          true
+        } else if twice < den {
+          false
+        } else {
+          // tie: increment if q is odd
+          q % 2N != 0N
+        }
+      }
+    }
+  }
+  let rounded_q = if needs_increment { q + 1N } else { q }
+  let signed_q = if negative && !rounded_q.is_zero() {
+    -rounded_q
+  } else {
+    rounded_q
+  }
+  Decimal::new(signed_q, scale)
 }
 
 ///|
@@ -548,7 +656,7 @@ pub fn round(self : Decimal, places : Int) -> Decimal? {
 /// ```
 ///
 pub fn truncate(self : Decimal, places : Int) -> Decimal? {
-  if places < 0 || places > max_scale {
+  if places < 0 {
     return None
   }
   if places >= self.scale {
@@ -565,28 +673,29 @@ pub fn truncate(self : Decimal, places : Int) -> Decimal? {
 
 ///|
 /// Scales the decimal to have the specified number of decimal places.
+/// When reducing scale, truncates (does not round).
 ///
 /// Parameters:
 /// * `self` : The decimal to scale
-/// * `new_scale` : New number of decimal places (0 <= new_scale <= max_scale)
+/// * `new_scale` : New number of decimal places (new_scale >= 0)
 ///
 /// Returns `Some(decimal)` if new_scale is valid, `None` otherwise.
 ///
 /// Example:
 /// ```moonbit
-/// let d = match @decimal.Decimal::from_string("123.45") {
+/// let d = match @decimal.Decimal::from_string("123.456") {
 ///   Some(d) => d
 ///   None => fail("Invalid decimal string")
 /// }
-/// let scaled = match d.scale_to(4) {
+/// let scaled = match d.scale_to(2) {
 ///   Some(s) => s
 ///   None => fail("Invalid scaling")
 /// }
-/// inspect(scaled.to_string(), content="123.4500")
+/// inspect(scaled.to_string(), content="123.45")  // truncated, not rounded
 /// ```
 ///
 pub fn scale_to(self : Decimal, new_scale : Int) -> Decimal? {
-  if new_scale < 0 || new_scale > max_scale {
+  if new_scale < 0 {
     return None
   }
   if new_scale == self.scale {
@@ -675,36 +784,16 @@ pub impl Sub for Decimal with sub(self : Decimal, other : Decimal) -> Decimal {
 pub impl Mul for Decimal with mul(self : Decimal, other : Decimal) -> Decimal {
   let new_coeff = self.coefficient * other.coefficient
   let new_scale = self.scale + other.scale
-
-  // Check if scale exceeds maximum
-  if new_scale > max_scale {
-    // Truncate to max_scale
-    let scale_diff = new_scale - max_scale
-    let divisor = @bigint.BigInt::from_int(10).pow(
-      @bigint.BigInt::from_int(scale_diff),
-    )
-    let truncated_coeff = new_coeff / divisor
-    new_unchecked(truncated_coeff, max_scale)
-  } else {
-    new_unchecked(new_coeff, new_scale)
-  }
+  new_unchecked(new_coeff, new_scale)
 }
 
 ///|
-/// Implements division with maximum precision.
+/// Implements division with default scale and HalfUp rounding.
 pub impl Div for Decimal with div(self : Decimal, other : Decimal) -> Decimal {
-  if other.is_zero() {
-    abort("Division by zero")
+  match self.divide(other, DEFAULT_SCALE, HalfUp) {
+    Some(result) => result
+    None => abort("Division by zero")
   }
-
-  // Scale up the dividend to get maximum precision
-  let scale_diff = max_scale - self.scale + other.scale
-  let multiplier = @bigint.BigInt::from_int(10).pow(
-    @bigint.BigInt::from_int(Int::max(0, scale_diff)),
-  )
-  let scaled_dividend = self.coefficient * multiplier
-  let quotient = scaled_dividend / other.coefficient
-  new_unchecked(quotient, max_scale)
 }
 
 ///|
@@ -752,8 +841,10 @@ pub impl Hash for Decimal with hash_combine(self, hasher) {
 
 ///|
 /// Generates arbitrary decimal values for testing.
+/// Uses a limited scale range (0-9) to ensure reasonable test performance
+/// and avoid generating extremely large decimal strings.
 pub impl @quickcheck.Arbitrary for Decimal with arbitrary(size, rs) {
   let coeff = @quickcheck.Arbitrary::arbitrary(size, rs)
-  let scale = rs.next_int() % (max_scale + 1)
+  let scale = (rs.next_int() % 10 + 10) % 10
   new_unchecked(coeff, scale)
 }
