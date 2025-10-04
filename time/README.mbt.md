@@ -9,6 +9,7 @@ The calendrical calculations always assume a ISO 8601 calendar, with no leap sec
 To create a datatime that represents the current time, you need to obtain the unix second and time zone offset from the [wasi](https://mooncakes.io/docs/#/peter-jerry-ye/wasi/) package (wasm-gc backend) or other FFI functions, and manually create a datetime.
 
 ```moonbit
+///|
 test {
   // creates a UTC+8 fixed time zone.
   let zone = @time.fixed_zone("Asia/Shanghai", 8 * 60 * 60)

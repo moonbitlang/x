@@ -71,7 +71,8 @@ test "from_unix_second" {
   assert_true(
     (try? @time.PlainDateTime::from_unix_second(
       1714227729L, 1_000_000_000, @time.utc_offset,
-    )) is Err(_),
+    ))
+    is Err(_),
   )
 }
 

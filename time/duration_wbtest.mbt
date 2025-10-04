@@ -108,12 +108,14 @@ test "add_nanoseconds" {
   assert_true(
     (try? Duration::of(seconds=@int64.max_value).add_nanoseconds(
       @int64.max_value,
-    )) is Err(_),
+    ))
+    is Err(_),
   )
   assert_true(
     (try? Duration::of(seconds=@int64.min_value).add_nanoseconds(
       @int64.min_value,
-    )) is Err(_),
+    ))
+    is Err(_),
   )
 }
 
