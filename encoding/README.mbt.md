@@ -22,6 +22,7 @@ flexible for different use-cases.
 Decode a UTF-8 byte stream:
 
 ```moonbit
+///|
 test {
   // Initialize a streaming UTF-8 decoder
   let decoder = @encoding.decoder(UTF8)
@@ -42,6 +43,7 @@ test {
 Encode a string to UTF-8 bytes:
 
 ```moonbit
+///|
 test {
   // Encode a string to UTF-8
   let src = "你好👀"
@@ -58,6 +60,7 @@ test {
 Encode a single character to UTF-8 bytes:
 
 ```moonbit
+///|
 test {
   inspect(
     @encoding.to_utf8_bytes('A'),

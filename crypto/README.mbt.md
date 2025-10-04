@@ -11,6 +11,7 @@ A collection of cryptographic hash functions and utilities.
 ### SHA-1
 
 ```moonbit
+///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(
@@ -23,6 +24,7 @@ test {
 ### MD5
 
 ```moonbit
+///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(
@@ -45,6 +47,7 @@ test {
 ### SM3
 
 ```moonbit
+///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(

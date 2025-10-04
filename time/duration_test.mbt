@@ -71,10 +71,12 @@ test "add_seconds" {
     content="PT-2562047788015215H-30M-8S",
   )
   assert_true(
-    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.max_value)) is Err(_),
+    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.max_value))
+    is Err(_),
   )
   assert_true(
-    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.min_value)) is Err(_),
+    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.min_value))
+    is Err(_),
   )
 }
 

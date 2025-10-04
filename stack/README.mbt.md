@@ -12,6 +12,7 @@ The stack can be created with the `new` function, or by using the function with 
 For instance, `from_array` creates a stack from an array.
 
 ```moonbit
+///|
 test {
   let st : @stack.Stack[Unit] = Stack::new()
   inspect(st, content="Stack::[]")
@@ -25,6 +26,7 @@ test {
 To clear the elements of the stack, use the `clear` method.
 
 ```moonbit
+///|
 test {
   let st = @stack.Stack::from_array([1, 2, 3])
   st.clear()
@@ -37,6 +39,7 @@ test {
 Use `length` to get the number of elements in the stack. The `is_empty` method can be used to check if the stack is empty.
 
 ```moonbit
+///|
 test {
   let st = Stack::of([1, 2, 3])
   inspect(st.length(), content="3") // 3
@@ -49,6 +52,7 @@ test {
 To add elements to the stack, use the `push` method, and to remove them, use the `pop` method.
 
 ```moonbit
+///|
 test {
   let st = Stack::new()
   st.push(1)
@@ -60,12 +64,14 @@ test {
 The unsafe version of `pop` is `unsafe_pop`, which will panic if the stack is empty.
 
 ```moonbit
+///|
 test {
   let st = Stack::new()
   st.push(1)
   inspect(st.unsafe_pop(), content="1") // 1
 }
 
+///|
 test "panic" {
   let st = Stack::new()
   st.unsafe_pop()
@@ -75,6 +81,7 @@ test "panic" {
 If you don't want to remove the element, you can use the `peek` method and the unsafe version `unsafe_peek`.
 
 ```moonbit
+///|
 test {
   let st = Stack::of([1, 2, 3])
   inspect(st.peek(), content="Some(1)") // Some(1)
@@ -85,6 +92,7 @@ test {
 If the result of `pop` is not needed, you can use the `drop` method.
 
 ```moonbit
+///|
 test {
   let st = Stack::of([1, 2, 3])
   st.drop()
@@ -97,6 +105,7 @@ test {
 To traverse the stack, use the `iter` method.
 
 ```moonbit
+///|
 test {
   let st = Stack::of([1, 2, 3])
   let mut sum = 0
@@ -110,6 +119,7 @@ test {
 You can convert the stack to an array using the `to_array` method or the `iter` method.
 
 ```moonbit
+///|
 test {
   let st = Stack::of([1, 2, 3])
   inspect(st.to_array(), content="[1, 2, 3]")

@@ -3,13 +3,12 @@ package "moonbitlang/x/encoding"
 
 import(
   "moonbitlang/core/buffer"
-  "moonbitlang/core/bytes"
 )
 
 // Values
 const U_REP : Char = '�'
 
-fn decode_to(@bytes.View, StringBuilder, encoding~ : Encoding) -> Unit raise
+fn decode_to(BytesView, StringBuilder, encoding~ : Encoding) -> Unit raise
 
 fn decoder(Encoding) -> Decoder
 
@@ -40,13 +39,13 @@ pub suberror TruncatedError Bytes
 
 // Types and methods
 type Decoder
-fn Decoder::consume(Self, @bytes.View) -> String raise
-fn Decoder::decode(Self, @bytes.View, stream? : Bool) -> String raise
-fn Decoder::decode_lossy(Self, @bytes.View, stream? : Bool) -> String
-fn Decoder::decode_lossy_to(Self, @bytes.View, StringBuilder, stream? : Bool) -> Unit
-fn Decoder::decode_to(Self, @bytes.View, StringBuilder, stream? : Bool) -> Unit raise
+fn Decoder::consume(Self, BytesView) -> String raise
+fn Decoder::decode(Self, BytesView, stream? : Bool) -> String raise
+fn Decoder::decode_lossy(Self, BytesView, stream? : Bool) -> String
+fn Decoder::decode_lossy_to(Self, BytesView, StringBuilder, stream? : Bool) -> Unit
+fn Decoder::decode_to(Self, BytesView, StringBuilder, stream? : Bool) -> Unit raise
 fn Decoder::finish(Self) -> String raise
-fn Decoder::lossy_consume(Self, @bytes.View) -> String
+fn Decoder::lossy_consume(Self, BytesView) -> String
 fn Decoder::lossy_finish(Self) -> String
 
 pub(all) enum Encoding {
