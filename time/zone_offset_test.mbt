@@ -23,22 +23,22 @@ test "of" {
     @time.ZoneOffset::of(hours=1, minutes=30, seconds=30),
     content="+01:30:30",
   )
-  assert_true((try? @time.ZoneOffset::of(hours=19)).is_err())
-  assert_true((try? @time.ZoneOffset::of(hours=-19)).is_err())
-  assert_true((try? @time.ZoneOffset::of(minutes=60)).is_err())
-  assert_true((try? @time.ZoneOffset::of(minutes=-60)).is_err())
-  assert_true((try? @time.ZoneOffset::of(seconds=60)).is_err())
-  assert_true((try? @time.ZoneOffset::of(seconds=-60)).is_err())
+  assert_true((try? @time.ZoneOffset::of(hours=19)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(hours=-19)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(minutes=60)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(minutes=-60)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(seconds=60)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(seconds=-60)) is Err(_))
   assert_true(
-    (try? @time.ZoneOffset::of(hours=1, minutes=-30, seconds=-30)).is_err(),
+    (try? @time.ZoneOffset::of(hours=1, minutes=-30, seconds=-30)) is Err(_),
   )
   assert_true(
-    (try? @time.ZoneOffset::of(hours=-1, minutes=30, seconds=30)).is_err(),
+    (try? @time.ZoneOffset::of(hours=-1, minutes=30, seconds=30)) is Err(_),
   )
-  assert_true((try? @time.ZoneOffset::of(minutes=-30, seconds=30)).is_err())
-  assert_true((try? @time.ZoneOffset::of(minutes=30, seconds=-30)).is_err())
-  assert_true((try? @time.ZoneOffset::of(hours=18, minutes=1)).is_err())
-  assert_true((try? @time.ZoneOffset::of(hours=-18, seconds=1)).is_err())
+  assert_true((try? @time.ZoneOffset::of(minutes=-30, seconds=30)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(minutes=30, seconds=-30)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(hours=18, minutes=1)) is Err(_))
+  assert_true((try? @time.ZoneOffset::of(hours=-18, seconds=1)) is Err(_))
 }
 
 ///|
@@ -47,8 +47,8 @@ test "from_seconds" {
   inspect(@time.ZoneOffset::from_seconds(0), content="Z")
   inspect(@time.ZoneOffset::from_seconds(18 * 60 * 60), content="+18:00")
   inspect(@time.ZoneOffset::from_seconds(-18 * 60 * 60), content="-18:00")
-  assert_true((try? @time.ZoneOffset::from_seconds(19 * 60 * 60)).is_err())
-  assert_true((try? @time.ZoneOffset::from_seconds(-19 * 60 * 60)).is_err())
+  assert_true((try? @time.ZoneOffset::from_seconds(19 * 60 * 60)) is Err(_))
+  assert_true((try? @time.ZoneOffset::from_seconds(-19 * 60 * 60)) is Err(_))
 }
 
 ///|

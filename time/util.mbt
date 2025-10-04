@@ -343,7 +343,7 @@ test "floor_div_int64" {
   inspect(try? floor_div_int64(9L, 10L), content="Ok(0)")
   inspect(try? floor_div_int64(-9L, 10L), content="Ok(-1)")
   inspect(try? floor_div_int64(0L, 10L), content="Ok(0)")
-  assert_true((try? floor_div_int64(10L, 0L)).is_err())
+  assert_true((try? floor_div_int64(10L, 0L)) is Err(_))
 }
 
 ///|
@@ -378,5 +378,5 @@ test "floor_mod_int64" {
   inspect(try? floor_mod_int64(11L, 10L), content="Ok(1)")
   inspect(try? floor_mod_int64(-11L, 10L), content="Ok(9)")
   inspect(try? floor_mod_int64(0L, 10L), content="Ok(0)")
-  assert_true((try? floor_mod_int64(10L, 0L)).is_err())
+  assert_true((try? floor_mod_int64(10L, 0L)) is Err(_))
 }

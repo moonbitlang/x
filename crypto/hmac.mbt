@@ -28,8 +28,8 @@
 ///
 pub fn[H : CryptoHasher] hmac(
   hash : H,
-  key : @bytes.View,
-  message : @bytes.View,
+  key : BytesView,
+  message : BytesView,
 ) -> FixedArray[Byte] {
   let block_size = hash.block_size()
   let padded_key = FixedArray::make(block_size, b'\x00')

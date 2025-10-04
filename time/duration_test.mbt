@@ -24,8 +24,8 @@ test "from_string" {
     content="PT-1H-2M-3.456789S",
   )
   inspect(@time.Duration::from_string("PT0.45S"), content="PT0.45S")
-  assert_true((try? @time.Duration::from_string("PT0.000.45S")).is_err())
-  assert_true((try? @time.Duration::from_string("P1Y2M3DT4H5M6S")).is_err())
+  assert_true((try? @time.Duration::from_string("PT0.000.45S")) is Err(_))
+  assert_true((try? @time.Duration::from_string("P1Y2M3DT4H5M6S")) is Err(_))
 }
 
 ///|
@@ -71,10 +71,10 @@ test "add_seconds" {
     content="PT-2562047788015215H-30M-8S",
   )
   assert_true(
-    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.max_value)).is_err(),
+    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.max_value)) is Err(_),
   )
   assert_true(
-    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.min_value)).is_err(),
+    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.min_value)) is Err(_),
   )
 }
 
@@ -90,5 +90,5 @@ test "with_nanoseconds" {
   let d = @time.Duration::of(nanoseconds=1000L)
   inspect(d.with_nanoseconds(1000), content="PT0.000001S")
   inspect(d.with_nanoseconds(2000), content="PT0.000002S")
-  assert_true((try? d.with_nanoseconds(1_000_000_000)).is_err())
+  assert_true((try? d.with_nanoseconds(1_000_000_000)) is Err(_))
 }
