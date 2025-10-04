@@ -47,17 +47,17 @@ pub impl ByteSource for FixedArray[Byte] with blit_to(
 }
 
 ///|
-pub impl ByteSource for @bytes.View with op_get(self, index) {
+pub impl ByteSource for BytesView with op_get(self, index) {
   self[index]
 }
 
 ///|
-pub impl ByteSource for @bytes.View with length(self) {
+pub impl ByteSource for BytesView with length(self) {
   self.length()
 }
 
 ///|
-pub impl ByteSource for @bytes.View with blit_to(
+pub impl ByteSource for BytesView with blit_to(
   self,
   dst,
   len~,

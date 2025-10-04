@@ -112,7 +112,7 @@ pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with update(self : SHA256, data : @bytes.View) -> Unit {
+pub impl CryptoHasher for SHA256 with update(self : SHA256, data : BytesView) -> Unit {
   self.update(data)
 }
 

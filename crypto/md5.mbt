@@ -51,7 +51,7 @@ pub fn[Data : ByteSource] MD5::update(self : MD5, data : Data) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for MD5 with update(self : MD5, data : @bytes.View) -> Unit {
+pub impl CryptoHasher for MD5 with update(self : MD5, data : BytesView) -> Unit {
   md5_update(self, data)
 }
 

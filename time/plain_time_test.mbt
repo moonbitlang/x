@@ -20,8 +20,8 @@ test "of" {
     @time.PlainTime::of(23, 59, 59, 999_999_999),
     content="23:59:59.999999999",
   )
-  assert_true((try? @time.PlainTime::of(24, 0, 0, 1)).is_err())
-  assert_true((try? @time.PlainTime::of(-1, 0, 0, 0)).is_err())
+  assert_true((try? @time.PlainTime::of(24, 0, 0, 1)) is Err(_))
+  assert_true((try? @time.PlainTime::of(-1, 0, 0, 0)) is Err(_))
 }
 
 ///|
@@ -35,12 +35,12 @@ test "from_string" {
     @time.PlainTime::from_string("01:00:00.0000123"),
     content="01:00:00.0000123",
   )
-  assert_true((try? @time.PlainTime::from_string("1:00")).is_err())
-  assert_true((try? @time.PlainTime::from_string("10:0")).is_err())
-  assert_true((try? @time.PlainTime::from_string("100000")).is_err())
-  assert_true((try? @time.PlainTime::from_string("123:00:00")).is_err())
-  assert_true((try? @time.PlainTime::from_string("10:00:00.123zzz")).is_err())
-  assert_true((try? @time.PlainTime::from_string("z1:00:00")).is_err())
+  assert_true((try? @time.PlainTime::from_string("1:00")) is Err(_))
+  assert_true((try? @time.PlainTime::from_string("10:0")) is Err(_))
+  assert_true((try? @time.PlainTime::from_string("100000")) is Err(_))
+  assert_true((try? @time.PlainTime::from_string("123:00:00")) is Err(_))
+  assert_true((try? @time.PlainTime::from_string("10:00:00.123zzz")) is Err(_))
+  assert_true((try? @time.PlainTime::from_string("z1:00:00")) is Err(_))
 }
 
 ///|
@@ -78,8 +78,8 @@ test "from_second_of_day" {
   inspect(@time.PlainTime::from_second_of_day(86400), content="24:00:00")
   inspect(@time.PlainTime::from_second_of_day(45030), content="12:30:30")
   inspect(@time.PlainTime::from_second_of_day(12345), content="03:25:45")
-  assert_true((try? @time.PlainTime::from_second_of_day(-1)).is_err())
-  assert_true((try? @time.PlainTime::from_second_of_day(86401)).is_err())
+  assert_true((try? @time.PlainTime::from_second_of_day(-1)) is Err(_))
+  assert_true((try? @time.PlainTime::from_second_of_day(86401)) is Err(_))
 }
 
 ///|
@@ -93,9 +93,9 @@ test "from_nanosecond_of_day" {
     @time.PlainTime::from_nanosecond_of_day(45030123456789L),
     content="12:30:30.123456789",
   )
-  assert_true((try? @time.PlainTime::from_nanosecond_of_day(-1L)).is_err())
+  assert_true((try? @time.PlainTime::from_nanosecond_of_day(-1L)) is Err(_))
   assert_true(
-    (try? @time.PlainTime::from_nanosecond_of_day(86400000000001L)).is_err(),
+    (try? @time.PlainTime::from_nanosecond_of_day(86400000000001L)) is Err(_),
   )
 }
 
@@ -172,9 +172,9 @@ test "with_hour" {
     @time.PlainTime::of(1, 20, 30, 400).with_hour(0),
     content="00:20:30.0000004",
   )
-  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(-1)).is_err())
-  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(24)).is_err())
-  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(25)).is_err())
+  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(-1)) is Err(_))
+  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(24)) is Err(_))
+  assert_true((try? @time.PlainTime::of(1, 20, 30, 400).with_hour(25)) is Err(_))
 }
 
 ///|
@@ -196,10 +196,10 @@ test "with_minute" {
     content="01:59:30.0000004",
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_minute(-1)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_minute(-1)) is Err(_),
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_minute(60)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_minute(60)) is Err(_),
   )
 }
 
@@ -222,10 +222,10 @@ test "with_second" {
     content="01:20:59.0000004",
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_second(-1)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_second(-1)) is Err(_),
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_second(60)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_second(60)) is Err(_),
   )
 }
 
@@ -248,10 +248,10 @@ test "with_nanosecond" {
     content="01:20:30.999999999",
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_nanosecond(-1)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_nanosecond(-1)) is Err(_),
   )
   assert_true(
-    (try? @time.PlainTime::of(1, 20, 30, 400).with_nanosecond(1_000_000_000)).is_err(),
+    (try? @time.PlainTime::of(1, 20, 30, 400).with_nanosecond(1_000_000_000)) is Err(_),
   )
 }
 

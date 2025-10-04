@@ -193,7 +193,7 @@ test "return_with_clear" {
 ///   assert_eq(s.length(), 1)
 /// ```
 pub fn[T] push(self : Stack[T], x : T) -> Unit {
-  self.elements = @list.construct(x, self.elements)
+  self.elements = @list.cons(x, self.elements)
   self.len = self.len + 1
 }
 

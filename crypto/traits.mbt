@@ -21,7 +21,7 @@ pub(open) trait CryptoHasher {
   /// Resets to initial state
   reset(Self) -> Unit
   /// Updates hash state with new data
-  update(Self, @bytes.View) -> Unit
+  update(Self, BytesView) -> Unit
   /// Writes the hash output into the provided buffer.
   /// The buffer must be at least `size(Self)` bytes long after the offset.
   finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit

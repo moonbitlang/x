@@ -100,7 +100,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 /// ```
 pub fn decode(
   self : Decoder,
-  input : @bytes.View,
+  input : BytesView,
   stream? : Bool = false,
 ) -> String raise Error {
   if input.length() > 0 {
@@ -160,7 +160,7 @@ pub fn decode(
 /// ```
 pub fn Decoder::decode_to(
   self : Decoder,
-  input : @bytes.View,
+  input : BytesView,
   output : StringBuilder,
   stream? : Bool = false,
 ) -> Unit raise {
@@ -189,7 +189,7 @@ pub fn Decoder::decode_to(
 
 ///|
 pub fn decode_to(
-  input : @bytes.View,
+  input : BytesView,
   output : StringBuilder,
   encoding~ : Encoding,
 ) -> Unit raise {
@@ -214,7 +214,7 @@ pub fn decode_to(
 ///
 /// `MalformedError`: when the byte sequence is not properly formatted according to the specified encoding.
 /// `TruncatedError`: when the byte sequence ends prematurely, implying that more data is expected for complete decoding.
-pub fn consume(self : Decoder, input : @bytes.View) -> String raise Error {
+pub fn consume(self : Decoder, input : BytesView) -> String raise Error {
   self.decode(input, stream=true)
 }
 
@@ -257,7 +257,7 @@ pub fn finish(self : Decoder) -> String raise Error {
 /// A `String` representing the decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`).
 pub fn decode_lossy(
   self : Decoder,
-  input : @bytes.View,
+  input : BytesView,
   stream? : Bool = false,
 ) -> String {
   if input.length() > 0 {
@@ -294,7 +294,7 @@ pub fn decode_lossy(
 ///|
 pub fn Decoder::decode_lossy_to(
   self : Decoder,
-  input : @bytes.View,
+  input : BytesView,
   output : StringBuilder,
   stream? : Bool = false,
 ) -> Unit {
@@ -336,7 +336,7 @@ pub fn Decoder::decode_lossy_to(
 /// # Returns
 ///
 /// A `String` representing the partially decoded content from the input byte sequence, with any invalid sequences replaced by the Unicode Replacement Character (`U+FFFD`), as more bytes are expected.
-pub fn lossy_consume(self : Decoder, input : @bytes.View) -> String {
+pub fn lossy_consume(self : Decoder, input : BytesView) -> String {
   self.decode_lossy(input, stream=true)
 }
 
@@ -358,7 +358,7 @@ pub fn lossy_finish(self : Decoder) -> String {
 }
 
 ///|
-fn i_cont(self : Decoder, input : @bytes.View) -> Unit {
+fn i_cont(self : Decoder, input : BytesView) -> Unit {
   // concat `input` to `i`, drop decoded `i`
   let i_rem = @cmp.maximum(self.i_rem(), 0)
   let new_len = i_rem + input.length()
