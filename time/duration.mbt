@@ -55,10 +55,7 @@ pub fn Duration::zero() -> Duration {
 ///|
 /// Parses a ISO 8601 format string like `PT[n]H[n]M[n].[n]S`.
 pub fn Duration::from_string(str : String) -> Duration raise Error {
-  // TODO: better parsing impl
-  if str.substring(end=2) != "PT" {
-    fail(invalid_duration_err)
-  }
+  guard str is [.. "PT", ..] else { fail(invalid_duration_err) }
   let mut hours = 0L
   let mut minutes = 0L
   let mut seconds = 0L
