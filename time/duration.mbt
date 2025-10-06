@@ -129,11 +129,7 @@ pub fn to_string(self : Duration) -> String {
     }
     buf.write_string(secs.to_string())
     if nanos > 0L {
-      buf.write_char('.')
-      let nanos_str = (nanos + nanoseconds_per_second)
-        .to_string()
-        .substring(start=1)
-      buf.write_string(remove_suffix_zero(nanos_str))
+      buf.write_string(format_nanos(nanos).to_string())
     }
     buf.write_char('S')
   }
