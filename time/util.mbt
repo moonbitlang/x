@@ -23,22 +23,6 @@ fn add_prefix_zero(s : String, len : Int) -> String {
 }
 
 ///|
-fn remove_prefix_zero(s : String) -> String {
-  if s.length() == 0 {
-    return s
-  }
-  let mut i = 0
-  while i < s.length() && s[i] == '0' {
-    i += 1
-  }
-  if i < s.length() {
-    s.substring(start=i)
-  } else {
-    s.substring(start=s.length() - 1)
-  }
-}
-
-///|
 test "add_prefix_zero" {
   inspect(add_prefix_zero("", 2), content="00")
   inspect(add_prefix_zero("1", 0), content="1")
@@ -48,11 +32,40 @@ test "add_prefix_zero" {
 }
 
 ///|
-test "remove_prefix_zero" {
-  inspect(remove_prefix_zero(""), content="")
-  inspect(remove_prefix_zero("01"), content="1")
-  inspect(remove_prefix_zero("09"), content="9")
-  inspect(remove_prefix_zero("000"), content="0")
+fn remove_suffix_zero(s : StringView) -> StringView {
+  loop s {
+    [_] as x => x // keep one zero if all are zeros
+    [.. head, '0'] => continue head
+    x => x
+  }
+}
+
+///|
+///
+/// Formats a nanosecond value as a fractional seconds string for ISO 8601 output.
+///
+/// Pads the nanosecond value to 9 digits, trims trailing zeros, and prepends a dot.
+/// For example:
+///   format_nanos(0L)           => ".0"
+///   format_nanos(1000100L)     => ".0010001"
+///   format_nanos(100_000_000L) => ".1"
+///   format_nanos(110_000_000L) => ".11"
+///
+/// This is used for formatting fractional seconds in time and duration string outputs.
+fn format_nanos(nanos : Int64) -> String {
+  let nanos_str = nanos.to_string().pad_start(9, '0')
+  StringView::add(".", remove_suffix_zero(nanos_str)).to_string()
+}
+
+///|
+test "remove_suffix_zero && format_nanos" {
+  inspect(remove_suffix_zero(""), content="")
+  inspect(remove_suffix_zero("1000100"), content="10001")
+  inspect(remove_suffix_zero("000"), content="0")
+  inspect(format_nanos(0L), content=".0")
+  inspect(format_nanos(1000100L), content=".0010001")
+  inspect(format_nanos(100_000_000L), content=".1")
+  inspect(format_nanos(110_000_000L), content=".11")
 }
 
 ///|
@@ -66,30 +79,11 @@ fn add_suffix_zero(s : String, len : Int) -> String {
 }
 
 ///|
-fn remove_suffix_zero(s : String) -> String {
-  if s.length() == 0 {
-    return s
-  }
-  let mut i = s.length() - 1
-  while s[i] == '0' && i > 0 {
-    i -= 1
-  }
-  s.substring(end=i + 1)
-}
-
-///|
 test "add_suffix_zero" {
   inspect(add_suffix_zero("1", 0), content="1")
   inspect(add_suffix_zero("1", 1), content="1")
   inspect(add_suffix_zero("1", 2), content="10")
   inspect(add_suffix_zero("1", 3), content="100")
-}
-
-///|
-test "remove_suffix_zero" {
-  inspect(remove_suffix_zero(""), content="")
-  inspect(remove_suffix_zero("1000100"), content="10001")
-  inspect(remove_suffix_zero("000"), content="0")
 }
 
 ///|
