@@ -39,35 +39,26 @@ pub fn PlainTime::of(
 ///|
 /// Creates a PlainTime from a string, like '10:20:30.45678'.
 pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
-  let (hour, minute, second, nanosecond) = lexmatch str using longest {
-      ("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str) =>
-        (@strconv.parse_int(hour_str), @strconv.parse_int(minute_str), 0, 0)
-      ("[0-9]{2}" as hour_str)
-      ":"
-      ("[0-9]{2}" as minute_str)
-      ":"
-      ("[0-9]{2}" as second_str) =>
-        (
-          @strconv.parse_int(hour_str),
-          @strconv.parse_int(minute_str),
-          @strconv.parse_int(second_str),
-          0,
-        )
-      ("[0-9]{2}" as hour_str)
-      ":"
-      ("[0-9]{2}" as minute_str)
-      ":"
-      ("[0-9]{2}" as second_str)
-      "."
-      ("[0-9]{1,9}" as nanosecond_str) =>
-        (
-          @strconv.parse_int(hour_str),
-          @strconv.parse_int(minute_str),
-          @strconv.parse_int(second_str),
-          @strconv.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
-        )
-      _ => fail(invalid_time_err)
+  // TODO: better parsing implementation
+  if str.length() < 5 || str.length() > 18 || str[2] != ':' {
+    fail(invalid_time_err)
+  }
+  let mut hour = 0
+  let mut minute = 0
+  let mut second = 0
+  let mut nanosecond = 0
+  hour = @strconv.parse(str.substring(end=2))
+  minute = @strconv.parse(str.substring(start=3, end=5))
+  if str.length() > 7 {
+    if str[5] != ':' {
+      fail(invalid_time_err)
     }
+    second = @strconv.parse(str.substring(start=6, end=8))
+  }
+  if str.length() > 9 && str[8] == '.' {
+    let nano_str = str.substring(start=9)
+    nanosecond = @strconv.parse(add_suffix_zero(nano_str, 9))
+  }
   PlainTime::of(hour, minute, second, nanosecond)
 }
 
