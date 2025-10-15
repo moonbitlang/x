@@ -6,6 +6,7 @@ fn parse(String) -> Json raise ParseError
 
 // Errors
 pub(all) suberror ParseError ParseErrorData
+fn ParseError::output(Self, &Logger) -> Unit // from trait `Show`
 fn ParseError::to_string(Self) -> String
 impl Show for ParseError
 
@@ -16,12 +17,20 @@ pub(all) enum ParseErrorData {
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 }
+fn ParseErrorData::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn ParseErrorData::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for ParseErrorData
 
 pub(all) struct Position {
   line : Int
   column : Int
 }
+fn Position::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn Position::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Position::output(Self, &Logger) -> Unit // from trait `Show`
+fn Position::to_string(Self) -> String // from trait `Show`
 impl Eq for Position
 impl Show for Position
 

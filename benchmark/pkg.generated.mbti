@@ -26,6 +26,8 @@ pub struct TaskResult {
   max : Double
   min : Double
 }
+fn TaskResult::output(Self, &Logger) -> Unit // from trait `Show`
+fn TaskResult::to_string(Self) -> String // from trait `Show`
 impl Show for TaskResult
 
 // Type aliases

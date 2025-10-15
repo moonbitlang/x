@@ -90,7 +90,7 @@ test "bytes" {
   inspect(
     from_bytes(buf).to_bytes(),
     content=(
-      #|b"\xc9\x82\xfb\x68\xdf\x50\x4c\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
+      #|b"\xc9\x82\xfbh\xdfPL\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
     ),
   )
   assert_true((try? from_bytes(Bytes::new(15))) is Err(_))

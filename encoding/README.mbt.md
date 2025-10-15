@@ -65,7 +65,7 @@ test {
   inspect(
     @encoding.to_utf8_bytes('A'),
     content=(
-      #|b"\x41"
+      #|b"A"
     ),
   )
 }
