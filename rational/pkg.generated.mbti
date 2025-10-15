@@ -4,6 +4,7 @@ package "moonbitlang/x/rational"
 import(
   "moonbitlang/core/bigint"
   "moonbitlang/core/quickcheck"
+  "moonbitlang/core/quickcheck/splitmix"
 )
 
 // Values
@@ -13,6 +14,12 @@ fn[T : Integral] new(T, T) -> Rational[T]?
 
 // Errors
 pub(all) suberror RationalError String
+fn RationalError::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn RationalError::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn RationalError::output(Self, &Logger) -> Unit // from trait `Show`
+fn RationalError::to_json(Self) -> Json // from trait `ToJson`
+fn RationalError::to_string(Self) -> String // from trait `Show`
 impl Eq for RationalError
 impl Show for RationalError
 impl ToJson for RationalError
@@ -21,17 +28,39 @@ impl ToJson for RationalError
 type Rational[T]
 fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
 fnalias Rational::abs
+fn[T : Integral] Rational::add(Self[T], Self[T]) -> Self[T] // from trait `Add`
+fn[T : Integral] Rational::arbitrary(Int, @splitmix.RandomState) -> Self[T] // from trait `@quickcheck.Arbitrary`
 fn[T : Integral] Rational::ceil(Self[T]) -> T
 fnalias Rational::ceil
+fn[T : Integral] Rational::compare(Self[T], Self[T]) -> Int // from trait `Compare`
+fn[T : Integral] Rational::div(Self[T], Self[T]) -> Self[T] // from trait `Div`
+fn[T : Eq] Rational::equal(Self[T], Self[T]) -> Bool // from trait `Eq`
 fn[T : Integral] Rational::floor(Self[T]) -> T
 fnalias Rational::floor
 fn[T : Integral] Rational::fract(Self[T]) -> Self[T]
 fnalias Rational::fract
 fn[T : Integral] Rational::is_integer(Self[T]) -> Bool
 fnalias Rational::is_integer
+fn[T : Integral] Rational::mul(Self[T], Self[T]) -> Self[T] // from trait `Mul`
+fn[T : Integral] Rational::neg(Self[T]) -> Self[T] // from trait `Neg`
+#deprecated
+fn[T : Integral] Rational::op_add(Self[T], Self[T]) -> Self[T] // from trait `Add`
+#deprecated
+fn[T : Integral] Rational::op_div(Self[T], Self[T]) -> Self[T] // from trait `Div`
+#deprecated
+fn[T : Eq] Rational::op_equal(Self[T], Self[T]) -> Bool // from trait `Eq`
+#deprecated
+fn[T : Integral] Rational::op_mul(Self[T], Self[T]) -> Self[T] // from trait `Mul`
+#deprecated
+fn[T : Integral] Rational::op_neg(Self[T]) -> Self[T] // from trait `Neg`
+#deprecated
+fn[T : Integral] Rational::op_sub(Self[T], Self[T]) -> Self[T] // from trait `Sub`
+fn[T : Integral] Rational::output(Self[T], &Logger) -> Unit // from trait `Show`
 fn[T : Integral] Rational::reciprocal(Self[T]) -> Self[T]
 fnalias Rational::reciprocal
+fn[T : Integral] Rational::sub(Self[T], Self[T]) -> Self[T] // from trait `Sub`
 fn Rational::to_double(Self[Int64]) -> Double
+fn[T : Integral] Rational::to_string(Self[T]) -> String // from trait `Show`
 fn[T : Integral] Rational::trunc(Self[T]) -> T
 fnalias Rational::trunc
 impl[T : Integral] Add for Rational[T]

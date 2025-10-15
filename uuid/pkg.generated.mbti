@@ -11,7 +11,12 @@ fn from_hex(String) -> UUID raise
 // Types and methods
 type UUID
 fn UUID::as_version(Self, Version) -> Self
+fn UUID::compare(Self, Self) -> Int // from trait `Compare`
+fn UUID::equal(Self, Self) -> Bool // from trait `Eq`
 fn UUID::hash(Self) -> Int
+#deprecated
+fn UUID::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UUID::output(Self, &Logger) -> Unit // from trait `Show`
 fn UUID::to_bytes(Self) -> Bytes
 fn UUID::to_string(Self) -> String
 fn UUID::variant(Self) -> Variant
@@ -26,6 +31,8 @@ pub(all) enum Variant {
   ReservedMicrosoft
   ReservedFuture
 }
+fn Variant::output(Self, &Logger) -> Unit // from trait `Show`
+fn Variant::to_string(Self) -> String // from trait `Show`
 impl Show for Variant
 
 pub(all) enum Version {
@@ -36,6 +43,8 @@ pub(all) enum Version {
   V5
   Unknown(Int)
 }
+fn Version::output(Self, &Logger) -> Unit // from trait `Show`
+fn Version::to_string(Self) -> String // from trait `Show`
 impl Show for Version
 
 // Type aliases

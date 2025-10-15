@@ -43,21 +43,33 @@ fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(K, N, counter? : UInt) -> Sel
 fn[D : ByteSource] ChaCha::transform(Self, D, FixedArray[Byte], offset? : Int) -> Unit
 
 type MD5
+fn MD5::block_size(Self) -> Int // from trait `CryptoHasher`
 fn MD5::finalize(Self) -> FixedArray[Byte]
+fn MD5::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit // from trait `CryptoHasher`
 fn MD5::new() -> Self
+fn MD5::reset(Self) -> Unit // from trait `CryptoHasher`
+fn MD5::size(Self) -> Int // from trait `CryptoHasher`
 fn[Data : ByteSource] MD5::update(Self, Data) -> Unit
 impl CryptoHasher for MD5
 
 type SHA256
+fn SHA256::block_size(Self) -> Int // from trait `CryptoHasher`
 fn SHA256::finalize(Self) -> FixedArray[Byte]
+fn SHA256::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit // from trait `CryptoHasher`
 fn SHA256::new(reg? : FixedArray[UInt]) -> Self
+fn SHA256::reset(Self) -> Unit // from trait `CryptoHasher`
+fn SHA256::size(Self) -> Int // from trait `CryptoHasher`
 fn[Data : ByteSource] SHA256::update(Self, Data) -> Unit
 fn SHA256::update_from_iter(Self, Iter[Byte]) -> Unit
 impl CryptoHasher for SHA256
 
 type SM3
+fn SM3::block_size(Self) -> Int // from trait `CryptoHasher`
 fn SM3::finalize(Self) -> FixedArray[Byte]
+fn SM3::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit // from trait `CryptoHasher`
 fn SM3::new() -> Self
+fn SM3::reset(Self) -> Unit // from trait `CryptoHasher`
+fn SM3::size(Self) -> Int // from trait `CryptoHasher`
 fn[Data : ByteSource] SM3::update(Self, Data) -> Unit
 fn SM3::update_from_iter(Self, Iter[Byte]) -> Unit
 impl CryptoHasher for SM3

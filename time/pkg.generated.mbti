@@ -21,12 +21,17 @@ fn Duration::add_hours(Self, Int64) -> Self raise
 fn Duration::add_minutes(Self, Int64) -> Self raise
 fn Duration::add_nanoseconds(Self, Int64) -> Self raise
 fn Duration::add_seconds(Self, Int64) -> Self raise
+fn Duration::compare(Self, Self) -> Int // from trait `Compare`
+fn Duration::equal(Self, Self) -> Bool // from trait `Eq`
 fn Duration::from_string(String) -> Self raise
 fn Duration::is_neg(Self) -> Bool
 fn Duration::is_zero(Self) -> Bool
 fn Duration::nanoseconds(Self) -> Int
 fn Duration::of(hours? : Int64, minutes? : Int64, seconds? : Int64, nanoseconds? : Int64) -> Self raise
 fn Duration::op_add(Self, Self) -> Self raise
+#deprecated
+fn Duration::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Duration::output(Self, &Logger) -> Unit // from trait `Show`
 fn Duration::seconds(Self) -> Int64
 fn Duration::to_nanoseconds(Self) -> Int64
 fn Duration::to_string(Self) -> String
@@ -43,7 +48,9 @@ fn Period::add_months(Self, Int) -> Self raise
 fn Period::add_period(Self, Self) -> Self raise
 fn Period::add_weeks(Self, Int) -> Self raise
 fn Period::add_years(Self, Int) -> Self raise
+fn Period::compare(Self, Self) -> Int // from trait `Compare`
 fn Period::days(Self) -> Int
+fn Period::equal(Self, Self) -> Bool // from trait `Eq`
 fn Period::from_string(String) -> Self raise
 fn Period::is_neg(Self) -> Bool
 fn Period::is_zero(Self) -> Bool
@@ -52,7 +59,10 @@ fn Period::multiply(Self, Int) -> Self raise
 fn Period::negated(Self) -> Self raise
 fn Period::of(years? : Int, months? : Int, days? : Int) -> Self
 fn Period::op_add(Self, Self) -> Self raise
+#deprecated
+fn Period::op_equal(Self, Self) -> Bool // from trait `Eq`
 fn Period::op_sub(Self, Self) -> Self raise
+fn Period::output(Self, &Logger) -> Unit // from trait `Show`
 fn Period::to_string(Self) -> String
 fn Period::to_total_months(Self) -> Int64
 fn Period::with_days(Self, Int) -> Self
@@ -70,10 +80,12 @@ fn PlainDate::add_months(Self, Int64) -> Self raise
 fn PlainDate::add_period(Self, Period) -> Self raise
 fn PlainDate::add_weeks(Self, Int64) -> Self raise
 fn PlainDate::add_years(Self, Int64) -> Self raise
+fn PlainDate::compare(Self, Self) -> Int // from trait `Compare`
 fn PlainDate::day(Self) -> Int
 fn PlainDate::days_in_month(Self) -> Int
 fn PlainDate::days_in_week(Self) -> Int
 fn PlainDate::days_in_year(Self) -> Int
+fn PlainDate::equal(Self, Self) -> Bool // from trait `Eq`
 fn PlainDate::era(Self) -> String
 fn PlainDate::era_year(Self) -> Int
 fn PlainDate::from_string(String) -> Self raise
@@ -83,7 +95,10 @@ fn PlainDate::in_leap_year(Self) -> Bool
 fn PlainDate::month(Self) -> Int
 fn PlainDate::months_in_year(Self) -> Int
 fn PlainDate::of(Int, Int, Int) -> Self raise
+#deprecated
+fn PlainDate::op_equal(Self, Self) -> Bool // from trait `Eq`
 fn PlainDate::ordinal(Self) -> Int
+fn PlainDate::output(Self, &Logger) -> Unit // from trait `Show`
 fn PlainDate::to_string(Self) -> String
 fn PlainDate::to_unix_day(Self) -> Int64
 fn PlainDate::until(Self, Self) -> Period raise
@@ -108,10 +123,12 @@ fn PlainDateTime::add_period(Self, Period) -> Self raise
 fn PlainDateTime::add_seconds(Self, Int64) -> Self raise
 fn PlainDateTime::add_weeks(Self, Int64) -> Self raise
 fn PlainDateTime::add_years(Self, Int64) -> Self raise
+fn PlainDateTime::compare(Self, Self) -> Int // from trait `Compare`
 fn PlainDateTime::day(Self) -> Int
 fn PlainDateTime::days_in_month(Self) -> Int
 fn PlainDateTime::days_in_week(Self) -> Int
 fn PlainDateTime::days_in_year(Self) -> Int
+fn PlainDateTime::equal(Self, Self) -> Bool // from trait `Eq`
 fn PlainDateTime::era(Self) -> String
 fn PlainDateTime::era_year(Self) -> Int
 fn PlainDateTime::from_string(String) -> Self raise
@@ -123,7 +140,10 @@ fn PlainDateTime::month(Self) -> Int
 fn PlainDateTime::months_in_year(Self) -> Int
 fn PlainDateTime::nanosecond(Self) -> Int
 fn PlainDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int) -> Self raise
+#deprecated
+fn PlainDateTime::op_equal(Self, Self) -> Bool // from trait `Eq`
 fn PlainDateTime::ordinal(Self) -> Int
+fn PlainDateTime::output(Self, &Logger) -> Unit // from trait `Show`
 fn PlainDateTime::second(Self) -> Int
 fn PlainDateTime::to_plain_date(Self) -> PlainDate
 fn PlainDateTime::to_plain_time(Self) -> PlainTime
@@ -150,6 +170,8 @@ fn PlainTime::add_minutes(Self, Int64) -> Self raise
 fn PlainTime::add_nanoseconds(Self, Int64) -> Self raise
 fn PlainTime::add_seconds(Self, Int64) -> Self raise
 fn PlainTime::at_date(Self, PlainDate) -> PlainDateTime
+fn PlainTime::compare(Self, Self) -> Int // from trait `Compare`
+fn PlainTime::equal(Self, Self) -> Bool // from trait `Eq`
 fn PlainTime::from_nanosecond_of_day(Int64) -> Self raise
 fn PlainTime::from_second_of_day(Int) -> Self raise
 fn PlainTime::from_string(String) -> Self raise
@@ -158,6 +180,9 @@ fn PlainTime::minute(Self) -> Int
 fn PlainTime::nanosecond(Self) -> Int
 fn PlainTime::nanosecond_of_day(Self) -> Int64
 fn PlainTime::of(Int, Int, Int, Int) -> Self raise
+#deprecated
+fn PlainTime::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn PlainTime::output(Self, &Logger) -> Unit // from trait `Show`
 fn PlainTime::second(Self) -> Int
 fn PlainTime::second_of_day(Self) -> Int
 fn PlainTime::to_string(Self) -> String
@@ -179,22 +204,36 @@ pub(all) enum Weekday {
   Saturday
   Sunday
 }
+fn Weekday::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn Weekday::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Weekday::output(Self, &Logger) -> Unit // from trait `Show`
+fn Weekday::to_string(Self) -> String // from trait `Show`
 impl Eq for Weekday
 impl Show for Weekday
 
 type Zone
+fn Zone::equal(Self, Self) -> Bool // from trait `Eq`
 fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 fn Zone::is_fixed(Self) -> Bool
+#deprecated
+fn Zone::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Zone::output(Self, &Logger) -> Unit // from trait `Show`
 fn Zone::to_string(Self) -> String
 impl Eq for Zone
 impl Show for Zone
 
 type ZoneOffset
 fn ZoneOffset::abbreviation(Self) -> String
+fn ZoneOffset::compare(Self, Self) -> Int // from trait `Compare`
+fn ZoneOffset::equal(Self, Self) -> Bool // from trait `Eq`
 fn ZoneOffset::from_seconds(Int, abbrev? : String, dst? : Bool) -> Self raise
 fn ZoneOffset::id(Self) -> String
 fn ZoneOffset::is_dst(Self) -> Bool
 fn ZoneOffset::of(hours? : Int, minutes? : Int, seconds? : Int, abbrev? : String, dst? : Bool) -> Self raise
+#deprecated
+fn ZoneOffset::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ZoneOffset::output(Self, &Logger) -> Unit // from trait `Show`
 fn ZoneOffset::seconds(Self) -> Int
 fn ZoneOffset::to_string(Self) -> String
 impl Compare for ZoneOffset
@@ -227,6 +266,7 @@ fn ZonedDateTime::nanosecond(Self) -> Int
 fn ZonedDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> Self raise
 fn ZonedDateTime::offset(Self) -> ZoneOffset
 fn ZonedDateTime::ordinal(Self) -> Int
+fn ZonedDateTime::output(Self, &Logger) -> Unit // from trait `Show`
 fn ZonedDateTime::second(Self) -> Int
 fn ZonedDateTime::to_plain_date(Self) -> PlainDate
 fn ZonedDateTime::to_plain_date_time(Self) -> PlainDateTime
