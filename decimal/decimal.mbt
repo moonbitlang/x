@@ -128,7 +128,7 @@ pub fn Decimal::from_string(s : String) -> Decimal? {
 ///|
 /// Parses a decimal string into a Decimal value.
 fn parse_decimal_string(s : String) -> Decimal? {
-  let s = s.trim(" ")
+  let s = s.trim(char_set=" ")
   if s.is_empty() {
     return None
   }

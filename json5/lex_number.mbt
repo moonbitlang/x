@@ -205,7 +205,7 @@ fn lex_number_end(
   start : Int,
   end : Int,
 ) -> Double raise ParseError {
-  let s = ctx.input.substring(start~, end~)
+  let s = try! ctx.input[start:end].to_string()
   match (try? @strconv.parse_double(s)) {
     Ok(d) => d
     Err(_) =>
