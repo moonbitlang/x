@@ -66,11 +66,11 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' =>
         buf.write_char(Int::unsafe_to_char(str[i]))
       'H' => {
-        hours = @strconv.parse(buf.to_string())
+        hours = @strconv.from_str(buf.to_string())
         buf.reset()
       }
       'M' => {
-        minutes = @strconv.parse(buf.to_string())
+        minutes = @strconv.from_str(buf.to_string())
         buf.reset()
       }
       'S' => {
@@ -81,7 +81,7 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
         }
         if splits.length() > 0 && splits[0] != "" {
           let secs_str = splits[0]
-          seconds = @strconv.parse(secs_str)
+          seconds = @strconv.from_str(secs_str)
         }
         if splits.length() > 1 && splits[1] != "" {
           let mut nanos_str = splits[1]
@@ -89,7 +89,7 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
           if seconds < 0L {
             nanos_str = "-" + nanos_str
           }
-          nanoseconds = @strconv.parse(nanos_str)
+          nanoseconds = @strconv.from_str(nanos_str)
         }
         break
       }

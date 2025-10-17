@@ -34,8 +34,8 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
         (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
-        let buffer = StringBuilder::make()
-        buffer.add_char(c)
+        let buffer = StringBuilder::new()
+        buffer.write_char(c)
         let s = lex_ident(ctx, ctx.offset, buffer~)
         String(s)
       } else {
@@ -61,12 +61,12 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
 fn lex_ident(
   ctx : ParseContext,
   start : Int,
-  buffer? : StringBuilder = StringBuilder::make(),
+  buffer? : StringBuilder = StringBuilder::new(),
 ) -> String raise ParseError {
   let mut start = start
   fn flush(end : Int) {
     if start > 0 && end > start {
-      buffer.add_substring(ctx.input, start, end)
+      buffer.write_substring(ctx.input, start, end - start)
     }
   }
 
@@ -83,7 +83,7 @@ fn lex_ident(
           (c >= 'A' && c <= 'Z') ||
           (c >= '0' && c <= '9') ||
           (c > '\u{7f}' && non_ascii_id_continue.contains(c)) {
-          buffer.add_char(c)
+          buffer.write_char(c)
           start = ctx.offset
           continue
         } else {

@@ -52,15 +52,15 @@ pub fn Period::from_string(str : String) -> Period raise Error {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '-' =>
         buf.write_char(Int::unsafe_to_char(str[i]))
       'Y' => {
-        years = @strconv.parse(buf.to_string())
+        years = @strconv.from_str(buf.to_string())
         buf.reset()
       }
       'M' => {
-        months = @strconv.parse(buf.to_string())
+        months = @strconv.from_str(buf.to_string())
         buf.reset()
       }
       'D' => {
-        days = @strconv.parse(buf.to_string())
+        days = @strconv.from_str(buf.to_string())
         buf.reset()
         break
       }

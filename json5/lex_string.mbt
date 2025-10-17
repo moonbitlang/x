@@ -14,11 +14,11 @@
 
 ///|
 fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
-  let buf = StringBuilder::make()
+  let buf = StringBuilder::new()
   let mut start = ctx.offset
   fn flush(end : Int) {
     if start > 0 && end > start {
-      buf.add_substring(ctx.input, start, end)
+      buf.write_substring(ctx.input, start, end - start)
     }
   }
 
@@ -33,15 +33,15 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
       Some('\\') => {
         flush(ctx.offset - 1)
         match read_char(ctx) {
-          Some('b') => buf.add_char('\b')
-          Some('f') => buf.add_char('\u{0C}')
-          Some('n') => buf.add_char('\n')
-          Some('r') => buf.add_char('\r')
-          Some('t') => buf.add_char('\t')
-          Some('v') => buf.add_char('\u{0B}')
-          Some('\'') => buf.add_char('\'')
-          Some('"') => buf.add_char('"')
-          Some('\\') => buf.add_char('\\')
+          Some('b') => buf.write_char('\b')
+          Some('f') => buf.write_char('\u{0C}')
+          Some('n') => buf.write_char('\n')
+          Some('r') => buf.write_char('\r')
+          Some('t') => buf.write_char('\t')
+          Some('v') => buf.write_char('\u{0B}')
+          Some('\'') => buf.write_char('\'')
+          Some('"') => buf.write_char('"')
+          Some('\\') => buf.write_char('\\')
           Some('0') => {
             match read_char(ctx) {
               None => ()
@@ -52,21 +52,21 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
                 }
               }
             }
-            buf.add_char('\u{00}')
+            buf.write_char('\u{00}')
           }
           Some('x') => {
             let c = lex_hex_digits(ctx, 2)
-            buf.add_char(Int::unsafe_to_char(c))
+            buf.write_char(Int::unsafe_to_char(c))
           }
           Some('u') => {
             let c = lex_hex_digits(ctx, 4)
-            buf.add_char(Int::unsafe_to_char(c))
+            buf.write_char(Int::unsafe_to_char(c))
           }
           Some(c) => {
             if c >= '1' && c <= '9' {
               invalid_char(ctx, shift=-1)
             }
-            buf.add_char(c)
+            buf.write_char(c)
           }
           None => parse_error(InvalidEof)
         }
