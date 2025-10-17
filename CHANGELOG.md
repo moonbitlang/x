@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `@decimal` package for arbitrary precision decimal (#183)
+
+### Changed
+
+- Updated MoonBit toolchain support to v0.6.29 (#183)
+- `@time` package is rewritten to use `lexmatch` (#194)
+
 ## [0.4.34]
 
 ### Fixed
