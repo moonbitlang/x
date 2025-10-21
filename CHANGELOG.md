@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Updated MoonBit toolchain support to v0.6.29 (#183)
+- Updated MoonBit toolchain support to v0.6.29 (#183, #195)
 - `@time` package is rewritten to use `lexmatch` (#194)
 
 ## [0.4.34]
