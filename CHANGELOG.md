@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.35]
+
 ### Added
 
 - Added `@decimal` package for arbitrary precision decimal (#183)
