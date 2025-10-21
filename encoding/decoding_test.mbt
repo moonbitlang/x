@@ -82,7 +82,7 @@ test "streaming decoding UTF16LE ASCII" {
   let decoder = @encoding.decoder(UTF16LE)
 
   // NOTE: `to_bytes` means `to_utf16le_bytes` to MoonBit String
-  let chunks = ascii.to_bytes().to_array().chunks(17)
+  let chunks = @encoding.encode(UTF16, ascii).to_array().chunks(17)
   assert_eq(chunks.length(), 5)
 
   // chunk by chunk
@@ -114,7 +114,7 @@ test "streaming decoding UTF16LE ASCII" {
   // check accumulator
   let decoder = @encoding.decoder(UTF16LE)
   let mut acc = ""
-  for chunk in ascii.to_bytes().to_array().chunks(7) {
+  for chunk in @encoding.encode(UTF16, ascii).to_array().chunks(7) {
     acc += decoder.consume(from_array(chunk))
   }
   assert_true(decoder.finish().is_empty())
@@ -231,8 +231,8 @@ test "streaming decoding UTF16BE Tao71" {
 ///|
 test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
-  let buf = @buffer.new(size_hint=src.to_bytes().length())
-  buf.write_bytes(src.to_bytes())
+  let buf = @buffer.new(size_hint=@encoding.encode(UTF16, src).length())
+  buf.write_bytes(@encoding.encode(UTF16, src))
   assert_eq(buf.to_bytes(), b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc")
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode(buf.to_bytes())
@@ -242,8 +242,8 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
 ///|
 test "decode_to/UTF16LE" {
   let src = "你好👀"
-  let buf = @buffer.new(size_hint=src.to_bytes().length())
-  buf.write_bytes(src.to_bytes())
+  let buf = @buffer.new(size_hint=@encoding.encode(UTF16, src).length())
+  buf.write_bytes(@encoding.encode(UTF16, src))
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
   decoder.decode_to(buf.to_bytes(), acc)

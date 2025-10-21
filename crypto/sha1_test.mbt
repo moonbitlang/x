@@ -16,7 +16,7 @@
 test "sha1" {
   let a = "The quick brown fox jumps over the lazy dog"
   inspect(
-    @crypto.bytes_to_hex_string(@crypto.sha1(a.to_bytes().to_fixedarray())),
+    @crypto.bytes_to_hex_string(@crypto.sha1(@encoding.encode(UTF16, a))),
     content="bd136cb58899c93173c33a90dde95ead0d0cf6df",
   )
   let a = []

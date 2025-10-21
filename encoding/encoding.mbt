@@ -34,7 +34,11 @@
 pub fn encode(encoding : Encoding, src : String) -> Bytes {
   // NOTE: special case: MoonBit String are already valid UTF16(LE) bytes
   match encoding {
-    UTF16 | UTF16LE => return src.to_bytes()
+    UTF16 | UTF16LE => {
+      let arr = FixedArray::make(src.length() * 2, b'\x00')
+      arr.blit_from_string(0, src, 0, src.length())
+      return arr.unsafe_reinterpret_as_bytes()
+    }
     _ => ()
   }
   let new_buf = @buffer.new(size_hint=src.length() * 4)

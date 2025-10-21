@@ -18,7 +18,7 @@ test "write_and_read" {
   let path_2 = "./fs/test_2.txt"
   let content_1 = "Hello, World"
   let content_2 = "Hello, MoonBit"
-  @fs.write_bytes_to_file(path_1, content_1.to_bytes())
+  @fs.write_bytes_to_file(path_1, @encoding.encode(UTF16, content_1))
   let res_1 = @fs.read_file_to_bytes(path_1)
   inspect(res_1.to_unchecked_string(), content=content_1)
   @fs.write_string_to_file(path_2, content_2)
