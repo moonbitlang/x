@@ -17,7 +17,7 @@ test "chachaEncrypt" {
   let key = Bytes::make(32, b'\x00')
   let nonce = Bytes::make(12, b'\x00')
   let plaintext = "abc"
-  let block = plaintext.to_bytes()
+  let block = @encoding.encode(UTF16, plaintext)
   inspect(bytes_to_hex_string(block), content="610062006300")
   let encrypted = FixedArray::make(block.length(), b'\x00')
   @crypto.ChaCha::chacha8(key, nonce).transform(block, encrypted)
@@ -62,7 +62,7 @@ test (bench : @bench.T) {
   let key = Bytes::make(32, b'\x00')
   let nonce = Bytes::make(12, b'\x00')
   let plaintext = "abc".repeat(100)
-  let block = plaintext.to_bytes().to_fixedarray()
+  let block = @encoding.encode(UTF16, plaintext)
   let chacha8 = @crypto.ChaCha::chacha8(key, nonce)
   let chacha12 = @crypto.ChaCha::chacha12(key, nonce)
   let chacha20 = @crypto.ChaCha::chacha20(key, nonce)

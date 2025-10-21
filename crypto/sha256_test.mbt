@@ -14,12 +14,12 @@
 
 ///|
 fn sha256test(s : String) -> String {
-  @crypto.bytes_to_hex_string(@crypto.sha256(s.to_bytes().to_fixedarray()))
+  @crypto.bytes_to_hex_string(@crypto.sha256(@encoding.encode(UTF16, s)))
 }
 
 ///|
 fn sha224test(s : String) -> String {
-  @crypto.bytes_to_hex_string(@crypto.sha224(s.to_bytes().to_fixedarray()))
+  @crypto.bytes_to_hex_string(@crypto.sha224(@encoding.encode(UTF16, s)))
 }
 
 // additional

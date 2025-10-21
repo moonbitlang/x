@@ -14,7 +14,15 @@
 
 ///|
 fn md5test(s : String) -> String {
-  bytes_to_hex_string(@crypto.md5(s.to_bytes().to_fixedarray()))
+  bytes_to_hex_string(@crypto.md5(@encoding.encode(UTF16, s)))
+}
+
+///|
+test "md5_simple" {
+  let hash = md5(
+    @encoding.encode(UTF16, "The quick brown fox jumps over the lazy dog"),
+  )
+  inspect(bytes_to_hex_string(hash), content="b0986ae6ee1eefee8a4a399090126837")
 }
 
 ///|

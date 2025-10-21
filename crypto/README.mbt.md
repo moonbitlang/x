@@ -15,7 +15,7 @@ A collection of cryptographic hash functions and utilities.
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(
-    bytes_to_hex_string(sha1(input.to_bytes())),
+    bytes_to_hex_string(sha1(@encoding.encode(UTF16, input))),
     content="bd136cb58899c93173c33a90dde95ead0d0cf6df",
   )
 }
@@ -28,7 +28,7 @@ test {
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(
-    bytes_to_hex_string(md5(input.to_bytes())),
+    bytes_to_hex_string(md5(@encoding.encode(UTF16, input))),
     content="b0986ae6ee1eefee8a4a399090126837",
   )
 
@@ -51,7 +51,7 @@ test {
 test {
   let input = "The quick brown fox jumps over the lazy dog"
   inspect(
-    bytes_to_hex_string(sm3(input.to_bytes())),
+    bytes_to_hex_string(sm3(@encoding.encode(UTF16, input))),
     content="fc2b31896629e88652ca1e3be449ec7ec93f7e5e29769f273fb973bc1858c66d",
   )
 
