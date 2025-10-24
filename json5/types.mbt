@@ -20,6 +20,7 @@ pub(all) struct Position {
 
 ///|
 pub(all) enum ParseErrorData {
+  NoValidToken(Position)
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
@@ -37,6 +38,8 @@ fn[X] parse_error(data : ParseErrorData) -> X raise ParseError {
 ///|
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
+    ParseError(NoValidToken({ line, column })) =>
+      "No valid token at line \{line}, column \{column}"
     ParseError(InvalidChar({ line, column }, c)) =>
       "Invalid character \{c} at line \{line}, column \{column}"
     ParseError(InvalidEof) => "Unexpected end of file"

@@ -29,7 +29,7 @@ test "throws on documents with only comments" {
 ///|
 test "throws on incomplete single line comments" {
   let res = try? @json5.parse("/a")
-  inspect(res, content="Err(Invalid character a at line 1, column 1)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|
@@ -47,7 +47,7 @@ test "throws on unterminated multiline comment closings" {
 ///|
 test "throws on invalid characters in values" {
   let res = try? @json5.parse("a")
-  inspect(res, content="Err(Invalid character a at line 1, column 0)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|
@@ -74,25 +74,25 @@ test "throws on invalid identifier continue characters" {
 ///|
 test "throws on invalid characters following a sign" {
   let res = try? @json5.parse("-a")
-  inspect(res, content="Err(Invalid character a at line 1, column 1)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|
 test "throws on invalid characters following a leading decimal point" {
   let res = try? @json5.parse(".a")
-  inspect(res, content="Err(Invalid character a at line 1, column 1)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|
 test "throws on invalid characters following an exponent indicator" {
   let res = try? @json5.parse("1ea")
-  inspect(res, content="Err(Invalid character a at line 1, column 2)")
+  inspect(res, content="Err(Invalid character e at line 1, column 1)")
 }
 
 ///|
 test "throws on invalid characters following an exponent sign" {
   let res = try? @json5.parse("1e-a")
-  inspect(res, content="Err(Invalid character a at line 1, column 3)")
+  inspect(res, content="Err(Invalid character e at line 1, column 1)")
 }
 
 ///|
@@ -146,7 +146,7 @@ test "throws on invalid characters following an array value" {
 ///|
 test "throws on invalid characters in literals" {
   let res = try? @json5.parse("tru!")
-  inspect(res, content="Err(Invalid character ! at line 1, column 3)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|
@@ -194,7 +194,7 @@ test "throws on multiple values" {
 ///|
 test "throws with control characters escaped in the message" {
   let res = try? @json5.parse("\u{01}")
-  inspect(res, content="Err(Invalid character \u{01} at line 1, column 0)")
+  inspect(res, content="Err(No valid token at line 1, column 1)")
 }
 
 ///|

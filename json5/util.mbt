@@ -29,6 +29,15 @@ fn offset_to_position(input : String, offset : Int) -> Position {
 }
 
 ///|
+fn[X] no_valid_token(
+  ctx : ParseContext,
+  shift? : Int = 0,
+) -> X raise ParseError {
+  let offset = ctx.offset + shift
+  parse_error(NoValidToken(offset_to_position(ctx.input, offset)))
+}
+
+///|
 fn[X] invalid_char(ctx : ParseContext, shift? : Int = 0) -> X raise ParseError {
   let offset = ctx.offset + shift
   parse_error(

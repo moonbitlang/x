@@ -96,17 +96,6 @@ fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit raise ParseError {
 }
 
 ///|
-fn lex_infinity(ctx : ParseContext) -> Unit raise ParseError {
-  lex_assert_char(ctx, 'n')
-  lex_assert_char(ctx, 'f')
-  lex_assert_char(ctx, 'i')
-  lex_assert_char(ctx, 'n')
-  lex_assert_char(ctx, 'i')
-  lex_assert_char(ctx, 't')
-  lex_assert_char(ctx, 'y')
-}
-
-///|
 fn lex_comment(ctx : ParseContext) -> Unit raise ParseError {
   match read_char(ctx) {
     Some('/') =>
