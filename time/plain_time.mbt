@@ -121,7 +121,7 @@ pub fn PlainTime::nanosecond(self : PlainTime) -> Int {
 
 ///|
 /// Returns the total seconds of this time.
-pub fn second_of_day(self : PlainTime) -> Int {
+pub fn PlainTime::second_of_day(self : PlainTime) -> Int {
   let sec = self.hour * seconds_per_hour.to_int() +
     self.minute * seconds_per_minute.to_int() +
     self.second
@@ -130,7 +130,7 @@ pub fn second_of_day(self : PlainTime) -> Int {
 
 ///|
 /// Returns the total nanoseconds of this time.
-pub fn nanosecond_of_day(self : PlainTime) -> Int64 {
+pub fn PlainTime::nanosecond_of_day(self : PlainTime) -> Int64 {
   let sec = self.second_of_day()
   sec.to_int64() * nanoseconds_per_second + self.nanosecond.to_int64()
 }
@@ -325,7 +325,7 @@ pub fn PlainTime::until(
 
 ///|
 /// Combines this time with a date to creates a PlainDateTime
-pub fn at_date(self : PlainTime, date : PlainDate) -> PlainDateTime {
+pub fn PlainTime::at_date(self : PlainTime, date : PlainDate) -> PlainDateTime {
   PlainDateTime::{ date, time: self }
 }
 

@@ -290,7 +290,7 @@ pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
 /// inspect(d.to_string(), content="Some(123.45)")
 /// ```
 ///
-pub fn to_string(self : Decimal) -> String {
+pub fn Decimal::to_string(self : Decimal) -> String {
   if self.is_zero() {
     "0"
   } else {
@@ -376,7 +376,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
 /// inspect(d.to_int(), content="Some(123)")
 /// ```
 ///
-pub fn to_int(self : Decimal) -> Int? {
+pub fn Decimal::to_int(self : Decimal) -> Int? {
   if self.scale == 0 {
     Some(self.coefficient.to_int())
   } else {
@@ -400,7 +400,7 @@ pub fn to_int(self : Decimal) -> Int? {
 /// inspect(d.to_bigint(), content="123")
 /// ```
 ///
-pub fn to_bigint(self : Decimal) -> @bigint.BigInt {
+pub fn Decimal::to_bigint(self : Decimal) -> @bigint.BigInt {
   if self.scale == 0 {
     self.coefficient
   } else {
@@ -431,25 +431,25 @@ pub fn neg_one() -> Decimal {
 
 ///|
 /// Checks if the decimal is zero.
-pub fn is_zero(self : Decimal) -> Bool {
+pub fn Decimal::is_zero(self : Decimal) -> Bool {
   self.coefficient.is_zero()
 }
 
 ///|
 /// Checks if the decimal is positive.
-pub fn is_positive(self : Decimal) -> Bool {
+pub fn Decimal::is_positive(self : Decimal) -> Bool {
   self.coefficient > 0N
 }
 
 ///|
 /// Checks if the decimal is negative.
-pub fn is_negative(self : Decimal) -> Bool {
+pub fn Decimal::is_negative(self : Decimal) -> Bool {
   self.coefficient < 0N
 }
 
 ///|
 /// Returns the sign of the decimal: -1, 0, or 1.
-pub fn signum(self : Decimal) -> Int {
+pub fn Decimal::signum(self : Decimal) -> Int {
   if self.coefficient.is_zero() {
     0
   } else if self.coefficient > 0N {
@@ -461,7 +461,7 @@ pub fn signum(self : Decimal) -> Int {
 
 ///|
 /// Returns the absolute value of the decimal.
-pub fn abs(self : Decimal) -> Decimal {
+pub fn Decimal::abs(self : Decimal) -> Decimal {
   if self.coefficient < 0N {
     { coefficient: -self.coefficient, scale: self.scale }
   } else {
@@ -471,13 +471,13 @@ pub fn abs(self : Decimal) -> Decimal {
 
 ///|
 /// Returns the coefficient (significant digits) of the decimal.
-pub fn coefficient(self : Decimal) -> @bigint.BigInt {
+pub fn Decimal::coefficient(self : Decimal) -> @bigint.BigInt {
   self.coefficient
 }
 
 ///|
 /// Returns the scale (number of decimal places) of the decimal.
-pub fn scale(self : Decimal) -> Int {
+pub fn Decimal::scale(self : Decimal) -> Int {
   self.scale
 }
 
@@ -503,7 +503,7 @@ pub fn scale(self : Decimal) -> Int {
 /// inspect(rounded.to_string(), content="3.14")
 /// ```
 ///
-pub fn round(self : Decimal, places : Int) -> Decimal? {
+pub fn Decimal::round(self : Decimal, places : Int) -> Decimal? {
   if places < 0 || places > max_scale {
     return None
   }
@@ -547,7 +547,7 @@ pub fn round(self : Decimal, places : Int) -> Decimal? {
 /// inspect(truncated.to_string(), content="3.14")
 /// ```
 ///
-pub fn truncate(self : Decimal, places : Int) -> Decimal? {
+pub fn Decimal::truncate(self : Decimal, places : Int) -> Decimal? {
   if places < 0 || places > max_scale {
     return None
   }
@@ -585,7 +585,7 @@ pub fn truncate(self : Decimal, places : Int) -> Decimal? {
 /// inspect(scaled.to_string(), content="123.4500")
 /// ```
 ///
-pub fn scale_to(self : Decimal, new_scale : Int) -> Decimal? {
+pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
   if new_scale < 0 || new_scale > max_scale {
     return None
   }

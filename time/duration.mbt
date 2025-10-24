@@ -101,7 +101,7 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
 
 ///|
 /// Returns a string representation of this duration using ISO 8601 representation.
-pub fn to_string(self : Duration) -> String {
+pub fn Duration::to_string(self : Duration) -> String {
   if self.is_zero() {
     return "PT0S"
   }
@@ -143,31 +143,34 @@ pub impl Show for Duration with output(self : Duration, logger : &Logger) -> Uni
 
 ///|
 /// Returns the number of seconds in this duration.
-pub fn seconds(self : Duration) -> Int64 {
+pub fn Duration::seconds(self : Duration) -> Int64 {
   self.secs
 }
 
 ///|
 /// Returns the number of nanoseconds in this duration.
-pub fn nanoseconds(self : Duration) -> Int {
+pub fn Duration::nanoseconds(self : Duration) -> Int {
   self.nanos
 }
 
 ///|
 /// Checks if this duration is zero length.
-pub fn is_zero(self : Duration) -> Bool {
+pub fn Duration::is_zero(self : Duration) -> Bool {
   self.secs == 0L && self.nanos == 0
 }
 
 ///|
 /// Checks if this duration is negative.
-pub fn is_neg(self : Duration) -> Bool {
+pub fn Duration::is_neg(self : Duration) -> Bool {
   self.secs < 0L
 }
 
 ///|
 /// Adds specified hours to this duration, and returns a new duration.
-pub fn add_hours(self : Duration, hours : Int64) -> Duration raise Error {
+pub fn Duration::add_hours(
+  self : Duration,
+  hours : Int64,
+) -> Duration raise Error {
   if hours == 0L {
     return self
   }
@@ -180,7 +183,10 @@ pub fn add_hours(self : Duration, hours : Int64) -> Duration raise Error {
 
 ///|
 /// Adds specified minutes to this duration, and returns a new duration.
-pub fn add_minutes(self : Duration, minutes : Int64) -> Duration raise Error {
+pub fn Duration::add_minutes(
+  self : Duration,
+  minutes : Int64,
+) -> Duration raise Error {
   if minutes == 0L {
     return self
   }
@@ -193,7 +199,10 @@ pub fn add_minutes(self : Duration, minutes : Int64) -> Duration raise Error {
 
 ///|
 /// Adds specified seconds to this duration, and returns a new duration.
-pub fn add_seconds(self : Duration, seconds : Int64) -> Duration raise Error {
+pub fn Duration::add_seconds(
+  self : Duration,
+  seconds : Int64,
+) -> Duration raise Error {
   if seconds == 0L {
     return self
   }
@@ -203,7 +212,7 @@ pub fn add_seconds(self : Duration, seconds : Int64) -> Duration raise Error {
 
 ///|
 /// Adds specified nanoseconds to this duration, and returns a new duration.
-pub fn add_nanoseconds(
+pub fn Duration::add_nanoseconds(
   self : Duration,
   nanoseconds : Int64,
 ) -> Duration raise Error {
@@ -220,7 +229,10 @@ pub fn add_nanoseconds(
 
 ///|
 /// Adds other duration to this duration, and returns a new duration.
-pub fn add_duration(self : Duration, other : Duration) -> Duration raise Error {
+pub fn Duration::add_duration(
+  self : Duration,
+  other : Duration,
+) -> Duration raise Error {
   if other.is_zero() {
     return self
   }
@@ -236,13 +248,16 @@ pub fn add_duration(self : Duration, other : Duration) -> Duration raise Error {
 }
 
 ///|
-pub fn op_add(self : Duration, other : Duration) -> Duration raise Error {
+pub fn Duration::op_add(
+  self : Duration,
+  other : Duration,
+) -> Duration raise Error {
   self.add_duration(other)
 }
 
 ///|
 /// Returns a new duration with the specified amount of seconds.
-pub fn with_seconds(self : Duration, seconds : Int64) -> Duration {
+pub fn Duration::with_seconds(self : Duration, seconds : Int64) -> Duration {
   if seconds == self.secs {
     return self
   }
@@ -251,7 +266,7 @@ pub fn with_seconds(self : Duration, seconds : Int64) -> Duration {
 
 ///|
 /// Returns a new duration with the specified nanosecond of second.
-pub fn with_nanoseconds(
+pub fn Duration::with_nanoseconds(
   self : Duration,
   nanoseconds : Int,
 ) -> Duration raise Error {
@@ -263,6 +278,6 @@ pub fn with_nanoseconds(
 
 ///|
 /// Converts this duration to the total length in nanoseconds.
-pub fn to_nanoseconds(self : Duration) -> Int64 {
+pub fn Duration::to_nanoseconds(self : Duration) -> Int64 {
   self.secs * nanoseconds_per_second + self.nanos.to_int64()
 }
