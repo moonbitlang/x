@@ -106,7 +106,7 @@ pub impl Compare for ZoneOffset with compare(
 
 ///|
 /// Returns the offset id.
-pub fn id(self : ZoneOffset) -> String {
+pub fn ZoneOffset::id(self : ZoneOffset) -> String {
   self.id
 }
 
@@ -118,7 +118,7 @@ pub fn ZoneOffset::seconds(self : ZoneOffset) -> Int {
 
 ///|
 /// Checks if this offset is daylight saving time.
-pub fn is_dst(self : ZoneOffset) -> Bool {
+pub fn ZoneOffset::is_dst(self : ZoneOffset) -> Bool {
   self.dst
 }
 

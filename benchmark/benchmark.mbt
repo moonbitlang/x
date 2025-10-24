@@ -22,7 +22,7 @@ pub fn Task::new(name : String, f : () -> Unit, count? : Int = 10) -> Task {
 ///|
 #deprecated("Use moon bench instead")
 #coverage.skip
-pub fn run(self : Task) -> TaskResult {
+pub fn Task::run(self : Task) -> TaskResult {
   let now = @ffi.instant_now()
   for i = 1; i <= self.count; i = i + 1 {
     (self.f)()
@@ -67,7 +67,7 @@ pub fn Criterion::new() -> Criterion {
 ///|
 #deprecated("Use moon bench instead")
 #coverage.skip
-pub fn add(self : Criterion, task : Task) -> Unit {
+pub fn Criterion::add(self : Criterion, task : Task) -> Unit {
   self.tasks.push(task)
 }
 

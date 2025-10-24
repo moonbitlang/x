@@ -140,7 +140,7 @@ test "from_stack" {
 ///   s.clear()
 ///   assert_eq(s.length(), 0)
 /// ```
-pub fn[T] clear(self : Stack[T]) -> Unit {
+pub fn[T] Stack::clear(self : Stack[T]) -> Unit {
   self.elements = @list.empty()
   self.len = 0
 }
@@ -161,7 +161,7 @@ test "clear" {
 ///   let s = @stack.of([1, 2, 3]).return_with_clear()
 ///   assert_eq(s.length(), 0)
 /// ```
-pub fn[T] return_with_clear(self : Stack[T]) -> Stack[T] {
+pub fn[T] Stack::return_with_clear(self : Stack[T]) -> Stack[T] {
   self.clear()
   self
 }
@@ -182,7 +182,7 @@ test "return_with_clear" {
 ///   s.push(1)
 ///   assert_eq(s.length(), 1)
 /// ```
-pub fn[T] push(self : Stack[T], x : T) -> Unit {
+pub fn[T] Stack::push(self : Stack[T], x : T) -> Unit {
   self.elements = @list.cons(x, self.elements)
   self.len = self.len + 1
 }
@@ -206,7 +206,7 @@ test "push" {
 ///   s1.push_stack(s)
 ///   assert_eq(s1.length(), 3)
 /// ```
-pub fn[T] push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
+pub fn[T] Stack::push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
   stack.elements.iter().each(fn(i) { self.push(i) })
 }
 
@@ -229,7 +229,7 @@ test "push_stack" {
 ///   s.push_array([1, 2, 3])
 ///   assert_eq(s.length(), 3)
 /// ```
-pub fn[T] push_array(self : Stack[T], array : Array[T]) -> Unit {
+pub fn[T] Stack::push_array(self : Stack[T], array : Array[T]) -> Unit {
   array.each(fn(i) { self.push(i) })
 }
 
@@ -254,7 +254,7 @@ test "push_array" {
 ///   assert_eq(s.length(), 2)
 ///   assert_eq(s1.pop(), None)
 /// ```
-pub fn[T] pop(self : Stack[T]) -> T? {
+pub fn[T] Stack::pop(self : Stack[T]) -> T? {
   match self.elements {
     More(hd, tail=tl) => {
       self.elements = tl
@@ -282,7 +282,7 @@ test "pop" {
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
 /// @alert unsafe "Panic if the stack is empty."
-pub fn[T] unsafe_pop(self : Stack[T]) -> T {
+pub fn[T] Stack::unsafe_pop(self : Stack[T]) -> T {
   match self.elements {
     More(hd, tail=tl) => {
       self.elements = tl
@@ -312,7 +312,7 @@ test "unsafe_pop" {
 ///   s.drop()
 ///   assert_eq(s.length(), 2)
 /// ```
-pub fn[T] drop(self : Stack[T]) -> Unit {
+pub fn[T] Stack::drop(self : Stack[T]) -> Unit {
   match self.elements {
     More(_hd, tail=tl) => {
       self.elements = tl
@@ -341,7 +341,7 @@ test "drop" {
 ///   let r = s.drop_result() // Ok(())
 ///   assert_eq(r, Ok(()))
 /// ```
-pub fn[T] drop_result(self : Stack[T]) -> Result[Unit, Unit] {
+pub fn[T] Stack::drop_result(self : Stack[T]) -> Result[Unit, Unit] {
   match self.elements {
     More(_hd, tail=tl) => {
       self.elements = tl
@@ -373,7 +373,7 @@ test "drop_result" {
 ///   assert_eq(s.peek(), Some(1))
 ///   assert_eq(s.length(), 3)
 /// ```
-pub fn[T] peek(self : Stack[T]) -> T? {
+pub fn[T] Stack::peek(self : Stack[T]) -> T? {
   self.elements.head()
 }
 
@@ -390,7 +390,7 @@ test "peek" {
 /// If there are elements in the stack, return the top element of the stack, otherwise abort.
 ///
 /// @alert unsafe "Panic if the stack is empty."
-pub fn[T] unsafe_peek(self : Stack[T]) -> T {
+pub fn[T] Stack::unsafe_peek(self : Stack[T]) -> T {
   self.elements.unsafe_head()
 }
 
@@ -413,7 +413,7 @@ test "unsafe_peek" {
 ///   let empty : Stack[Unit] = @stack.new()
 ///   assert_true(empty.is_empty())
 /// ```
-pub fn[T] is_empty(self : Stack[T]) -> Bool {
+pub fn[T] Stack::is_empty(self : Stack[T]) -> Bool {
   self.len == 0
 }
 
@@ -426,7 +426,7 @@ test "is_empty" {
 
 ///|
 /// Returns the number of elements of the Stack
-pub fn[T] length(self : Stack[T]) -> Int {
+pub fn[T] Stack::length(self : Stack[T]) -> Int {
   self.len
 }
 
@@ -440,7 +440,7 @@ pub fn[T] length(self : Stack[T]) -> Int {
 ///   s.each(fn(i) { sum = sum + i })
 ///   assert_eq(sum, 6)
 /// ```
-pub fn[T] each(self : Stack[T], f : (T) -> Unit) -> Unit {
+pub fn[T] Stack::each(self : Stack[T], f : (T) -> Unit) -> Unit {
   self.elements.iter().each(f)
 }
 
@@ -472,7 +472,7 @@ test "iter" {
 ///   let sum = s.fold(init=0, fn(acc, i) { acc + i })
 ///   assert_eq(sum, 6)
 /// ```
-pub fn[T, U] fold(self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
+pub fn[T, U] Stack::fold(self : Stack[T], init~ : U, f : (U, T) -> U) -> U {
   self.elements.fold(init~, f)
 }
 
@@ -495,7 +495,7 @@ test "fold" {
 /// stack.push(1)
 /// inspect(stack.iter(), content="[1, 2, 3]")
 /// ```
-pub fn[T] iter(self : Stack[T]) -> Iter[T] {
+pub fn[T] Stack::iter(self : Stack[T]) -> Iter[T] {
   self.elements.iter()
 }
 
@@ -507,7 +507,7 @@ pub fn[T] iter(self : Stack[T]) -> Iter[T] {
 /// ```
 ///   assert_eq(@stack.of([1, 2, 3]).to_array(), [1, 2, 3])
 /// ```
-pub fn[T] to_array(self : Stack[T]) -> Array[T] {
+pub fn[T] Stack::to_array(self : Stack[T]) -> Array[T] {
   self.elements.to_array()
 }
 
@@ -527,7 +527,7 @@ test "to_array" {
 /// ```
 ///   assert_true(@stack.of([2, 4, 6]).equal(@stack.of([2, 4, 6])))
 /// ```
-pub fn[T : Eq] equal(self : Stack[T], other : Stack[T]) -> Bool {
+pub fn[T : Eq] Stack::equal(self : Stack[T], other : Stack[T]) -> Bool {
   if self.len == other.len {
     self.elements == other.elements
   } else {
@@ -536,7 +536,7 @@ pub fn[T : Eq] equal(self : Stack[T], other : Stack[T]) -> Bool {
 }
 
 ///|
-pub fn[T : Eq] op_equal(self : Stack[T], other : Stack[T]) -> Bool {
+pub fn[T : Eq] Stack::op_equal(self : Stack[T], other : Stack[T]) -> Bool {
   self.equal(other)
 }
 

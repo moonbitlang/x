@@ -13,6 +13,6 @@
 // limitations under the License.
 
 ///|
-pub fn hash(self : UUID) -> Int {
+pub fn UUID::hash(self : UUID) -> Int {
   Hash::hash(self.lo) ^ Hash::hash(self.hi)
 }
