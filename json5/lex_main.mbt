@@ -18,106 +18,101 @@ fn lex_value(
   allow_rbracket? : Bool = false,
 ) -> Token raise ParseError {
   for {
-    match read_char(ctx) {
-      Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
-      Some('/') => {
-        lex_comment(ctx)
+    let view = try! ctx.input[ctx.offset:]
+    lexmatch view with longest {
+      (
+        "[\t\u000B\u000C \n\r\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]",
+        rest
+      ) => {
+        ctx.offset = rest.start_offset()
         continue
       }
-      Some('{') => return LBrace
-      Some('[') => return LBracket
-      Some(']') =>
+      ("//" "[^\n\r\u2028\u2029]*", rest) => {
+        ctx.offset = rest.start_offset()
+        continue
+      }
+      ("/[*]" "([*][^/]?|[^*])*" "[*]/", rest) => {
+        ctx.offset = rest.start_offset()
+        continue
+      }
+      ("/[*]" "([*][^/]?|[^*])*") => parse_error(InvalidEof)
+      ("[{]", rest) => {
+        ctx.offset = rest.start_offset()
+        return LBrace
+      }
+      ("\[", rest) => {
+        ctx.offset = rest.start_offset()
+        return LBracket
+      }
+      ("\]", rest) =>
         if allow_rbracket {
+          ctx.offset = rest.start_offset()
           return RBracket
         } else {
-          invalid_char(ctx, shift=-1)
+          invalid_char(ctx)
         }
-      Some('n') => {
-        lex_assert_char(ctx, 'u')
-        lex_assert_char(ctx, 'l')
-        lex_assert_char(ctx, 'l')
+      ("null", rest) => {
+        ctx.offset = rest.start_offset()
         return Null
       }
-      Some('t') => {
-        lex_assert_char(ctx, 'r')
-        lex_assert_char(ctx, 'u')
-        lex_assert_char(ctx, 'e')
+      ("true", rest) => {
+        ctx.offset = rest.start_offset()
         return True
       }
-      Some('f') => {
-        lex_assert_char(ctx, 'a')
-        lex_assert_char(ctx, 'l')
-        lex_assert_char(ctx, 's')
-        lex_assert_char(ctx, 'e')
+      ("false", rest) => {
+        ctx.offset = rest.start_offset()
         return False
       }
-      Some('-' | '+' as c) =>
-        match read_char(ctx) {
-          Some('I') => {
-            lex_infinity(ctx)
-            return Number(
-              if c == '-' {
-                @double.neg_infinity
-              } else {
-                @double.infinity
-              },
-            )
-          }
-          Some('N') => {
-            lex_assert_char(ctx, 'a')
-            lex_assert_char(ctx, 'N')
-            return Number(@double.not_a_number)
-          }
-          Some('0') => {
-            let n = lex_zero(ctx, neg=c == '-', start=ctx.offset - 2)
-            return Number(n)
-          }
-          Some('.') => {
-            let n = lex_decimal_point_leading(ctx, start=ctx.offset - 2)
-            return Number(n)
-          }
-          Some(c2) => {
-            if c2 >= '1' && c2 <= '9' {
-              let n = lex_decimal_integer(ctx, start=ctx.offset - 2)
-              return Number(n)
-            }
-            invalid_char(ctx, shift=-1)
-          }
-          None => parse_error(InvalidEof)
-        }
-      Some('.') => {
-        let n = lex_decimal_point_leading(ctx, start=ctx.offset - 1)
+      ("\+?0[xX]", rest) => {
+        ctx.offset = rest.start_offset()
+        let n = lex_hexadecimal(ctx, neg=false)
         return Number(n)
       }
-      Some('0') => {
-        let n = lex_zero(ctx, neg=false, start=ctx.offset - 1)
+      ("-0[xX]", rest) => {
+        ctx.offset = rest.start_offset()
+        let n = lex_hexadecimal(ctx, neg=true)
         return Number(n)
       }
-      Some('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') => {
-        let n = lex_decimal_integer(ctx, start=ctx.offset - 1)
+      (
+        "[+\-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+\-]?[0-9]+)?" as lit,
+        rest
+      ) => {
+        ctx.offset = rest.start_offset()
+        let n = lex_number_end(
+          ctx,
+          lit.start_offset(),
+          lit.start_offset() + lit.length(),
+        )
         return Number(n)
       }
-      Some('I') => {
-        lex_infinity(ctx)
+      ("\+?Infinity", rest) => {
+        ctx.offset = rest.start_offset()
         return Number(@double.infinity)
       }
-      Some('N') => {
-        lex_assert_char(ctx, 'a')
-        lex_assert_char(ctx, 'N')
+      ("-Infinity", rest) => {
+        ctx.offset = rest.start_offset()
+        return Number(@double.neg_infinity)
+      }
+      ("[+\-]?NaN", rest) => {
+        ctx.offset = rest.start_offset()
         return Number(@double.not_a_number)
       }
-      Some('"') => {
-        let n = lex_string(ctx, '"')
-        return String(n)
+      ("\"", rest) => {
+        ctx.offset = rest.start_offset()
+        let s = lex_string(ctx, '"')
+        return String(s)
       }
-      Some('\'') => return String(lex_string(ctx, '\''))
-      Some(c) => {
-        if c > '\u{7f}' && non_ascii_whitespace.contains(c) {
-          continue
-        }
-        invalid_char(ctx, shift=-1)
+      ("'", rest) => {
+        ctx.offset = rest.start_offset()
+        let s = lex_string(ctx, '\'')
+        return String(s)
       }
-      None => parse_error(InvalidEof)
+      (".", rest) => {
+        ctx.offset = rest.start_offset()
+        no_valid_token(ctx)
+      }
+      "" => parse_error(InvalidEof)
+      _ => panic()
     }
   }
 }
