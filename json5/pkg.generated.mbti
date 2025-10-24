@@ -12,6 +12,7 @@ impl Show for ParseError
 
 // Types and methods
 pub(all) enum ParseErrorData {
+  NoValidToken(Position)
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
