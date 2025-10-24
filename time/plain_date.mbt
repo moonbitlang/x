@@ -63,7 +63,7 @@ pub fn PlainDate::from_unix_day(unix_day : Int64) -> PlainDate raise Error {
 
 ///|
 /// Returns the days count since unix epoch of this date.
-pub fn to_unix_day(self : PlainDate) -> Int64 {
+pub fn PlainDate::to_unix_day(self : PlainDate) -> Int64 {
   let days = date_to_fixed_days(self.year, self.month, self.day)
   days - days_zero_year_to_unix_epoch
 }
@@ -134,7 +134,7 @@ pub impl Compare for PlainDate with compare(self : PlainDate, other : PlainDate)
 
 ///|
 /// Returns the era of this date.
-pub fn era(self : PlainDate) -> String {
+pub fn PlainDate::era(self : PlainDate) -> String {
   if self.year >= 1 {
     "CE"
   } else {
@@ -144,7 +144,7 @@ pub fn era(self : PlainDate) -> String {
 
 ///|
 /// Returns the year of the era of this date.
-pub fn era_year(self : PlainDate) -> Int {
+pub fn PlainDate::era_year(self : PlainDate) -> Int {
   if self.year <= 0 {
     self.year.abs() + 1
   } else {
@@ -154,25 +154,25 @@ pub fn era_year(self : PlainDate) -> Int {
 
 ///|
 /// Returns the number of years relative to a calendar-specific epoch.
-pub fn year(self : PlainDate) -> Int {
+pub fn PlainDate::year(self : PlainDate) -> Int {
   self.year
 }
 
 ///|
 /// Returns the ordinal number of month in the current year.
-pub fn month(self : PlainDate) -> Int {
+pub fn PlainDate::month(self : PlainDate) -> Int {
   self.month
 }
 
 ///|
 /// Returns the day of the month.
-pub fn day(self : PlainDate) -> Int {
+pub fn PlainDate::day(self : PlainDate) -> Int {
   self.day
 }
 
 ///|
 /// Returns the weekday.
-pub fn weekday(self : PlainDate) -> Weekday {
+pub fn PlainDate::weekday(self : PlainDate) -> Weekday {
   // Zeller's congruence
   // https://en.wikipedia.org/wiki/Zeller%27s_congruence
   let mut y = self.year
@@ -191,7 +191,7 @@ pub fn weekday(self : PlainDate) -> Weekday {
 
 ///|
 /// Returns the ordinal day of the year.
-pub fn ordinal(self : PlainDate) -> Int {
+pub fn PlainDate::ordinal(self : PlainDate) -> Int {
   let days = date_to_fixed_days(self.year, self.month, self.day)
   let (_, ordinal) = fixed_days_to_year_ord(days)
   ordinal
@@ -205,14 +205,14 @@ pub fn PlainDate::days_in_week(_self : PlainDate) -> Int {
 
 ///|
 /// Returns the number of days in the month.
-pub fn days_in_month(self : PlainDate) -> Int {
+pub fn PlainDate::days_in_month(self : PlainDate) -> Int {
   let { year, month, .. } = self
   calc_days_in_month(year, month)
 }
 
 ///|
 /// Returns the number of days in the year.
-pub fn days_in_year(self : PlainDate) -> Int {
+pub fn PlainDate::days_in_year(self : PlainDate) -> Int {
   calc_days_in_year(self.year)
 }
 
@@ -224,13 +224,16 @@ pub fn PlainDate::months_in_year(_self : PlainDate) -> Int {
 
 ///|
 /// Checks if the date is in a leap year.
-pub fn in_leap_year(self : PlainDate) -> Bool {
+pub fn PlainDate::in_leap_year(self : PlainDate) -> Bool {
   check_leap_year(self.year)
 }
 
 ///|
 /// Returns a new date with the specified year.
-pub fn with_year(self : PlainDate, year : Int) -> PlainDate raise Error {
+pub fn PlainDate::with_year(
+  self : PlainDate,
+  year : Int,
+) -> PlainDate raise Error {
   if self.year == year {
     return self
   }
@@ -244,7 +247,10 @@ pub fn with_year(self : PlainDate, year : Int) -> PlainDate raise Error {
 
 ///|
 /// Returns a new date with the specified month.
-pub fn with_month(self : PlainDate, month : Int) -> PlainDate raise Error {
+pub fn PlainDate::with_month(
+  self : PlainDate,
+  month : Int,
+) -> PlainDate raise Error {
   if self.month == month {
     return self
   }
@@ -258,7 +264,10 @@ pub fn with_month(self : PlainDate, month : Int) -> PlainDate raise Error {
 
 ///|
 /// Returns a new date with the specified day of month.
-pub fn with_day(self : PlainDate, day : Int) -> PlainDate raise Error {
+pub fn PlainDate::with_day(
+  self : PlainDate,
+  day : Int,
+) -> PlainDate raise Error {
   if self.day == day {
     return self
   }
@@ -272,7 +281,10 @@ pub fn with_day(self : PlainDate, day : Int) -> PlainDate raise Error {
 
 ///|
 /// Returns a new date with the specified ordinal day of year.
-pub fn with_ordinal(self : PlainDate, ordinal : Int) -> PlainDate raise Error {
+pub fn PlainDate::with_ordinal(
+  self : PlainDate,
+  ordinal : Int,
+) -> PlainDate raise Error {
   if self.ordinal() == ordinal {
     return self
   }

@@ -31,7 +31,7 @@ pub fn[T] Stack::from_list(list : @list.List[T]) -> Stack[T] {
 /// ```
 #deprecated("use `list.each(stack.push(_)` instead")
 #coverage.skip
-pub fn[T] push_list(self : Stack[T], list : @list.List[T]) -> Unit {
+pub fn[T] Stack::push_list(self : Stack[T], list : @list.List[T]) -> Unit {
   list.each(fn(i) { self.push(i) })
 }
 
@@ -44,12 +44,12 @@ pub fn[T] push_list(self : Stack[T], list : @list.List[T]) -> Unit {
 ///   assert_eq(@stack.of([1, 2, 3]).iter() |> @list.from_iter(), @list.of([1, 2, 3]))
 /// ```
 #deprecated("Use `stack.iter() |> @list.from_iter()` instead")
-pub fn[T] to_list(self : Stack[T]) -> @list.List[T] {
+pub fn[T] Stack::to_list(self : Stack[T]) -> @list.List[T] {
   self.elements.iter() |> @list.from_iter()
 }
 
 ///|
 #deprecated("Use `unsafe_peek` instead")
-pub fn[T] peek_exn(self : Stack[T]) -> T {
+pub fn[T] Stack::peek_exn(self : Stack[T]) -> T {
   self.elements.unsafe_head()
 }

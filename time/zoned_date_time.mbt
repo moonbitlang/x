@@ -253,13 +253,13 @@ pub fn ZonedDateTime::nanosecond(self : ZonedDateTime) -> Int {
 
 ///|
 /// Returns the time zone of this datetime.
-pub fn zone(self : ZonedDateTime) -> Zone {
+pub fn ZonedDateTime::zone(self : ZonedDateTime) -> Zone {
   self.zone
 }
 
 ///|
 /// Returns the time offset of this datetime.
-pub fn offset(self : ZonedDateTime) -> ZoneOffset {
+pub fn ZonedDateTime::offset(self : ZonedDateTime) -> ZoneOffset {
   self.offset
 }
 

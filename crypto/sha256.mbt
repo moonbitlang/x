@@ -118,7 +118,7 @@ pub impl CryptoHasher for SHA256 with update(self : SHA256, data : BytesView) ->
 
 ///|
 /// update the state of given context from new `data` 
-pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
+pub fn[Data : ByteSource] SHA256::update(self : SHA256, data : Data) -> Unit {
   let mut offset = 0
   while offset < data.length() {
     let min_len = if 64 - self.buf_index >= data.length() - offset {
@@ -143,7 +143,7 @@ pub fn[Data : ByteSource] update(self : SHA256, data : Data) -> Unit {
 }
 
 ///|
-pub fn finalize(self : SHA256) -> FixedArray[Byte] {
+pub fn SHA256::finalize(self : SHA256) -> FixedArray[Byte] {
   let ret = FixedArray::make(32, Byte::default())
   self._finalize_into(ret)
   ret

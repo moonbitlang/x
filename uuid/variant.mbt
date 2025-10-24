@@ -51,7 +51,7 @@ fn Version::from_int64(int : Int64) -> Version {
 }
 
 ///|
-fn to_int64(self : Version) -> Int64 {
+fn Version::to_int64(self : Version) -> Int64 {
   match self {
     V1 => 1L
     V2 => 2L
@@ -64,7 +64,7 @@ fn to_int64(self : Version) -> Int64 {
 
 ///|
 /// Retrieves the variant of the UUID.
-pub fn variant(self : UUID) -> Variant {
+pub fn UUID::variant(self : UUID) -> Variant {
   if (self.lo & (0x8000L << 48)) == 0L {
     ReservedNCS
   } else if (self.lo & (0x4000L << 48)) == 0L {
@@ -85,7 +85,7 @@ pub fn variant(self : UUID) -> Variant {
 ///
 /// If the variant of the UUID is not `RFC4122`, returns `None`.
 ///
-pub fn version(self : UUID) -> Version? {
+pub fn UUID::version(self : UUID) -> Version? {
   match self.variant() {
     RFC4122(ver) => Some(ver)
     _ => None
@@ -94,7 +94,7 @@ pub fn version(self : UUID) -> Version? {
 
 ///|
 /// Converts this UUID to RFC-4122 with the given version number.
-pub fn as_version(self : UUID, version : Version) -> UUID {
+pub fn UUID::as_version(self : UUID, version : Version) -> UUID {
   let { hi, lo } = self
   // Set the variant to RFC 4122.
   let lo = (lo & (0xc000L << 48).lnot()) | (0x8000L << 48)

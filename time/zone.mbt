@@ -38,7 +38,7 @@ pub fn fixed_zone(
 
 ///|
 /// Checks if this zone only has one offset.
-pub fn is_fixed(self : Zone) -> Bool {
+pub fn Zone::is_fixed(self : Zone) -> Bool {
   self.offsets.length() == 1
 }
 
@@ -54,7 +54,7 @@ pub impl Show for Zone with output(self : Zone, logger : &Logger) -> Unit {
 }
 
 ///|
-fn lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
+fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
   if self.offsets.length() == 0 {
     return utc_offset
   }

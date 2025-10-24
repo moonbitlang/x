@@ -327,7 +327,7 @@ pub impl[T : Integral] Compare for Rational[T] with compare(
 /// inspect(negative.to_double(), content="-0.75")
 /// ```
 ///
-pub fn to_double(self : Rational64) -> Double {
+pub fn Rational64::to_double(self : Rational64) -> Double {
   // TODO: complete algorithm
   self.numerator.to_double() / self.denominator.to_double()
 }
@@ -719,8 +719,6 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
 pub fn[T : Integral] Rational::is_integer(self : Rational[T]) -> Bool {
   self.denominator == T::from_int(1)
 }
-
-///|
 
 ///|
 test "op_add" {

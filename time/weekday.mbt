@@ -38,7 +38,7 @@ fn Weekday::new(week_day : Int) -> Weekday? {
 }
 
 ///|
-fn value(self : Weekday) -> Int {
+fn Weekday::value(self : Weekday) -> Int {
   match self {
     Monday => 1
     Tuesday => 2
