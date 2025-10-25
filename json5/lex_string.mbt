@@ -17,7 +17,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
   let buf = StringBuilder::new()
   let mut start = ctx.offset
   fn flush(end : Int) {
-    if start > 0 && end > start {
+    if end > start {
       buf.write_substring(ctx.input, start, end - start)
     }
   }
