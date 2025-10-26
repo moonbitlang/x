@@ -27,6 +27,13 @@ test "get_env_vars" {
       #|None
     ),
   )
+  @sys.set_env_var(k, "") // set to empty string first
+  inspect(
+    @sys.get_env_vars().get(k),
+    content=(
+      #|Some("")
+    ),
+  )
   @sys.set_env_var(k, v)
   inspect(
     @sys.get_env_vars().get(k),
