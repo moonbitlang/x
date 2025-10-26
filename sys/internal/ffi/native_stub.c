@@ -12,6 +12,37 @@
 #include <unistd.h>
 #endif
 
+MOONBIT_FFI_EXPORT moonbit_bytes_t get_env_var(moonbit_bytes_t key) {
+#ifdef _WIN32
+    DWORD buf_size = GetEnvironmentVariable((LPSTR)key, NULL, 0);
+    if (buf_size == 0) {
+        return moonbit_make_bytes(0, 0); // Return empty bytes to indicate None
+    }
+    moonbit_bytes_t result = moonbit_make_bytes(buf_size - 1, 0);
+    GetEnvironmentVariable((LPSTR)key, (LPSTR)result, buf_size);
+    return result;
+#else
+    char* value = getenv((const char*)key);
+    if (value == NULL) {
+        return moonbit_make_bytes(0, 0); // Return empty bytes to indicate None
+    }
+    size_t len = strlen(value);
+    moonbit_bytes_t result = moonbit_make_bytes(len, 0);
+    memcpy(result, value, len);
+    return result;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t get_env_var_exists(moonbit_bytes_t key) {
+#ifdef _WIN32
+    DWORD buf_size = GetEnvironmentVariable((LPSTR)key, NULL, 0);
+    return buf_size != 0; // Variable exists
+#else
+    char* value = getenv((const char*)key);
+    return value != NULL; // Variable exists
+#endif
+}
+
 MOONBIT_FFI_EXPORT moonbit_bytes_t* get_env_vars() {
 #ifdef _WIN32
     // Get environment block

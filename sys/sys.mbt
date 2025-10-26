@@ -30,6 +30,13 @@ pub fn get_env_vars() -> Map[String, String] {
 }
 
 ///|
+/// Gets the environment variable of specific key of the current process.
+/// If the environment variable is not set or exists, returns `None`.
+pub fn get_env_var(key : String) -> String? {
+  @ffi.get_env_var(key)
+}
+
+///|
 /// Sets an environment variable.
 pub fn set_env_var(key : String, value : String) -> Unit {
   @ffi.set_env_var(key, value)
