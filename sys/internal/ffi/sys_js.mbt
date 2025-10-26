@@ -25,6 +25,28 @@ extern "js" fn get_cli_args_internal() -> Array[String] =
   #| }
 
 ///|
+pub fn get_env_var(key : String) -> String? {
+  if is_env_var_exists_internal(key) {
+    Some(get_env_var_internal(key))
+  } else {
+    None
+  }
+}
+
+///|
+extern "js" fn is_env_var_exists_internal(key : String) -> Bool =
+  #| function(key) {
+  #|   return key in process.env;
+  #| }
+
+///|
+extern "js" fn get_env_var_internal(key : String) -> String =
+  #| function(key) {
+  #|   const env = process.env;
+  #|   return env[key] || "";
+  #| }
+
+///|
 pub fn get_env_vars() -> Map[String, String] {
   let tmp = get_env_vars_internal()
   let res = {}

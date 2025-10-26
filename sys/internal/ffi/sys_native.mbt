@@ -27,6 +27,24 @@ pub fn get_cli_args() -> Array[String] {
 }
 
 ///|
+pub fn get_env_var(key : String) -> String? {
+  let key_bytes = @common_ffi.mbt_string_to_utf8_bytes(key, true)
+  if get_env_var_exists_ffi(key_bytes) {
+    Some(@common_ffi.utf8_bytes_to_mbt_string(get_env_var_ffi(key_bytes)))
+  } else {
+    None
+  }
+}
+
+///|
+#borrow(_key)
+extern "C" fn get_env_var_ffi(_key : Bytes) -> Bytes = "get_env_var"
+
+///|
+#borrow(_key)
+extern "C" fn get_env_var_exists_ffi(_key : Bytes) -> Bool = "get_env_var_exists"
+
+///|
 pub fn get_env_vars() -> Map[String, String] {
   let env_vars = get_env_vars_ffi().map(env => @common_ffi.utf8_bytes_to_mbt_string(
     env,
