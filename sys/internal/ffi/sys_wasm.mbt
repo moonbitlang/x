@@ -28,6 +28,23 @@ pub fn get_cli_args() -> Array[String] {
 fn get_cli_args_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "args_get"
 
 ///|
+pub fn get_env_var(key : String) -> String? {
+  let key = @common_ffi.string_to_extern(key)
+  if get_env_var_exists_ffi(key) {
+    let val = get_env_var_ffi(key)
+    Some(@common_ffi.string_from_extern(val))
+  } else {
+    None
+  }
+}
+
+///|
+fn get_env_var_ffi(key : XExternString) -> XExternString = "__moonbit_fs_unstable" "get_env_var"
+
+///|
+fn get_env_var_exists_ffi(key : XExternString) -> Bool = "__moonbit_fs_unstable" "get_env_var_exists"
+
+///|
 pub fn get_env_vars() -> Map[String, String] {
   let env = get_env_vars_ffi()
   let tmp = @common_ffi.string_array_from_extern(env)
