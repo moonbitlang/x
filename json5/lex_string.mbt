@@ -80,6 +80,18 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
 }
 
 ///|
+test {
+  //If start < 0 && is not removed, the test has no input. After removing it, the output is correct.
+  // 1. 输入是 "hello" (不带起始引号)
+  let ctx = ParseContext::make("hello\"")
+
+  // 2. *不* 预先读取字符，直接调用 lex_string
+  //    此时 ctx.offset 是 0
+  let result = lex_string(ctx, '"')
+  println(result)
+}
+
+///|
 fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int raise ParseError {
   let mut r = 0
   for i = 0; i < n; i = i + 1 {
