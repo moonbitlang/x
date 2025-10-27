@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.4.36]
+
+### Changed
+
+- Prepare for next MoonBit toolchain support (#197)
+
 ## [0.4.35]
 
 ### Added
