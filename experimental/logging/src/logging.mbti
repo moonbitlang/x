@@ -1,0 +1,5 @@
+package "moonbitlang/logging"
+
+fn log(String, &Show, @types.Level) -> Unit
+
+fn set_level(@types.Level) -> Unit
