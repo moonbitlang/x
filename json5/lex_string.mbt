@@ -17,7 +17,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
   let buf = StringBuilder::new()
   let mut start = ctx.offset
   fn flush(end : Int) {
-    if start > 0 && end > start {
+    if end > start {
       buf.write_substring(ctx.input, start, end - start)
     }
   }
@@ -77,6 +77,18 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
     }
   }
   buf.to_string()
+}
+
+///|
+test {
+  //If start < 0 && is not removed, the test has no input. After removing it, the output is correct.
+  // 1. 输入是 "hello" (不带起始引号)
+  let ctx = ParseContext::make("hello\"")
+
+  // 2. *不* 预先读取字符，直接调用 lex_string
+  //    此时 ctx.offset 是 0
+  let result = lex_string(ctx, '"')
+  println(result)
 }
 
 ///|
