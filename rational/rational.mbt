@@ -210,6 +210,7 @@ pub impl[T : Integral] Div for Rational[T] with div(self, other) {
 /// inspect(negative_three, content="-3")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
   if self.numerator.signum() < 0 {
     new_unchecked(-self.denominator, -self.numerator)
@@ -263,6 +264,7 @@ pub impl[T : Integral] Neg for Rational[T] with neg(self : Rational[T]) -> Ratio
 /// inspect(negative.abs(), content="3/4")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
   new_unchecked(self.numerator.abs(), self.denominator)
 }
@@ -514,6 +516,7 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
 /// inspect(r3.ceil(), content="2")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::ceil(self : Rational[T]) -> T {
   let sign = if self.numerator.signum() < 0 {
     T::from_int(-1)
@@ -551,6 +554,7 @@ pub fn[T : Integral] Rational::ceil(self : Rational[T]) -> T {
 /// inspect(r3.floor(), content="2")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::floor(self : Rational[T]) -> T {
   let sign = if self.numerator.signum() < 0 {
     T::from_int(-1)
@@ -590,6 +594,7 @@ pub fn[T : Integral] Rational::floor(self : Rational[T]) -> T {
 /// inspect(d.trunc(), content="-2")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::trunc(self : Rational[T]) -> T {
   if self.numerator.signum() < 0 {
     -(-self.numerator / self.denominator)
@@ -622,6 +627,7 @@ pub fn[T : Integral] Rational::trunc(self : Rational[T]) -> T {
 /// inspect(r3.fract(), content="0")        // fractional part is 0
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::fract(self : Rational[T]) -> Rational[T] {
   new_unchecked(self.numerator % self.denominator, self.denominator)
 }
@@ -709,12 +715,12 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
 /// inspect(zero.is_integer(), content="true")
 /// ```
 ///
+#as_free_fn
 pub fn[T : Integral] Rational::is_integer(self : Rational[T]) -> Bool {
   self.denominator == T::from_int(1)
 }
 
 ///|
-pub fnalias Rational::(abs, ceil, floor, trunc, is_integer, fract, reciprocal)
 
 ///|
 test "op_add" {

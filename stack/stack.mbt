@@ -18,20 +18,12 @@
 /// # Example
 ///
 /// ```
-/// let s : Stack[Int] = @stack.new()
-/// assert_true(s.is_empty())
-/// ```
-pub fnalias Stack::new
-
-///|
-/// Create an empty stack.
-///
-/// # Example
-///
-/// ```
 /// let s : Stack[Int] = @stack.Stack::new()
 /// assert_true(s.is_empty())
+/// let s1 : Stack[Int] = @stack.new()
+/// assert_true(s.is_empty())
 /// ```
+#as_free_fn
 pub fn[T] Stack::new() -> Stack[T] {
   { elements: @list.from_array([]), len: 0 }
 }
@@ -85,12 +77,10 @@ test "from_iter" {
 /// let s = of([1, 2, 3])
 /// assert_eq(s.length(), 3)
 /// ```
+#as_free_fn
 pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
   { elements: @list.of(array), len: array.length() }
 }
-
-///|
-pub fnalias Stack::of
 
 ///|
 test "of" {

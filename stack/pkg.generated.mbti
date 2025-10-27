@@ -26,10 +26,10 @@ fn[T] Stack::from_stack(Self[T]) -> Self[T]
 fn[T] Stack::is_empty(Self[T]) -> Bool
 fn[T] Stack::iter(Self[T]) -> Iter[T]
 fn[T] Stack::length(Self[T]) -> Int
+#as_free_fn
 fn[T] Stack::new() -> Self[T]
-fnalias Stack::new
+#as_free_fn
 fn[T] Stack::of(FixedArray[T]) -> Self[T]
-fnalias Stack::of
 fn[T : Eq] Stack::op_equal(Self[T], Self[T]) -> Bool
 fn[T : Show] Stack::output(Self[T], &Logger) -> Unit // from trait `Show`
 fn[T] Stack::peek(Self[T]) -> T?
