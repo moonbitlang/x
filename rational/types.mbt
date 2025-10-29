@@ -80,10 +80,10 @@ pub impl Integral for BigInt with signum(self : BigInt) -> Int {
 }
 
 ///|
-pub typealias Rational[Int64] as Rational64
+pub type Rational64 = Rational[Int64]
 
 ///|
-pub typealias Rational[Int] as Rational32
+pub type Rational32 = Rational[Int]
 
 ///|
-pub typealias Rational[BigInt] as BigRational
+pub type BigRational = Rational[BigInt]
