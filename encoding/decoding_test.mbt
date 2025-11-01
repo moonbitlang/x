@@ -758,7 +758,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
 }
 
 ///|
-test "decode_lossy_to/UTF16BE" {
+test "decode_lossy_to/UTF16BE_2" {
   let src = b"\xD8\x00\x00\x48"
   assert_eq(src, b"\xd8\x00\x00\x48")
   let decoder = @encoding.decoder(UTF16BE)
