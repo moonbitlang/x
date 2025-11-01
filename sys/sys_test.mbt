@@ -21,6 +21,19 @@ test "get_env_vars" {
       #|None
     ),
   )
+  inspect(
+    @sys.get_env_var(k),
+    content=(
+      #|None
+    ),
+  )
+  @sys.set_env_var(k, "") // set to empty string first
+  inspect(
+    @sys.get_env_vars().get(k),
+    content=(
+      #|Some("")
+    ),
+  )
   @sys.set_env_var(k, v)
   inspect(
     @sys.get_env_vars().get(k),
@@ -28,9 +41,21 @@ test "get_env_vars" {
       #|Some("IT_WORKS")
     ),
   )
+  inspect(
+    @sys.get_env_var(k),
+    content=(
+      #|Some("IT_WORKS")
+    ),
+  )
   @sys.unset_env_var(k)
   inspect(
     @sys.get_env_vars().get(k),
+    content=(
+      #|None
+    ),
+  )
+  inspect(
+    @sys.get_env_var(k),
     content=(
       #|None
     ),
