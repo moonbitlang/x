@@ -26,8 +26,6 @@ fn write_string_to_file(String, String, encoding? : String) -> Unit raise IOErro
 
 // Errors
 pub(all) suberror IOError String
-fn IOError::output(Self, &Logger) -> Unit // from trait `Show`
-fn IOError::to_string(Self) -> String // from trait `Show`
 impl Show for IOError
 
 // Types and methods
