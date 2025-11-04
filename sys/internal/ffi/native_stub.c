@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -111,5 +112,13 @@ MOONBIT_FFI_EXPORT void unset_env_var(moonbit_bytes_t key) {
     SetEnvironmentVariable(key, NULL);
 #else
     unsetenv((const char*)key);
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t moonbitlang_x_sys_is_windows() {
+#ifdef _WIN32
+    return 1;
+#else
+    return 0;
 #endif
 }

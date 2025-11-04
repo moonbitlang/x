@@ -8,6 +8,8 @@ fn get_cli_args() -> Array[String]
 
 fn get_env_vars() -> Map[String, String]
 
+fn is_windows() -> Int
+
 fn set_env_var(String, String) -> Unit
 
 fn unset_env_var(String) -> Unit

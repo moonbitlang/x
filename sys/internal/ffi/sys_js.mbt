@@ -73,3 +73,14 @@ pub extern "js" fn exit(code : Int) -> Unit =
   #| function(code) {
   #|   process.exit(code);
   #| }
+
+///|
+pub extern "js" fn is_windows() -> Int =
+  #|function () {
+  #|  let process = require("process");
+  #|  if (process.platform === "win32") {
+  #|    return 1;
+  #|  } else {
+  #|    return 0;
+  #|  }
+  #|};

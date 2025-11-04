@@ -62,3 +62,6 @@ fn unset_env_var_ffi(key : XExternString) = "__moonbit_fs_unstable" "unset_env_v
 
 ///|
 pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"
+
+///|
+pub fn is_windows() -> Int = "__moonbit_sys_unstable" "is_windows"

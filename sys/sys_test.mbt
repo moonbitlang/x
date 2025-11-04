@@ -36,3 +36,25 @@ test "get_env_vars" {
     ),
   )
 }
+
+///|
+fn __ci_is_windows() -> Bool {
+  let env = @sys.get_env_vars()
+  match env.get("OS_PLATFORM") {
+    Some("windows-latest") => true
+    None => false
+    Some(_) => false
+  }
+}
+
+///|
+fn is_windows() -> Bool {
+  @ffi.is_windows() == 1
+}
+
+///|
+test "is_windows platform detection" {
+  let expected = __ci_is_windows()
+  let actual = is_windows()
+  assert_eq(actual, expected)
+}
