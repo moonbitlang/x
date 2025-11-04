@@ -10,6 +10,7 @@ package "moonbitlang/x/num"
 // Type aliases
 
 // Traits
+#deprecated
 pub trait Num {
   from_int(Int) -> Self
   op_add(Self, Self) -> Self
