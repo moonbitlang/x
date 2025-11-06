@@ -26,7 +26,7 @@ pub fn[T] Stack::from_list(list : @list.List[T]) -> Stack[T] {
 ///
 /// ```
 ///   let s = @stack.new()
-///   @list.of([1, 2, 3]).each(s.push(_))
+///   @list.from_array([1, 2, 3]).each(s.push(_))
 ///   assert_eq(s.length(), 3)
 /// ```
 #deprecated("use `list.each(stack.push(_)` instead")
@@ -41,7 +41,7 @@ pub fn[T] Stack::push_list(self : Stack[T], list : @list.List[T]) -> Unit {
 /// # Example
 ///
 /// ```
-///   assert_eq(@stack.of([1, 2, 3]).iter() |> @list.from_iter(), @list.of([1, 2, 3]))
+///   assert_eq(@stack.of([1, 2, 3]).iter() |> @list.from_iter(), @list.from_array([1, 2, 3]))
 /// ```
 #deprecated("Use `stack.iter() |> @list.from_iter()` instead")
 pub fn[T] Stack::to_list(self : Stack[T]) -> @list.List[T] {

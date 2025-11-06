@@ -4,3 +4,4 @@ target/
 benchlog/
 .cache/
 compile_commands.json
+.moonagent/

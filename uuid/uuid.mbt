@@ -24,7 +24,7 @@
 ///
 /// ```moonbit
 /// let u1 = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
-/// let u2 = @uuid.from_bytes(@bytes.of([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
+/// let u2 = @uuid.from_bytes(@bytes.from_array([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
 /// assert_eq(u1, u2)
 /// ```
 ///
