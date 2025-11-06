@@ -17,6 +17,10 @@ jobs:
           - name: windows-latest
 
     runs-on: ${{ matrix.os.name }}
+    
+    env: 
+      OS_PLATFORM: ${{ matrix.os.name }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -80,6 +84,10 @@ jobs:
           - name: windows-latest
 
     runs-on: ${{ matrix.os.name }}
+
+    env: 
+      OS_PLATFORM: ${{ matrix.os.name }}
+
     steps:
       - uses: actions/checkout@v4
 
