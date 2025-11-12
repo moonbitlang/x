@@ -74,7 +74,7 @@ pub fn is_absolute(path : StringView) -> Bool {
 
 ///|
 /// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute path, return rhs.
+/// 2. if rhs is absolute or on a different drive in Windows, return rhs.
 /// 
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
