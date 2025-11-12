@@ -114,8 +114,9 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
 pub fn normalize(path : StringView) -> StringView {
-  let path = try! UnixPath::parse(path)
-  path.to_string()
+  UnixPath::parse(path).to_string() catch {
+    _ => path.to_string()
+  }
 }
 
 ///|

@@ -136,8 +136,10 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 ///   1. when path is empty, return empty string
 /// 
 pub fn normalize(path : StringView) -> StringView {
-  let path = try! WinPath::parse(path)
-  path.to_string()
+  // if failed to normalize, return the original path
+  WinPath::parse(path).to_string() catch {
+    _ => path
+  }
 }
 
 ///|
