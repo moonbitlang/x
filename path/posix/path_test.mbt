@@ -38,6 +38,7 @@ test "join" {
   inspect(join("a", "/b"), content="/b")
   inspect(join("a/", "b"), content="a/b")
   inspect(join("a", "b"), content="a/b")
+  inspect(join("", ""))
 }
 
 ///|
@@ -61,6 +62,7 @@ test "normalize" {
   inspect(normalize("a/./b/../c/"), content="a/c")
   inspect(normalize("/a/b/../../c/."), content="/c")
   inspect(normalize("a/b/c/.."), content="a/b")
+  inspect(normalize(""))
 }
 
 ///|
