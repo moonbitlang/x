@@ -14,21 +14,17 @@
 
 ///|
 #cfg(target="js")
-pub extern "js" fn is_windows() -> Int =
+pub extern "js" fn is_windows() -> Bool =
   #|function () {
   #|  let process = require("process");
-  #|  if (process.platform === "win32") {
-  #|    return 1;
-  #|  } else {
-  #|    return 0;
-  #|  }
+  #|  return process.platform === "win32"; 
   #|};
   #|
 
 ///|
 #cfg(any(target="wasm", target="wasm-gc"))
-pub fn is_windows() -> Int = "__moonbit_sys_unstable" "is_windows"
+pub fn is_windows() -> Bool = "__moonbit_sys_unstable" "is_windows"
 
 ///|
 #cfg(target="native")
-pub extern "C" fn is_windows() -> Int = "moonbitlang_x_path_is_windows"
+pub extern "C" fn is_windows() -> Bool = "moonbitlang_x_path_is_windows"
