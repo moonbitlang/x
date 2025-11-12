@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/path"
+
+// Values
+fn basename(StringView) -> StringView
+
+let delimiter : Char
+
+fn dirname(StringView) -> StringView
+
+fn extname(StringView) -> StringView
+
+fn is_absolute(StringView) -> Bool
+
+fn join(StringView, StringView) -> StringView
+
+fn normalize(StringView) -> StringView
+
+fn relative(StringView, StringView) -> StringView
+
+fn resolve(StringView) -> StringView
+
+let sep : Char
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
