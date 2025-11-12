@@ -18,7 +18,7 @@
 /// path component is original from [posix 4.13 pathname resolution](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
 
 ///|
-let is_windows : Bool = @ffi.is_windows() == 1
+let is_windows : Bool = @ffi.is_windows()
 
 ///|
 /// Returns the last path component of the given path.

@@ -2,7 +2,7 @@
 package "moonbitlang/x/path/internal/ffi"
 
 // Values
-fn is_windows() -> Int
+fn is_windows() -> Bool
 
 // Errors
 

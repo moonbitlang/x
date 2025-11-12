@@ -23,13 +23,8 @@ fn __ci_is_windows() -> Bool {
 }
 
 ///|
-fn _is_windows() -> Bool {
-  @ffi.is_windows() == 1
-}
-
-///|
 test "is_windows platform detection" {
   let expected = __ci_is_windows()
-  let actual = _is_windows()
+  let actual = @ffi.is_windows()
   assert_eq(actual, expected)
 }
