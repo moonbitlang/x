@@ -69,15 +69,15 @@ pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
 ///|
 /// The UUID as a 16-byte string.
 pub fn UUID::to_bytes(self : UUID) -> Bytes {
-  // XXX: replace with a cheaper way
-  let rv = Array::make(16, b'\x00')
+  let result = FixedArray::make(16, b'\x00')
   for i = 0; i < 8; i = i + 1 {
-    rv[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
+    result[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
   }
   for i = 8; i < 16; i = i + 1 {
-    rv[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
+    result[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
   }
-  Bytes::from_array(rv)
+  // move the result ownnership to Bytes
+  result.unsafe_reinterpret_as_bytes()
 }
 
 ///|
