@@ -40,38 +40,38 @@ pub fn PlainTime::of(
 /// Creates a PlainTime from a string, like '10:20:30.45678'.
 pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
   let (hour, minute, second, nanosecond) = lexmatch str with longest {
-      (("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str)) =>
-        (@strconv.parse_int(hour_str), @strconv.parse_int(minute_str), 0, 0)
+    (("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str)) =>
+      (@strconv.parse_int(hour_str), @strconv.parse_int(minute_str), 0, 0)
+    (
+      ("[0-9]{2}" as hour_str)
+      ":"
+      ("[0-9]{2}" as minute_str)
+      ":"
+      ("[0-9]{2}" as second_str)
+    ) =>
       (
-        ("[0-9]{2}" as hour_str)
-        ":"
-        ("[0-9]{2}" as minute_str)
-        ":"
-        ("[0-9]{2}" as second_str)
-      ) =>
-        (
-          @strconv.parse_int(hour_str),
-          @strconv.parse_int(minute_str),
-          @strconv.parse_int(second_str),
-          0,
-        )
+        @strconv.parse_int(hour_str),
+        @strconv.parse_int(minute_str),
+        @strconv.parse_int(second_str),
+        0,
+      )
+    (
+      ("[0-9]{2}" as hour_str)
+      ":"
+      ("[0-9]{2}" as minute_str)
+      ":"
+      ("[0-9]{2}" as second_str)
+      "."
+      ("[0-9]{1,9}" as nanosecond_str)
+    ) =>
       (
-        ("[0-9]{2}" as hour_str)
-        ":"
-        ("[0-9]{2}" as minute_str)
-        ":"
-        ("[0-9]{2}" as second_str)
-        "."
-        ("[0-9]{1,9}" as nanosecond_str)
-      ) =>
-        (
-          @strconv.parse_int(hour_str),
-          @strconv.parse_int(minute_str),
-          @strconv.parse_int(second_str),
-          @strconv.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
-        )
-      _ => fail(invalid_time_err)
-    }
+        @strconv.parse_int(hour_str),
+        @strconv.parse_int(minute_str),
+        @strconv.parse_int(second_str),
+        @strconv.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
+      )
+    _ => fail(invalid_time_err)
+  }
   PlainTime::of(hour, minute, second, nanosecond)
 }
 
