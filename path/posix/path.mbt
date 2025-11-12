@@ -21,9 +21,9 @@
 /// 
 pub fn basename(path : StringView) -> StringView {
   match path.rev_find("/") {
-    None => path.to_string()
+    None => path
     Some(idx) if idx >= path.length() => ""
-    Some(idx) => try! path[idx + 1:].to_string()
+    Some(idx) => try! path[idx + 1:]
   }
 }
 
@@ -44,9 +44,9 @@ pub fn dirname(path : StringView) -> StringView {
         char_set="/",
       )
       if dirname_trim_end.is_empty() {
-        dirname_with_trailing_slashes.to_string()
+        dirname_with_trailing_slashes
       } else {
-        dirname_trim_end.to_string()
+        dirname_trim_end
       }
     }
   }
@@ -58,7 +58,7 @@ pub fn extname(path : StringView) -> StringView {
   let basename = basename(path)
   match basename.rev_find(".") {
     None => ""
-    Some(idx) => try! basename[idx:].to_string()
+    Some(idx) => try! basename[idx:]
   }
 }
 
@@ -82,10 +82,10 @@ pub fn is_absolute(path : StringView) -> Bool {
 ///  2. ignore empty string
 pub fn join(lhs : StringView, rhs : StringView) -> StringView {
   if is_absolute(rhs) {
-    return rhs.to_string()
+    return rhs
   } else {
     match lhs {
-      [] => rhs.to_string()
+      [] => rhs
       [.., '/'] as all => {
         let builder = StringBuilder::new()
         builder.write_stringview(all)
@@ -115,7 +115,7 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 /// 
 pub fn normalize(path : StringView) -> StringView {
   UnixPath::parse(path).to_string() catch {
-    _ => path.to_string()
+    _ => path
   }
 }
 
