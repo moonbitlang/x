@@ -24,7 +24,7 @@
 ///
 /// ```moonbit
 /// let u1 = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
-/// let u2 = @uuid.from_bytes(@bytes.from_array([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
+/// let u2 = @uuid.from_bytes(Bytes::from_array([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
 /// assert_eq(u1, u2)
 /// ```
 ///
@@ -69,15 +69,15 @@ pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
 ///|
 /// The UUID as a 16-byte string.
 pub fn UUID::to_bytes(self : UUID) -> Bytes {
-  // XXX: replace with a cheaper way
-  let rv = FixedArray::make(16, b'\x00')
+  let result = FixedArray::make(16, b'\x00')
   for i = 0; i < 8; i = i + 1 {
-    rv[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
+    result[i] = (self.hi.reinterpret_as_uint64() >> ((7 - i) * 8)).to_byte()
   }
   for i = 8; i < 16; i = i + 1 {
-    rv[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
+    result[i] = (self.lo.reinterpret_as_uint64() >> ((15 - i) * 8)).to_byte()
   }
-  Bytes::from_fixedarray(rv)
+  // move the result ownnership to Bytes
+  result.unsafe_reinterpret_as_bytes()
 }
 
 ///|
@@ -162,7 +162,7 @@ let hex_table : Array[Int] = "0123456789abcdef".to_array().map(c => c.to_int())
 let dash : Int = '-'.to_int()
 
 ///|
-let segments = [8, 4, 4, 0, 4, 12]
+let segments : ReadOnlyArray[Int] = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
 
@@ -190,7 +190,7 @@ pub fn UUID::to_string(self : UUID) -> String {
       rv[i - 1] = dash.to_byte()
       continue v, i - 2, i - 2, d - 1
     } else {
-      break Bytes::from_fixedarray(rv).to_unchecked_string()
+      break Bytes::from_array(Array::from_fixed_array(rv)).to_unchecked_string()
     }
   }
 }

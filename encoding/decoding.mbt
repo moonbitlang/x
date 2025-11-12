@@ -18,7 +18,7 @@
 pub const U_REP = '\u{FFFD}'
 
 ///|
-let utf_8_len = [
+let utf_8_len : ReadOnlyArray[Int] = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -410,7 +410,7 @@ fn Decoder::eoi(self : Decoder) -> Unit {
 ///|
 fn Decoder::refill(self : Decoder, k : Cont) -> Decode {
   self.eoi()
-  self.ret(k, Decode::Refill(Bytes::from_fixedarray(self.t)))
+  self.ret(k, Decode::Refill(Bytes::from_array(self.t)))
 }
 
 ///|
