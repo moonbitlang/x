@@ -97,32 +97,72 @@ pub fn is_absolute(path : StringView) -> Bool {
 }
 
 ///|
+fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
+  lexmatch rhs with longest {
+    ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => None
+    (
+      "\\\\\?UNC\\"
+      ("[^\\]+" as _hostname)
+      "\\"
+      ("[^\\]+" as _shared_folder)
+      "(\\)+",
+      _rest
+    ) => None
+    (
+      "\\\\"
+      ("[^\\]+" as _hostname)
+      "\\"
+      ("[^\\]+" as _shared_folder)
+      "(\\)+",
+      _rest
+    ) => None
+    ("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]", _rest) => None
+    ("\\\\\.\\" ("[^\\]+" as _device) "(\\)+", _rest) => None
+    ("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
+    ("\\", _rest) => None
+    (("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
+    (("[a-zA-Z]" as rhs_letter) ":", rhs_rest) =>
+      lexmatch lhs with longest {
+        (("[a-zA-Z]" as lhs_letter) ":", _rest) =>
+          if lhs_letter == rhs_letter {
+            Some(rhs_rest)
+          } else {
+            None
+          }
+        _ => None
+      }
+    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => None
+    rhs_rest => Some(rhs_rest)
+  }
+}
+
+///|
 /// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute path, return rhs
+/// 2. if rhs is absolute or on a different drive, return rhs
 /// 
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 pub fn join(lhs : StringView, rhs : StringView) -> StringView {
-  if is_absolute(rhs) {
-    return rhs
-  } else {
-    match lhs {
-      [] => rhs
-      [.., '\\'] as all => {
-        let builder = StringBuilder::new()
-        builder.write_stringview(all)
-        builder.write_stringview(rhs)
-        builder.to_string()
+  match join_rest(lhs, rhs) {
+    None => rhs
+    Some(rhs) =>
+      match lhs {
+        [] => rhs
+        [.., '\\'] as all => {
+          let builder = StringBuilder::new()
+          builder.write_stringview(all)
+          builder.write_stringview(rhs)
+          builder.to_string()
+        }
+        without_tailing_slashes => {
+          let builder = StringBuilder::new()
+          builder.write_stringview(without_tailing_slashes)
+          builder.write_char('\\')
+          builder.write_stringview(rhs)
+          builder.to_string()
+        }
       }
-      without_tailing_slashes => {
-        let builder = StringBuilder::new()
-        builder.write_stringview(without_tailing_slashes)
-        builder.write_char('\\')
-        builder.write_stringview(rhs)
-        builder.to_string()
-      }
-    }
   }
 }
 
@@ -183,7 +223,7 @@ pub fn relative(from : StringView, to : StringView) -> StringView {
 }
 
 ///|
-/// 1. if path is already absolute, return path normalized.
+/// 1. if path is absolute, return path normalized.
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.

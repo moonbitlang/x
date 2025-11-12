@@ -636,3 +636,10 @@ test "Windows-specific path behaviors" {
   inspect(basename("\\\\.\\COM1"), content="COM1")
   inspect(dirname("\\\\.\\COM1"), content="\\\\.")
 }
+
+///|
+test "join/windows relative path but specifies drive letter" {
+  inspect(join("lhs", "C:rhs"), content="C:rhs")
+  inspect(join("C:lhs", "C:rhs"), content="C:lhs\\rhs")
+  inspect(join("C:lhs", "D:rhs"), content="D:rhs")
+}
