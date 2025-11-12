@@ -77,7 +77,7 @@ pub fn is_absolute(path : StringView) -> Bool {
 /// 2. if rhs is absolute path, return rhs normalized.
 /// 
 /// edge cases:
-///  1. when lhs and rhs both are empty, return `.`
+///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 pub fn join(lhs : StringView, rhs : StringView) -> StringView {
   if is_windows {
@@ -94,7 +94,7 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 /// 4. preserve trailing slash or backslash
 /// 
 /// edge cases:
-///   1. when path is empty, return `.`
+///   1. when path is empty, return empty string
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
 pub fn normalize(path : StringView) -> StringView {

@@ -101,7 +101,7 @@ pub fn is_absolute(path : StringView) -> Bool {
 /// 2. if rhs is absolute path, return rhs normalized.
 /// 
 /// edge cases:
-///  1. when lhs and rhs both are empty, return `.`
+///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 pub fn join(lhs : StringView, rhs : StringView) -> StringView {
   if is_absolute(rhs) {
@@ -133,7 +133,7 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 /// 4. preserve trailing slash or backslash
 /// 
 /// edge cases:
-///   1. when path is empty, return `.`
+///   1. when path is empty, return empty string
 /// 
 pub fn normalize(path : StringView) -> StringView {
   let path = try! WinPath::parse(path)
