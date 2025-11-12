@@ -458,10 +458,10 @@ test "decode_to/UTF16LE-UTF8/stream" {
   inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳")
   let result = try? decoder.decode_to(
-      [bytes[bytes.length() - 1]],
-      acc,
-      stream=true,
-    )
+    [bytes[bytes.length() - 1]],
+    acc,
+    stream=true,
+  )
   inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳🏊")
 }
