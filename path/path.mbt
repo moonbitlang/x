@@ -21,17 +21,29 @@
 let is_windows : Bool = @ffi.is_windows()
 
 ///|
+/// A newtype wrapper provide path operation methods.
+pub(all) struct Path(String) derive(Eq)
+
+///|
+pub impl Show for Path with output(path, logger) {
+  logger.write_object(path.0)
+}
+
+///|
+pub impl Show for Path with to_string(path) = "%identity"
+
+///|
 /// Returns the last path component of the given path.
 ///
 /// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-pub fn basename(path : StringView) -> StringView {
+pub fn Path::basename(path : Path) -> StringView {
   if is_windows {
-    @win32.basename(path)
+    @win32.Path::basename(path.0)
   } else {
-    @posix.basename(path)
+    @posix.Path::basename(path.0)
   }
 }
 
@@ -42,21 +54,21 @@ pub fn basename(path : StringView) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-pub fn dirname(path : StringView) -> StringView {
+pub fn Path::dirname(path : Path) -> StringView {
   if is_windows {
-    @win32.dirname(path)
+    @win32.Path::dirname(path.0)
   } else {
-    @posix.dirname(path)
+    @posix.Path::dirname(path.0)
   }
 }
 
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
-pub fn extname(path : StringView) -> StringView {
+pub fn Path::extname(path : Path) -> StringView {
   if is_windows {
-    @win32.extname(path)
+    @win32.Path::extname(path.0)
   } else {
-    @posix.extname(path)
+    @posix.Path::extname(path.0)
   }
 }
 
@@ -64,11 +76,11 @@ pub fn extname(path : StringView) -> StringView {
 /// Returns whether the given path is absolute.
 /// 
 /// edge cases: when path is empty, return false
-pub fn is_absolute(path : StringView) -> Bool {
+pub fn Path::is_absolute(path : Path) -> Bool {
   if is_windows {
-    @win32.is_absolute(path)
+    @win32.Path::is_absolute(path.0)
   } else {
-    @posix.is_absolute(path)
+    @posix.Path::is_absolute(path.0)
   }
 }
 
@@ -79,11 +91,11 @@ pub fn is_absolute(path : StringView) -> Bool {
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
-pub fn join(lhs : StringView, rhs : StringView) -> StringView {
+pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   if is_windows {
-    @win32.join(lhs, rhs)
+    @win32.Path::join(lhs.0, rhs.0).0
   } else {
-    @posix.join(lhs, rhs)
+    @posix.Path::join(lhs.0, rhs.0).to_string()
   }
 }
 
@@ -97,11 +109,11 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 ///   1. when path is empty, return empty string
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
-pub fn normalize(path : StringView) -> StringView {
+pub fn Path::normalize(path : Path) -> Path {
   if is_windows {
-    @win32.normalize(path)
+    @win32.Path::normalize(path.0).to_string()
   } else {
-    @posix.normalize(path)
+    @posix.Path::normalize(path.0).to_string()
   }
 }
 
@@ -115,11 +127,11 @@ pub fn normalize(path : StringView) -> StringView {
 ///  2. when `from` and `to` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-pub fn relative(from : StringView, to : StringView) -> StringView {
+pub fn Path::relative(path : Path, base~ : Path) -> Path {
   if is_windows {
-    @win32.relative(from, to)
+    @win32.Path::relative(path.0, base=base.0).0
   } else {
-    @posix.relative(from, to)
+    @posix.Path::relative(path.0, base=base.0).0
   }
 }
 
@@ -128,11 +140,11 @@ pub fn relative(from : StringView, to : StringView) -> StringView {
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-pub fn resolve(path : StringView) -> StringView {
+pub fn Path::resolve(path : Path) -> Path {
   if is_windows {
-    @win32.resolve(path)
+    @win32.Path::resolve(path.0).to_string()
   } else {
-    @posix.resolve(path)
+    @posix.Path::resolve(path.0).to_string()
   }
 }
 

@@ -2,29 +2,26 @@
 package "moonbitlang/x/path"
 
 // Values
-fn basename(StringView) -> StringView
-
 let delimiter : Char
-
-fn dirname(StringView) -> StringView
-
-fn extname(StringView) -> StringView
-
-fn is_absolute(StringView) -> Bool
-
-fn join(StringView, StringView) -> StringView
-
-fn normalize(StringView) -> StringView
-
-fn relative(StringView, StringView) -> StringView
-
-fn resolve(StringView) -> StringView
 
 let sep : Char
 
 // Errors
 
 // Types and methods
+pub(all) struct Path(String)
+fn Path::basename(Self) -> StringView
+fn Path::dirname(Self) -> StringView
+fn Path::extname(Self) -> StringView
+#deprecated
+fn Path::inner(Self) -> String
+fn Path::is_absolute(Self) -> Bool
+fn Path::join(Self, Self) -> Self
+fn Path::normalize(Self) -> Self
+fn Path::relative(Self, base~ : Self) -> Self
+fn Path::resolve(Self) -> Self
+impl Eq for Path
+impl Show for Path
 
 // Type aliases
 

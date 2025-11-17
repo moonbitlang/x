@@ -22,16 +22,16 @@ Extract the last component of a path or get the directory part:
 ///|
 test "basename and dirname examples" {
   // Get the last component (filename)
-  inspect(@posix.basename("usr/local/bin"), content="bin")
-  inspect(@posix.basename("project/src/main.mbt"), content="main.mbt")
+  inspect(@posix.Path::basename("usr/local/bin"), content="bin")
+  inspect(@posix.Path::basename("project/src/main.mbt"), content="main.mbt")
 
   // Get the directory part
-  inspect(@posix.dirname("usr/local/bin"), content="usr/local")
-  inspect(@posix.dirname("project/src/main.mbt"), content="project/src")
+  inspect(@posix.Path::dirname("usr/local/bin"), content="usr/local")
+  inspect(@posix.Path::dirname("project/src/main.mbt"), content="project/src")
 
   // Handle trailing slashes
-  inspect(@posix.basename("usr/local/"), content="")
-  inspect(@posix.dirname("usr/local/"), content="usr/local")
+  inspect(@posix.Path::basename("usr/local/"), content="")
+  inspect(@posix.Path::dirname("usr/local/"), content="usr/local")
 }
 ```
 
@@ -43,13 +43,13 @@ Extract file extensions from paths:
 ///|
 test "extension extraction" {
   // Get file extension including the dot
-  inspect(@posix.extname("document.txt"), content=".txt")
-  inspect(@posix.extname("archive.tar.gz"), content=".gz")
-  inspect(@posix.extname("project/main.mbt.md"), content=".md")
+  inspect(@posix.Path::extname("document.txt"), content=".txt")
+  inspect(@posix.Path::extname("archive.tar.gz"), content=".gz")
+  inspect(@posix.Path::extname("project/main.mbt.md"), content=".md")
 
   // Files without extensions
-  inspect(@posix.extname("README"), content="")
-  inspect(@posix.extname("project/"), content="")
+  inspect(@posix.Path::extname("README"), content="")
+  inspect(@posix.Path::extname("project/"), content="")
 }
 ```
 
@@ -63,13 +63,13 @@ Determine if a path is absolute (starts with `/`):
 ///|
 test "absolute path detection" {
   // Absolute paths start with /
-  @json.inspect(@posix.is_absolute("/home/user"), content=true)
-  @json.inspect(@posix.is_absolute("/usr/local/bin"), content=true)
+  @json.inspect(@posix.Path::is_absolute("/home/user"), content=true)
+  @json.inspect(@posix.Path::is_absolute("/usr/local/bin"), content=true)
 
   // Relative paths
-  @json.inspect(@posix.is_absolute("home/user"), content=false)
-  @json.inspect(@posix.is_absolute("../project"), content=false)
-  @json.inspect(@posix.is_absolute(""), content=false)
+  @json.inspect(@posix.Path::is_absolute("home/user"), content=false)
+  @json.inspect(@posix.Path::is_absolute("../project"), content=false)
+  @json.inspect(@posix.Path::is_absolute(""), content=false)
 }
 ```
 
@@ -83,14 +83,14 @@ Combine path components with proper separator handling:
 ///|
 test "path joining" {
   // Basic joining
-  inspect(@posix.join("usr", "local"), content="usr/local")
-  inspect(@posix.join("project", "src"), content="project/src")
+  inspect(@posix.Path::join("usr", "local"), content="usr/local")
+  inspect(@posix.Path::join("project", "src"), content="project/src")
 
   // Handle trailing slashes
-  inspect(@posix.join("usr/", "local"), content="usr/local")
+  inspect(@posix.Path::join("usr/", "local"), content="usr/local")
 
   // Absolute paths override
-  inspect(@posix.join("relative", "/absolute"), content="/absolute")
+  inspect(@posix.Path::join("relative", "/absolute"), content="/absolute")
 }
 ```
 
@@ -104,12 +104,12 @@ Clean up redundant components and resolve `.` and `..`:
 ///|
 test "path normalization" {
   // Remove redundant components
-  inspect(@posix.normalize("a/./b/../c/"), content="a/c")
-  inspect(@posix.normalize("/usr/local/../bin"), content="/usr/bin")
+  inspect(@posix.Path::normalize("a/./b/../c/"), content="a/c")
+  inspect(@posix.Path::normalize("/usr/local/../bin"), content="/usr/bin")
 
   // Handle complex cases
-  inspect(@posix.normalize("/a/b/../../c/."), content="/c")
-  inspect(@posix.normalize("a/b/c/.."), content="a/b")
+  inspect(@posix.Path::normalize("/a/b/../../c/."), content="/c")
+  inspect(@posix.Path::normalize("a/b/c/.."), content="a/b")
 }
 ```
 
@@ -123,22 +123,22 @@ test "relative path calculation" {
   // Same directory level
   let from = "/home/user_name"
   let to = "/home/user_name/proj_a"
-  inspect(@posix.relative(from, to), content="proj_a")
+  inspect(@posix.Path::relative(base=from, to), content="proj_a")
 
   // Go up one level
   let from2 = "/home/user_name/proj_a"
   let to2 = "/home/user_name"
-  inspect(@posix.relative(from2, to2), content="..")
+  inspect(@posix.Path::relative(base=from2, to2), content="..")
 
   // Same path
   let from3 = "/home/user_name"
   let to3 = "/home/user_name"
-  inspect(@posix.relative(from3, to3), content="")
+  inspect(@posix.Path::relative(base=from3, to3), content="")
 
   // Sibling directories
   let from4 = "/home/user_name/proj_a"
   let to4 = "/home/user_name/proj_b"
-  inspect(@posix.relative(from4, to4), content="../proj_b")
+  inspect(@posix.Path::relative(base=from4, to4), content="../proj_b")
 }
 ```
 
@@ -150,8 +150,8 @@ Convert relative paths to absolute paths and normalize them:
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
-  inspect(@posix.resolve("/usr/../home/user"), content="/home/user")
-  inspect(@posix.resolve("/a/b/c/../../.."), content="/")
+  inspect(@posix.Path::resolve("/usr/../home/user"), content="/home/user")
+  inspect(@posix.Path::resolve("/a/b/c/../../.."), content="/")
 
   // Note: resolve() with relative paths depends on current working directory
   // and will join with the current directory before normalizing
@@ -178,7 +178,7 @@ test "platform constants" {
 The package maintains several important properties:
 
 1. **Basename/Dirname relationship**: For most paths, joining dirname and basename gives the original path
-2. **Relative/Join relationship**: `join(from, relative(from, to))` equals `normalize(to)`
+2. **Relative/Join relationship**: `join(from, relative(base=from, to))` equals `normalize(to)`
 3. **Idempotent normalization**: `normalize(normalize(path))` equals `normalize(path)`
 
 ## Edge Cases
