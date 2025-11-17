@@ -55,7 +55,7 @@ pub fn Path::basename(path : Path) -> StringView {
 /// let path : Path = "usr\\local\\bin"
 /// inspect(path.dirname(), content="usr\\local")
 /// ```
-pub fn Path::dirname(path : Path) -> StringView {
+pub fn Path::dirname(path : Path) -> Path {
   let path = path.0
   let last_slash_pos = path.rev_find("\\")
   match last_slash_pos {
@@ -66,9 +66,9 @@ pub fn Path::dirname(path : Path) -> StringView {
         char_set="\\",
       )
       if dirname_trim_end.is_empty() {
-        dirname_with_trailing_slashes
+        dirname_with_trailing_slashes.to_string()
       } else {
-        dirname_trim_end
+        dirname_trim_end.to_string()
       }
     }
   }
