@@ -13,13 +13,26 @@
 // limitations under the License.
 
 ///|
+/// A newtype wrapper provide path operation methods.
+pub(all) struct Path(String) derive(Eq)
+
+///|
+pub impl Show for Path with output(path, logger) {
+  logger.write_object(path.0)
+}
+
+///|
+pub impl Show for Path with to_string(path) = "%identity"
+
+///|
 /// Returns the last path component of the given path.
 ///
 /// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-pub fn basename(path : StringView) -> StringView {
+pub fn Path::basename(path : Path) -> StringView {
+  let path = path.0
   match path.rev_find("\\") {
     None => path
     Some(idx) if idx >= path.length() => ""
@@ -34,7 +47,8 @@ pub fn basename(path : StringView) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-pub fn dirname(path : StringView) -> StringView {
+pub fn Path::dirname(path : Path) -> StringView {
+  let path = path.0
   let last_slash_pos = path.rev_find("\\")
   match last_slash_pos {
     None => ""
@@ -54,8 +68,8 @@ pub fn dirname(path : StringView) -> StringView {
 
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
-pub fn extname(path : StringView) -> StringView {
-  let basename = basename(path)
+pub fn Path::extname(path : Path) -> StringView {
+  let basename = Path::basename(path)
   match basename.rev_find(".") {
     None => ""
     Some(idx) => try! basename[idx:]
@@ -66,7 +80,8 @@ pub fn extname(path : StringView) -> StringView {
 /// Returns whether the given path is absolute.
 /// 
 /// edge cases: when path is empty, return false
-pub fn is_absolute(path : StringView) -> Bool {
+pub fn Path::is_absolute(path : Path) -> Bool {
+  let path = path.0
   lexmatch path with longest {
     ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => true
     (
@@ -143,12 +158,14 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
-pub fn join(lhs : StringView, rhs : StringView) -> StringView {
+pub fn Path::join(lhs : Path, rhs : Path) -> Path {
+  let lhs = lhs.0
+  let rhs = rhs.0
   match join_rest(lhs, rhs) {
     None => rhs
     Some(rhs) =>
       match lhs {
-        [] => rhs
+        [] => rhs.to_string()
         [.., '\\'] as all => {
           let builder = StringBuilder::new()
           builder.write_stringview(all)
@@ -175,7 +192,8 @@ pub fn join(lhs : StringView, rhs : StringView) -> StringView {
 /// edge cases:
 ///   1. when path is empty, return empty string
 /// 
-pub fn normalize(path : StringView) -> StringView {
+pub fn Path::normalize(path : Path) -> Path {
+  let path = path.0
   // if failed to normalize, return the original path
   WinPath::parse(path).to_string() catch {
     _ => path
@@ -192,10 +210,10 @@ pub fn normalize(path : StringView) -> StringView {
 ///  2. when `from` and `to` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-pub fn relative(from : StringView, to : StringView) -> StringView {
+pub fn Path::relative(path : Path, base~ : Path) -> Path {
   let cwd = @env.current_dir().unwrap()
-  let from = try! WinPath::parse(join(cwd, from))
-  let to = try! WinPath::parse(join(cwd, to))
+  let from = try! WinPath::parse(Path::join(cwd, base).0)
+  let to = try! WinPath::parse(Path::join(cwd, path).0)
   if from.prefix == to.prefix {
     let mut cnt = 0
     // remove the common path component prefix
@@ -227,11 +245,11 @@ pub fn relative(from : StringView, to : StringView) -> StringView {
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-pub fn resolve(path : StringView) -> StringView {
-  if is_absolute(path) {
-    normalize(path)
+pub fn Path::resolve(path : Path) -> Path {
+  if Path::is_absolute(path) {
+    Path::normalize(path)
   } else {
-    join(@env.current_dir().unwrap(), path)
+    Path::join(@env.current_dir().unwrap(), path)
   }
 }
 
