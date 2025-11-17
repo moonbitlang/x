@@ -22,16 +22,21 @@ Extract the last component of a path or get the directory part:
 ///|
 test "basename and dirname examples" {
   // Get the last component (filename)
-  inspect(@posix.Path::basename("usr/local/bin"), content="bin")
-  inspect(@posix.Path::basename("project/src/main.mbt"), content="main.mbt")
+  let path : Path = "usr/local/bin"
+  inspect(path.basename(), content="bin")
+  let path : Path = "project/src/main.mbt"
+  inspect(path.basename(), content="main.mbt")
 
   // Get the directory part
-  inspect(@posix.Path::dirname("usr/local/bin"), content="usr/local")
-  inspect(@posix.Path::dirname("project/src/main.mbt"), content="project/src")
+  let path : Path = "usr/local/bin"
+  inspect(path.dirname(), content="usr/local")
+  let path : Path = "project/src/main.mbt"
+  inspect(path.dirname(), content="project/src")
 
   // Handle trailing slashes
-  inspect(@posix.Path::basename("usr/local/"), content="")
-  inspect(@posix.Path::dirname("usr/local/"), content="usr/local")
+  let path : Path = "usr/local/"
+  inspect(path.basename(), content="")
+  inspect(path.dirname(), content="usr/local")
 }
 ```
 
@@ -43,13 +48,18 @@ Extract file extensions from paths:
 ///|
 test "extension extraction" {
   // Get file extension including the dot
-  inspect(@posix.Path::extname("document.txt"), content=".txt")
-  inspect(@posix.Path::extname("archive.tar.gz"), content=".gz")
-  inspect(@posix.Path::extname("project/main.mbt.md"), content=".md")
+  let path : Path = "document.txt"
+  inspect(path.extname(), content=".txt")
+  let path : Path = "archive.tar.gz"
+  inspect(path.extname(), content=".gz")
+  let path : Path = "project/main.mbt.md"
+  inspect(path.extname(), content=".md")
 
   // Files without extensions
-  inspect(@posix.Path::extname("README"), content="")
-  inspect(@posix.Path::extname("project/"), content="")
+  let path : Path = "README"
+  inspect(path.extname(), content="")
+  let path : Path = "project/"
+  inspect(path.extname(), content="")
 }
 ```
 
@@ -62,14 +72,18 @@ Determine if a path is absolute (starts with `/`):
 ```moonbit
 ///|
 test "absolute path detection" {
-  // Absolute paths start with /
-  @json.inspect(@posix.Path::is_absolute("/home/user"), content=true)
-  @json.inspect(@posix.Path::is_absolute("/usr/local/bin"), content=true)
+  let path : Path = "/home/user"
+  @json.inspect(path.is_absolute(), content=true)
+  let path : Path = "/usr/local/bin"
+  @json.inspect(path.is_absolute(), content=true)
 
   // Relative paths
-  @json.inspect(@posix.Path::is_absolute("home/user"), content=false)
-  @json.inspect(@posix.Path::is_absolute("../project"), content=false)
-  @json.inspect(@posix.Path::is_absolute(""), content=false)
+  let path : Path = "home/user"
+  @json.inspect(path.is_absolute(), content=false)
+  let path : Path = "../project"
+  @json.inspect(path.is_absolute(), content=false)
+  let path : Path = ""
+  @json.inspect(path.is_absolute(), content=false)
 }
 ```
 
@@ -82,15 +96,19 @@ Combine path components with proper separator handling:
 ```moonbit
 ///|
 test "path joining" {
-  // Basic joining
-  inspect(@posix.Path::join("usr", "local"), content="usr/local")
-  inspect(@posix.Path::join("project", "src"), content="project/src")
-
-  // Handle trailing slashes
-  inspect(@posix.Path::join("usr/", "local"), content="usr/local")
+  let path : Path = "usr"
+  inspect(path.join("local"), content="usr/local")
+  let path : Path = "project"
+  inspect(path.join("src"), content="project/src")
+  let path : Path = "usr/"
+  inspect(path.join("local"), content="usr/local")
 
   // Absolute paths override
-  inspect(@posix.Path::join("relative", "/absolute"), content="/absolute")
+  let path : Path = "relative"
+  inspect(path.join("/absolute"), content="/absolute")
+  let path : Path = "/"
+  let path = path.join("folder").join("file.txt")
+  inspect(path.to_string(), content="/folder/file.txt")
 }
 ```
 
@@ -104,12 +122,15 @@ Clean up redundant components and resolve `.` and `..`:
 ///|
 test "path normalization" {
   // Remove redundant components
-  inspect(@posix.Path::normalize("a/./b/../c/"), content="a/c")
-  inspect(@posix.Path::normalize("/usr/local/../bin"), content="/usr/bin")
-
+  let path : Path = "a/./b/../c/"
+  inspect(path.normalize(), content="a/c")
+  let path : Path = "/usr/local/../bin"
+  inspect(path.normalize(), content="/usr/bin")
   // Handle complex cases
-  inspect(@posix.Path::normalize("/a/b/../../c/."), content="/c")
-  inspect(@posix.Path::normalize("a/b/c/.."), content="a/b")
+  let path : Path = "/a/b/../../c/."
+  inspect(path.normalize(), content="/c")
+  let path : Path = "a/b/c/.."
+  inspect(path.normalize(), content="a/b")
 }
 ```
 
@@ -121,24 +142,24 @@ Calculate the relative path between two locations:
 ///|
 test "relative path calculation" {
   // Same directory level
-  let from = "/home/user_name"
-  let to = "/home/user_name/proj_a"
-  inspect(@posix.Path::relative(base=from, to), content="proj_a")
+  let base = "/home/user_name"
+  let path : Path = "/home/user_name/proj_a"
+  inspect(path.relative(base~), content="proj_a")
 
   // Go up one level
-  let from2 = "/home/user_name/proj_a"
-  let to2 = "/home/user_name"
-  inspect(@posix.Path::relative(base=from2, to2), content="..")
+  let base = "/home/user_name/proj_a"
+  let path : Path = "/home/user_name"
+  inspect(@posix.Path::relative(base~, path), content="..")
 
   // Same path
-  let from3 = "/home/user_name"
-  let to3 = "/home/user_name"
-  inspect(@posix.Path::relative(base=from3, to3), content="")
+  let base = "/home/user_name"
+  let path : Path = "/home/user_name"
+  inspect(path.relative(base~), content="")
 
   // Sibling directories
-  let from4 = "/home/user_name/proj_a"
-  let to4 = "/home/user_name/proj_b"
-  inspect(@posix.Path::relative(base=from4, to4), content="../proj_b")
+  let base = "/home/user_name/proj_a"
+  let path : Path = "/home/user_name/proj_b"
+  inspect(path.relative(base~), content="../proj_b")
 }
 ```
 
@@ -150,11 +171,20 @@ Convert relative paths to absolute paths and normalize them:
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
-  inspect(@posix.Path::resolve("/usr/../home/user"), content="/home/user")
-  inspect(@posix.Path::resolve("/a/b/c/../../.."), content="/")
+  let path : Path = "/a/b/../../c/."
+  inspect(path.resolve(), content="/c")
+  let path : Path = "/a/b/c/../../.."
+  inspect(path.resolve(), content="/")
 
   // Note: resolve() with relative paths depends on current working directory
   // and will join with the current directory before normalizing
+}
+```
+
+```moonbit skip
+test {
+  let path : Path = "a/b/../c"
+  inspect(path.resolve(), content="/current/working/directory/a/c")
 }
 ```
 

@@ -31,6 +31,10 @@ pub impl Show for Path with to_string(path) = "%identity"
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
+/// ```moonbit 
+/// let path : Path = "usr/local/bin"
+/// inspect(path.basename(), content="bin")
+/// ```
 pub fn Path::basename(path : Path) -> StringView {
   let path = path.0
   match path.rev_find("/") {
@@ -47,6 +51,10 @@ pub fn Path::basename(path : Path) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
+/// ```moonbit
+/// let path : Path = "usr/local/bin"
+/// inspect(path.dirname(), content="usr/local")
+/// ```
 pub fn Path::dirname(path : Path) -> StringView {
   let path = path.0
   let last_slash_pos = path.rev_find("/")
@@ -68,6 +76,11 @@ pub fn Path::dirname(path : Path) -> StringView {
 
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
+/// 
+/// ```moonbit 
+/// let path : Path = "archive.tar.gz"
+/// inspect(path.extname(), content=".gz")
+/// ```
 pub fn Path::extname(path : Path) -> StringView {
   let basename = Path::basename(path)
   match basename.rev_find(".") {
@@ -80,6 +93,13 @@ pub fn Path::extname(path : Path) -> StringView {
 /// Returns whether the given path is absolute.
 /// 
 /// edge cases: when path is empty, return false
+/// 
+/// ```moonbit
+/// let path1 : Path = "/usr/local/bin"
+/// let path2 : Path = "usr/local/bin"
+/// @json.inspect(path1.is_absolute(), content=true)
+/// @json.inspect(path2.is_absolute(), content=false)
+/// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
   match path {
@@ -95,6 +115,11 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
+/// 
+/// ```moonbit
+/// let path : Path = "/usr/local"
+/// inspect(path.join("bin"), content="/usr/local/bin")
+/// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
@@ -130,6 +155,10 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///   1. when path is empty, return empty string
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
+/// ```moonbit
+/// let path : Path = "/usr//local/../bin/"
+/// inspect(path.normalize(), content="/usr/bin")
+/// ```
 pub fn Path::normalize(path : Path) -> Path {
   UnixPath::parse(path.0).to_string() catch {
     _ => path
@@ -146,6 +175,12 @@ pub fn Path::normalize(path : Path) -> Path {
 ///  2. when `from` and `to` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+/// 
+/// ```moonbit
+/// let base : Path = "/usr/local/bin"
+/// let path : Path = "/usr/local/share/doc"
+/// inspect(path.relative(base~), content="../share/doc")
+/// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   let path = path.0
   let base = base.0
@@ -183,6 +218,11 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+/// 
+/// ```moonbit skip
+/// let path : Path = "project/src"
+/// inspect(path.resolve(), content="/your/current_working_directory/project/src")
+/// ```
 pub fn Path::resolve(path : Path) -> Path {
   if Path::is_absolute(path) {
     Path::normalize(path)

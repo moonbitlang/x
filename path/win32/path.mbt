@@ -31,6 +31,10 @@ pub impl Show for Path with to_string(path) = "%identity"
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
+/// ```moonbit
+/// let path : Path = "usr\\local\\bin"
+/// inspect(path.basename(), content="bin")
+/// ```
 pub fn Path::basename(path : Path) -> StringView {
   let path = path.0
   match path.rev_find("\\") {
@@ -47,6 +51,10 @@ pub fn Path::basename(path : Path) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
+/// ```moonbit
+/// let path : Path = "usr\\local\\bin"
+/// inspect(path.dirname(), content="usr\\local")
+/// ```
 pub fn Path::dirname(path : Path) -> StringView {
   let path = path.0
   let last_slash_pos = path.rev_find("\\")
@@ -68,6 +76,11 @@ pub fn Path::dirname(path : Path) -> StringView {
 
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
+/// 
+/// ```moonbit
+/// let path : Path = "archive.tar.gz"
+/// inspect(path.extname(), content=".gz")
+/// ```
 pub fn Path::extname(path : Path) -> StringView {
   let basename = Path::basename(path)
   match basename.rev_find(".") {
@@ -80,6 +93,13 @@ pub fn Path::extname(path : Path) -> StringView {
 /// Returns whether the given path is absolute.
 /// 
 /// edge cases: when path is empty, return false
+/// 
+/// ```moonbit
+/// let path1 : Path = "C:\\Program Files\\App"
+/// let path2 : Path = "Program Files\\App"
+/// @json.inspect(path1.is_absolute(), content=true)
+/// @json.inspect(path2.is_absolute(), content=false)
+/// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
   lexmatch path with longest {
@@ -158,6 +178,12 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 /// edge cases:
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
+/// 
+/// ```moonbit
+/// let path1 : Path = "C::\\Program Files"
+/// let path2 : Path = "App"
+/// inspect(path1.join(path2), content="C::\\Program Files\\App")
+/// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
@@ -192,6 +218,10 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// edge cases:
 ///   1. when path is empty, return empty string
 /// 
+/// ```moonbit
+/// let path : Path = "C:\\usr\\\\local\\..\\bin\\"
+/// inspect(path.normalize(), content="C:\\usr\\bin")
+/// ```
 pub fn Path::normalize(path : Path) -> Path {
   let path = path.0
   // if failed to normalize, return the original path
@@ -210,6 +240,12 @@ pub fn Path::normalize(path : Path) -> Path {
 ///  2. when `from` and `to` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+/// 
+/// ```moonbit
+/// let path : Path = "C:\\Users\\Alice\\Documents\\Project"
+/// let base : Path = "C:\\Users\\Alice"
+/// inspect(path.relative(base~), content="Documents\\Project")
+/// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   let cwd = @env.current_dir().unwrap()
   let from = try! WinPath::parse(Path::join(cwd, base).0)
@@ -245,6 +281,11 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+/// 
+/// ```moonbit skip
+/// let path : Path = "Documents\\Project"
+/// inspect(path.resolve(), content="C:\\your\\current_working_directory\\Documents\\Project")
+/// ```
 pub fn Path::resolve(path : Path) -> Path {
   if Path::is_absolute(path) {
     Path::normalize(path)
