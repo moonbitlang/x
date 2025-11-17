@@ -62,11 +62,11 @@ pub fn Path::basename(path : Path) -> StringView {
 /// let path : Path = "usr/local/bin"
 /// inspect(path.dirname(), content="usr/local")
 /// ```
-pub fn Path::dirname(path : Path) -> StringView {
+pub fn Path::dirname(path : Path) -> Path {
   if is_windows {
-    @win32.Path::dirname(path.0)
+    @win32.Path::dirname(path.0).0
   } else {
-    @posix.Path::dirname(path.0)
+    @posix.Path::dirname(path.0).0
   }
 }
 

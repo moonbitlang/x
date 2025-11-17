@@ -11,7 +11,7 @@ let sep : Char
 // Types and methods
 pub(all) struct Path(String)
 fn Path::basename(Self) -> StringView
-fn Path::dirname(Self) -> StringView
+fn Path::dirname(Self) -> Self
 fn Path::extname(Self) -> StringView
 #deprecated
 fn Path::inner(Self) -> String
