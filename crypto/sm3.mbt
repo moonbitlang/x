@@ -17,6 +17,7 @@
 // SM3 is as secure as SHA256, providing similar performance. https://doi.org/10.3390/electronics8091033
 
 ///|
+#alias(SM3Context, deprecated="Use `SM3` instead")
 struct SM3 {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64

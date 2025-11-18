@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#alias(Sha256Context, deprecated="Use `SHA256` instead")
 struct SHA256 {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
   mut len : UInt64
