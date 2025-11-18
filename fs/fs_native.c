@@ -173,7 +173,8 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
   }
 
   do {
-    if (find_data.cFileName[0] != '.') {
+    if (strcmp(find_data.cFileName, ".") != 0 &&
+        strcmp(find_data.cFileName, "..") != 0) {
       count++;
     }
   } while (FindNextFile(dir, &find_data));
@@ -190,7 +191,8 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
 
   int index = 0;
   do {
-    if (find_data.cFileName[0] != '.') {
+    if (strcmp(find_data.cFileName, ".") != 0 &&
+        strcmp(find_data.cFileName, "..") != 0) {
       size_t name_len = strlen(find_data.cFileName);
       moonbit_bytes_t item = moonbit_make_bytes(name_len, 0);
       memcpy(item, find_data.cFileName, name_len);
@@ -216,10 +218,11 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
 
   // first traversal of the directory, calculate the number of items
   while ((entry = readdir(dir)) != NULL) {
-    // ignore hidden files and current/parent directories
-    if (entry->d_name[0] != '.') {
-      count++;
+    // ignore only . and ..
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue;
     }
+    count++;
   }
 
   // reset the directory stream
@@ -235,12 +238,14 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
   // second traversal of the directory, fill the array
   int index = 0;
   while ((entry = readdir(dir)) != NULL) {
-    if (entry->d_name[0] != '.') {
-      size_t name_len = strlen(entry->d_name);
-      moonbit_bytes_t item = moonbit_make_bytes(name_len, 0);
-      memcpy(item, entry->d_name, name_len);
-      result[index++] = item;
+    // ignore only . and ..
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue;
     }
+    size_t name_len = strlen(entry->d_name);
+    moonbit_bytes_t item = moonbit_make_bytes(name_len, 0);
+    memcpy(item, entry->d_name, name_len);
+    result[index++] = item;
   }
 
   closedir(dir);
