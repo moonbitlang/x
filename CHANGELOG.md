@@ -5,6 +5,7 @@
 ### Added
 
 - Added `@path` package for path handling (#208)
+- Added `@sys.get_env_var` for accessing single environment varialbe (#201)
 
 ### Changed
 
