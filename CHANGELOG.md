@@ -2,10 +2,17 @@
 
 ## [Unreleased]
 
+## [0.4.37]
+
 ### Added
 
 - Added `@path` package for path handling (#208)
 - Added `@sys.get_env_var` for accessing single environment varialbe (#201)
+- Added `@codec/base64` (#174)
+
+### Fixed
+
+- The `read_dir` for native backend will not skip hidden files/diretories (#210)
 
 ### Changed
 
