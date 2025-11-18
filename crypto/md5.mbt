@@ -18,6 +18,7 @@
 // [md5-0.7.0]     https://docs.rs/md5/0.7.0/src/md5/lib.rs.html
 
 ///|
+#alias(MD5Context, deprecated="Use `MD5` instead")
 struct MD5 {
   mut state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
   mut count : FixedArray[UInt]
