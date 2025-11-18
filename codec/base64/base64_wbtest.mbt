@@ -13,11 +13,11 @@
 // limitations under the License.
 
 ///|
-struct CustomBytes(@bytes.View)
+struct CustomBytes(BytesView)
 
 ///|
 impl Show for CustomBytes with output(self, logger) {
-  for b in self.inner() {
+  for b in self.0 {
     if b is (' '..='~') {
       logger.write_char(b.to_char())
     } else {
@@ -41,12 +41,7 @@ test "base64 encode" {
 ///|
 test "base64 decode" {
   inspect(decode("bGlnaHQgdw==") |> CustomBytes(_), content="light w")
-  inspect(
-    decode("bGlnaHQgd28="),
-    content=(
-      #|b"\x6c\x69\x67\x68\x74\x20\x77\x6f"
-    ),
-  )
+  inspect(decode("bGlnaHQgd28=") |> CustomBytes(_), content="light wo")
   inspect(decode("bGlnaHQgd29y") |> CustomBytes(_), content="light wor")
   inspect(decode("bGlnaHQgd29yaw==") |> CustomBytes(_), content="light work")
   inspect(decode("bGlnaHQgd29yay4=") |> CustomBytes(_), content="light work.")
