@@ -4,5 +4,6 @@
             "path": "moonbitlang/x/benchmark/internal/benchmark_ffi",
             "alias": "ffi"
         }
-    ]
+    ],
+    "alert-list": "-deprecated"
 }

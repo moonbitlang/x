@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `@path` package for path handling (#208)
+
+### Changed
+
+- Updated MoonBit toolchain support to v0.6.32 (#209)
+
 ## [0.4.36]
 
 ### Changed
