@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix path library `basename` and `dirname` for some edge cases (#211)
+
 ## [0.4.37]
 
 ### Added
