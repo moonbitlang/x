@@ -36,11 +36,12 @@ pub impl Show for Path with to_string(path) = "%identity"
 /// inspect(path.basename(), content="bin")
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let path = path.0
-  match path.rev_find("\\") {
-    None => path
-    Some(idx) if idx >= path.length() => ""
-    Some(idx) => try! path[idx + 1:]
+  let prefix = path.prefix()
+  let rest = path.0.view(start_offset=prefix.length())
+  match rest.rev_find("\\") {
+    None => rest
+    Some(idx) if idx >= rest.length() => ""
+    Some(idx) => try! rest[idx + 1:]
   }
 }
 
@@ -56,22 +57,40 @@ pub fn Path::basename(path : Path) -> StringView {
 /// inspect(path.dirname(), content="usr\\local")
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
-  let path = path.0
-  let last_slash_pos = path.rev_find("\\")
+  let prefix = path.prefix()
+  let rest = path.0.view(start_offset=prefix.length())
+  let last_slash_pos = rest.rev_find("\\")
   match last_slash_pos {
-    None => ""
+    None => prefix.to_string()
     Some(idx) => {
-      let dirname_with_trailing_slashes = try! path[0:idx]
+      let dirname_with_trailing_slashes = try! rest[0:idx]
       let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
         char_set="\\",
       )
       if dirname_trim_end.is_empty() {
-        dirname_with_trailing_slashes.to_string()
+        path.0
+        .view(
+          start_offset=0,
+          end_offset=prefix.length() + dirname_with_trailing_slashes.length(),
+        )
+        .to_string()
       } else {
-        dirname_trim_end.to_string()
+        path.0
+        .view(
+          start_offset=0,
+          end_offset=prefix.length() + dirname_trim_end.length(),
+        )
+        .to_string()
       }
     }
   }
+}
+
+///|
+test {
+  let path : Path = "\\\\\\"
+  inspect(path.prefix(), content="\\\\\\")
+  // inspect(path.0.view)
 }
 
 ///|
@@ -128,6 +147,36 @@ pub fn Path::is_absolute(path : Path) -> Bool {
     (("[a-zA-Z]" as _letter) ":", _rest) => false
     ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => true
     _ => false
+  }
+}
+
+///|
+fn Path::prefix(path : Path) -> StringView {
+  let path = path.0
+  lexmatch path with longest {
+    (("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+") as prefix, _rest) => prefix
+    (
+      (
+        "\\\\\?UNC\\"
+        ("[^\\]+" as _hostname)
+        "\\"
+        ("[^\\]+" as _shared_folder)
+        "(\\)+"
+      ) as prefix,
+      _rest
+    ) => prefix
+    (
+      ("\\\\" ("[^\\]+" as _hostname) "\\" ("[^\\]+" as _shared_folder) "(\\)*") as prefix,
+      _rest
+    ) => prefix
+    (("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]") as prefix, _rest) => prefix
+    (("\\\\\.\\" ("[^\\]+" as _device) "(\\)+") as prefix, _rest) => prefix
+    (("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
+    ("\\+" as prefix, _rest) => prefix
+    ((("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
+    ((("[a-zA-Z]" as _letter) ":") as prefix, _rest) => prefix
+    ("[^a-zA-Z\\][^:][^\\]+(\\)+" as prefix, _rest) => prefix
+    _ => ""
   }
 }
 

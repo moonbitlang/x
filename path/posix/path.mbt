@@ -66,7 +66,7 @@ pub fn Path::dirname(path : Path) -> Path {
         char_set="/",
       )
       if dirname_trim_end.is_empty() {
-        dirname_with_trailing_slashes.to_string()
+        (try! path[0:idx + 1]).to_string()
       } else {
         dirname_trim_end.to_string()
       }
