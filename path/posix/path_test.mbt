@@ -21,6 +21,21 @@ test "basename/dirname" {
 }
 
 ///|
+test "dirname/edge cases" {
+  inspect(Path::dirname("/"), content="/")
+  inspect(Path::dirname("//"), content="//")
+  inspect(Path::dirname("///"), content="///")
+  inspect(Path::dirname("////"), content="////")
+  inspect(Path::dirname("a/"), content="a")
+  inspect(Path::dirname("a//"), content="a")
+  inspect(Path::dirname("a///"), content="a")
+  inspect(Path::dirname("a////"), content="a")
+  inspect(Path::dirname("/a"), content="/")
+  inspect(Path::dirname("//a"), content="//")
+  inspect(Path::dirname("///a"), content="///")
+}
+
+///|
 test "extname" {
   inspect(Path::extname("project/main.mbt.md"), content=".md")
   inspect(Path::extname("project/"), content="")
@@ -128,14 +143,14 @@ test "dirname edge cases" {
   inspect(Path::dirname(""), content="")
 
   // Root paths
-  inspect(Path::dirname("/"), content="")
-  inspect(Path::dirname("//"), content="/")
-  inspect(Path::dirname("///"), content="//")
-  inspect(Path::dirname("////"), content="///")
+  inspect(Path::dirname("/"), content="/")
+  inspect(Path::dirname("//"), content="//")
+  inspect(Path::dirname("///"), content="///")
+  inspect(Path::dirname("////"), content="////")
 
   // Single character paths
   inspect(Path::dirname("a"), content="")
-  inspect(Path::dirname("/a"), content="")
+  inspect(Path::dirname("/a"), content="/")
 
   // Paths with trailing slashes
   inspect(Path::dirname("a/"), content="a")
@@ -143,7 +158,7 @@ test "dirname edge cases" {
   inspect(Path::dirname("a/b/"), content="a/b")
 
   // Hidden files
-  inspect(Path::dirname("/.hidden"), content="")
+  inspect(Path::dirname("/.hidden"), content="/")
   inspect(Path::dirname("/a/.hidden"), content="/a")
   inspect(Path::dirname(".hidden"), content="")
   inspect(Path::dirname("/a/."), content="/a")

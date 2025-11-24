@@ -21,6 +21,22 @@ test "basename/dirname" {
 }
 
 ///|
+test "dirname/edge cases" {
+  inspect(Path::dirname("\\"), content="\\")
+  inspect(Path::dirname("\\\\"), content="\\\\")
+  inspect(Path::dirname("\\\\\\"), content="\\\\\\")
+  inspect(Path::dirname("\\\\\\\\"), content="\\\\\\\\")
+  inspect(Path::dirname("a\\"), content="a")
+  inspect(Path::dirname("a\\\\"), content="a")
+  inspect(Path::dirname("a\\\\\\"), content="a")
+  inspect(Path::dirname("a\\\\\\\\"), content="a")
+  inspect(Path::dirname("\\a"), content="\\")
+  inspect(Path::dirname("\\\\a"), content="\\\\")
+  inspect(Path::dirname("\\\\\\a"), content="\\\\\\")
+  inspect(Path::dirname("\\\\\\\\a"), content="\\\\\\\\")
+}
+
+///|
 test "extname" {
   inspect(Path::extname("project\\main.mbt.md"), content=".md")
   inspect(Path::extname("project\\"), content="")
@@ -110,7 +126,7 @@ test "basename edge cases" {
   // Single character paths
   inspect(Path::basename("a"), content="a")
   inspect(Path::basename("\\a"), content="a")
-  inspect(Path::basename("C:a"), content="C:a")
+  inspect(Path::basename("C:a"), content="a")
   inspect(Path::basename("C:\\a"), content="a")
 
   // Paths with trailing backslashes
@@ -158,9 +174,6 @@ test "basename edge cases" {
   inspect(Path::basename("a\\\\b"), content="b")
   inspect(Path::basename("a\\\\\\b"), content="b")
   inspect(Path::basename("C:\\a\\\\b\\\\c"), content="c")
-
-  // Mixed separators (forward slash in Windows)
-  inspect(Path::basename("C:/a/b"), content="C:/a/b") // No backslash found, returns whole string
 }
 
 ///|
@@ -169,17 +182,17 @@ test "dirname edge cases" {
   inspect(Path::dirname(""), content="")
 
   // Root paths
-  inspect(Path::dirname("\\"), content="")
-  inspect(Path::dirname("\\\\"), content="\\")
-  inspect(Path::dirname("\\\\\\"), content="\\\\")
-  inspect(Path::dirname("C:\\"), content="C:")
-  inspect(Path::dirname("C:"), content="")
+  inspect(Path::dirname("\\"), content="\\")
+  inspect(Path::dirname("\\\\"), content="\\\\")
+  inspect(Path::dirname("\\\\\\"), content="\\\\\\")
+  inspect(Path::dirname("C:\\"), content="C:\\")
+  inspect(Path::dirname("C:"), content="C:")
 
   // Single character paths
   inspect(Path::dirname("a"), content="")
-  inspect(Path::dirname("\\a"), content="")
-  inspect(Path::dirname("C:a"), content="")
-  inspect(Path::dirname("C:\\a"), content="C:")
+  inspect(Path::dirname("\\a"), content="\\")
+  inspect(Path::dirname("C:a"), content="C:")
+  inspect(Path::dirname("C:\\a"), content="C:\\")
 
   // Paths with trailing backslashes
   inspect(Path::dirname("a\\"), content="a")
@@ -187,7 +200,7 @@ test "dirname edge cases" {
   inspect(Path::dirname("a\\b\\"), content="a\\b")
 
   // Hidden files
-  inspect(Path::dirname("C:\\.hidden"), content="C:")
+  inspect(Path::dirname("C:\\.hidden"), content="C:\\")
   inspect(Path::dirname("C:\\a\\.hidden"), content="C:\\a")
   inspect(Path::dirname(".hidden"), content="")
   inspect(Path::dirname("C:\\a\\."), content="C:\\a")
@@ -200,12 +213,15 @@ test "dirname edge cases" {
   inspect(Path::dirname("C:\\a\\..\\b"), content="C:\\a\\..")
 
   // UNC paths
-  inspect(Path::dirname("\\\\server\\share\\file"), content="\\\\server\\share")
+  inspect(
+    Path::dirname("\\\\server\\share\\file"),
+    content="\\\\server\\share\\",
+  )
   inspect(
     Path::dirname("\\\\server\\share\\folder\\file"),
     content="\\\\server\\share\\folder",
   )
-  inspect(Path::dirname("\\\\server\\share"), content="\\\\server")
+  inspect(Path::dirname("\\\\server\\share"), content="\\\\server\\share")
 
   // Verbatim paths
   inspect(Path::dirname("\\\\?\\C:\\temp\\file"), content="\\\\?\\C:\\temp")
@@ -656,10 +672,6 @@ test "Windows-specific path behaviors" {
   inspect(Path::dirname("C:\\TEMP\\file.txt"), content="C:\\TEMP")
   inspect(Path::extname("FILE.EXE"), content=".EXE")
 
-  // Test with forward slashes (should not be treated as separators in Windows paths)
-  inspect(Path::basename("C:/temp/file"), content="C:/temp/file") // Whole string since no backslash
-  inspect(Path::dirname("C:/temp/file"), content="") // No backslash found
-
   // Test drive letter edge cases
   @json.inspect(Path::is_absolute("A:"), content=false) // Relative to current dir on drive A
   @json.inspect(Path::is_absolute("Z:\\"), content=true) // Root of drive Z
@@ -667,9 +679,9 @@ test "Windows-specific path behaviors" {
   inspect(Path::join("C:\\", "temp"), content="C:\\temp") // Absolute path on drive C
 
   // Test UNC path components
-  inspect(Path::basename("\\\\server\\share"), content="share")
-  inspect(Path::dirname("\\\\server\\share"), content="\\\\server")
-  inspect(Path::dirname("\\\\server"), content="\\")
+  inspect(Path::basename("\\\\server\\share"), content="")
+  inspect(Path::dirname("\\\\server\\share"), content="\\\\server\\share")
+  inspect(Path::dirname("\\\\server"), content="\\\\")
 
   // Test verbatim path handling
   inspect(Path::basename("\\\\?\\C:\\very\\long\\path\\file"), content="file")
@@ -679,8 +691,8 @@ test "Windows-specific path behaviors" {
   )
 
   // Test device namespace paths
-  inspect(Path::basename("\\\\.\\COM1"), content="COM1")
-  inspect(Path::dirname("\\\\.\\COM1"), content="\\\\.")
+  inspect(Path::basename("\\\\.\\COM1"), content="")
+  inspect(Path::dirname("\\\\.\\COM1"), content="\\\\.\\COM1")
 }
 
 ///|
