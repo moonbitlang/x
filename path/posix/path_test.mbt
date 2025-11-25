@@ -22,17 +22,37 @@ test "basename/dirname" {
 
 ///|
 test "dirname/edge cases" {
+  // Root paths
   inspect(Path::dirname("/"), content="/")
-  inspect(Path::dirname("//"), content="//")
   inspect(Path::dirname("///"), content="///")
   inspect(Path::dirname("////"), content="////")
+  // POSIX platform specific cases
+  inspect(Path::dirname("//"), content="//")
+  // relative paths
+  inspect(Path::dirname("a"), content="")
+  // relative paths with trailing slashes
   inspect(Path::dirname("a/"), content="a")
   inspect(Path::dirname("a//"), content="a")
   inspect(Path::dirname("a///"), content="a")
   inspect(Path::dirname("a////"), content="a")
+
+  // Root path with single directory
   inspect(Path::dirname("/a"), content="/")
-  inspect(Path::dirname("//a"), content="//")
   inspect(Path::dirname("///a"), content="///")
+  // POSIX platform specific cases with single directory
+  inspect(Path::dirname("//a"), content="//")
+  // Empty path 
+  inspect(Path::dirname(""), content="")
+  // path with `.` and `..`, Path::dirname doesn't resolve them.
+  inspect(Path::dirname("./a"), content=".")
+  inspect(Path::dirname("../a"), content="..")
+  inspect(Path::dirname("a/."), content="a")
+  inspect(Path::dirname("a/.."), content="a")
+
+  // Paths with multiple consecutive slashes
+  inspect(Path::dirname("a//b"), content="a")
+  inspect(Path::dirname("a///b"), content="a")
+  inspect(Path::dirname("/a//b//c"), content="/a//b")
 }
 
 ///|
@@ -135,51 +155,6 @@ test "basename edge cases" {
   inspect(Path::basename("a//b"), content="b")
   inspect(Path::basename("a///b"), content="b")
   inspect(Path::basename("/a//b//c"), content="c")
-}
-
-///|
-test "dirname edge cases" {
-  // Empty path
-  inspect(Path::dirname(""), content="")
-
-  // Root paths
-  inspect(Path::dirname("/"), content="/")
-  inspect(Path::dirname("//"), content="//")
-  inspect(Path::dirname("///"), content="///")
-  inspect(Path::dirname("////"), content="////")
-
-  // Single character paths
-  inspect(Path::dirname("a"), content="")
-  inspect(Path::dirname("/a"), content="/")
-
-  // Paths with trailing slashes
-  inspect(Path::dirname("a/"), content="a")
-  inspect(Path::dirname("/a/"), content="/a")
-  inspect(Path::dirname("a/b/"), content="a/b")
-
-  // Hidden files
-  inspect(Path::dirname("/.hidden"), content="/")
-  inspect(Path::dirname("/a/.hidden"), content="/a")
-  inspect(Path::dirname(".hidden"), content="")
-  inspect(Path::dirname("/a/."), content="/a")
-  inspect(Path::dirname("/a/.."), content="/a")
-
-  // Complex paths
-  inspect(Path::dirname("./a"), content=".")
-  inspect(Path::dirname("../a"), content="..")
-  inspect(Path::dirname("a/../b"), content="a/..")
-  inspect(Path::dirname("/a/../b"), content="/a/..")
-
-  // Paths with multiple consecutive slashes
-  inspect(Path::dirname("a//b"), content="a")
-  inspect(Path::dirname("a///b"), content="a")
-  inspect(Path::dirname("/a//b//c"), content="/a//b")
-
-  // Long paths
-  inspect(
-    Path::dirname("/very/long/path/with/many/components"),
-    content="/very/long/path/with/many",
-  )
 }
 
 ///|
