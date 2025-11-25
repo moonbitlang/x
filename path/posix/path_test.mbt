@@ -56,6 +56,41 @@ test "dirname/edge cases" {
 }
 
 ///|
+test "basename/edge cases" {
+  // Root paths
+  inspect(Path::basename("/"), content="")
+  inspect(Path::basename("///"), content="")
+  inspect(Path::basename("////"), content="")
+  // POSIX platform specific cases
+  inspect(Path::basename("//"), content="")
+  // relative paths
+  inspect(Path::basename("a"), content="a")
+  // relative paths with trailing slashes
+  inspect(Path::basename("a/"), content="")
+  inspect(Path::basename("a//"), content="")
+  inspect(Path::basename("a///"), content="")
+  inspect(Path::basename("a////"), content="")
+
+  // Root path with single directory
+  inspect(Path::basename("/a"), content="a")
+  inspect(Path::basename("///a"), content="a")
+  // POSIX platform specific cases with single directory
+  inspect(Path::basename("//a"), content="a")
+  // Empty path 
+  inspect(Path::basename(""), content="")
+  // path with `.` and `..`, Path::basename doesn't resolve them.
+  inspect(Path::basename("./a"), content="a")
+  inspect(Path::basename("../a"), content="a")
+  inspect(Path::basename("a/."), content=".")
+  inspect(Path::basename("a/.."), content="..")
+
+  // Paths with multiple consecutive slashes
+  inspect(Path::basename("a//b"), content="b")
+  inspect(Path::basename("a///b"), content="b")
+  inspect(Path::basename("/a//b//c"), content="c")
+}
+
+///|
 test "extname" {
   inspect(Path::extname("project/main.mbt.md"), content=".md")
   inspect(Path::extname("project/"), content="")
@@ -104,57 +139,6 @@ test "normalize" {
 test "resolve" {
   inspect(Path::resolve("/a/../b/c"), content="/b/c")
   inspect(Path::resolve("/a/b/c/../../.."), content="/")
-}
-
-///|
-test "basename edge cases" {
-  // Empty path
-  inspect(Path::basename(""), content="")
-
-  // Root paths
-  inspect(Path::basename("/"), content="")
-  inspect(Path::basename("//"), content="")
-  inspect(Path::basename("///"), content="")
-
-  // Single character paths
-  inspect(Path::basename("a"), content="a")
-  inspect(Path::basename("/a"), content="a")
-
-  // Paths with trailing slashes
-  inspect(Path::basename("a/"), content="")
-  inspect(Path::basename("a/b/"), content="")
-  inspect(Path::basename("/a/b/"), content="")
-  inspect(Path::basename("a/b//"), content="")
-
-  // Hidden files
-  inspect(Path::basename("/a/.hidden"), content=".hidden")
-  inspect(Path::basename("/.hidden"), content=".hidden")
-  inspect(Path::basename(".hidden"), content=".hidden")
-  inspect(Path::basename("/a/."), content=".")
-  inspect(Path::basename("/a/.."), content="..")
-
-  // Complex paths
-  inspect(Path::basename("./a/b"), content="b")
-  inspect(Path::basename("../a/b"), content="b")
-  inspect(Path::basename("a/../b"), content="b")
-  inspect(Path::basename("/a/../b"), content="b")
-
-  // Paths with special characters
-  inspect(Path::basename("/a/b c"), content="b c")
-  inspect(Path::basename("/a/b-c"), content="b-c")
-  inspect(Path::basename("/a/b_c"), content="b_c")
-  inspect(Path::basename("/a/b.c.d"), content="b.c.d")
-
-  // Long paths
-  inspect(
-    Path::basename("/very/long/path/with/many/components/final"),
-    content="final",
-  )
-
-  // Paths with multiple consecutive slashes
-  inspect(Path::basename("a//b"), content="b")
-  inspect(Path::basename("a///b"), content="b")
-  inspect(Path::basename("/a//b//c"), content="c")
 }
 
 ///|
