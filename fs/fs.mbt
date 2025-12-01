@@ -146,6 +146,103 @@ pub fn is_file(path : String) -> Bool raise IOError {
 }
 
 ///|
+pub struct Stats {
+  dev : UInt64
+  mode : UInt
+  nlink : UInt64
+  ino : UInt64
+  uid : UInt
+  gid : UInt
+  rdev : UInt64
+  atime_sec : Int64
+  atime_nsec : Int64
+  mtime_sec : Int64
+  mtime_nsec : Int64
+  ctime_sec : Int64
+  ctime_nsec : Int64
+  birthtime_sec : Int64
+  birthtime_nsec : Int64
+  size : Int64
+  blocks : UInt64
+  blksize : UInt
+  flags : UInt
+  gen : UInt
+  lspare : Int
+  qspare : (Int64, Int64)
+} derive(Show, Eq)
+
+///|
+fn decode_stat(b : Bytes) -> Stats raise IOError {
+  match b {
+    [
+      u64le(dev),
+      u32le(mode),
+      u32le(_),
+      u64le(nlink),
+      u64le(ino),
+      u32le(uid),
+      u32le(gid),
+      u64le(rdev),
+      i64le(atime_sec),
+      i64le(atime_nsec),
+      i64le(mtime_sec),
+      i64le(mtime_nsec),
+      i64le(ctime_sec),
+      i64le(ctime_nsec),
+      i64le(birthtime_sec),
+      i64le(birthtime_nsec),
+      i64le(size),
+      u64le(blocks),
+      u32le(blksize),
+      u32le(flags),
+      u32le(gen),
+      i32le(lspare),
+      i64le(qspare_0),
+      i64le(qspare_1),
+    ] =>
+      {
+        dev,
+        mode,
+        nlink,
+        ino,
+        uid,
+        gid,
+        rdev,
+        atime_sec,
+        atime_nsec,
+        mtime_sec,
+        mtime_nsec,
+        ctime_sec,
+        ctime_nsec,
+        birthtime_sec,
+        birthtime_nsec,
+        size,
+        blocks,
+        blksize,
+        flags,
+        gen,
+        lspare,
+        qspare: (qspare_0, qspare_1),
+      }
+    _ => raise IOError("invalid stat buffer")
+  }
+}
+
+///|
+/// Returns the statistics of the file specified by the given path.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file.
+///
+/// # Returns
+///
+/// - A `Stats` structure containing file information.
+pub fn stats(path : String) -> Stats raise IOError {
+  stat_internal(path)
+}
+
+///|
 /// Removes a directory at the specified path.
 ///
 /// # Parameters

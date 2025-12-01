@@ -247,3 +247,65 @@ fn remove_file_internal(path : String) -> Unit raise IOError {
     raise IOError(get_error_message_ffi())
   }
 }
+
+///|
+
+///|
+extern "js" fn stat_details_ffi(path : String, out_buf : Bytes) -> Int =
+  #| function(path, out_buf) {
+  #|   var fs = require('fs');
+  #|   try {
+  #|     const s = fs.statSync(path, {bigint: true});
+  #|     const view = new DataView(out_buf.buffer, out_buf.byteOffset, out_buf.byteLength);
+  #|     
+  #|     view.setBigUint64(0, s.dev, true);
+  #|     view.setUint32(8, Number(s.mode), true);
+  #|     view.setUint32(12, 0, true); // padding
+  #|     view.setBigUint64(16, s.nlink, true);
+  #|     view.setBigUint64(24, s.ino, true);
+  #|     view.setUint32(32, Number(s.uid), true);
+  #|     view.setUint32(36, Number(s.gid), true);
+  #|     view.setBigUint64(40, s.rdev, true);
+  #|     
+  #|     const splitTime = (ns, offset) => {
+  #|       if (ns === undefined) {
+  #|         view.setBigInt64(offset, 0n, true);
+  #|         view.setBigInt64(offset + 8, 0n, true);
+  #|         return;
+  #|       }
+  #|       const sec = ns / 1000000000n;
+  #|       const nsec = ns % 1000000000n;
+  #|       view.setBigInt64(offset, sec, true);
+  #|       view.setBigInt64(offset + 8, nsec, true);
+  #|     };
+  #|
+  #|     splitTime(s.atimeNs, 48);
+  #|     splitTime(s.mtimeNs, 64);
+  #|     splitTime(s.ctimeNs, 80);
+  #|     splitTime(s.birthtimeNs, 96);
+  #|
+  #|     view.setBigInt64(112, s.size, true);
+  #|     view.setBigUint64(120, s.blocks || 0n, true);
+  #|     view.setUint32(128, Number(s.blksize || 0), true);
+  #|     view.setUint32(132, 0, true); // flags
+  #|     view.setUint32(136, 0, true); // gen
+  #|     view.setInt32(140, 0, true); // lspare
+  #|     view.setBigInt64(144, 0n, true); // qspare
+  #|     view.setBigInt64(152, 0n, true); // qspare
+  #|
+  #|     return 0;
+  #|   } catch (error) {
+  #|     globalThis.errorMessage = error.message;
+  #|     return -1;
+  #|   }
+  #| }
+
+///|
+fn stat_internal(path : String) -> Stats raise IOError {
+  let buf = Bytes::make(160, 0)
+  let res = stat_details_ffi(path, buf)
+  if res == -1 {
+    raise IOError(get_error_message_ffi())
+  }
+  decode_stat(buf)
+}

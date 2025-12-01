@@ -157,3 +157,17 @@ fn remove_dir_internal(path : String) -> Unit raise IOError {
   let res = remove_dir_ffi(@ffi.string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
 }
+
+///|
+fn stat_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "stat"
+
+///|
+fn get_stat_content_ffi() -> XExternByteArray = "__moonbit_fs_unstable" "get_stat_content"
+
+///|
+fn stat_internal(path : String) -> Stats raise IOError {
+  let res = stat_ffi(@ffi.string_to_extern(path))
+  guard res != -1 else { raise IOError(get_error_message()) }
+  let buf = @ffi.byte_array_from_extern(get_stat_content_ffi())
+  decode_stat(buf)
+}

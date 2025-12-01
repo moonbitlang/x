@@ -20,6 +20,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -251,6 +252,131 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
   closedir(dir);
   return result;
 #endif
+}
+
+MOONBIT_FFI_EXPORT int moonbitlang_x_fs_stat_details_ffi(moonbit_bytes_t path,
+                                                         moonbit_bytes_t out_buf) {
+  struct stat s;
+  if (stat((const char *)path, &s) != 0) {
+    return -1;
+  }
+
+  int32_t type = 3; // Unknown
+#ifdef _WIN32
+  if (s.st_mode & _S_IFREG)
+    type = 0;
+  else if (s.st_mode & _S_IFDIR)
+    type = 1;
+#else
+  if (S_ISREG(s.st_mode))
+    type = 0;
+  else if (S_ISDIR(s.st_mode))
+    type = 1;
+  else if (S_ISLNK(s.st_mode))
+    type = 2;
+#endif
+
+  uint64_t dev = (uint64_t)s.st_dev;
+  uint32_t mode = (uint32_t)s.st_mode;
+  uint64_t nlink = (uint64_t)s.st_nlink;
+  uint64_t ino = (uint64_t)s.st_ino;
+  uint32_t uid = (uint32_t)s.st_uid;
+  uint32_t gid = (uint32_t)s.st_gid;
+  uint64_t rdev = (uint64_t)s.st_rdev;
+  int64_t size = (int64_t)s.st_size;
+
+#if defined(__APPLE__)
+  int64_t atime_sec = s.st_atimespec.tv_sec;
+  int64_t atime_nsec = s.st_atimespec.tv_nsec;
+  int64_t mtime_sec = s.st_mtimespec.tv_sec;
+  int64_t mtime_nsec = s.st_mtimespec.tv_nsec;
+  int64_t ctime_sec = s.st_ctimespec.tv_sec;
+  int64_t ctime_nsec = s.st_ctimespec.tv_nsec;
+  int64_t birthtime_sec = s.st_birthtimespec.tv_sec;
+  int64_t birthtime_nsec = s.st_birthtimespec.tv_nsec;
+#elif defined(_WIN32)
+  int64_t atime_sec = s.st_atime;
+  int64_t atime_nsec = 0;
+  int64_t mtime_sec = s.st_mtime;
+  int64_t mtime_nsec = 0;
+  int64_t ctime_sec = s.st_ctime;
+  int64_t ctime_nsec = 0;
+  int64_t birthtime_sec = 0;
+  int64_t birthtime_nsec = 0;
+#else
+  // Linux and others
+  int64_t atime_sec = s.st_atim.tv_sec;
+  int64_t atime_nsec = s.st_atim.tv_nsec;
+  int64_t mtime_sec = s.st_mtim.tv_sec;
+  int64_t mtime_nsec = s.st_mtim.tv_nsec;
+  int64_t ctime_sec = s.st_ctim.tv_sec;
+  int64_t ctime_nsec = s.st_ctim.tv_nsec;
+  int64_t birthtime_sec = 0;
+  int64_t birthtime_nsec = 0;
+#endif
+
+#ifdef _WIN32
+  uint64_t blocks = 0;
+  uint32_t blksize = 0;
+  uint32_t flags = 0;
+  uint32_t gen = 0;
+#else
+  uint64_t blocks = (uint64_t)s.st_blocks;
+  uint32_t blksize = (uint32_t)s.st_blksize;
+  #if defined(__APPLE__)
+    uint32_t flags = (uint32_t)s.st_flags;
+    uint32_t gen = (uint32_t)s.st_gen;
+  #else
+    uint32_t flags = 0;
+    uint32_t gen = 0;
+  #endif
+#endif
+
+  uint8_t *buf = (uint8_t *)out_buf;
+  // dev (8 bytes) at offset 0
+  memcpy(buf, &dev, 8);
+  // mode (4 bytes) at offset 8
+  memcpy(buf + 8, &mode, 4);
+  // padding (4 bytes) at offset 12
+  memset(buf + 12, 0, 4);
+  // nlink (8 bytes) at offset 16
+  memcpy(buf + 16, &nlink, 8);
+  // ino (8 bytes) at offset 24
+  memcpy(buf + 24, &ino, 8);
+  // uid (4 bytes) at offset 32
+  memcpy(buf + 32, &uid, 4);
+  // gid (4 bytes) at offset 36
+  memcpy(buf + 36, &gid, 4);
+  // rdev (8 bytes) at offset 40
+  memcpy(buf + 40, &rdev, 8);
+  // atime (sec, nsec) at offset 48, 56
+  memcpy(buf + 48, &atime_sec, 8);
+  memcpy(buf + 56, &atime_nsec, 8);
+  // mtime (sec, nsec) at offset 64, 72
+  memcpy(buf + 64, &mtime_sec, 8);
+  memcpy(buf + 72, &mtime_nsec, 8);
+  // ctime (sec, nsec) at offset 80, 88
+  memcpy(buf + 80, &ctime_sec, 8);
+  memcpy(buf + 88, &ctime_nsec, 8);
+  // birthtime (sec, nsec) at offset 96, 104
+  memcpy(buf + 96, &birthtime_sec, 8);
+  memcpy(buf + 104, &birthtime_nsec, 8);
+  // size (8 bytes) at offset 112
+  memcpy(buf + 112, &size, 8);
+  // blocks (8 bytes) at offset 120
+  memcpy(buf + 120, &blocks, 8);
+  // blksize (4 bytes) at offset 128
+  memcpy(buf + 128, &blksize, 4);
+  // flags (4 bytes) at offset 132
+  memcpy(buf + 132, &flags, 4);
+  // gen (4 bytes) at offset 136
+  memcpy(buf + 136, &gen, 4);
+  // lspare (4 bytes) at offset 140 -> 0
+  memset(buf + 140, 0, 4);
+  // qspare (16 bytes) at offset 144 -> 0
+  memset(buf + 144, 0, 16);
+
+  return 0;
 }
 
 #ifdef __cplusplus
