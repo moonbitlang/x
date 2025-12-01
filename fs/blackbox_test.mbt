@@ -50,3 +50,38 @@ test "create_dir_and_remove_dir" {
   @fs.remove_dir(path)
   assert_false(@fs.path_exists(path))
 }
+
+///|
+test "stat" {
+  let path = "./fs/stat_test.txt"
+  // Ensure cleanup if previous run failed
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+  let content = "12345"
+  @fs.write_string_to_file(path, content)
+  let stats = @fs.stats(path)
+  // println(stats)
+
+  // Basic Type and Size
+  inspect(stats.size, content="5")
+
+  // Time fields check (sanity check: should be non-zero)
+  assert_true(stats.atime_sec > 0L)
+  assert_true(stats.mtime_sec > 0L)
+  assert_true(stats.ctime_sec > 0L)
+
+  // Metadata checks
+  assert_true(stats.nlink >= 1UL)
+
+  // Mode check: Verify it's a regular file (S_IFREG is 0o100000)
+  // We mask with S_IFMT (0o170000) to get the file type bits
+  let is_reg = (stats.mode & 0o170000U) == 0o100000U
+  assert_true(is_reg)
+
+  // UID/GID should be readable (printing them to ensure they are valid numbers)
+  // Note: specific values depend on the environment, so we just check they exist
+  inspect(stats.uid >= 0U, content="true")
+  inspect(stats.gid >= 0U, content="true")
+  @fs.remove_file(path)
+}

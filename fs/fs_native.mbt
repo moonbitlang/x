@@ -197,3 +197,15 @@ fn remove_file_internal(path : String) -> Unit raise IOError {
     raise IOError(get_error_message())
   }
 }
+
+///|
+#borrow(path, out_buf)
+extern "C" fn stat_details_ffi(path : Bytes, out_buf : Bytes) -> Int = "moonbitlang_x_fs_stat_details_ffi"
+
+///|
+fn stat_internal(path : String) -> Stats raise IOError {
+  let buf = Bytes::make(160, 0)
+  let res = stat_details_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), buf)
+  guard res == 0 else { raise IOError(get_error_message()) }
+  decode_stat(buf)
+}
