@@ -30,7 +30,9 @@ pub impl Show for Path with output(path, logger) {
 }
 
 ///|
-pub impl Show for Path with to_string(path) = "%identity"
+pub impl Show for Path with to_string(path) {
+  path.0
+}
 
 ///|
 /// Returns the last path component of the given path.
