@@ -182,6 +182,7 @@ test "path resolution" {
 ```
 
 ```moonbit skip
+///|
 test {
   let path : Path = "a/b/../c"
   inspect(path.resolve(), content="/current/working/directory/a/c")

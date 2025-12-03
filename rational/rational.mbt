@@ -660,7 +660,7 @@ pub fn[T : Integral] Rational::fract(self : Rational[T]) -> Rational[T] {
 /// inspect(fraction, content="3/4") 
 ///
 /// let negative = @rational.new(-7L, 3).unwrap()
-/// inspect(negative, content="-7/3") 
+/// inspect(negative, content="-7/3")
 /// ```
 ///
 pub impl[T : Integral] Show for Rational[T] with output(self, logger) {

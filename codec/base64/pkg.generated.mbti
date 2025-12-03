@@ -2,24 +2,24 @@
 package "moonbitlang/x/codec/base64"
 
 // Values
-fn decode(StringView, url_safe? : Bool) -> Bytes raise DecodeError
+pub fn decode(StringView, url_safe? : Bool) -> Bytes raise DecodeError
 
-fn encode(BytesView, url_safe? : Bool) -> String
+pub fn encode(BytesView, url_safe? : Bool) -> String
 
 // Errors
 pub suberror DecodeError {
   InvalidChar(Char)
 }
-impl Show for DecodeError
+pub impl Show for DecodeError
 
 // Types and methods
 type Decoder
-fn Decoder::decode_to(Self, StringView, (Byte) -> Unit, url_safe? : Bool) -> Unit raise DecodeError
-fn Decoder::new() -> Self
+pub fn Decoder::decode_to(Self, StringView, (Byte) -> Unit, url_safe? : Bool) -> Unit raise DecodeError
+pub fn Decoder::new() -> Self
 
 type Encoder
-fn Encoder::encode_to(Self, BytesView, (Char) -> Unit, url_safe? : Bool, padding? : Bool) -> Unit
-fn Encoder::new() -> Self
+pub fn Encoder::encode_to(Self, BytesView, (Char) -> Unit, url_safe? : Bool, padding? : Bool) -> Unit
+pub fn Encoder::new() -> Self
 
 // Type aliases
 

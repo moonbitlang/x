@@ -2,9 +2,9 @@
 package "moonbitlang/x/benchmark/internal/benchmark_ffi"
 
 // Values
-fn instant_elapsed_as_secs_f64(Instant) -> Double
+pub fn instant_elapsed_as_secs_f64(Instant) -> Double
 
-fn instant_now() -> Instant
+pub fn instant_now() -> Instant
 
 // Errors
 

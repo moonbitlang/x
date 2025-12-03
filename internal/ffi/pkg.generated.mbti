@@ -2,19 +2,19 @@
 package "moonbitlang/x/internal/ffi"
 
 // Values
-fn byte_array_from_extern(XExternByteArray) -> Bytes
+pub fn byte_array_from_extern(XExternByteArray) -> Bytes
 
-fn byte_array_to_extern(Bytes) -> XExternByteArray
+pub fn byte_array_to_extern(Bytes) -> XExternByteArray
 
-fn mbt_string_to_utf8_bytes(String, Bool) -> Bytes
+pub fn mbt_string_to_utf8_bytes(String, Bool) -> Bytes
 
-fn string_array_from_extern(XExternStringArray) -> Array[String]
+pub fn string_array_from_extern(XExternStringArray) -> Array[String]
 
-fn string_from_extern(XExternString) -> String
+pub fn string_from_extern(XExternString) -> String
 
-fn string_to_extern(String) -> XExternString
+pub fn string_to_extern(String) -> XExternString
 
-fn utf8_bytes_to_mbt_string(Bytes) -> String
+pub fn utf8_bytes_to_mbt_string(Bytes) -> String
 
 // Errors
 

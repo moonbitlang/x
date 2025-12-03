@@ -9,13 +9,13 @@ import(
 )
 
 // Values
-let max_scale : Int
+pub let max_scale : Int
 
-fn neg_one() -> Decimal
+pub fn neg_one() -> Decimal
 
-fn one() -> Decimal
+pub fn one() -> Decimal
 
-fn zero() -> Decimal
+pub fn zero() -> Decimal
 
 // Errors
 
@@ -24,38 +24,38 @@ pub struct Decimal {
   coefficient : @bigint.BigInt
   scale : Int
 }
-fn Decimal::abs(Self) -> Self
-fn Decimal::coefficient(Self) -> @bigint.BigInt
-fn Decimal::from_bigint(@bigint.BigInt) -> Self
-fn Decimal::from_double(Double, Int) -> Self?
-fn Decimal::from_int(Int) -> Self
-fn Decimal::from_string(String) -> Self?
-fn Decimal::is_negative(Self) -> Bool
-fn Decimal::is_positive(Self) -> Bool
-fn Decimal::is_zero(Self) -> Bool
-fn Decimal::new(@bigint.BigInt, Int) -> Self?
-fn Decimal::round(Self, Int) -> Self?
-fn Decimal::scale(Self) -> Int
-fn Decimal::scale_to(Self, Int) -> Self?
-fn Decimal::signum(Self) -> Int
-fn Decimal::to_bigint(Self) -> @bigint.BigInt
-fn Decimal::to_double(Self) -> Double
-fn Decimal::to_int(Self) -> Int?
-fn Decimal::to_string(Self) -> String
-fn Decimal::truncate(Self, Int) -> Self?
-impl Add for Decimal
-impl Compare for Decimal
-impl Default for Decimal
-impl Div for Decimal
-impl Eq for Decimal
-impl Hash for Decimal
-impl Mul for Decimal
-impl Neg for Decimal
-impl Show for Decimal
-impl Sub for Decimal
-impl ToJson for Decimal
-impl @json.FromJson for Decimal
-impl @quickcheck.Arbitrary for Decimal
+pub fn Decimal::abs(Self) -> Self
+pub fn Decimal::coefficient(Self) -> @bigint.BigInt
+pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
+pub fn Decimal::from_double(Double, Int) -> Self?
+pub fn Decimal::from_int(Int) -> Self
+pub fn Decimal::from_string(String) -> Self?
+pub fn Decimal::is_negative(Self) -> Bool
+pub fn Decimal::is_positive(Self) -> Bool
+pub fn Decimal::is_zero(Self) -> Bool
+pub fn Decimal::new(@bigint.BigInt, Int) -> Self?
+pub fn Decimal::round(Self, Int) -> Self?
+pub fn Decimal::scale(Self) -> Int
+pub fn Decimal::scale_to(Self, Int) -> Self?
+pub fn Decimal::signum(Self) -> Int
+pub fn Decimal::to_bigint(Self) -> @bigint.BigInt
+pub fn Decimal::to_double(Self) -> Double
+pub fn Decimal::to_int(Self) -> Int?
+pub fn Decimal::to_string(Self) -> String
+pub fn Decimal::truncate(Self, Int) -> Self?
+pub impl Add for Decimal
+pub impl Compare for Decimal
+pub impl Default for Decimal
+pub impl Div for Decimal
+pub impl Eq for Decimal
+pub impl Hash for Decimal
+pub impl Mul for Decimal
+pub impl Neg for Decimal
+pub impl Show for Decimal
+pub impl Sub for Decimal
+pub impl ToJson for Decimal
+pub impl @json.FromJson for Decimal
+pub impl @quickcheck.Arbitrary for Decimal
 
 // Type aliases
 

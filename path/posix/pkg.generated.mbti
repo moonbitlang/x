@@ -2,26 +2,26 @@
 package "moonbitlang/x/path/posix"
 
 // Values
-let delimiter : Char
+pub let delimiter : Char
 
-let sep : Char
+pub let sep : Char
 
 // Errors
 
 // Types and methods
 pub(all) struct Path(String)
-fn Path::basename(Self) -> StringView
-fn Path::dirname(Self) -> Self
-fn Path::extname(Self) -> StringView
+pub fn Path::basename(Self) -> StringView
+pub fn Path::dirname(Self) -> Self
+pub fn Path::extname(Self) -> StringView
 #deprecated
-fn Path::inner(Self) -> String
-fn Path::is_absolute(Self) -> Bool
-fn Path::join(Self, Self) -> Self
-fn Path::normalize(Self) -> Self
-fn Path::relative(Self, base~ : Self) -> Self
-fn Path::resolve(Self) -> Self
-impl Eq for Path
-impl Show for Path
+pub fn Path::inner(Self) -> String
+pub fn Path::is_absolute(Self) -> Bool
+pub fn Path::join(Self, Self) -> Self
+pub fn Path::normalize(Self) -> Self
+pub fn Path::relative(Self, base~ : Self) -> Self
+pub fn Path::resolve(Self) -> Self
+pub impl Eq for Path
+pub impl Show for Path
 
 // Type aliases
 

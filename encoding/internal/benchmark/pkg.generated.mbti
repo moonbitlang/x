@@ -6,9 +6,9 @@ import(
 )
 
 // Values
-fn bench_decoding_batch(@encoding.Encoding, Bytes) -> Unit
+pub fn bench_decoding_batch(@encoding.Encoding, Bytes) -> Unit
 
-fn bench_decoding_streaming(@encoding.Encoding, Bytes) -> Unit
+pub fn bench_decoding_streaming(@encoding.Encoding, Bytes) -> Unit
 
 // Errors
 
