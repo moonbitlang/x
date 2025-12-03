@@ -15,12 +15,12 @@
 ///|
 fn read_char(ctx : ParseContext) -> Char? {
   if ctx.offset < ctx.end_offset {
-    let c = ctx.input[ctx.offset]
+    let c = ctx.input.code_unit_at(ctx.offset).to_int()
     ctx.offset += 1
     let c1 = c
     if c1 >= 0xD800 && c1 <= 0xDBFF {
       if ctx.offset < ctx.end_offset {
-        let c2 = ctx.input[ctx.offset]
+        let c2 = ctx.input.code_unit_at(ctx.offset).to_int()
         if c2 >= 0xDC00 && c2 <= 0xDFFF {
           ctx.offset += 1
           let c3 = (c1 << 10) + c2 - 0x35fdc00

@@ -122,11 +122,11 @@ pub fn from_hex(hex : String) -> UUID raise Error {
     if i >= hex.length() {
       fail("not enough hexadecimal in UUID string")
     }
-    let c = hex[i]
+    let c = hex.code_unit_at(i)
     if c == '-' {
       continue hi, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)
+      let d = hex_char_to_int64(c.to_int())
       continue hi | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {
@@ -136,11 +136,11 @@ pub fn from_hex(hex : String) -> UUID raise Error {
     if i >= hex.length() {
       fail("not enough hexadecimal in UUID string")
     }
-    let c = hex[i]
+    let c = hex.code_unit_at(i)
     if c == '-' {
       continue lo, i + 1, n
     } else {
-      let d = hex_char_to_int64(c)
+      let d = hex_char_to_int64(c.to_int())
       continue lo | (d << ((15 - n) * 4)), i + 1, n + 1
     }
   } else {

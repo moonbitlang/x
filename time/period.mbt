@@ -40,7 +40,7 @@ pub fn Period::zero() -> Period {
 /// Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
 pub fn Period::from_string(str : String) -> Period raise Error {
   // TODO: better parsing impl
-  if str[0] != 'P' {
+  if str.code_unit_at(0) != 'P' {
     fail(invalid_period_err)
   }
   let buf = StringBuilder::new(size_hint=0)
@@ -48,9 +48,9 @@ pub fn Period::from_string(str : String) -> Period raise Error {
   let mut months = 0
   let mut days = 0
   for i = 1; i < str.length(); i = i + 1 {
-    match str[i] {
+    match str.code_unit_at(i) {
       '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '-' =>
-        buf.write_char(Int::unsafe_to_char(str[i]))
+        buf.write_char(str.code_unit_at(i).unsafe_to_char())
       'Y' => {
         years = @strconv.from_str(buf.to_string())
         buf.reset()

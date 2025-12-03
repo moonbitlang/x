@@ -94,12 +94,14 @@ fn split(s : String, delimiter : Char) -> Array[String] {
     return spl
   }
   let buf = StringBuilder::new(size_hint=0)
+  let delimiter_code = Char::to_int(delimiter).to_uint16()
   for i = 0; i < s.length(); i = i + 1 {
-    if s[i] == Char::to_int(delimiter) {
+    let code_unit = s.code_unit_at(i)
+    if code_unit == delimiter_code {
       spl.push(buf.to_string())
       buf.reset()
     } else {
-      buf.write_char(Int::unsafe_to_char(s[i]))
+      buf.write_char(UInt16::unsafe_to_char(code_unit))
     }
   }
   spl.push(buf.to_string())

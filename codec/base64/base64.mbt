@@ -132,7 +132,7 @@ pub fn Decoder::new() -> Decoder {
 #locals(cb)
 pub fn Decoder::decode_to(
   self : Decoder,
-  input : @string.View,
+  input : StringView,
   cb : (Byte) -> Unit,
   url_safe? : Bool = false,
 ) -> Unit raise DecodeError {
@@ -167,7 +167,7 @@ pub fn Decoder::decode_to(
 
 ///|
 pub fn decode(
-  input : @string.View,
+  input : StringView,
   url_safe? : Bool = false,
 ) -> Bytes raise DecodeError {
   let decoder = Decoder::new()
