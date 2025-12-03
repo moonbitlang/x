@@ -50,7 +50,9 @@ pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
       rems[8 - i - 1] = rem.reinterpret_as_int()
     }
     for xdigit in rems {
-      buffer.write_char(HEX_DIGITS[xdigit] |> Int::unsafe_to_char)
+      buffer.write_char(
+        HEX_DIGITS.code_unit_at(xdigit).to_int() |> Int::unsafe_to_char,
+      )
     }
   }
   buffer.to_string()
