@@ -31,9 +31,7 @@
 /// Construct an RFC-4122-compliant v4 UUID:
 ///
 /// ```moonbit
-/// let _u = @uuid
-///   .from_hex("9558cfadb48547c70f9adf1f75cdef29")
-///   .as_version(@uuid.V4)
+/// let _u = @uuid.from_hex("9558cfadb48547c70f9adf1f75cdef29").as_version(@uuid.V4)
 /// ```
 ///
 struct UUID {
