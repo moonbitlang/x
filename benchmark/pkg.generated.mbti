@@ -9,18 +9,18 @@ package "moonbitlang/x/benchmark"
 #deprecated
 type Criterion
 #deprecated
-fn Criterion::add(Self, Task) -> Unit
+pub fn Criterion::add(Self, Task) -> Unit
 #deprecated
-fn Criterion::new() -> Self
+pub fn Criterion::new() -> Self
 #deprecated
-fn Criterion::run(Self) -> Map[String, TaskResult]
+pub fn Criterion::run(Self) -> Map[String, TaskResult]
 
 #deprecated
 type Task
 #deprecated
-fn Task::new(String, () -> Unit, count? : Int) -> Self
+pub fn Task::new(String, () -> Unit, count? : Int) -> Self
 #deprecated
-fn Task::run(Self) -> TaskResult
+pub fn Task::run(Self) -> TaskResult
 
 #deprecated
 pub struct TaskResult {
@@ -29,7 +29,7 @@ pub struct TaskResult {
   max : Double
   min : Double
 }
-impl Show for TaskResult
+pub impl Show for TaskResult
 
 // Type aliases
 

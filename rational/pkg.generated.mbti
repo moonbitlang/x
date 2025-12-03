@@ -8,42 +8,42 @@ import(
 )
 
 // Values
-fn from_double(Double) -> Rational[Int64] raise RationalError
+pub fn from_double(Double) -> Rational[Int64] raise RationalError
 
-fn[T : Integral] new(T, T) -> Rational[T]?
+pub fn[T : Integral] new(T, T) -> Rational[T]?
 
 // Errors
 pub(all) suberror RationalError String
-impl Eq for RationalError
-impl Show for RationalError
-impl ToJson for RationalError
+pub impl Eq for RationalError
+pub impl Show for RationalError
+pub impl ToJson for RationalError
 
 // Types and methods
 type Rational[T]
 #as_free_fn
-fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
+pub fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
 #as_free_fn
-fn[T : Integral] Rational::ceil(Self[T]) -> T
+pub fn[T : Integral] Rational::ceil(Self[T]) -> T
 #as_free_fn
-fn[T : Integral] Rational::floor(Self[T]) -> T
+pub fn[T : Integral] Rational::floor(Self[T]) -> T
 #as_free_fn
-fn[T : Integral] Rational::fract(Self[T]) -> Self[T]
+pub fn[T : Integral] Rational::fract(Self[T]) -> Self[T]
 #as_free_fn
-fn[T : Integral] Rational::is_integer(Self[T]) -> Bool
+pub fn[T : Integral] Rational::is_integer(Self[T]) -> Bool
 #as_free_fn
-fn[T : Integral] Rational::reciprocal(Self[T]) -> Self[T]
-fn Rational::to_double(Self[Int64]) -> Double
+pub fn[T : Integral] Rational::reciprocal(Self[T]) -> Self[T]
+pub fn Rational::to_double(Self[Int64]) -> Double
 #as_free_fn
-fn[T : Integral] Rational::trunc(Self[T]) -> T
-impl[T : Integral] Add for Rational[T]
-impl[T : Integral] Compare for Rational[T]
-impl[T : Integral] Div for Rational[T]
-impl[T : Eq] Eq for Rational[T]
-impl[T : Integral] Mul for Rational[T]
-impl[T : Integral] Neg for Rational[T]
-impl[T : Integral] Show for Rational[T]
-impl[T : Integral] Sub for Rational[T]
-impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
+pub fn[T : Integral] Rational::trunc(Self[T]) -> T
+pub impl[T : Integral] Add for Rational[T]
+pub impl[T : Integral] Compare for Rational[T]
+pub impl[T : Integral] Div for Rational[T]
+pub impl[T : Eq] Eq for Rational[T]
+pub impl[T : Integral] Mul for Rational[T]
+pub impl[T : Integral] Neg for Rational[T]
+pub impl[T : Integral] Show for Rational[T]
+pub impl[T : Integral] Sub for Rational[T]
+pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
 
 // Type aliases
 pub type BigRational = Rational[@bigint.BigInt]
@@ -54,7 +54,7 @@ pub type Rational64 = Rational[Int64]
 
 // Traits
 trait Integral : Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary
-impl Integral for Int
-impl Integral for Int64
-impl Integral for @bigint.BigInt
+pub impl Integral for Int
+pub impl Integral for Int64
+pub impl Integral for @bigint.BigInt
 
