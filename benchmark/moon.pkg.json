@@ -5,5 +5,5 @@
             "alias": "ffi"
         }
     ],
-    "alert-list": "-deprecated"
+    "warn-list": "-deprecated"
 }
