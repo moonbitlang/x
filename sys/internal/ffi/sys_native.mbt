@@ -81,4 +81,4 @@ pub fn unset_env_var(key : String) -> Unit {
 extern "C" fn unset_env_var_ffi(_key : Bytes) -> Unit = "unset_env_var"
 
 ///|
-pub extern "C" fn exit(code : Int) -> Unit = "exit"
+pub extern "C" fn exit(code : Int) = "exit"
