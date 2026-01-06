@@ -61,7 +61,7 @@ pub fn uints_to_hex_string(input : Iterator[UInt]) -> String {
 ///|
 test "uints_to_hex_string" {
   let xs : Array[UInt] = [0x12345678, 0xabcdcdab]
-  inspect(uints_to_hex_string(xs.iter()), content="12345678abcdcdab")
+  inspect(uints_to_hex_string(xs.iterator()), content="12345678abcdcdab")
 }
 
 ///|

@@ -239,7 +239,7 @@ fn SM3::_finalize_into(
   SM3::transform(data, reg)
 
   // Write result to buffer
-  arr_u32_to_u8be_into(reg.iter(), buffer, offset)
+  arr_u32_to_u8be_into(reg.iterator(), buffer, offset)
 }
 
 ///|
@@ -324,7 +324,7 @@ test {
   )
   let ctx = SM3::new()
   for i = 0; i < data.length(); i = i + 4 {
-    ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
+    ctx.update_from_iter(b"\x61\x62\x63\x64".iterator())
   }
   inspect(
     bytes_to_hex_string(ctx.finalize()),

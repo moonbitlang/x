@@ -183,7 +183,7 @@ fn SHA256::_finalize_into(
   SHA256::transform(data, reg)
 
   // Write result to buffer
-  arr_u32_to_u8be_into(reg.iter().take(size), buffer, offset)
+  arr_u32_to_u8be_into(reg.iterator().take(size), buffer, offset)
 }
 
 ///|
@@ -268,7 +268,7 @@ test {
   )
   let ctx = SHA256::new()
   for i = 0; i < data.length(); i = i + 4 {
-    ctx.update_from_iter(b"\x61\x62\x63\x64".iter())
+    ctx.update_from_iter(b"\x61\x62\x63\x64".iterator())
   }
   inspect(
     bytes_to_hex_string(ctx.finalize()),

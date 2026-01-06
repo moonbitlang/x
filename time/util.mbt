@@ -151,12 +151,12 @@ test "split" {
 
 ///|
 fn[T] int_overflow_err() -> T raise Error {
-  raise Failure("Int overflow")
+  raise @builtin.Failure("Int overflow")
 }
 
 ///|
 fn[T] int64_overflow_err() -> T raise Error {
-  raise Failure("Int64 overflow")
+  raise @builtin.Failure("Int64 overflow")
 }
 
 ///|
@@ -302,7 +302,7 @@ fn floor(x : Double) -> Double {
 ///|
 fn floor_div_int(x : Int, y : Int) -> Int raise Error {
   if y == 0 {
-    raise Failure("division by zero")
+    raise @builtin.Failure("division by zero")
   }
   let r = x.to_double() / y.to_double()
   floor(r).to_int()

@@ -57,13 +57,13 @@ test "from_array" {
 ///|
 pub fn[T] Stack::from_iter(iter : Iterator[T]) -> Stack[T] {
   let mut len = 0
-  let elements = @list.from_iter(iter.tap(_ => len += 1))
+  let elements = @list.from_iterator(iter.tap(_ => len += 1))
   { elements, len }
 }
 
 ///|
 test "from_iter" {
-  let s = Stack::from_iter([1, 2, 3].iter())
+  let s = Stack::from_iter([1, 2, 3].iterator())
   inspect(s, content="Stack::[1, 2, 3]")
   inspect(s.len, content="3")
 }
@@ -496,7 +496,7 @@ test "fold" {
 /// inspect(stack.iter(), content="[1, 2, 3]")
 /// ```
 pub fn[T] Stack::iter(self : Stack[T]) -> Iterator[T] {
-  self.elements.iter()
+  self.elements.iterator()
 }
 
 ///|

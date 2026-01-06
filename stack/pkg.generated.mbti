@@ -18,12 +18,12 @@ pub fn[T] Stack::each(Self[T], (T) -> Unit) -> Unit
 pub fn[T : Eq] Stack::equal(Self[T], Self[T]) -> Bool
 pub fn[T, U] Stack::fold(Self[T], init~ : U, (U, T) -> U) -> U
 pub fn[T] Stack::from_array(Array[T]) -> Self[T]
-pub fn[T] Stack::from_iter(Iter[T]) -> Self[T]
+pub fn[T] Stack::from_iter(Iterator[T]) -> Self[T]
 #deprecated
 pub fn[T] Stack::from_list(@list.List[T]) -> Self[T]
 pub fn[T] Stack::from_stack(Self[T]) -> Self[T]
 pub fn[T] Stack::is_empty(Self[T]) -> Bool
-pub fn[T] Stack::iter(Self[T]) -> Iter[T]
+pub fn[T] Stack::iter(Self[T]) -> Iterator[T]
 pub fn[T] Stack::length(Self[T]) -> Int
 #as_free_fn
 pub fn[T] Stack::new() -> Self[T]

@@ -90,11 +90,13 @@ pub fn Zone::from_tzif2(
 ) -> Zone raise Error {
   let magic = to_int_be(data, 0)
   if magic != TZIF_MAGIC_HEADER {
-    raise Failure("invalid TZif magic: \{magic}, want \{TZIF_MAGIC_HEADER}")
+    raise @builtin.Failure(
+      "invalid TZif magic: \{magic}, want \{TZIF_MAGIC_HEADER}",
+    )
   }
   let version = data[4].to_int()
   if version != TZIF2_VERSION {
-    raise Failure(
+    raise @builtin.Failure(
       "unsupported TZif2 version: \{version}, want \{TZIF2_VERSION}",
     )
   }

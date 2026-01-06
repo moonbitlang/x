@@ -21,17 +21,17 @@ pub fn[Data : ByteSource] sha1(Data) -> FixedArray[Byte]
 
 pub fn[Data : ByteSource] sha224(Data) -> FixedArray[Byte]
 
-pub fn sha224_from_iter(Iter[Byte]) -> FixedArray[Byte]
+pub fn sha224_from_iter(Iterator[Byte]) -> FixedArray[Byte]
 
 pub fn[Data : ByteSource] sha256(Data) -> FixedArray[Byte]
 
-pub fn sha256_from_iter(Iter[Byte]) -> FixedArray[Byte]
+pub fn sha256_from_iter(Iterator[Byte]) -> FixedArray[Byte]
 
 pub fn[Data : ByteSource] sm3(Data) -> FixedArray[Byte]
 
-pub fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
+pub fn sm3_from_iter(Iterator[Byte]) -> FixedArray[Byte]
 
-pub fn uints_to_hex_string(Iter[UInt]) -> String
+pub fn uints_to_hex_string(Iterator[UInt]) -> String
 
 // Errors
 
@@ -54,7 +54,7 @@ type SHA256
 pub fn SHA256::finalize(Self) -> FixedArray[Byte]
 pub fn SHA256::new(reg? : FixedArray[UInt]) -> Self
 pub fn[Data : ByteSource] SHA256::update(Self, Data) -> Unit
-pub fn SHA256::update_from_iter(Self, Iter[Byte]) -> Unit
+pub fn SHA256::update_from_iter(Self, Iterator[Byte]) -> Unit
 pub impl CryptoHasher for SHA256
 
 #alias(SM3Context, deprecated)
@@ -62,7 +62,7 @@ type SM3
 pub fn SM3::finalize(Self) -> FixedArray[Byte]
 pub fn SM3::new() -> Self
 pub fn[Data : ByteSource] SM3::update(Self, Data) -> Unit
-pub fn SM3::update_from_iter(Self, Iter[Byte]) -> Unit
+pub fn SM3::update_from_iter(Self, Iterator[Byte]) -> Unit
 pub impl CryptoHasher for SM3
 
 // Type aliases
