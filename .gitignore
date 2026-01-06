@@ -5,3 +5,5 @@ benchlog/
 .cache/
 compile_commands.json
 .moonagent/
+_build/
+target
