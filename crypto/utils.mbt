@@ -38,7 +38,7 @@ const HEX_DIGITS = "0123456789abcdef"
 
 ///|
 /// convert a sequence of `UInt` to hex representation
-pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
+pub fn uints_to_hex_string(input : Iterator[UInt]) -> String {
   let buffer = StringBuilder::new()
   let rems : FixedArray[Int] = FixedArray::make(8, 0)
   for x in input {
@@ -109,7 +109,7 @@ fn bytes_u8_to_u32be(x : FixedArray[Byte], i? : Int = 0) -> UInt {
 
 ///|
 fn arr_u32_to_u8be_into(
-  x : Iter[UInt],
+  x : Iterator[UInt],
   buffer : FixedArray[Byte],
   offset : Int,
 ) -> Unit {

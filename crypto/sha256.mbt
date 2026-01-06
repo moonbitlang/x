@@ -100,7 +100,7 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
 }
 
 ///|
-pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
+pub fn SHA256::update_from_iter(self : SHA256, data : Iterator[Byte]) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -228,7 +228,7 @@ pub fn[Data : ByteSource] sha256(data : Data) -> FixedArray[Byte] {
 }
 
 ///|
-pub fn sha256_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
+pub fn sha256_from_iter(data : Iterator[Byte]) -> FixedArray[Byte] {
   SHA256::new()..update_from_iter(data).finalize()
 }
 

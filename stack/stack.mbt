@@ -55,7 +55,7 @@ test "from_array" {
 }
 
 ///|
-pub fn[T] Stack::from_iter(iter : Iter[T]) -> Stack[T] {
+pub fn[T] Stack::from_iter(iter : Iterator[T]) -> Stack[T] {
   let mut len = 0
   let elements = @list.from_iter(iter.tap(_ => len += 1))
   { elements, len }
@@ -495,7 +495,7 @@ test "fold" {
 /// stack.push(1)
 /// inspect(stack.iter(), content="[1, 2, 3]")
 /// ```
-pub fn[T] Stack::iter(self : Stack[T]) -> Iter[T] {
+pub fn[T] Stack::iter(self : Stack[T]) -> Iterator[T] {
   self.elements.iter()
 }
 

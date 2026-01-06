@@ -158,7 +158,7 @@ fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
 }
 
 ///|
-pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
+pub fn SM3::update_from_iter(self : SM3, data : Iterator[Byte]) -> Unit {
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -284,7 +284,7 @@ pub fn[Data : ByteSource] sm3(data : Data) -> FixedArray[Byte] {
 }
 
 ///|
-pub fn sm3_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
+pub fn sm3_from_iter(data : Iterator[Byte]) -> FixedArray[Byte] {
   SM3::new()..update_from_iter(data).finalize()
 }
 

@@ -25,7 +25,7 @@ pub fn[Data : ByteSource] sha224(data : Data) -> FixedArray[Byte] {
 }
 
 ///|
-pub fn sha224_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
+pub fn sha224_from_iter(data : Iterator[Byte]) -> FixedArray[Byte] {
   let ret = FixedArray::make(28, Byte::default())
   SHA256::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,

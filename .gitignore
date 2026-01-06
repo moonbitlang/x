@@ -7,3 +7,4 @@ compile_commands.json
 .moonagent/
 _build/
 target
+_build
