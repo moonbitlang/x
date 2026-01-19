@@ -13,7 +13,9 @@ pub fn from_double(Double) -> Rational[Int64] raise RationalError
 pub fn[T : Integral] new(T, T) -> Rational[T]?
 
 // Errors
-pub(all) suberror RationalError String
+pub(all) suberror RationalError {
+  RationalError(String)
+}
 pub impl Eq for RationalError
 pub impl Show for RationalError
 pub impl ToJson for RationalError
