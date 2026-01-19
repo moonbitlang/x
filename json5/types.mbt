@@ -28,7 +28,9 @@ pub(all) enum ParseErrorData {
 } derive(Eq)
 
 ///|
-pub(all) suberror ParseError ParseErrorData
+pub(all) suberror ParseError {
+  ParseError(ParseErrorData)
+}
 
 ///|
 fn[X] parse_error(data : ParseErrorData) -> X raise ParseError {

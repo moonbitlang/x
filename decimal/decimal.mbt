@@ -197,8 +197,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
 ///|
 /// Helper function to check if a string contains only digits.
 fn is_digit_string(s : String) -> Bool {
-  for i in 0..<s.length() {
-    let c = s.unsafe_charcode_at(i)
+  for c in s {
     if c < '0' || c > '9' {
       return false
     }
@@ -267,7 +266,7 @@ pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
   if precision < 0 || precision > max_scale {
     return None
   }
-  let multiplier = Double::pow(10.0, precision.to_double())
+  let multiplier = @math.pow(10.0, precision.to_double())
   let scaled = d * multiplier
   let rounded = scaled.round()
 
@@ -357,7 +356,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
     ) catch {
       _ => 0.0 // Fallback to 0.0 if parsing fails
     }
-    let divisor = Double::pow(10.0, self.scale.to_double())
+    let divisor = @math.pow(10.0, self.scale.to_double())
     coeff_double / divisor
   }
 }
