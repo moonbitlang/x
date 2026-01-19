@@ -33,9 +33,13 @@ pub fn write_utf16le_char(@buffer.Buffer, Char) -> Unit
 pub fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 
 // Errors
-pub suberror MalformedError Bytes
+pub suberror MalformedError {
+  MalformedError(Bytes)
+}
 
-pub suberror TruncatedError Bytes
+pub suberror TruncatedError {
+  TruncatedError(Bytes)
+}
 
 // Types and methods
 type Decoder
