@@ -1,3 +1,7 @@
 {
-  "import": []
+  "import": [
+    "moonbitlang/core/int64",
+    "moonbitlang/core/int",
+    "moonbitlang/core/strconv"
+  ]
 }
