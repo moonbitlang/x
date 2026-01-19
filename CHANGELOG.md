@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated MoonBit toolchain support to v0.7.1 (#223)
+
 ## [0.4.38]
 
 ### Fixed
