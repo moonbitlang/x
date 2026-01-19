@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the type of `@sys.exit` for native ffi (#221)
+
 ### Changed
 
 - Updated MoonBit toolchain support to v0.7.1 (#223)
