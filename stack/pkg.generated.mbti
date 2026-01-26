@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/stack"
 
-import(
-  "moonbitlang/core/list"
-)
+import {
+  "moonbitlang/core/list",
+}
 
 // Values
 

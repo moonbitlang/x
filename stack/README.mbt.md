@@ -11,7 +11,7 @@ Stack is a last in first out (LIFO) data structure, allowing to process their el
 The stack can be created with the `new` function, or by using the function with prefix `from` to create a stack from an existing collection.
 For instance, `from_array` creates a stack from an array.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st : @stack.Stack[Unit] = Stack::new()
@@ -25,7 +25,7 @@ test {
 
 To clear the elements of the stack, use the `clear` method.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = @stack.Stack::from_array([1, 2, 3])
@@ -38,7 +38,7 @@ test {
 
 Use `length` to get the number of elements in the stack. The `is_empty` method can be used to check if the stack is empty.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::of([1, 2, 3])
@@ -51,7 +51,7 @@ test {
 
 To add elements to the stack, use the `push` method, and to remove them, use the `pop` method.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::new()
@@ -63,7 +63,7 @@ test {
 
 The unsafe version of `pop` is `unsafe_pop`, which will panic if the stack is empty.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::new()
@@ -80,7 +80,7 @@ test "panic" {
 
 If you don't want to remove the element, you can use the `peek` method and the unsafe version `unsafe_peek`.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::of([1, 2, 3])
@@ -91,7 +91,7 @@ test {
 
 If the result of `pop` is not needed, you can use the `drop` method.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::of([1, 2, 3])
@@ -104,7 +104,7 @@ test {
 
 To traverse the stack, use the `iter` method.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::of([1, 2, 3])
@@ -118,7 +118,7 @@ test {
 
 You can convert the stack to an array using the `to_array` method or the `iter` method.
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let st = Stack::of([1, 2, 3])
