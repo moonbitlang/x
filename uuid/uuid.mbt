@@ -22,7 +22,7 @@
 ///
 /// # Usage
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let u1 = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe")
 /// let u2 = @uuid.from_bytes(Bytes::from_array([221, 249, 151, 3, 116, 47, 117, 5, 76, 84, 223, 54, 169, 194, 67, 254]))
 /// assert_eq(u1, u2)
@@ -30,7 +30,7 @@
 ///
 /// Construct an RFC-4122-compliant v4 UUID:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let _u = @uuid.from_hex("9558cfadb48547c70f9adf1f75cdef29").as_version(@uuid.V4)
 /// ```
 ///

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/encoding/internal/benchmark"
 
-import(
-  "moonbitlang/x/encoding"
-)
+import {
+  "moonbitlang/x/encoding",
+}
 
 // Values
 pub fn bench_decoding_batch(@encoding.Encoding, Bytes) -> Unit

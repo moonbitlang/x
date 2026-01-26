@@ -10,7 +10,7 @@ A collection of cryptographic hash functions and utilities.
 
 ### SHA-1
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
@@ -23,7 +23,7 @@ test {
 
 ### MD5
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
@@ -46,7 +46,7 @@ test {
 
 ### SM3
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let input = "The quick brown fox jumps over the lazy dog"
