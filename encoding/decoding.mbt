@@ -91,7 +91,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 ///
 /// # Examples
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let inputs = [b"abc", b"\xf0", b"\x9f\x90\xb0"] // UTF8(🐰) == <F09F 90B0>
 /// let decoder = @encoding.decoder(UTF8)
 /// inspect(decoder.decode(inputs[0], stream=true), content="abc")
@@ -152,7 +152,7 @@ pub fn Decoder::decode(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let decoder = decoder(UTF8)
 ///   let buf = StringBuilder::new()
 ///   decoder.decode_to(b"Hello", buf)

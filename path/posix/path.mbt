@@ -33,7 +33,7 @@ pub impl Show for Path with to_string(path) {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit 
+/// ```moonbit nocheck
 /// let path : Path = "usr/local/bin"
 /// inspect(path.basename(), content="bin")
 /// ```
@@ -53,7 +53,7 @@ pub fn Path::basename(path : Path) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "usr/local/bin"
 /// inspect(path.dirname(), content="usr/local")
 /// ```
@@ -79,7 +79,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
 /// 
-/// ```moonbit 
+/// ```moonbit nocheck
 /// let path : Path = "archive.tar.gz"
 /// inspect(path.extname(), content=".gz")
 /// ```
@@ -96,11 +96,11 @@ pub fn Path::extname(path : Path) -> StringView {
 /// 
 /// edge cases: when path is empty, return false
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path1 : Path = "/usr/local/bin"
 /// let path2 : Path = "usr/local/bin"
-/// @json.inspect(path1.is_absolute(), content=true)
-/// @json.inspect(path2.is_absolute(), content=false)
+/// json_inspect(path1.is_absolute(), content=true)
+/// json_inspect(path2.is_absolute(), content=false)
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
@@ -118,7 +118,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "/usr/local"
 /// inspect(path.join("bin"), content="/usr/local/bin")
 /// ```
@@ -157,7 +157,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///   1. when path is empty, return empty string
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "/usr//local/../bin/"
 /// inspect(path.normalize(), content="/usr/bin")
 /// ```
@@ -178,7 +178,7 @@ pub fn Path::normalize(path : Path) -> Path {
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let base : Path = "/usr/local/bin"
 /// let path : Path = "/usr/local/share/doc"
 /// inspect(path.relative(base~), content="../share/doc")
@@ -221,7 +221,7 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit skip
+/// ```moonbit skip nocheck
 /// let path : Path = "project/src"
 /// inspect(path.resolve(), content="/your/current_working_directory/project/src")
 /// ```

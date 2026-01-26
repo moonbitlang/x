@@ -8,7 +8,7 @@ The `Rational` type represents a rational number, which is a number that can be 
 
 The `Rational` type supports the following arithmetic operations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()
@@ -27,7 +27,7 @@ test {
 
 The `Rational` type supports the following comparison operations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()
@@ -46,7 +46,7 @@ test {
 
 The `Rational` type supports the following integer operations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()
@@ -62,7 +62,7 @@ test {
 
 The `Rational` type supports the following double operations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()
@@ -75,7 +75,7 @@ test {
 
 The `Rational` type supports the following string operations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()

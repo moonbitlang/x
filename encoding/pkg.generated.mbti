@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/encoding"
 
-import(
-  "moonbitlang/core/buffer"
-)
+import {
+  "moonbitlang/core/buffer",
+}
 
 // Values
 pub const U_REP : Char = '�'

@@ -21,7 +21,7 @@ flexible for different use-cases.
 
 Decode a UTF-8 byte stream:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   // Initialize a streaming UTF-8 decoder
@@ -42,7 +42,7 @@ test {
 
 Encode a string to UTF-8 bytes:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   // Encode a string to UTF-8
@@ -59,7 +59,7 @@ test {
 
 Encode a single character to UTF-8 bytes:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   inspect(

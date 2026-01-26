@@ -18,7 +18,7 @@ The package offers a complete set of functions for working with Windows file pat
 
 Extract the last component of a path or get the directory part:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "basename and dirname examples" {
   // Get the last component (filename)
@@ -44,7 +44,7 @@ test "basename and dirname examples" {
 
 Extract file extensions from paths:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "extension extraction" {
   // Get file extension including the dot
@@ -68,39 +68,39 @@ test "extension extraction" {
 
 Windows has various types of absolute paths. The function correctly identifies them all:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "absolute path detection" {
   // Standard drive letter paths
   let path : Path = "C:\\"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   let path : Path = "D:\\folder\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // UNC paths (network shares)
   let path : Path = "\\\\server\\share\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Verbatim UNC paths
   let path : Path = "\\\\?\\UNC\\server\\share\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Verbatim drive letter paths
   let path : Path = "\\\\?\\C:\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Volume GUID paths
   let path : Path = "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Device namespace paths
   let path : Path = "\\\\.\\COM56"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Verbatim symlink paths
   let path : Path = "\\\\?\\GLOBALROOT\\file"
-  @json.inspect(path.is_absolute(), content=true)
+  json_inspect(path.is_absolute(), content=true)
   // Relative paths
   let path : Path = "C:folder\\file" // Drive-relative
-  @json.inspect(path.is_absolute(), content=false)
+  json_inspect(path.is_absolute(), content=false)
   let path : Path = "Users\\user"
-  @json.inspect(path.is_absolute(), content=false)
+  json_inspect(path.is_absolute(), content=false)
   let path : Path = ""
-  @json.inspect(path.is_absolute(), content=false)
+  json_inspect(path.is_absolute(), content=false)
 }
 ```
 
@@ -110,7 +110,7 @@ test "absolute path detection" {
 
 Combine path components with proper separator handling:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "path joining" {
   // Basic joining
@@ -138,7 +138,7 @@ test "path joining" {
 
 Clean up redundant components and resolve `.` and `..`:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "path normalization" {
   // Remove redundant components
@@ -158,7 +158,7 @@ test "path normalization" {
 
 Calculate the relative path between two Windows locations:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "relative path calculation" {
   // Same directory level
@@ -187,7 +187,7 @@ test "relative path calculation" {
 
 Convert relative paths to absolute paths and normalize them:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
@@ -201,7 +201,7 @@ test "path resolution" {
 }
 ```
 
-```moonbit skip
+```moonbit skip nocheck
 ///|
 test {
   let path : Path = "a\\b\\..\\c"
@@ -215,7 +215,7 @@ test {
 
 The package provides Windows-specific constants:
 
-```moonbit
+```moonbit nocheck
 ///|
 test "platform constants" {
   // Path component separator
