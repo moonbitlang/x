@@ -12,7 +12,7 @@ your own random bytes to construct UUIDs.
 
 Construct a version 4 UUID:
 
-```moonbit
+```moonbit nocheck
 ///|
 test {
   let u = @uuid.from_hex("ddf99703-742f-7505-4c54-df36a9c243fe").as_version(

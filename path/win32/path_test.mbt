@@ -47,33 +47,33 @@ test "is_absolute" {
   // absolute path cases
   //
   // verbatim symlink 
-  @json.inspect(Path::is_absolute("\\\\?\\GLOBALROOT\\file"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\GLOBALROOT\\file"), content=true)
   // verbatim unc 
-  @json.inspect(
+  json_inspect(
     Path::is_absolute("\\\\?\\UNC\\server\\share\\file"),
     content=true,
   )
   // verbatim volume letter
-  @json.inspect(Path::is_absolute("\\\\?\\C:\\file"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\C:\\file"), content=true)
   // verbatim volume guid 
-  @json.inspect(
+  json_inspect(
     Path::is_absolute(
       "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\file",
     ),
     content=true,
   )
   // device namespace
-  @json.inspect(Path::is_absolute("\\\\.\\COM56"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\COM56"), content=true)
   // unc 
-  @json.inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
   // volume letter root 
-  @json.inspect(Path::is_absolute("C:\\"), content=true)
+  json_inspect(Path::is_absolute("C:\\"), content=true)
   // relative path cases
   // 
   // volume letter relative path
-  @json.inspect(Path::is_absolute("C:folder\\file"), content=false)
-  @json.inspect(Path::is_absolute("Users\\user"), content=false)
-  @json.inspect(Path::is_absolute(""), content=false)
+  json_inspect(Path::is_absolute("C:folder\\file"), content=false)
+  json_inspect(Path::is_absolute("Users\\user"), content=false)
+  json_inspect(Path::is_absolute(""), content=false)
 }
 
 ///|
@@ -301,57 +301,57 @@ test "extname edge cases" {
 ///|
 test "is_absolute advanced edge cases" {
   // Empty and whitespace
-  @json.inspect(Path::is_absolute(""), content=false)
-  @json.inspect(Path::is_absolute(" "), content=false)
-  @json.inspect(Path::is_absolute("  \\"), content=false)
+  json_inspect(Path::is_absolute(""), content=false)
+  json_inspect(Path::is_absolute(" "), content=false)
+  json_inspect(Path::is_absolute("  \\"), content=false)
 
   // Basic absolute paths
-  @json.inspect(Path::is_absolute("\\"), content=true)
-  @json.inspect(Path::is_absolute("\\\\"), content=true) // This might be interpreted as start of UNC
-  @json.inspect(Path::is_absolute("\\\\\\"), content=true)
-  @json.inspect(Path::is_absolute("C:\\"), content=true)
-  @json.inspect(Path::is_absolute("D:\\temp"), content=true)
+  json_inspect(Path::is_absolute("\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\"), content=true) // This might be interpreted as start of UNC
+  json_inspect(Path::is_absolute("\\\\\\"), content=true)
+  json_inspect(Path::is_absolute("C:\\"), content=true)
+  json_inspect(Path::is_absolute("D:\\temp"), content=true)
 
   // Relative paths with drive letters
-  @json.inspect(Path::is_absolute("C:"), content=false)
-  @json.inspect(Path::is_absolute("C:temp"), content=false)
-  @json.inspect(Path::is_absolute("C:temp\\file"), content=false)
-  @json.inspect(Path::is_absolute("Z:relative"), content=false)
+  json_inspect(Path::is_absolute("C:"), content=false)
+  json_inspect(Path::is_absolute("C:temp"), content=false)
+  json_inspect(Path::is_absolute("C:temp\\file"), content=false)
+  json_inspect(Path::is_absolute("Z:relative"), content=false)
 
   // Various UNC path formats
-  @json.inspect(Path::is_absolute("\\\\server\\share"), content=true)
-  @json.inspect(Path::is_absolute("\\\\server\\share\\"), content=true)
-  @json.inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
-  @json.inspect(Path::is_absolute("\\\\localhost\\c$\\temp"), content=true)
-  @json.inspect(Path::is_absolute("\\\\127.0.0.1\\share\\file"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\share"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\share\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
+  json_inspect(Path::is_absolute("\\\\localhost\\c$\\temp"), content=true)
+  json_inspect(Path::is_absolute("\\\\127.0.0.1\\share\\file"), content=true)
 
   // Verbatim path formats
-  @json.inspect(Path::is_absolute("\\\\?\\C:\\"), content=true)
-  @json.inspect(Path::is_absolute("\\\\?\\C:\\temp"), content=true)
-  @json.inspect(Path::is_absolute("\\\\?\\D:\\very\\long\\path"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\C:\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\C:\\temp"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\D:\\very\\long\\path"), content=true)
 
   // Verbatim UNC paths
-  @json.inspect(Path::is_absolute("\\\\?\\UNC\\server\\share"), content=true)
-  @json.inspect(
+  json_inspect(Path::is_absolute("\\\\?\\UNC\\server\\share"), content=true)
+  json_inspect(
     Path::is_absolute("\\\\?\\UNC\\server\\share\\file"),
     content=true,
   )
 
   // Device namespace paths
-  @json.inspect(Path::is_absolute("\\\\.\\COM1"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\LPT1"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\PRN"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\AUX"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\NUL"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\CON"), content=true)
-  @json.inspect(Path::is_absolute("\\\\.\\PhysicalDrive0"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\COM1"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\LPT1"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\PRN"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\AUX"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\NUL"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\CON"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\PhysicalDrive0"), content=true)
 
   // Volume GUID paths
-  @json.inspect(
+  json_inspect(
     Path::is_absolute("\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\"),
     content=true,
   )
-  @json.inspect(
+  json_inspect(
     Path::is_absolute(
       "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\temp",
     ),
@@ -359,35 +359,35 @@ test "is_absolute advanced edge cases" {
   )
 
   // Global root paths
-  @json.inspect(
+  json_inspect(
     Path::is_absolute("\\\\?\\GLOBALROOT\\Device\\HarddiskVolume1\\"),
     content=true,
   )
-  @json.inspect(
+  json_inspect(
     Path::is_absolute("\\\\?\\GLOBALROOT\\Device\\HarddiskVolume1\\temp"),
     content=true,
   )
 
   // Relative paths
-  @json.inspect(Path::is_absolute("temp"), content=false)
-  @json.inspect(Path::is_absolute("temp\\file"), content=false)
-  @json.inspect(Path::is_absolute(".\\temp"), content=false)
-  @json.inspect(Path::is_absolute("..\\temp"), content=false)
-  @json.inspect(Path::is_absolute("folder\\subfolder"), content=false)
+  json_inspect(Path::is_absolute("temp"), content=false)
+  json_inspect(Path::is_absolute("temp\\file"), content=false)
+  json_inspect(Path::is_absolute(".\\temp"), content=false)
+  json_inspect(Path::is_absolute("..\\temp"), content=false)
+  json_inspect(Path::is_absolute("folder\\subfolder"), content=false)
 
   // Edge cases with dots
-  @json.inspect(Path::is_absolute("."), content=false)
-  @json.inspect(Path::is_absolute(".."), content=false)
-  @json.inspect(Path::is_absolute(".\\"), content=false)
-  @json.inspect(Path::is_absolute("..\\"), content=false)
-  @json.inspect(Path::is_absolute("\\."), content=true)
-  @json.inspect(Path::is_absolute("\\.."), content=true)
+  json_inspect(Path::is_absolute("."), content=false)
+  json_inspect(Path::is_absolute(".."), content=false)
+  json_inspect(Path::is_absolute(".\\"), content=false)
+  json_inspect(Path::is_absolute("..\\"), content=false)
+  json_inspect(Path::is_absolute("\\."), content=true)
+  json_inspect(Path::is_absolute("\\.."), content=true)
 
   // Case sensitivity tests (Windows is case-insensitive)
-  @json.inspect(Path::is_absolute("c:\\"), content=true)
-  @json.inspect(Path::is_absolute("C:\\"), content=true)
-  @json.inspect(Path::is_absolute("z:\\temp"), content=true)
-  @json.inspect(Path::is_absolute("Z:\\temp"), content=true)
+  json_inspect(Path::is_absolute("c:\\"), content=true)
+  json_inspect(Path::is_absolute("C:\\"), content=true)
+  json_inspect(Path::is_absolute("z:\\temp"), content=true)
+  json_inspect(Path::is_absolute("Z:\\temp"), content=true)
 }
 
 ///|
@@ -673,8 +673,8 @@ test "Windows-specific path behaviors" {
   inspect(Path::extname("FILE.EXE"), content=".EXE")
 
   // Test drive letter edge cases
-  @json.inspect(Path::is_absolute("A:"), content=false) // Relative to current dir on drive A
-  @json.inspect(Path::is_absolute("Z:\\"), content=true) // Root of drive Z
+  json_inspect(Path::is_absolute("A:"), content=false) // Relative to current dir on drive A
+  json_inspect(Path::is_absolute("Z:\\"), content=true) // Root of drive Z
   inspect(Path::join("C:", "temp"), content="C:\\temp") // Relative path on drive C
   inspect(Path::join("C:\\", "temp"), content="C:\\temp") // Absolute path on drive C
 

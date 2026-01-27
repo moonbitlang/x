@@ -40,13 +40,13 @@ test "base64 encode" {
 
 ///|
 test "base64 decode" {
-  inspect(decode("bGlnaHQgdw==") |> CustomBytes(_), content="light w")
-  inspect(decode("bGlnaHQgd28=") |> CustomBytes(_), content="light wo")
-  inspect(decode("bGlnaHQgd29y") |> CustomBytes(_), content="light wor")
-  inspect(decode("bGlnaHQgd29yaw==") |> CustomBytes(_), content="light work")
-  inspect(decode("bGlnaHQgd29yay4=") |> CustomBytes(_), content="light work.")
+  inspect(decode("bGlnaHQgdw==") |> (__x0) => CustomBytes(__x0), content="light w")
+  inspect(decode("bGlnaHQgd28=") |> (__x0) => CustomBytes(__x0), content="light wo")
+  inspect(decode("bGlnaHQgd29y") |> (__x0) => CustomBytes(__x0), content="light wor")
+  inspect(decode("bGlnaHQgd29yaw==") |> (__x0) => CustomBytes(__x0), content="light work")
+  inspect(decode("bGlnaHQgd29yay4=") |> (__x0) => CustomBytes(__x0), content="light work.")
   inspect(
-    decode("YSDEgCDwkICAIOaWhyDwn6aE") |> CustomBytes(_),
+    decode("YSDEgCDwkICAIOaWhyDwn6aE") |> (__x0) => CustomBytes(__x0),
     content="a \\xc4\\x80 \\xf0\\x90\\x80\\x80 \\xe6\\x96\\x87 \\xf0\\x9f\\xa6\\x84",
   )
 }

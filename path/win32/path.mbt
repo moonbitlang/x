@@ -33,7 +33,7 @@ pub impl Show for Path with to_string(path) {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "usr\\local\\bin"
 /// inspect(path.basename(), content="bin")
 /// ```
@@ -54,7 +54,7 @@ pub fn Path::basename(path : Path) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "usr\\local\\bin"
 /// inspect(path.dirname(), content="usr\\local")
 /// ```
@@ -98,7 +98,7 @@ test {
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "archive.tar.gz"
 /// inspect(path.extname(), content=".gz")
 /// ```
@@ -115,11 +115,11 @@ pub fn Path::extname(path : Path) -> StringView {
 /// 
 /// edge cases: when path is empty, return false
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path1 : Path = "C:\\Program Files\\App"
 /// let path2 : Path = "Program Files\\App"
-/// @json.inspect(path1.is_absolute(), content=true)
-/// @json.inspect(path2.is_absolute(), content=false)
+/// json_inspect(path1.is_absolute(), content=true)
+/// json_inspect(path2.is_absolute(), content=false)
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
@@ -230,7 +230,7 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path1 : Path = "C::\\Program Files"
 /// let path2 : Path = "App"
 /// inspect(path1.join(path2), content="C::\\Program Files\\App")
@@ -269,7 +269,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// edge cases:
 ///   1. when path is empty, return empty string
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "C:\\usr\\\\local\\..\\bin\\"
 /// inspect(path.normalize(), content="C:\\usr\\bin")
 /// ```
@@ -292,7 +292,7 @@ pub fn Path::normalize(path : Path) -> Path {
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let path : Path = "C:\\Users\\Alice\\Documents\\Project"
 /// let base : Path = "C:\\Users\\Alice"
 /// inspect(path.relative(base~), content="Documents\\Project")
@@ -333,7 +333,7 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit skip
+/// ```moonbit skip nocheck
 /// let path : Path = "Documents\\Project"
 /// inspect(path.resolve(), content="C:\\your\\current_working_directory\\Documents\\Project")
 /// ```

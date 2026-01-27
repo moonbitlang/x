@@ -98,9 +98,9 @@ test "extname" {
 
 ///|
 test "is_absolute" {
-  @json.inspect(Path::is_absolute("/home/user"), content=true)
-  @json.inspect(Path::is_absolute("home/user"), content=false)
-  @json.inspect(Path::is_absolute(""), content=false)
+  json_inspect(Path::is_absolute("/home/user"), content=true)
+  json_inspect(Path::is_absolute("home/user"), content=false)
+  json_inspect(Path::is_absolute(""), content=false)
 }
 
 ///|
@@ -189,31 +189,31 @@ test "extname edge cases" {
 ///|
 test "is_absolute edge cases" {
   // Empty and whitespace
-  @json.inspect(Path::is_absolute(""), content=false)
-  @json.inspect(Path::is_absolute(" "), content=false)
-  @json.inspect(Path::is_absolute("  /"), content=false)
+  json_inspect(Path::is_absolute(""), content=false)
+  json_inspect(Path::is_absolute(" "), content=false)
+  json_inspect(Path::is_absolute("  /"), content=false)
 
   // Various absolute path formats
-  @json.inspect(Path::is_absolute("/"), content=true)
-  @json.inspect(Path::is_absolute("//"), content=true)
-  @json.inspect(Path::is_absolute("///"), content=true)
-  @json.inspect(Path::is_absolute("/a"), content=true)
-  @json.inspect(Path::is_absolute("/a/b"), content=true)
+  json_inspect(Path::is_absolute("/"), content=true)
+  json_inspect(Path::is_absolute("//"), content=true)
+  json_inspect(Path::is_absolute("///"), content=true)
+  json_inspect(Path::is_absolute("/a"), content=true)
+  json_inspect(Path::is_absolute("/a/b"), content=true)
 
   // Relative paths
-  @json.inspect(Path::is_absolute("a"), content=false)
-  @json.inspect(Path::is_absolute("./a"), content=false)
-  @json.inspect(Path::is_absolute("../a"), content=false)
-  @json.inspect(Path::is_absolute("a/b"), content=false)
-  @json.inspect(Path::is_absolute("a/../b"), content=false)
+  json_inspect(Path::is_absolute("a"), content=false)
+  json_inspect(Path::is_absolute("./a"), content=false)
+  json_inspect(Path::is_absolute("../a"), content=false)
+  json_inspect(Path::is_absolute("a/b"), content=false)
+  json_inspect(Path::is_absolute("a/../b"), content=false)
 
   // Edge cases with dots
-  @json.inspect(Path::is_absolute("."), content=false)
-  @json.inspect(Path::is_absolute(".."), content=false)
-  @json.inspect(Path::is_absolute("./"), content=false)
-  @json.inspect(Path::is_absolute("../"), content=false)
-  @json.inspect(Path::is_absolute("/."), content=true)
-  @json.inspect(Path::is_absolute("/.."), content=true)
+  json_inspect(Path::is_absolute("."), content=false)
+  json_inspect(Path::is_absolute(".."), content=false)
+  json_inspect(Path::is_absolute("./"), content=false)
+  json_inspect(Path::is_absolute("../"), content=false)
+  json_inspect(Path::is_absolute("/."), content=true)
+  json_inspect(Path::is_absolute("/.."), content=true)
 }
 
 ///|

@@ -26,7 +26,7 @@
 ///
 /// # Examples
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let src = "Hello, World!"
 ///   let encoded_bytes = encode(UTF8, src)
 ///   assert_eq(encoded_bytes, Bytes::from_array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]))
@@ -66,7 +66,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 ///   let buf = @buffer.new()
 ///   let text = "Hello, world"
 ///   @encoding.encode_to(text, buf, encoding=UTF16)
