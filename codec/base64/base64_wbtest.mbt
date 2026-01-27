@@ -40,13 +40,28 @@ test "base64 encode" {
 
 ///|
 test "base64 decode" {
-  inspect(decode("bGlnaHQgdw==") |> (__x0) => CustomBytes(__x0), content="light w")
-  inspect(decode("bGlnaHQgd28=") |> (__x0) => CustomBytes(__x0), content="light wo")
-  inspect(decode("bGlnaHQgd29y") |> (__x0) => CustomBytes(__x0), content="light wor")
-  inspect(decode("bGlnaHQgd29yaw==") |> (__x0) => CustomBytes(__x0), content="light work")
-  inspect(decode("bGlnaHQgd29yay4=") |> (__x0) => CustomBytes(__x0), content="light work.")
   inspect(
-    decode("YSDEgCDwkICAIOaWhyDwn6aE") |> (__x0) => CustomBytes(__x0),
+    decode("bGlnaHQgdw==") |> x0 => { CustomBytes(x0) },
+    content="light w",
+  )
+  inspect(
+    decode("bGlnaHQgd28=") |> x0 => { CustomBytes(x0) },
+    content="light wo",
+  )
+  inspect(
+    decode("bGlnaHQgd29y") |> x0 => { CustomBytes(x0) },
+    content="light wor",
+  )
+  inspect(
+    decode("bGlnaHQgd29yaw==") |> x0 => { CustomBytes(x0) },
+    content="light work",
+  )
+  inspect(
+    decode("bGlnaHQgd29yay4=") |> x0 => { CustomBytes(x0) },
+    content="light work.",
+  )
+  inspect(
+    decode("YSDEgCDwkICAIOaWhyDwn6aE") |> x0 => { CustomBytes(x0) },
     content="a \\xc4\\x80 \\xf0\\x90\\x80\\x80 \\xe6\\x96\\x87 \\xf0\\x9f\\xa6\\x84",
   )
 }
