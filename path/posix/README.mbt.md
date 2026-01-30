@@ -18,7 +18,7 @@ The package offers a complete set of functions for working with file paths:
 
 Extract the last component of a path or get the directory part:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "basename and dirname examples" {
   // Get the last component (filename)
@@ -44,7 +44,7 @@ test "basename and dirname examples" {
 
 Extract file extensions from paths:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "extension extraction" {
   // Get file extension including the dot
@@ -69,7 +69,7 @@ test "extension extraction" {
 
 Determine if a path is absolute (starts with `/`):
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "absolute path detection" {
   let path : Path = "/home/user"
@@ -93,7 +93,7 @@ test "absolute path detection" {
 
 Combine path components with proper separator handling:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "path joining" {
   let path : Path = "usr"
@@ -118,7 +118,7 @@ test "path joining" {
 
 Clean up redundant components and resolve `.` and `..`:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "path normalization" {
   // Remove redundant components
@@ -138,7 +138,7 @@ test "path normalization" {
 
 Calculate the relative path between two locations:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "relative path calculation" {
   // Same directory level
@@ -167,7 +167,7 @@ test "relative path calculation" {
 
 Convert relative paths to absolute paths and normalize them:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
@@ -193,7 +193,7 @@ test {
 
 The package provides platform-specific constants:
 
-```moonbit nocheck
+```moonbit check
 ///|
 test "platform constants" {
   // Path component separator

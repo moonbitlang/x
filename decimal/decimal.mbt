@@ -30,17 +30,19 @@
 /// - Zero is represented as coefficient=0, scale=0
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let price = match @decimal.Decimal::from_string("19.99") {
-///   Some(p) => p
-///   None => fail("Invalid price")
+/// ```moonbit check
+/// test {
+///   let price = match @decimal.Decimal::from_string("19.99") {
+///     Some(p) => p
+///     None => fail("Invalid price")
+///   }
+///   let tax = match @decimal.Decimal::from_string("0.08") {
+///     Some(t) => t
+///     None => fail("Invalid tax rate")
+///   }
+///   let total = price + tax
+///   inspect(total.to_string(), content="20.07")
 /// }
-/// let tax = match @decimal.Decimal::from_string("0.08") {
-///   Some(t) => t
-///   None => fail("Invalid tax rate")
-/// }
-/// let total = price + tax
-/// inspect(total.to_string(), content="20.07")
 /// ```
 ///
 pub struct Decimal {
@@ -62,12 +64,14 @@ pub let max_scale = 28
 /// Returns `Some(decimal)` if the scale is valid, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::new(12345N, 2) {
-///   Some(d) => d
-///   None => fail("Invalid decimal")
-/// } // 123.45
-/// inspect(d.to_string(), content="123.45")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::new(12345N, 2) {
+///     Some(d) => d
+///     None => fail("Invalid decimal")
+///   } // 123.45
+///   inspect(d.to_string(), content="123.45")
+/// }
 /// ```
 ///
 pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
@@ -113,12 +117,14 @@ fn normalize(d : Decimal) -> Decimal {
 /// Returns `Some(decimal)` if parsing succeeds, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("123.45") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("123.45") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   inspect(d.to_string(), content="123.45")
 /// }
-/// inspect(d.to_string(), content="123.45")
 /// ```
 ///
 pub fn Decimal::from_string(s : String) -> Decimal? {
@@ -214,9 +220,11 @@ fn is_digit_string(s : String) -> Bool {
 /// Returns a decimal with scale 0.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = @decimal.Decimal::from_int(42)
-/// inspect(d.to_string(), content="42")
+/// ```moonbit check
+/// test {
+///   let d = @decimal.Decimal::from_int(42)
+///   inspect(d.to_string(), content="42")
+/// }
 /// ```
 ///
 pub fn Decimal::from_int(n : Int) -> Decimal {
@@ -232,9 +240,11 @@ pub fn Decimal::from_int(n : Int) -> Decimal {
 /// Returns a decimal with scale 0.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = @decimal.Decimal::from_bigint(12345678901234567890N)
-/// inspect(d.to_string(), content="12345678901234567890")
+/// ```moonbit check
+/// test {
+///   let d = @decimal.Decimal::from_bigint(12345678901234567890N)
+///   inspect(d.to_string(), content="12345678901234567890")
+/// }
 /// ```
 ///
 pub fn Decimal::from_bigint(n : @bigint.BigInt) -> Decimal {
@@ -251,12 +261,14 @@ pub fn Decimal::from_bigint(n : @bigint.BigInt) -> Decimal {
 /// Returns `Some(decimal)` if conversion succeeds, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_double(3.14159, 5) {
-///   Some(d) => d
-///   None => fail("Invalid double conversion")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_double(3.14159, 5) {
+///     Some(d) => d
+///     None => fail("Invalid double conversion")
+///   }
+///   inspect(d.to_string(), content="3.14159")
 /// }
-/// inspect(d.to_string(), content="3.14159")
 /// ```
 ///
 pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
@@ -284,9 +296,11 @@ pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
 /// Returns a string in the format "integer.fractional" or "integer".
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = @decimal.Decimal::from_string("123.45")
-/// inspect(d.to_string(), content="Some(123.45)")
+/// ```moonbit check
+/// test {
+///   let d = @decimal.Decimal::from_string("123.45")
+///   inspect(d.to_string(), content="Some(123.45)")
+/// }
 /// ```
 ///
 pub fn Decimal::to_string(self : Decimal) -> String {
@@ -342,9 +356,11 @@ pub fn Decimal::to_string(self : Decimal) -> String {
 /// Warning: This conversion may lose precision for large numbers or high precision decimals.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = @decimal.Decimal::from_string("3.14159")
-/// inspect(d, content="Some(3.14159)")
+/// ```moonbit check
+/// test {
+///   let d = @decimal.Decimal::from_string("3.14159")
+///   inspect(d, content="Some(3.14159)")
+/// }
 /// ```
 ///
 pub fn Decimal::to_double(self : Decimal) -> Double {
@@ -367,12 +383,14 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
 /// Returns `Some(int)` if the decimal fits in an Int, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("123.99") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("123.99") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   inspect(d.to_int(), content="Some(123)")
 /// }
-/// inspect(d.to_int(), content="Some(123)")
 /// ```
 ///
 pub fn Decimal::to_int(self : Decimal) -> Int? {
@@ -391,12 +409,14 @@ pub fn Decimal::to_int(self : Decimal) -> Int? {
 /// Converts the decimal to a BigInt by truncating towards zero.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("123.99") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("123.99") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   inspect(d.to_bigint(), content="123")
 /// }
-/// inspect(d.to_bigint(), content="123")
 /// ```
 ///
 pub fn Decimal::to_bigint(self : Decimal) -> @bigint.BigInt {
@@ -490,16 +510,18 @@ pub fn Decimal::scale(self : Decimal) -> Int {
 /// Returns `Some(decimal)` if places is valid, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("3.14159") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("3.14159") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   let rounded = match d.round(2) {
+///     Some(r) => r
+///     None => fail("Invalid rounding")
+///   }
+///   inspect(rounded.to_string(), content="3.14")
 /// }
-/// let rounded = match d.round(2) {
-///   Some(r) => r
-///   None => fail("Invalid rounding")
-/// }
-/// inspect(rounded.to_string(), content="3.14")
 /// ```
 ///
 pub fn Decimal::round(self : Decimal, places : Int) -> Decimal? {
@@ -534,16 +556,18 @@ pub fn Decimal::round(self : Decimal, places : Int) -> Decimal? {
 /// Returns `Some(decimal)` if places is valid, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("3.14159") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("3.14159") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   let truncated = match d.truncate(2) {
+///     Some(t) => t
+///     None => fail("Invalid truncation")
+///   }
+///   inspect(truncated.to_string(), content="3.14")
 /// }
-/// let truncated = match d.truncate(2) {
-///   Some(t) => t
-///   None => fail("Invalid truncation")
-/// }
-/// inspect(truncated.to_string(), content="3.14")
 /// ```
 ///
 pub fn Decimal::truncate(self : Decimal, places : Int) -> Decimal? {
@@ -572,16 +596,18 @@ pub fn Decimal::truncate(self : Decimal, places : Int) -> Decimal? {
 /// Returns `Some(decimal)` if new_scale is valid, `None` otherwise.
 ///
 /// Example:
-/// ```moonbit nocheck
-/// let d = match @decimal.Decimal::from_string("123.45") {
-///   Some(d) => d
-///   None => fail("Invalid decimal string")
+/// ```moonbit check
+/// test {
+///   let d = match @decimal.Decimal::from_string("123.45") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   let scaled = match d.scale_to(4) {
+///     Some(s) => s
+///     None => fail("Invalid scaling")
+///   }
+///   inspect(scaled.to_string(), content="123.4500")
 /// }
-/// let scaled = match d.scale_to(4) {
-///   Some(s) => s
-///   None => fail("Invalid scaling")
-/// }
-/// inspect(scaled.to_string(), content="123.4500")
 /// ```
 ///
 pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
