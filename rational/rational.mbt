@@ -39,30 +39,32 @@ fn[T : Integral] gcd(a : T, b : T) -> T {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// // Create 3/4
-/// let r1 = @rational.new(3L, 4L)
-/// inspect(r1, content="Some(3/4)")
+/// ```moonbit check
+/// test {
+///   // Create 3/4
+///   let r1 = @rational.new(3L, 4L)
+///   inspect(r1, content="Some(3/4)")
 ///
-/// // Create -1/2 (negative numerator)
-/// let r2 = @rational.new(-1L, 2L)
-/// inspect(r2, content="Some(-1/2)")
+///   // Create -1/2 (negative numerator)
+///   let r2 = @rational.new(-1L, 2L)
+///   inspect(r2, content="Some(-1/2)")
 ///
-/// // Create -1/2 (negative denominator gets normalized)
-/// let r3 = @rational.new(1L, -2L)
-/// inspect(r3, content="Some(-1/2)")
+///   // Create -1/2 (negative denominator gets normalized)
+///   let r3 = @rational.new(1L, -2L)
+///   inspect(r3, content="Some(-1/2)")
 ///
-/// // Create 1/2 (double negatives cancel out)
-/// let r4 = @rational.new(-1L, -2L)
-/// inspect(r4, content="Some(1/2)")
+///   // Create 1/2 (double negatives cancel out)
+///   let r4 = @rational.new(-1L, -2L)
+///   inspect(r4, content="Some(1/2)")
 ///
-/// // Automatic reduction to simplest form
-/// let r5 = @rational.new(6L, 9L)
-/// inspect(r5, content="Some(2/3)")
+///   // Automatic reduction to simplest form
+///   let r5 = @rational.new(6L, 9L)
+///   inspect(r5, content="Some(2/3)")
 ///
-/// // Division by zero returns None
-/// let r6 = @rational.new(1L, 0L)
-/// inspect(r6, content="None")
+///   // Division by zero returns None
+///   let r6 = @rational.new(1L, 0L)
+///   inspect(r6, content="None")
+/// }
 /// ```
 ///
 pub fn[T : Integral] new(numerator : T, denominator : T) -> Rational[T]? {
@@ -112,10 +114,12 @@ pub impl[T : Integral] Add for Rational[T] with add(self, other) {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let a = @rational.new(1L, 2L).unwrap() // 1/2
-/// let b = @rational.new(1L, 3L).unwrap() // 1/3
-/// inspect(a - b, content="1/6") // 1/2 - 1/3 = 1/6
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(1L, 2L).unwrap() // 1/2
+///   let b = @rational.new(1L, 3L).unwrap() // 1/3
+///   inspect(a - b, content="1/6") // 1/2 - 1/3 = 1/6
+/// }
 /// ```
 ///
 pub impl[T : Integral] Sub for Rational[T] with sub(self, other) {
@@ -137,11 +141,13 @@ pub impl[T : Integral] Sub for Rational[T] with sub(self, other) {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let a = @rational.new(1L, 2L).unwrap() // 1/2
-/// let b = @rational.new(2L, 3L).unwrap() // 2/3
-/// let c = a * b // 1/3
-/// inspect(c, content="1/3")
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(1L, 2L).unwrap() // 1/2
+///   let b = @rational.new(2L, 3L).unwrap() // 2/3
+///   let c = a * b // 1/3
+///   inspect(c, content="1/3")
+/// }
 /// ```
 ///
 pub impl[T : Integral] Mul for Rational[T] with mul(self, other) {
@@ -163,15 +169,17 @@ pub impl[T : Integral] Mul for Rational[T] with mul(self, other) {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let a = @rational.new(1L, 2L) // 1/2
-/// let b = @rational.new(2L, 3L) // 2/3
-/// match (a, b) {
-///   (Some(x), Some(y)) => {
-///     let result = x / y // 3/4
-///     inspect(result, content="3/4")
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(1L, 2L) // 1/2
+///   let b = @rational.new(2L, 3L) // 2/3
+///   match (a, b) {
+///     (Some(x), Some(y)) => {
+///       let result = x / y // 3/4
+///       inspect(result, content="3/4")
+///     }
+///     _ => ()
 ///   }
-///   _ => ()
 /// }
 /// ```
 ///
@@ -200,14 +208,15 @@ pub impl[T : Integral] Div for Rational[T] with div(self, other) {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let half = @rational.new(1L, 2L).unwrap()
-/// let two = half.reciprocal()
-/// inspect(two, content="2")
-///
-/// let negative_third = @rational.new(-1L, 3L).unwrap()
-/// let negative_three = negative_third.reciprocal()
-/// inspect(negative_three, content="-3")
+/// ```moonbit check
+/// test {
+///   let half = @rational.new(1L, 2L).unwrap()
+///   let two = half.reciprocal()
+///   inspect(two, content="2")
+///   let negative_third = @rational.new(-1L, 3L).unwrap()
+///   let negative_three = negative_third.reciprocal()
+///   inspect(negative_three, content="-3")
+/// }
 /// ```
 ///
 #as_free_fn
@@ -230,14 +239,15 @@ pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let positive = @rational.new(3L, 4L).unwrap()
-/// let negative = -positive
-/// inspect(negative.to_string(), content="-3/4")
-///
-/// let negative_original = @rational.new(-5L, 2L).unwrap()
-/// let positive_result = -negative_original
-/// inspect(positive_result.to_string(), content="5/2")
+/// ```moonbit check
+/// test {
+///   let positive = @rational.new(3L, 4L).unwrap()
+///   let negative = -positive
+///   inspect(negative.to_string(), content="-3/4")
+///   let negative_original = @rational.new(-5L, 2L).unwrap()
+///   let positive_result = -negative_original
+///   inspect(positive_result.to_string(), content="5/2")
+/// }
 /// ```
 ///
 pub impl[T : Integral] Neg for Rational[T] with neg(self : Rational[T]) -> Rational[
@@ -257,11 +267,13 @@ pub impl[T : Integral] Neg for Rational[T] with neg(self : Rational[T]) -> Ratio
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let positive = @rational.new(3L, 4L).unwrap()
-/// let negative = @rational.new(-3L, 4L).unwrap()
-/// inspect(positive.abs(), content="3/4")
-/// inspect(negative.abs(), content="3/4")
+/// ```moonbit check
+/// test {
+///   let positive = @rational.new(3L, 4L).unwrap()
+///   let negative = @rational.new(-3L, 4L).unwrap()
+///   inspect(positive.abs(), content="3/4")
+///   inspect(negative.abs(), content="3/4")
+/// }
 /// ```
 ///
 #as_free_fn
@@ -283,18 +295,18 @@ pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let a = @rational.new(1L, 2L).unwrap()  // 1/2
-/// let b = @rational.new(2L, 3L).unwrap()  // 2/3
-/// inspect(a.compare(b), content="-1")     // 1/2 < 2/3
-///
-/// let c = @rational.new(3L, 4L).unwrap()  // 3/4
-/// let d = @rational.new(3L, 4L).unwrap()  // 3/4
-/// inspect(c.compare(d), content="0")      // 3/4 == 3/4
-///
-/// let e = @rational.new(5L, 6L).unwrap()  // 5/6
-/// let f = @rational.new(1L, 2L).unwrap()  // 1/2
-/// inspect(e.compare(f), content="1")      // 5/6 > 1/2
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(1L, 2L).unwrap() // 1/2
+///   let b = @rational.new(2L, 3L).unwrap() // 2/3
+///   inspect(a.compare(b), content="-1") // 1/2 < 2/3
+///   let c = @rational.new(3L, 4L).unwrap() // 3/4
+///   let d = @rational.new(3L, 4L).unwrap() // 3/4
+///   inspect(c.compare(d), content="0") // 3/4 == 3/4
+///   let e = @rational.new(5L, 6L).unwrap() // 5/6
+///   let f = @rational.new(1L, 2L).unwrap() // 1/2
+///   inspect(e.compare(f), content="1") // 5/6 > 1/2
+/// }
 /// ```
 ///
 pub impl[T : Integral] Compare for Rational[T] with compare(
@@ -319,12 +331,13 @@ pub impl[T : Integral] Compare for Rational[T] with compare(
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let rational = @rational.new(1L, 2L).unwrap()
-/// inspect(rational.to_double(), content="0.5")
-///
-/// let negative = @rational.new(-3L, 4L).unwrap()
-/// inspect(negative.to_double(), content="-0.75")
+/// ```moonbit check
+/// test {
+///   let rational = @rational.new(1L, 2L).unwrap()
+///   inspect(rational.to_double(), content="0.5")
+///   let negative = @rational.new(-3L, 4L).unwrap()
+///   inspect(negative.to_double(), content="-0.75")
+/// }
 /// ```
 ///
 pub fn Rational64::to_double(self : Rational64) -> Double {
@@ -351,14 +364,16 @@ fn[T] overflow_error() -> T raise RationalError {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let error = RationalError::RationalError("division by zero")
-/// inspect(
-///   error,
-///   content=(
-///     #|RationalError("division by zero")
-///   ),
-/// )
+/// ```moonbit check
+/// test {
+///   let error = RationalError::RationalError("division by zero")
+///   inspect(
+///     error,
+///     content=(
+///       #|RationalError("division by zero")
+///     ),
+///   )
+/// }
 /// ```
 ///
 pub(all) suberror RationalError {
@@ -378,12 +393,14 @@ pub(all) suberror RationalError {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let error1 = @rational.RationalError("division by zero")
-/// let error2 = @rational.RationalError("division by zero")
-/// let error3 = @rational.RationalError("overflow")
-/// inspect(error1 == error2, content="true")
-/// inspect(error1 == error3, content="false")
+/// ```moonbit check
+/// test {
+///   let error1 = @rational.RationalError("division by zero")
+///   let error2 = @rational.RationalError("division by zero")
+///   let error3 = @rational.RationalError("overflow")
+///   inspect(error1 == error2, content="true")
+///   inspect(error1 == error3, content="false")
+/// }
 /// ```
 ///
 pub impl Eq for RationalError with equal(
@@ -411,14 +428,16 @@ pub impl Eq for RationalError with equal(
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// // Convert 0.5 to rational 1/2
-/// let half = @rational.from_double(0.5)
-/// inspect(half, content="1/2")
+/// ```moonbit check
+/// test {
+///   // Convert 0.5 to rational 1/2
+///   let half = @rational.from_double(0.5)
+///   inspect(half, content="1/2")
 ///
-/// // Convert 0.333... to a close rational approximation
-/// let third = @rational.from_double(1.0 / 3.0)
-/// inspect(third, content="1/3")
+///   // Convert 0.333... to a close rational approximation
+///   let third = @rational.from_double(1.0 / 3.0)
+///   inspect(third, content="1/3")
+/// }
 /// ```
 ///
 pub fn from_double(value : Double) -> Rational64 raise RationalError {
@@ -507,15 +526,15 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let r1 = @rational.new(3L, 2L).unwrap()  // 3/2 = 1.5
-/// inspect(r1.ceil(), content="2")
-///
-/// let r2 = @rational.new(-3L, 2L).unwrap() // -3/2 = -1.5
-/// inspect(r2.ceil(), content="-1")
-///
-/// let r3 = @rational.new(4L, 2L).unwrap()  // 4/2 = 2.0
-/// inspect(r3.ceil(), content="2")
+/// ```moonbit check
+/// test {
+///   let r1 = @rational.new(3L, 2L).unwrap() // 3/2 = 1.5
+///   inspect(r1.ceil(), content="2")
+///   let r2 = @rational.new(-3L, 2L).unwrap() // -3/2 = -1.5
+///   inspect(r2.ceil(), content="-1")
+///   let r3 = @rational.new(4L, 2L).unwrap() // 4/2 = 2.0
+///   inspect(r3.ceil(), content="2")
+/// }
 /// ```
 ///
 #as_free_fn
@@ -545,15 +564,15 @@ pub fn[T : Integral] Rational::ceil(self : Rational[T]) -> T {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let r1 = @rational.new(7L, 3L).unwrap()  // 7/3 ≈ 2.33
-/// inspect(r1.floor(), content="2")
-///
-/// let r2 = @rational.new(-7L, 3L).unwrap()  // -7/3 ≈ -2.33
-/// inspect(r2.floor(), content="-3")
-///
-/// let r3 = @rational.new(6L, 3L).unwrap()  // 6/3 = 2.0
-/// inspect(r3.floor(), content="2")
+/// ```moonbit check
+/// test {
+///   let r1 = @rational.new(7L, 3L).unwrap() // 7/3 ≈ 2.33
+///   inspect(r1.floor(), content="2")
+///   let r2 = @rational.new(-7L, 3L).unwrap() // -7/3 ≈ -2.33
+///   inspect(r2.floor(), content="-3")
+///   let r3 = @rational.new(6L, 3L).unwrap() // 6/3 = 2.0
+///   inspect(r3.floor(), content="2")
+/// }
 /// ```
 ///
 #as_free_fn
@@ -582,18 +601,17 @@ pub fn[T : Integral] Rational::floor(self : Rational[T]) -> T {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let a = @rational.new(7L, 3L).unwrap() // 7/3 = 2.333...
-/// inspect(a.trunc(), content="2")
-///
-/// let b = @rational.new(-7L, 3L).unwrap() // -7/3 = -2.333...
-/// inspect(b.trunc(), content="-2")
-///
-/// let c = @rational.new(5L, 2L).unwrap() // 5/2 = 2.5
-/// inspect(c.trunc(), content="2")
-///
-/// let d = @rational.new(-5L, 2L).unwrap() // -5/2 = -2.5
-/// inspect(d.trunc(), content="-2")
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(7L, 3L).unwrap() // 7/3 = 2.333...
+///   inspect(a.trunc(), content="2")
+///   let b = @rational.new(-7L, 3L).unwrap() // -7/3 = -2.333...
+///   inspect(b.trunc(), content="-2")
+///   let c = @rational.new(5L, 2L).unwrap() // 5/2 = 2.5
+///   inspect(c.trunc(), content="2")
+///   let d = @rational.new(-5L, 2L).unwrap() // -5/2 = -2.5
+///   inspect(d.trunc(), content="-2")
+/// }
 /// ```
 ///
 #as_free_fn
@@ -618,15 +636,15 @@ pub fn[T : Integral] Rational::trunc(self : Rational[T]) -> T {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let r1 = @rational.new(7L, 2L).unwrap()  // 7/2 = 3.5
-/// inspect(r1.fract(), content="1/2")      // fractional part is 0.5 = 1/2
-///
-/// let r2 = @rational.new(-7L, 2L).unwrap() // -7/2 = -3.5  
-/// inspect(r2.fract(), content="-1/2")     // fractional part is -0.5 = -1/2
-///
-/// let r3 = @rational.new(5L, 1L).unwrap()  // 5/1 = 5
-/// inspect(r3.fract(), content="0")        // fractional part is 0
+/// ```moonbit check
+/// test {
+///   let r1 = @rational.new(7L, 2L).unwrap() // 7/2 = 3.5
+///   inspect(r1.fract(), content="1/2") // fractional part is 0.5 = 1/2
+///   let r2 = @rational.new(-7L, 2L).unwrap() // -7/2 = -3.5  
+///   inspect(r2.fract(), content="-1/2") // fractional part is -0.5 = -1/2
+///   let r3 = @rational.new(5L, 1L).unwrap() // 5/1 = 5
+///   inspect(r3.fract(), content="0") // fractional part is 0
+/// }
 /// ```
 ///
 #as_free_fn
@@ -651,18 +669,17 @@ pub fn[T : Integral] Rational::fract(self : Rational[T]) -> Rational[T] {
 ///
 /// Example:
 ///
-/// ```moonbit nocheck
-/// let zero = @rational.new(0L, 1).unwrap()
-/// inspect(zero, content="0") 
-///
-/// let integer = @rational.new(5L, 1).unwrap()
-/// inspect(integer, content="5")
-///
-/// let fraction = @rational.new(3L, 4).unwrap()
-/// inspect(fraction, content="3/4") 
-///
-/// let negative = @rational.new(-7L, 3).unwrap()
-/// inspect(negative, content="-7/3")
+/// ```moonbit check
+/// test {
+///   let zero = @rational.new(0L, 1).unwrap()
+///   inspect(zero, content="0")
+///   let integer = @rational.new(5L, 1).unwrap()
+///   inspect(integer, content="5")
+///   let fraction = @rational.new(3L, 4).unwrap()
+///   inspect(fraction, content="3/4")
+///   let negative = @rational.new(-7L, 3).unwrap()
+///   inspect(negative, content="-7/3")
+/// }
 /// ```
 ///
 pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
@@ -706,15 +723,15 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
 ///
 /// Examples:
 ///
-/// ```moonbit nocheck
-/// let half = @rational.new(1L, 2L).unwrap()
-/// inspect(half.is_integer(), content="false")
-///
-/// let whole = @rational.new(5L, 1L).unwrap()
-/// inspect(whole.is_integer(), content="true")
-///
-/// let zero = @rational.new(0L, 1L).unwrap()
-/// inspect(zero.is_integer(), content="true")
+/// ```moonbit check
+/// test {
+///   let half = @rational.new(1L, 2L).unwrap()
+///   inspect(half.is_integer(), content="false")
+///   let whole = @rational.new(5L, 1L).unwrap()
+///   inspect(whole.is_integer(), content="true")
+///   let zero = @rational.new(0L, 1L).unwrap()
+///   inspect(zero.is_integer(), content="true")
+/// }
 /// ```
 ///
 #as_free_fn
