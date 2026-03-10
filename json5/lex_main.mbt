@@ -17,8 +17,8 @@ fn lex_value(
   ctx : ParseContext,
   allow_rbracket? : Bool = false,
 ) -> Token raise ParseError {
-  for {
-    let view = try! ctx.input[ctx.offset:]
+  for ;; {
+    let view = ctx.input[ctx.offset:]
     lexmatch view with longest {
       (
         "[\t\u000B\u000C \n\r\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]",

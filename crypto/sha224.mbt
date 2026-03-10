@@ -20,7 +20,7 @@ pub fn[Data : ByteSource] sha224(data : Data) -> FixedArray[Byte] {
     0xbefa4fa4,
   ])
   ..update(data)
-  .._finalize_into(ret, size=7)
+  ._finalize_into(ret, size=7)
   ret
 }
 
@@ -32,7 +32,7 @@ pub fn sha224_from_iter(data : Iter[Byte]) -> FixedArray[Byte] {
     0xbefa4fa4,
   ])
   ..update_from_iter(data)
-  .._finalize_into(ret, size=7)
+  ._finalize_into(ret, size=7)
   ret
 }
 

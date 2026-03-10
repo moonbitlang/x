@@ -62,13 +62,11 @@ fn lex_ident(
   let mut start = start
   fn flush(end : Int) {
     if start > 0 && end > start {
-      buffer.write_view(ctx.input[start:end]) catch {
-        _ => () // If slicing fails, just skip writing
-      }
+      buffer.write_view(ctx.input[start:end])
     }
   }
 
-  for {
+  for ;; {
     match read_char(ctx) {
       Some('\\') => {
         flush(ctx.offset - 1)

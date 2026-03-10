@@ -41,7 +41,6 @@
 ///   let _u = @uuid.from_hex("9558cfadb48547c70f9adf1f75cdef29").as_version(
 ///     @uuid.V4,
 ///   )
-///
 /// }
 /// ```
 ///
@@ -64,12 +63,12 @@ pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
   // XXX: this is ideally Int64::from_bytes() (needs a cheap slicing method)
   let hi = for rv = 0L, i = 0; i < 8; {
     continue rv | (bytes[i].to_int64() << ((7 - i) * 8)), i + 1
-  } else {
+  } nobreak {
     rv
   }
   let lo = for rv = 0L, i = 8; i < 16; {
     continue rv | (bytes[i].to_int64() << ((15 - i) * 8)), i + 1
-  } else {
+  } nobreak {
     rv
   }
   { hi, lo }
@@ -140,7 +139,7 @@ pub fn from_hex(hex : String) -> UUID raise Error {
       let d = hex_char_to_int64(c.to_int())
       continue hi | (d << ((15 - n) * 4)), i + 1, n + 1
     }
-  } else {
+  } nobreak {
     (hi, i)
   }
   let (lo, i) = for lo = 0L, i = i, n = 0; n < 16; {
@@ -154,7 +153,7 @@ pub fn from_hex(hex : String) -> UUID raise Error {
       let d = hex_char_to_int64(c.to_int())
       continue lo | (d << ((15 - n) * 4)), i + 1, n + 1
     }
-  } else {
+  } nobreak {
     (lo, i)
   }
   if i == hex.length() {

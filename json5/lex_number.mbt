@@ -49,7 +49,7 @@ fn lex_number_end(
   start : Int,
   end : Int,
 ) -> Double raise ParseError {
-  let s = try! ctx.input[start:end].to_string()
+  let s = ctx.input[start:end].to_string()
   @strconv.parse_double(s) catch {
     _ => parse_error(InvalidNumber(offset_to_position(ctx.input, start), s))
   }

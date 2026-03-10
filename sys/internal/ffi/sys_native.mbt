@@ -46,9 +46,9 @@ extern "C" fn get_env_var_exists_ffi(_key : Bytes) -> Bool = "get_env_var_exists
 
 ///|
 pub fn get_env_vars() -> Map[String, String] {
-  let env_vars = get_env_vars_ffi().map(env => @common_ffi.utf8_bytes_to_mbt_string(
-    env,
-  ))
+  let env_vars = get_env_vars_ffi().map(env => {
+    @common_ffi.utf8_bytes_to_mbt_string(env)
+  })
   let res = {}
   for i = 0; i < env_vars.length(); i = i + 2 {
     res[env_vars[i]] = env_vars[i + 1]
