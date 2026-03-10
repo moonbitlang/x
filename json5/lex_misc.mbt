@@ -36,7 +36,7 @@ fn read_char(ctx : ParseContext) -> Char? {
 
 ///|
 fn lex_skip_whitespace(ctx : ParseContext) -> Unit raise ParseError {
-  for {
+  for ;; {
     match read_char(ctx) {
       Some('\t' | '\u000B' | '\u000C' | ' ' | '\n' | '\r') => continue
       Some('/') => {
@@ -99,7 +99,7 @@ fn lex_assert_char(ctx : ParseContext, c : Char) -> Unit raise ParseError {
 fn lex_comment(ctx : ParseContext) -> Unit raise ParseError {
   match read_char(ctx) {
     Some('/') =>
-      for {
+      for ;; {
         match read_char(ctx) {
           Some('\n' | '\r' | '\u2028' | '\u2029') => {
             ctx.offset -= 1
@@ -110,7 +110,7 @@ fn lex_comment(ctx : ParseContext) -> Unit raise ParseError {
         }
       }
     Some('*') =>
-      for {
+      for ;; {
         match read_char(ctx) {
           Some('*') =>
             match read_char(ctx) {

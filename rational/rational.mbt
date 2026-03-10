@@ -463,7 +463,7 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
   if q > t_max_f {
     overflow_error()
   }
-  for i in 0..<max_iteration {
+  for _ in 0..<max_iteration {
     if !(q >= -9223372036854775808.0 && q < 9223372036854775808.0) {
       break // overflow
     }

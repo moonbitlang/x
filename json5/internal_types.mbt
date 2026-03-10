@@ -44,7 +44,7 @@ fn CharClass::contains(self : CharClass, c : Char) -> Bool {
     } else {
       break true
     }
-  } else {
+  } nobreak {
     false
   }
 }

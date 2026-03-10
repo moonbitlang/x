@@ -45,7 +45,7 @@ pub fn Path::basename(path : Path) -> StringView {
   match rest.rev_find("\\") {
     None => rest
     Some(idx) if idx >= rest.length() => ""
-    Some(idx) => try! rest[idx + 1:]
+    Some(idx) => rest[idx + 1:]
   }
 }
 
@@ -69,7 +69,7 @@ pub fn Path::dirname(path : Path) -> Path {
   match last_slash_pos {
     None => prefix.to_string()
     Some(idx) => {
-      let dirname_with_trailing_slashes = try! rest[0:idx]
+      let dirname_with_trailing_slashes = rest[0:idx]
       let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
         char_set="\\",
       )
@@ -112,7 +112,7 @@ pub fn Path::extname(path : Path) -> StringView {
   let basename = Path::basename(path)
   match basename.rev_find(".") {
     None => ""
-    Some(idx) => try! basename[idx:]
+    Some(idx) => basename[idx:]
   }
 }
 

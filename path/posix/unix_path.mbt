@@ -103,7 +103,7 @@ fn parse_unix_relative_path(
   let mut rest = s
   let components : Array[StringView] = []
   let mut start = start
-  for {
+  for ;; {
     lexmatch rest with longest {
       // pattern: <path_component><slashes>
       // slashes elimination

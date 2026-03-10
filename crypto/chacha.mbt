@@ -94,7 +94,7 @@ fn FixedArray::chachaBlockRound(state : FixedArray[UInt]) -> Unit {
   ..quarterRound(0, 5, 10, 15)
   ..quarterRound(1, 6, 11, 12)
   ..quarterRound(2, 7, 8, 13)
-  ..quarterRound(3, 4, 9, 14)
+  .quarterRound(3, 4, 9, 14)
 }
 
 ///|
@@ -125,7 +125,7 @@ test "chachaBlockRound" {
 
 ///|
 fn FixedArray::chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> Unit {
-  for i in 0U..<n {
+  for _ in 0U..<n {
     state.chachaBlockRound()
   }
 }
