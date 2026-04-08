@@ -18,6 +18,7 @@ pub fn get_cli_args() -> Array[String] {
 }
 
 ///|
+/// Used to suppress warnings about the unused package 'moonbitlang/x/internal/ffi'
 fn _use_common_ffi() -> String {
   @common_ffi.utf8_bytes_to_mbt_string(b"")
 }
