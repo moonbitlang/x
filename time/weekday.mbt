@@ -37,10 +37,6 @@ pub impl Show for Weekday with output(self : Weekday, logger : &Logger) -> Unit 
 }
 
 ///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for Weekday
-
-///|
 fn Weekday::new(week_day : Int) -> Weekday? {
   match week_day {
     1 => Some(Monday)
