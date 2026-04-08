@@ -15,7 +15,7 @@ pub let utc_zone : Zone
 // Errors
 
 // Types and methods
-type Duration
+type Duration derive(Compare, Eq)
 pub fn Duration::add_duration(Self, Self) -> Self raise
 pub fn Duration::add_hours(Self, Int64) -> Self raise
 pub fn Duration::add_minutes(Self, Int64) -> Self raise
@@ -33,11 +33,9 @@ pub fn Duration::to_string(Self) -> String
 pub fn Duration::with_nanoseconds(Self, Int) -> Self raise
 pub fn Duration::with_seconds(Self, Int64) -> Self
 pub fn Duration::zero() -> Self
-pub impl Compare for Duration
-pub impl Eq for Duration
 pub impl Show for Duration
 
-type Period
+type Period derive(Compare, Eq)
 pub fn Period::add_days(Self, Int) -> Self raise
 pub fn Period::add_months(Self, Int) -> Self raise
 pub fn Period::add_period(Self, Self) -> Self raise
@@ -60,8 +58,6 @@ pub fn Period::with_months(Self, Int) -> Self
 pub fn Period::with_years(Self, Int) -> Self
 pub fn Period::years(Self) -> Int
 pub fn Period::zero() -> Self
-pub impl Compare for Period
-pub impl Eq for Period
 pub impl Show for Period
 
 type PlainDate
@@ -97,7 +93,7 @@ pub impl Compare for PlainDate
 pub impl Eq for PlainDate
 pub impl Show for PlainDate
 
-type PlainDateTime
+type PlainDateTime derive(Compare, Eq)
 pub fn PlainDateTime::add_days(Self, Int64) -> Self raise
 pub fn PlainDateTime::add_duration(Self, Duration) -> Self raise
 pub fn PlainDateTime::add_hours(Self, Int64) -> Self raise
@@ -139,11 +135,9 @@ pub fn PlainDateTime::with_ordinal(Self, Int) -> Self raise
 pub fn PlainDateTime::with_second(Self, Int) -> Self raise
 pub fn PlainDateTime::with_year(Self, Int) -> Self raise
 pub fn PlainDateTime::year(Self) -> Int
-pub impl Compare for PlainDateTime
-pub impl Eq for PlainDateTime
 pub impl Show for PlainDateTime
 
-type PlainTime
+type PlainTime derive(Compare, Eq)
 pub fn PlainTime::add_duration(Self, Duration) -> Self raise
 pub fn PlainTime::add_hours(Self, Int64) -> Self raise
 pub fn PlainTime::add_minutes(Self, Int64) -> Self raise
@@ -166,8 +160,6 @@ pub fn PlainTime::with_hour(Self, Int) -> Self raise
 pub fn PlainTime::with_minute(Self, Int) -> Self raise
 pub fn PlainTime::with_nanosecond(Self, Int) -> Self raise
 pub fn PlainTime::with_second(Self, Int) -> Self raise
-pub impl Compare for PlainTime
-pub impl Eq for PlainTime
 pub impl Show for PlainTime
 
 pub(all) enum Weekday {
@@ -178,15 +170,12 @@ pub(all) enum Weekday {
   Friday
   Saturday
   Sunday
-}
-pub impl Eq for Weekday
-pub impl Show for Weekday
+} derive(Eq, Show)
 
-type Zone
+type Zone derive(Eq)
 pub fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 pub fn Zone::is_fixed(Self) -> Bool
 pub fn Zone::to_string(Self) -> String
-pub impl Eq for Zone
 pub impl Show for Zone
 
 type ZoneOffset

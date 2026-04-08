@@ -15,13 +15,11 @@ pub fn[T : Integral] new(T, T) -> Rational[T]?
 // Errors
 pub(all) suberror RationalError {
   RationalError(String)
-}
+} derive(Show, ToJson)
 pub impl Eq for RationalError
-pub impl Show for RationalError
-pub impl ToJson for RationalError
 
 // Types and methods
-type Rational[T]
+type Rational[T] derive(Eq)
 #as_free_fn
 pub fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
 #as_free_fn
@@ -40,7 +38,6 @@ pub fn[T : Integral] Rational::trunc(Self[T]) -> T
 pub impl[T : Integral] Add for Rational[T]
 pub impl[T : Integral] Compare for Rational[T]
 pub impl[T : Integral] Div for Rational[T]
-pub impl[T : Eq] Eq for Rational[T]
 pub impl[T : Integral] Mul for Rational[T]
 pub impl[T : Integral] Neg for Rational[T]
 pub impl[T : Integral] Show for Rational[T]

@@ -9,15 +9,13 @@ pub fn from_hex(String) -> UUID raise
 // Errors
 
 // Types and methods
-type UUID
+type UUID derive(Compare, Eq)
 pub fn UUID::as_version(Self, Version) -> Self
 pub fn UUID::hash(Self) -> Int
 pub fn UUID::to_bytes(Self) -> Bytes
 pub fn UUID::to_string(Self) -> String
 pub fn UUID::variant(Self) -> Variant
 pub fn UUID::version(Self) -> Version?
-pub impl Compare for UUID
-pub impl Eq for UUID
 pub impl Show for UUID
 
 pub(all) enum Variant {
@@ -25,8 +23,7 @@ pub(all) enum Variant {
   RFC4122(Version)
   ReservedMicrosoft
   ReservedFuture
-}
-pub impl Show for Variant
+} derive(Show)
 
 pub(all) enum Version {
   V1
@@ -35,8 +32,7 @@ pub(all) enum Version {
   V4
   V5
   Unknown(Int)
-}
-pub impl Show for Version
+} derive(Show)
 
 // Type aliases
 

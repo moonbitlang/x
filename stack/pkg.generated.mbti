@@ -10,7 +10,7 @@ import {
 // Errors
 
 // Types and methods
-type Stack[T]
+type Stack[T] derive(Default)
 pub fn[T] Stack::clear(Self[T]) -> Unit
 pub fn[T] Stack::drop(Self[T]) -> Unit
 pub fn[T] Stack::drop_result(Self[T]) -> Result[Unit, Unit]
@@ -45,7 +45,6 @@ pub fn[T] Stack::to_array(Self[T]) -> Array[T]
 pub fn[T] Stack::to_list(Self[T]) -> @list.List[T]
 pub fn[T] Stack::unsafe_peek(Self[T]) -> T
 pub fn[T] Stack::unsafe_pop(Self[T]) -> T
-pub impl[T : Default] Default for Stack[T]
 pub impl[T : Show] Show for Stack[T]
 
 // Type aliases
