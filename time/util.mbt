@@ -33,10 +33,12 @@ test "add_prefix_zero" {
 
 ///|
 fn remove_suffix_zero(s : StringView) -> StringView {
-  loop s {
-    [_] as x => x // keep one zero if all are zeros
-    [.. head, '0'] => continue head
-    x => x
+  for state = s {
+    match state {
+      [_] as x => break x // keep one zero if all are zeros
+      [.. head, '0'] => continue head
+      x => break x
+    }
   }
 }
 
@@ -163,7 +165,7 @@ fn[T] int64_overflow_err() -> T raise Error {
 /// FIXME: use checked_add method of Int
 fn checked_add_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() + y.to_int64()
-  if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
+  if r < @int.MIN_VALUE.to_int64() || r > @int.MAX_VALUE.to_int64() {
     int_overflow_err()
   } else {
     r.to_int()
@@ -174,7 +176,7 @@ fn checked_add_int(x : Int, y : Int) -> Int raise Error {
 /// FIXME: use checked_mul method of Int
 fn checked_mul_int(x : Int, y : Int) -> Int raise Error {
   let r = x.to_int64() * y.to_int64()
-  if r < @int.min_value.to_int64() || r > @int.max_value.to_int64() {
+  if r < @int.MIN_VALUE.to_int64() || r > @int.MAX_VALUE.to_int64() {
     int_overflow_err()
   } else {
     r.to_int()
@@ -202,7 +204,7 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64 raise Error {
   if ((abs_x ^ abs_y).reinterpret_as_uint64() >> 31).reinterpret_as_int64() !=
     0L {
     // bits that greater than 2^31 might cause overflow
-    if (y != 0L && r / y != x) || (x == @int64.min_value && y == -1L) {
+    if (y != 0L && r / y != x) || (x == @int64.MIN_VALUE && y == -1L) {
       int64_overflow_err()
     }
   }
@@ -215,13 +217,13 @@ test "checked_add_int" {
   inspect(try? checked_add_int(1, -1), content="Ok(0)")
   inspect(try? checked_add_int(-1, -1), content="Ok(-2)")
   inspect(
-    try? checked_add_int(@int.max_value, 1),
+    try? checked_add_int(@int.MAX_VALUE, 1),
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
   inspect(
-    try? checked_add_int(@int.min_value, -1),
+    try? checked_add_int(@int.MIN_VALUE, -1),
     content=(
       #|Err(Failure("Int overflow"))
     ),
@@ -234,13 +236,13 @@ test "checked_mul_int" {
   inspect(try? checked_mul_int(2, -3), content="Ok(-6)")
   inspect(try? checked_mul_int(-2, -3), content="Ok(6)")
   inspect(
-    try? checked_mul_int(@int.max_value, 2),
+    try? checked_mul_int(@int.MAX_VALUE, 2),
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
   inspect(
-    try? checked_mul_int(@int.min_value, 2),
+    try? checked_mul_int(@int.MIN_VALUE, 2),
     content=(
       #|Err(Failure("Int overflow"))
     ),
@@ -253,13 +255,13 @@ test "checked_add_int64" {
   inspect(try? checked_add_int64(1L, -1L), content="Ok(0)")
   inspect(try? checked_add_int64(-1L, -1L), content="Ok(-2)")
   inspect(
-    try? checked_add_int64(1L, @int64.max_value),
+    try? checked_add_int64(1L, @int64.MAX_VALUE),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
   inspect(
-    try? checked_add_int64(-1L, @int64.min_value),
+    try? checked_add_int64(-1L, @int64.MIN_VALUE),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
@@ -272,13 +274,13 @@ test "checked_mul_int64" {
   inspect(try? checked_mul_int64(2L, -3L), content="Ok(-6)")
   inspect(try? checked_mul_int64(-2L, -3L), content="Ok(6)")
   inspect(
-    try? checked_mul_int64(@int64.max_value, 2L),
+    try? checked_mul_int64(@int64.MAX_VALUE, 2L),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
   inspect(
-    try? checked_mul_int64(@int64.min_value, 2L),
+    try? checked_mul_int64(@int64.MIN_VALUE, 2L),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),

@@ -41,7 +41,7 @@ pub fn PlainTime::of(
 pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
   let (hour, minute, second, nanosecond) = lexmatch str with longest {
     (("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str)) =>
-      (@strconv.parse_int(hour_str), @strconv.parse_int(minute_str), 0, 0)
+      (@string.parse_int(hour_str), @string.parse_int(minute_str), 0, 0)
     (
       ("[0-9]{2}" as hour_str)
       ":"
@@ -50,9 +50,9 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
       ("[0-9]{2}" as second_str)
     ) =>
       (
-        @strconv.parse_int(hour_str),
-        @strconv.parse_int(minute_str),
-        @strconv.parse_int(second_str),
+        @string.parse_int(hour_str),
+        @string.parse_int(minute_str),
+        @string.parse_int(second_str),
         0,
       )
     (
@@ -65,10 +65,10 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
       ("[0-9]{1,9}" as nanosecond_str)
     ) =>
       (
-        @strconv.parse_int(hour_str),
-        @strconv.parse_int(minute_str),
-        @strconv.parse_int(second_str),
-        @strconv.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
+        @string.parse_int(hour_str),
+        @string.parse_int(minute_str),
+        @string.parse_int(second_str),
+        @string.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
       )
     _ => fail(invalid_time_err)
   }

@@ -63,19 +63,19 @@ test "add_seconds" {
   inspect(@time.Duration::zero().add_seconds(1L), content="PT1S")
   inspect(@time.Duration::zero().add_seconds(-1L), content="PT-1S")
   inspect(
-    @time.Duration::zero().add_seconds(@int64.max_value),
+    @time.Duration::zero().add_seconds(@int64.MAX_VALUE),
     content="PT2562047788015215H30M7S",
   )
   inspect(
-    @time.Duration::zero().add_seconds(@int64.min_value),
+    @time.Duration::zero().add_seconds(@int64.MIN_VALUE),
     content="PT-2562047788015215H-30M-8S",
   )
   assert_true(
-    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.max_value))
+    (try? @time.Duration::of(seconds=1L).add_seconds(@int64.MAX_VALUE))
     is Err(_),
   )
   assert_true(
-    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.min_value))
+    (try? @time.Duration::of(seconds=-1L).add_seconds(@int64.MIN_VALUE))
     is Err(_),
   )
 }

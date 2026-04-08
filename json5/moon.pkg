@@ -1,4 +1,4 @@
 import {
   "moonbitlang/core/double",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }
