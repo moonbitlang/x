@@ -243,7 +243,7 @@ pub fn Path::resolve(path : Path) -> Path {
   if Path::is_absolute(path) {
     Path::normalize(path)
   } else {
-    Path::join(@env.current_dir().unwrap(), path)
+    Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
   }
 }
 

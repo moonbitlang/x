@@ -139,6 +139,7 @@ test "normalize" {
 test "resolve" {
   inspect(Path::resolve("/a/../b/c"), content="/b/c")
   inspect(Path::resolve("/a/b/c/../../.."), content="/")
+  inspect(Path::resolve("/a/./b/c"), content="/a/b/c")
 }
 
 ///|
