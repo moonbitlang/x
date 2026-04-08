@@ -18,6 +18,11 @@ pub fn get_cli_args() -> Array[String] {
 }
 
 ///|
+fn _use_common_ffi() -> String {
+  @common_ffi.utf8_bytes_to_mbt_string(b"")
+}
+
+///|
 extern "js" fn get_cli_args_internal() -> Array[String] =
   #| function() {
   // // node has argv[0] as the node executable

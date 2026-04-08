@@ -222,6 +222,17 @@ test "throws on unclosed objects after property values" {
 }
 
 ///|
+#warnings("-deprecated")
+test "position show" {
+  inspect(
+    @json5.Position::{ line: 1, column: 0 },
+    content=(
+      #|{line: 1, column: 0}
+    ),
+  )
+}
+
+///|
 test "throws on unclosed arrays before values" {
   let res = try? @json5.parse("[")
   inspect(res, content="Err(Unexpected end of file)")

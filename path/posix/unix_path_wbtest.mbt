@@ -83,3 +83,16 @@ test "Unix edge cases" {
   let path = UnixPath::parse("///")
   inspect(path, content="/")
 }
+
+///|
+test "PathError show" {
+  inspect(
+    PathError::PathError(
+      start=3,
+      message="Unix path: empty path component not allowed",
+    ),
+    content=(
+      #|PathError(start=3, message="Unix path: empty path component not allowed")
+    ),
+  )
+}

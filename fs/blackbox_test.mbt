@@ -100,3 +100,14 @@ test "create_dir_and_remove_dir" {
   @fs.remove_dir(dir)
   assert_false(@fs.path_exists(dir))
 }
+
+///|
+#warnings("-deprecated")
+test "io_error show" {
+  inspect(
+    @fs.IOError("boom"),
+    content=(
+      #|IOError("boom")
+    ),
+  )
+}

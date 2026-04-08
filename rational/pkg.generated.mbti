@@ -3,6 +3,7 @@ package "moonbitlang/x/rational"
 
 import {
   "moonbitlang/core/bigint",
+  "moonbitlang/core/debug",
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/quickcheck/splitmix",
 }
@@ -15,8 +16,9 @@ pub fn[T : Integral] new(T, T) -> Rational[T]?
 // Errors
 pub(all) suberror RationalError {
   RationalError(String)
-} derive(Show, ToJson)
+} derive(ToJson, @debug.Debug)
 pub impl Eq for RationalError
+pub impl Show for RationalError
 
 // Types and methods
 type Rational[T] derive(Eq)

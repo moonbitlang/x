@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/json5"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn parse(String) -> Json raise ParseError
 
@@ -23,7 +27,8 @@ pub(all) enum ParseErrorData {
 pub(all) struct Position {
   line : Int
   column : Int
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for Position
 
 // Type aliases
 

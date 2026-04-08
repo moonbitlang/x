@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/codec/base64"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn decode(StringView, url_safe? : Bool) -> Bytes raise DecodeError
 
@@ -9,7 +13,8 @@ pub fn encode(BytesView, url_safe? : Bool) -> String
 // Errors
 pub suberror DecodeError {
   InvalidChar(Char)
-} derive(Show)
+} derive(@debug.Debug)
+pub impl Show for DecodeError
 
 // Types and methods
 type Decoder

@@ -119,6 +119,7 @@ test "getters" {
 }
 
 ///|
+#warnings("-deprecated")
 test "weekday" {
   inspect(@time.PlainDate::of(2000, 1, 1).weekday(), content="Saturday")
   inspect(@time.PlainDate::of(2000, 1, 2).weekday(), content="Sunday")

@@ -365,6 +365,7 @@ fn[T] overflow_error() -> T raise RationalError {
 /// Example:
 ///
 /// ```moonbit check
+/// #warnings("-deprecated")
 /// test {
 ///   let error = RationalError::RationalError("division by zero")
 ///   inspect(
@@ -378,7 +379,25 @@ fn[T] overflow_error() -> T raise RationalError {
 ///
 pub(all) suberror RationalError {
   RationalError(String)
-} derive(Show, ToJson(style="legacy"))
+} derive(Debug, ToJson(style="legacy"))
+
+///|
+pub impl Show for RationalError with output(
+  self : RationalError,
+  logger : &Logger,
+) -> Unit {
+  match self {
+    RationalError(message) => {
+      logger.write_string("RationalError(")
+      logger.write_object(message)
+      logger.write_char(')')
+    }
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for RationalError
 
 ///|
 /// Compares two `RationalError` values for equality.
