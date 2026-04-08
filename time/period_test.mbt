@@ -114,14 +114,14 @@ test "op_add" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
   let p3 = @time.Period::of(
-    years=@int.max_value,
-    months=@int.max_value,
-    days=@int.max_value,
+    years=@int.MAX_VALUE,
+    months=@int.MAX_VALUE,
+    days=@int.MAX_VALUE,
   )
   let p4 = @time.Period::of(
-    years=@int.min_value,
-    months=@int.min_value,
-    days=@int.min_value,
+    years=@int.MIN_VALUE,
+    months=@int.MIN_VALUE,
+    days=@int.MIN_VALUE,
   )
   inspect(p1.op_add(@time.Period::zero()), content="P1Y2M3D")
   inspect(p1.op_add(p2), content="P0D")
@@ -136,14 +136,14 @@ test "op_sub" {
   let p1 = @time.Period::of(years=1, months=2, days=3)
   let p2 = @time.Period::of(years=-1, months=-2, days=-3)
   let p3 = @time.Period::of(
-    years=@int.max_value,
-    months=@int.max_value,
-    days=@int.max_value,
+    years=@int.MAX_VALUE,
+    months=@int.MAX_VALUE,
+    days=@int.MAX_VALUE,
   )
   let p4 = @time.Period::of(
-    years=@int.min_value,
-    months=@int.min_value,
-    days=@int.min_value,
+    years=@int.MIN_VALUE,
+    months=@int.MIN_VALUE,
+    days=@int.MIN_VALUE,
   )
   inspect(p1.op_sub(p1), content="P0D")
   inspect(p1.op_sub(p2), content="P2Y4M6D")
@@ -159,8 +159,8 @@ test "multiply" {
   inspect(p.multiply(1), content="P1Y2M3D")
   inspect(p.multiply(-1), content="P-1Y-2M-3D")
   inspect(p.multiply(2), content="P2Y4M6D")
-  assert_true((try? p.multiply(@int.max_value)) is Err(_))
-  assert_true((try? p.multiply(@int.min_value)) is Err(_))
+  assert_true((try? p.multiply(@int.MAX_VALUE)) is Err(_))
+  assert_true((try? p.multiply(@int.MIN_VALUE)) is Err(_))
 }
 
 ///|
@@ -169,16 +169,16 @@ test "negated" {
   inspect(p.negated(), content="P-1Y-1M-1D")
   inspect(p.negated().negated() == p, content="true")
   let p = @time.Period::of(
-    years=@int.max_value,
-    months=@int.max_value,
-    days=@int.max_value,
+    years=@int.MAX_VALUE,
+    months=@int.MAX_VALUE,
+    days=@int.MAX_VALUE,
   )
   inspect(p.negated(), content="P-2147483647Y-2147483647M-2147483647D")
   inspect(p.negated().negated() == p, content="true")
   let p = @time.Period::of(
-    years=@int.min_value,
-    months=@int.min_value,
-    days=@int.min_value,
+    years=@int.MIN_VALUE,
+    months=@int.MIN_VALUE,
+    days=@int.MIN_VALUE,
   )
   assert_true((try? p.negated()) is Err(_))
 }

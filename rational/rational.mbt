@@ -453,7 +453,7 @@ pub fn from_double(value : Double) -> Rational64 raise RationalError {
   let mut d0 = 1L
   let mut n1 = 1L
   let mut d1 = 0L
-  let t_max = @int64.max_value
+  let t_max = @int64.MAX_VALUE
   let t_max_f = t_max.to_double()
   let epsilon = 1.0 / t_max_f
   let max_iteration = 30

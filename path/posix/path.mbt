@@ -206,12 +206,14 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
   if from.prefix == to.prefix {
     let mut cnt = 0
     // remove the common path component prefix
-    loop (from.components[:], to.components[:]) {
-      ([x, .. xs], [y, .. ys]) if x == y => {
-        cnt += 1
-        continue (xs, ys)
+    for left = from.components[:], right = to.components[:] {
+      match (left, right) {
+        ([x, .. xs], [y, .. ys]) if x == y => {
+          cnt += 1
+          continue xs, ys
+        }
+        _ => break
       }
-      _ => ()
     }
     let components : Array[StringView] = []
     let goto_parent_cnt = from.components.length() - cnt

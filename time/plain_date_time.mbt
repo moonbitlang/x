@@ -43,7 +43,7 @@ pub fn PlainDateTime::from_unix_second(
   nanosecond : Int,
   offset : ZoneOffset,
 ) -> PlainDateTime raise Error {
-  if not(validate_nano(nanosecond)) {
+  if !validate_nano(nanosecond) {
     fail(invalid_date_time_err)
   }
   let sec = second + offset.seconds().to_int64()

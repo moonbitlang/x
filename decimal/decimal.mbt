@@ -367,9 +367,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
   if self.is_zero() {
     0.0
   } else {
-    let coeff_double = @strconv.parse_double(
-      self.coefficient.to_string().view(),
-    ) catch {
+    let coeff_double = @string.parse_double(self.coefficient.to_string().view()) catch {
       _ => 0.0 // Fallback to 0.0 if parsing fails
     }
     let divisor = @math.pow(10.0, self.scale.to_double())

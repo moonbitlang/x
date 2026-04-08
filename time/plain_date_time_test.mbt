@@ -171,8 +171,8 @@ test "add_weeks" {
   inspect(d.add_weeks(-1L), content="2000-02-22T00:00:00")
   inspect(d.add_weeks(3L), content="2000-03-21T00:00:00")
   inspect(d.add_weeks(-3L), content="2000-02-08T00:00:00")
-  assert_true((try? d.add_weeks(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_weeks(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MIN_VALUE)) is Err(_))
 }
 
 ///|
@@ -183,8 +183,8 @@ test "add_days" {
   inspect(d.add_days(-1L), content="2000-02-28T00:00:00")
   inspect(d.add_days(365L), content="2001-02-28T00:00:00")
   inspect(d.add_days(-365L), content="1999-03-01T00:00:00")
-  assert_true((try? d.add_days(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_days(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_days(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_days(@int64.MIN_VALUE)) is Err(_))
 }
 
 ///|

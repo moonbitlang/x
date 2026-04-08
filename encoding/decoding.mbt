@@ -116,24 +116,26 @@ pub fn Decoder::decode(
   let builder = StringBuilder::new(size_hint=input.length())
 
   // drive decoder to decode
-  loop self.decode_() {
-    Uchar(u) => {
-      builder.write_char(u)
-      continue self.decode_()
+  for state = self.decode_() {
+    match state {
+      Uchar(u) => {
+        builder.write_char(u)
+        continue self.decode_()
+      }
+      Malformed(bs) =>
+        if stream && self.t_need > 0 {
+          break builder.to_string()
+        } else {
+          raise MalformedError(bs)
+        }
+      End => break builder.to_string()
+      Refill(t) =>
+        if stream {
+          break builder.to_string()
+        } else {
+          raise TruncatedError(t)
+        }
     }
-    Malformed(bs) =>
-      if stream && self.t_need > 0 {
-        builder.to_string()
-      } else {
-        raise MalformedError(bs)
-      }
-    End => builder.to_string()
-    Refill(t) =>
-      if stream {
-        builder.to_string()
-      } else {
-        raise TruncatedError(t)
-      }
   }
 }
 
@@ -175,19 +177,21 @@ pub fn Decoder::decode_to(
     return
   }
   // drive decoder to decode
-  loop self.decode_() {
-    Uchar(u) => {
-      output.write_char(u)
-      continue self.decode_()
-    }
-    Malformed(bs) =>
-      if stream && self.t_need > 0 {
-        return
-      } else {
-        raise MalformedError(bs)
+  for state = self.decode_() {
+    match state {
+      Uchar(u) => {
+        output.write_char(u)
+        continue self.decode_()
       }
-    End => return
-    Refill(t) => if stream { return } else { raise TruncatedError(t) }
+      Malformed(bs) =>
+        if stream && self.t_need > 0 {
+          break
+        } else {
+          raise MalformedError(bs)
+        }
+      End => break
+      Refill(t) => if stream { break } else { raise TruncatedError(t) }
+    }
   }
 }
 
@@ -276,25 +280,27 @@ pub fn Decoder::decode_lossy(
 
   // drive decoder to decode
   let chars = []
-  loop self.decode_() {
-    Uchar(u) => {
-      chars.push(u)
-      continue self.decode_()
+  for state = self.decode_() {
+    match state {
+      Uchar(u) => {
+        chars.push(u)
+        continue self.decode_()
+      }
+      Malformed(_) =>
+        if stream && self.t_need > 0 {
+          break String::from_array(chars)
+        } else {
+          chars.push(U_REP)
+          continue self.decode_()
+        }
+      End => break String::from_array(chars)
+      Refill(_) =>
+        if stream {
+          break String::from_array(chars)
+        } else {
+          continue self.decode_()
+        }
     }
-    Malformed(_) =>
-      if stream && self.t_need > 0 {
-        String::from_array(chars)
-      } else {
-        chars.push(U_REP)
-        continue self.decode_()
-      }
-    End => String::from_array(chars)
-    Refill(_) =>
-      if stream {
-        String::from_array(chars)
-      } else {
-        continue self.decode_()
-      }
   }
 }
 
@@ -313,20 +319,22 @@ pub fn Decoder::decode_lossy_to(
   }
 
   // drive decoder to decode
-  loop self.decode_() {
-    Uchar(u) => {
-      output.write_char(u)
-      continue self.decode_()
-    }
-    Malformed(_) =>
-      if stream && self.t_need > 0 {
-        return
-      } else {
-        output.write_char(U_REP)
+  for state = self.decode_() {
+    match state {
+      Uchar(u) => {
+        output.write_char(u)
         continue self.decode_()
       }
-    End => return
-    Refill(_) => if stream { return } else { continue self.decode_() }
+      Malformed(_) =>
+        if stream && self.t_need > 0 {
+          break
+        } else {
+          output.write_char(U_REP)
+          continue self.decode_()
+        }
+      End => break
+      Refill(_) => if stream { break } else { continue self.decode_() }
+    }
   }
 }
 

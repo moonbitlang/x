@@ -194,8 +194,8 @@ test "add_years" {
   inspect(d.add_years(-2001L), content="-0001-02-28")
   inspect(d.add_years(-9999L), content="-7999-02-28")
   assert_true((try? d.add_years(8000L)) is Err(_))
-  assert_true((try? d.add_years(@int64.max_value)) is Err(_))
-  inspect(d.add_years(@int64.min_value), content="2000-02-29")
+  assert_true((try? d.add_years(@int64.MAX_VALUE)) is Err(_))
+  inspect(d.add_years(@int64.MIN_VALUE), content="2000-02-29")
 }
 
 ///|
@@ -209,8 +209,8 @@ test "add_months" {
   inspect(d.add_months(24L), content="2002-02-28")
   inspect(d.add_months(12L * -2000L), content="0000-02-29")
   assert_true((try? d.add_months(12L * 8000L)) is Err(_))
-  assert_true((try? d.add_months(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_months(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_months(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_months(@int64.MIN_VALUE)) is Err(_))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_months(0L), content="-2000-02-29")
   inspect(d.add_months(1L), content="-2000-03-29")
@@ -220,8 +220,8 @@ test "add_months" {
   inspect(d.add_months(24L), content="-1998-02-28")
   inspect(d.add_months(12L * 10000L), content="8000-02-29")
   assert_true((try? d.add_months(12L * -8000L)) is Err(_))
-  assert_true((try? d.add_months(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_months(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_months(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_months(@int64.MIN_VALUE)) is Err(_))
 }
 
 ///|
@@ -232,16 +232,16 @@ test "add_weeks" {
   inspect(d.add_weeks(-1L), content="2000-02-22")
   inspect(d.add_weeks(3L), content="2000-03-21")
   inspect(d.add_weeks(-3L), content="2000-02-08")
-  assert_true((try? d.add_weeks(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_weeks(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MIN_VALUE)) is Err(_))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_weeks(0L), content="-2000-02-29")
   inspect(d.add_weeks(1L), content="-2000-03-07")
   inspect(d.add_weeks(-1L), content="-2000-02-22")
   inspect(d.add_weeks(3L), content="-2000-03-21")
   inspect(d.add_weeks(-3L), content="-2000-02-08")
-  assert_true((try? d.add_weeks(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_weeks(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_weeks(@int64.MIN_VALUE)) is Err(_))
 }
 
 ///|
@@ -252,16 +252,16 @@ test "add_days" {
   inspect(d.add_days(-1L), content="2000-02-28")
   inspect(d.add_days(365L), content="2001-02-28")
   inspect(d.add_days(-365L), content="1999-03-01")
-  assert_true((try? d.add_days(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_days(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_days(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_days(@int64.MIN_VALUE)) is Err(_))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_days(0L), content="-2000-02-29")
   inspect(d.add_days(1L), content="-2000-03-01")
   inspect(d.add_days(-1L), content="-2000-02-28")
   inspect(d.add_days(365L), content="-1999-02-28")
   inspect(d.add_days(-365L), content="-2001-03-01")
-  assert_true((try? d.add_days(@int64.max_value)) is Err(_))
-  assert_true((try? d.add_days(@int64.min_value)) is Err(_))
+  assert_true((try? d.add_days(@int64.MAX_VALUE)) is Err(_))
+  assert_true((try? d.add_days(@int64.MIN_VALUE)) is Err(_))
 }
 
 ///|
