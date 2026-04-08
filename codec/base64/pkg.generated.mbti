@@ -9,8 +9,7 @@ pub fn encode(BytesView, url_safe? : Bool) -> String
 // Errors
 pub suberror DecodeError {
   InvalidChar(Char)
-}
-pub impl Show for DecodeError
+} derive(Show)
 
 // Types and methods
 type Decoder

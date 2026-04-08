@@ -9,7 +9,7 @@ pub let sep : Char
 // Errors
 
 // Types and methods
-pub(all) struct Path(String)
+pub(all) struct Path(String) derive(Eq)
 pub fn Path::basename(Self) -> StringView
 pub fn Path::dirname(Self) -> Self
 pub fn Path::extname(Self) -> StringView
@@ -20,7 +20,6 @@ pub fn Path::join(Self, Self) -> Self
 pub fn Path::normalize(Self) -> Self
 pub fn Path::relative(Self, base~ : Self) -> Self
 pub fn Path::resolve(Self) -> Self
-pub impl Eq for Path
 pub impl Show for Path
 
 // Type aliases

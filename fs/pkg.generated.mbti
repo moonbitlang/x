@@ -27,8 +27,7 @@ pub fn write_string_to_file(String, String, encoding? : String) -> Unit raise IO
 // Errors
 pub(all) suberror IOError {
   IOError(String)
-}
-pub impl Show for IOError
+} derive(Show)
 
 // Types and methods
 

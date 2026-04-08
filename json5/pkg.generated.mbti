@@ -18,15 +18,12 @@ pub(all) enum ParseErrorData {
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-}
-pub impl Eq for ParseErrorData
+} derive(Eq)
 
 pub(all) struct Position {
   line : Int
   column : Int
-}
-pub impl Eq for Position
-pub impl Show for Position
+} derive(Eq, Show)
 
 // Type aliases
 
