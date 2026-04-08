@@ -15,7 +15,22 @@
 ///|
 pub(all) suberror IOError {
   IOError(String)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for IOError with output(self : IOError, logger : &Logger) -> Unit {
+  match self {
+    IOError(message) => {
+      logger.write_string("IOError(")
+      logger.write_object(message)
+      logger.write_char(')')
+    }
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for IOError
 
 ///|
 /// Reads the content of a file specified by the given path and returns its

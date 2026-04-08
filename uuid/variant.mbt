@@ -22,7 +22,25 @@ pub(all) enum Variant {
   RFC4122(Version)
   ReservedMicrosoft
   ReservedFuture
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Variant with output(self : Variant, logger : &Logger) -> Unit {
+  match self {
+    ReservedNCS => logger.write_string("ReservedNCS")
+    RFC4122(version) => {
+      logger.write_string("RFC4122(")
+      logger.write_object(version)
+      logger.write_char(')')
+    }
+    ReservedMicrosoft => logger.write_string("ReservedMicrosoft")
+    ReservedFuture => logger.write_string("ReservedFuture")
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for Variant
 
 ///|
 /// The UUID version number.
@@ -36,7 +54,27 @@ pub(all) enum Version {
   V4
   V5
   Unknown(Int)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Version with output(self : Version, logger : &Logger) -> Unit {
+  match self {
+    V1 => logger.write_string("V1")
+    V2 => logger.write_string("V2")
+    V3 => logger.write_string("V3")
+    V4 => logger.write_string("V4")
+    V5 => logger.write_string("V5")
+    Unknown(version) => {
+      logger.write_string("Unknown(")
+      logger.write_object(version)
+      logger.write_char(')')
+    }
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for Version
 
 ///|
 fn Version::from_int64(int : Int64) -> Version {
@@ -136,4 +174,20 @@ test "version" {
   inspect(u.as_version(V4).version(), content="Some(V4)")
   inspect(u.as_version(V5).version(), content="Some(V5)")
   inspect(u.as_version(Unknown(9)).version(), content="Some(Unknown(9))")
+}
+
+///|
+test "show" {
+  inspect(
+    RFC4122(V4),
+    content=(
+      #|RFC4122(V4)
+    ),
+  )
+  inspect(
+    Unknown(7),
+    content=(
+      #|Unknown(7)
+    ),
+  )
 }

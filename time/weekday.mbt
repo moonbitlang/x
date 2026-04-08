@@ -21,7 +21,24 @@ pub(all) enum Weekday {
   Friday
   Saturday
   Sunday
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for Weekday with output(self : Weekday, logger : &Logger) -> Unit {
+  match self {
+    Monday => logger.write_string("Monday")
+    Tuesday => logger.write_string("Tuesday")
+    Wednesday => logger.write_string("Wednesday")
+    Thursday => logger.write_string("Thursday")
+    Friday => logger.write_string("Friday")
+    Saturday => logger.write_string("Saturday")
+    Sunday => logger.write_string("Sunday")
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for Weekday
 
 ///|
 fn Weekday::new(week_day : Int) -> Weekday? {
@@ -72,4 +89,20 @@ test "value" {
   inspect(Weekday::Friday.value(), content="5")
   inspect(Weekday::Saturday.value(), content="6")
   inspect(Weekday::Sunday.value(), content="7")
+}
+
+///|
+test "show" {
+  inspect(
+    Monday,
+    content=(
+      #|Monday
+    ),
+  )
+  inspect(
+    Sunday,
+    content=(
+      #|Sunday
+    ),
+  )
 }

@@ -56,6 +56,7 @@ test "division" {
 }
 
 ///|
+#warnings("-deprecated")
 test "from_double overflow" {
   let result = try? @rational.from_double(10.0e200)
   assert_eq(result, Err(RationalError("Rational::from_double: overflow")))
@@ -64,6 +65,7 @@ test "from_double overflow" {
 }
 
 ///|
+#warnings("-deprecated")
 test "from_double NaN" {
   let result = try? @rational.from_double(@double.not_a_number)
   assert_eq(
@@ -73,6 +75,7 @@ test "from_double NaN" {
 }
 
 ///|
+#warnings("-deprecated")
 test "from_double overflow edge case" {
   let result = try? @rational.from_double(9_223_372_036_854_775_807.1)
   assert_eq(result, Err(RationalError("Rational::from_double: overflow")))
@@ -81,6 +84,7 @@ test "from_double overflow edge case" {
 }
 
 ///|
+#warnings("-deprecated")
 test "from_double infinity" {
   let result = try? @rational.from_double(@double.infinity)
   assert_eq(result, Err(RationalError("Rational::from_double: overflow")))

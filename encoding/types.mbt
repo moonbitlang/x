@@ -66,12 +66,65 @@ priv enum Decode {
   Refill(Bytes)
   Malformed(Bytes)
   Uchar(Char)
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for Decode with output(self : Decode, logger : &Logger) -> Unit {
+  match self {
+    End => logger.write_string("End")
+    Refill(bytes) => {
+      logger.write_string("Refill(")
+      logger.write_object(bytes)
+      logger.write_char(')')
+    }
+    Malformed(bytes) => {
+      logger.write_string("Malformed(")
+      logger.write_object(bytes)
+      logger.write_char(')')
+    }
+    Uchar(ch) => {
+      logger.write_string("Uchar(")
+      logger.write_object(ch)
+      logger.write_char(')')
+    }
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+impl Show for Decode
+
+///|
+fn Decode::_use_decode_debug(self : Decode) -> Repr {
+  to_repr(self)
+}
 
 ///|
 test {
   // make unused warning happy
   inspect(End.to_string(), content="End")
+}
+
+///|
+test "decode show" {
+  inspect(
+    Uchar('x'),
+    content=(
+      #|Uchar('x')
+    ),
+  )
+  inspect(
+    Malformed(b"ab"),
+    content=(
+      #|Malformed(b"ab")
+    ),
+  )
+  inspect(
+    Refill(b"cd"),
+    content=(
+      #|Refill(b"cd")
+    ),
+  )
 }
 
 // helper constructor

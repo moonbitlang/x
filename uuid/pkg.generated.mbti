@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitlang/x/uuid"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn from_bytes(Bytes) -> UUID raise
 
@@ -23,7 +27,8 @@ pub(all) enum Variant {
   RFC4122(Version)
   ReservedMicrosoft
   ReservedFuture
-} derive(Show)
+} derive(@debug.Debug)
+pub impl Show for Variant
 
 pub(all) enum Version {
   V1
@@ -32,7 +37,8 @@ pub(all) enum Version {
   V4
   V5
   Unknown(Int)
-} derive(Show)
+} derive(@debug.Debug)
+pub impl Show for Version
 
 // Type aliases
 
