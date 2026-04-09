@@ -22,7 +22,7 @@ let is_windows : Bool = @ffi.is_windows()
 
 ///|
 /// A newtype wrapper provide path operation methods.
-pub(all) struct Path(String) derive(Eq)
+pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
 pub impl Show for Path with output(path, logger) {
@@ -114,9 +114,14 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///  1. when lhs and rhs both are empty, return empty string
 ///  2. ignore empty string
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "/usr/local"
-/// inspect(path.join("bin"), content="/usr/local/bin")
+/// ```moonbit nocheck
+/// test {
+///   assert_eq(Path::join("/usr/local", "bin"), "/usr/local/bin")
+///   assert_eq(Path::join("/usr/local", "/usr"), "/usr")
+///   assert_eq(Path::join("/usr/local", ""), "/usr/local")
+///   assert_eq(Path::join("", "local/bin"), "local/bin")
+///   assert_eq(Path::join("", ""), "")
+/// }
 /// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   if is_windows {
