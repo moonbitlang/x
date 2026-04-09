@@ -396,7 +396,12 @@ test "is_absolute advanced edge cases" {
 test "join edge cases" {
   // Empty strings
   inspect(Path::join("", ""), content="")
-  inspect(Path::join("a", ""), content="a\\")
+  inspect(
+    Path::join("a", ""),
+    content=(
+      #|a
+    ),
+  )
   inspect(Path::join("", "b"), content="b")
 
   // Both paths are absolute - second wins

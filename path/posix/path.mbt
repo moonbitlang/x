@@ -137,22 +137,30 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let rhs = rhs.0
   if Path::is_absolute(rhs) {
     return rhs
-  } else {
-    match lhs {
-      [] => rhs
-      [.., '/'] as all => {
-        let builder = StringBuilder::new()
-        builder.write_stringview(all)
-        builder.write_stringview(rhs)
-        builder.to_string()
-      }
-      without_tailing_slashes => {
-        let builder = StringBuilder::new()
-        builder.write_stringview(without_tailing_slashes)
-        builder.write_char('/')
-        builder.write_stringview(rhs)
-        builder.to_string()
-      }
+  }
+  // ignore empty string
+  if lhs.is_empty() {
+    return rhs
+  }
+  // ignore empty string
+  if rhs.is_empty() {
+    return lhs
+  }
+
+  match lhs {
+    [] => rhs
+    [.., '/'] as all => {
+      let builder = StringBuilder::new()
+      builder.write_stringview(all)
+      builder.write_stringview(rhs)
+      builder.to_string()
+    }
+    without_tailing_slashes => {
+      let builder = StringBuilder::new()
+      builder.write_stringview(without_tailing_slashes)
+      builder.write_char('/')
+      builder.write_stringview(rhs)
+      builder.to_string()
     }
   }
 }

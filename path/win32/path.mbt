@@ -248,6 +248,14 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
+  // ignore empty string
+  if lhs.is_empty() {
+    return rhs
+  }
+  // ignore empty string
+  if rhs.is_empty() {
+    return lhs
+  }
   match join_rest(lhs, rhs) {
     None => rhs
     Some(rhs) =>
