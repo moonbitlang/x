@@ -162,11 +162,10 @@ fn parse_decimal_string(s : String) -> Decimal? {
   }
 
   // Validate that parts contain only digits
-  if !integer_part.is_empty() && !is_digit_string(integer_part.to_string()) {
+  if !integer_part.is_empty() && !is_digit_string(integer_part) {
     return None
   }
-  if !fractional_part.is_empty() &&
-    !is_digit_string(fractional_part.to_string()) {
+  if !fractional_part.is_empty() && !is_digit_string(fractional_part) {
     return None
   }
 
@@ -174,7 +173,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
   let coefficient = if integer_part.is_empty() {
     0N
   } else {
-    @bigint.BigInt::from_string(integer_part.to_string())
+    @bigint.BigInt::from_string(integer_part.to_owned())
   }
 
   // Parse fractional part
@@ -185,7 +184,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
   let fractional_coefficient = if fractional_part.is_empty() {
     0N
   } else {
-    @bigint.BigInt::from_string(fractional_part.to_string())
+    @bigint.BigInt::from_string(fractional_part.to_owned())
   }
 
   // Combine parts
@@ -202,7 +201,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
 
 ///|
 /// Helper function to check if a string contains only digits.
-fn is_digit_string(s : String) -> Bool {
+fn is_digit_string(s : StringView) -> Bool {
   for c in s {
     if c < '0' || c > '9' {
       return false
@@ -298,8 +297,11 @@ pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
 /// Example:
 /// ```moonbit check
 /// test {
-///   let d = @decimal.Decimal::from_string("123.45")
-///   inspect(d.to_string(), content="Some(123.45)")
+///   let d = match @decimal.Decimal::from_string("123.45") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   inspect(d.to_string(), content="123.45")
 /// }
 /// ```
 ///
@@ -319,14 +321,14 @@ pub fn Decimal::to_string(self : Decimal) -> String {
     } else if abs_coeff.length() <= self.scale {
       // Need leading zeros
       let leading_zeros = "0".repeat(self.scale - abs_coeff.length() + 1)
-      let with_zeros = leading_zeros + abs_coeff.to_string()
+      let with_zeros = leading_zeros + abs_coeff.to_owned()
       let integer_part = with_zeros.view(
         end_offset=with_zeros.length() - self.scale,
       )
       let fractional_part = with_zeros.view(
         start_offset=with_zeros.length() - self.scale,
       )
-      let result = integer_part.to_string() + "." + fractional_part.to_string()
+      let result = integer_part.to_owned() + "." + fractional_part.to_owned()
       if is_negative {
         "-" + result
       } else {
@@ -340,7 +342,7 @@ pub fn Decimal::to_string(self : Decimal) -> String {
       let fractional_part = abs_coeff.view(
         start_offset=abs_coeff.length() - self.scale,
       )
-      let result = integer_part.to_string() + "." + fractional_part.to_string()
+      let result = integer_part.to_owned() + "." + fractional_part.to_owned()
       if is_negative {
         "-" + result
       } else {
@@ -358,8 +360,11 @@ pub fn Decimal::to_string(self : Decimal) -> String {
 /// Example:
 /// ```moonbit check
 /// test {
-///   let d = @decimal.Decimal::from_string("3.14159")
-///   inspect(d, content="Some(3.14159)")
+///   let d = match @decimal.Decimal::from_string("3.14159") {
+///     Some(d) => d
+///     None => fail("Invalid decimal string")
+///   }
+///   inspect(d.to_double(), content="3.14159")
 /// }
 /// ```
 ///
@@ -387,7 +392,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
 ///     Some(d) => d
 ///     None => fail("Invalid decimal string")
 ///   }
-///   inspect(d.to_int(), content="Some(123)")
+///   debug_inspect(d.to_int(), content="Some(123)")
 /// }
 /// ```
 ///

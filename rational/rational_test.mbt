@@ -15,12 +15,12 @@
 ///|
 test "new" {
   // 1/2
-  let a = @rational.new(1L, 2L)
-  inspect(a, content="Some(1/2)")
+  let a = @rational.new(1L, 2L).unwrap()
+  inspect(a, content="1/2")
 
   // 1/0
   let a = @rational.new(1L, 0L)
-  inspect(a, content="None")
+  assert_true(a is None)
 }
 
 ///|

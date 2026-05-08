@@ -72,9 +72,9 @@ pub fn Path::dirname(path : Path) -> Path {
         char_set="/",
       )
       if dirname_trim_end.is_empty() {
-        path[0:idx + 1].to_string()
+        path[0:idx + 1].to_owned()
       } else {
-        dirname_trim_end.to_string()
+        dirname_trim_end.to_owned()
       }
     }
   }

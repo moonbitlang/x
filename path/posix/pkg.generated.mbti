@@ -13,8 +13,6 @@ pub(all) struct Path(String) derive(Eq)
 pub fn Path::basename(Self) -> StringView
 pub fn Path::dirname(Self) -> Self
 pub fn Path::extname(Self) -> StringView
-#deprecated
-pub fn Path::inner(Self) -> String
 pub fn Path::is_absolute(Self) -> Bool
 pub fn Path::join(Self, Self) -> Self
 pub fn Path::normalize(Self) -> Self

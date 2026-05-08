@@ -67,7 +67,7 @@ pub fn Path::dirname(path : Path) -> Path {
   let rest = path.0.view(start_offset=prefix.length())
   let last_slash_pos = rest.rev_find("\\")
   match last_slash_pos {
-    None => prefix.to_string()
+    None => prefix.to_owned()
     Some(idx) => {
       let dirname_with_trailing_slashes = rest[0:idx]
       let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
@@ -79,14 +79,14 @@ pub fn Path::dirname(path : Path) -> Path {
           start_offset=0,
           end_offset=prefix.length() + dirname_with_trailing_slashes.length(),
         )
-        .to_string()
+        .to_owned()
       } else {
         path.0
         .view(
           start_offset=0,
           end_offset=prefix.length() + dirname_trim_end.length(),
         )
-        .to_string()
+        .to_owned()
       }
     }
   }
@@ -260,7 +260,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
     None => rhs
     Some(rhs) =>
       match lhs {
-        [] => rhs.to_string()
+        [] => rhs.to_owned()
         [.., '\\'] as all => {
           let builder = StringBuilder::new()
           builder.write_stringview(all)
