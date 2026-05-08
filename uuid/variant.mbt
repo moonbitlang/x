@@ -167,13 +167,13 @@ test "variant" {
 ///|
 test "version" {
   let u = from_hex("907976bf-6784-5a4f-5d7d-33c04dd8fa1a")
-  inspect(u.version(), content="None")
-  inspect(u.as_version(V1).version(), content="Some(V1)")
-  inspect(u.as_version(V2).version(), content="Some(V2)")
-  inspect(u.as_version(V3).version(), content="Some(V3)")
-  inspect(u.as_version(V4).version(), content="Some(V4)")
-  inspect(u.as_version(V5).version(), content="Some(V5)")
-  inspect(u.as_version(Unknown(9)).version(), content="Some(Unknown(9))")
+  debug_inspect(u.version(), content="None")
+  debug_inspect(u.as_version(V1).version(), content="Some(V1)")
+  debug_inspect(u.as_version(V2).version(), content="Some(V2)")
+  debug_inspect(u.as_version(V3).version(), content="Some(V3)")
+  debug_inspect(u.as_version(V4).version(), content="Some(V4)")
+  debug_inspect(u.as_version(V5).version(), content="Some(V5)")
+  debug_inspect(u.as_version(Unknown(9)).version(), content="Some(Unknown(9))")
 }
 
 ///|

@@ -42,28 +42,28 @@ fn[T : Integral] gcd(a : T, b : T) -> T {
 /// ```moonbit check
 /// test {
 ///   // Create 3/4
-///   let r1 = @rational.new(3L, 4L)
-///   inspect(r1, content="Some(3/4)")
+///   let r1 = @rational.new(3L, 4L).unwrap()
+///   inspect(r1, content="3/4")
 ///
 ///   // Create -1/2 (negative numerator)
-///   let r2 = @rational.new(-1L, 2L)
-///   inspect(r2, content="Some(-1/2)")
+///   let r2 = @rational.new(-1L, 2L).unwrap()
+///   inspect(r2, content="-1/2")
 ///
 ///   // Create -1/2 (negative denominator gets normalized)
-///   let r3 = @rational.new(1L, -2L)
-///   inspect(r3, content="Some(-1/2)")
+///   let r3 = @rational.new(1L, -2L).unwrap()
+///   inspect(r3, content="-1/2")
 ///
 ///   // Create 1/2 (double negatives cancel out)
-///   let r4 = @rational.new(-1L, -2L)
-///   inspect(r4, content="Some(1/2)")
+///   let r4 = @rational.new(-1L, -2L).unwrap()
+///   inspect(r4, content="1/2")
 ///
 ///   // Automatic reduction to simplest form
-///   let r5 = @rational.new(6L, 9L)
-///   inspect(r5, content="Some(2/3)")
+///   let r5 = @rational.new(6L, 9L).unwrap()
+///   inspect(r5, content="2/3")
 ///
 ///   // Division by zero returns None
 ///   let r6 = @rational.new(1L, 0L)
-///   inspect(r6, content="None")
+///   assert_true(r6 is None)
 /// }
 /// ```
 ///

@@ -269,10 +269,10 @@ pub fn[T] Stack::pop(self : Stack[T]) -> T? {
 test "pop" {
   let s = of([1, 2, 3])
   let s1 : Stack[Int] = new()
-  inspect(s.pop(), content="Some(1)")
+  debug_inspect(s.pop(), content="Some(1)")
   inspect(s, content="Stack::[2, 3]")
   inspect(s.len, content="2")
-  inspect(s1.pop(), content="None")
+  debug_inspect(s1.pop(), content="None")
   inspect(s1, content="Stack::[]")
   inspect(s1.len, content="0")
 }
@@ -380,7 +380,7 @@ pub fn[T] Stack::peek(self : Stack[T]) -> T? {
 ///|
 test "peek" {
   let s = of([1, 2, 3])
-  inspect(s.peek(), content="Some(1)")
+  debug_inspect(s.peek(), content="Some(1)")
   inspect(s, content="Stack::[1, 2, 3]")
   inspect(s.len, content="3")
 }

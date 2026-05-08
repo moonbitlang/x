@@ -15,46 +15,46 @@
 ///|
 test "get_env_vars" {
   let (k, v) = ("THIS_IS_A_TEST_FOR_ENV_VAR", "IT_WORKS")
-  inspect(
+  debug_inspect(
     @sys.get_env_vars().get(k),
     content=(
       #|None
     ),
   )
-  inspect(
+  debug_inspect(
     @sys.get_env_var(k),
     content=(
       #|None
     ),
   )
   @sys.set_env_var(k, "") // set to empty string first
-  inspect(
+  debug_inspect(
     @sys.get_env_vars().get(k),
     content=(
       #|Some("")
     ),
   )
   @sys.set_env_var(k, v)
-  inspect(
+  debug_inspect(
     @sys.get_env_vars().get(k),
     content=(
       #|Some("IT_WORKS")
     ),
   )
-  inspect(
+  debug_inspect(
     @sys.get_env_var(k),
     content=(
       #|Some("IT_WORKS")
     ),
   )
   @sys.unset_env_var(k)
-  inspect(
+  debug_inspect(
     @sys.get_env_vars().get(k),
     content=(
       #|None
     ),
   )
-  inspect(
+  debug_inspect(
     @sys.get_env_var(k),
     content=(
       #|None

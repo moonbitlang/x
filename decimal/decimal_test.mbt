@@ -303,9 +303,9 @@ test "decimal_conversion" {
 
   // Test to_int
   let int1 = d1.to_int()
-  inspect(int1, content="Some(123)")
+  debug_inspect(int1, content="Some(123)")
   let int2 = d2.to_int()
-  inspect(int2, content="Some(123)")
+  debug_inspect(int2, content="Some(123)")
 
   // Test to_bigint
   let bigint1 = d1.to_bigint()
@@ -397,7 +397,7 @@ test "decimal_precision_limits" {
   // Test exceeding max_scale should fail
   let too_many_places = "0." + "1".repeat(@decimal.max_scale + 1)
   let result = @decimal.Decimal::from_string(too_many_places)
-  inspect(result, content="None")
+  assert_true(result is None)
 }
 
 ///|
@@ -426,11 +426,11 @@ test "decimal_json_serialization" {
 test "decimal_error_handling" {
   // Test invalid strings
   let invalid1 = @decimal.Decimal::from_string("abc")
-  inspect(invalid1, content="None")
+  assert_true(invalid1 is None)
   let invalid2 = @decimal.Decimal::from_string("12.34.56")
-  inspect(invalid2, content="None")
+  assert_true(invalid2 is None)
   let invalid3 = @decimal.Decimal::from_string("")
-  inspect(invalid3, content="None")
+  assert_true(invalid3 is None)
 
   // Test division by zero
   // let a = match @decimal.Decimal::from_string("10.0") {
@@ -443,9 +443,9 @@ test "decimal_error_handling" {
 
   // Test invalid scale in new
   let invalid_scale1 = @decimal.Decimal::new(123N, -1)
-  inspect(invalid_scale1, content="None")
+  assert_true(invalid_scale1 is None)
   let invalid_scale2 = @decimal.Decimal::new(123N, @decimal.max_scale + 1)
-  inspect(invalid_scale2, content="None")
+  assert_true(invalid_scale2 is None)
 }
 
 ///|

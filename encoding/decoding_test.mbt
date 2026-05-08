@@ -470,9 +470,9 @@ test "decode_to/UTF16LE-UTF8/stream" {
 test "decode_to/empty" {
   let acc = StringBuilder::new()
   let decoder = @encoding.decoder(UTF8)
-  decoder.decode_to("", acc)
+  decoder.decode_to(b"", acc)
   inspect(acc.to_string(), content="")
-  @encoding.decode_to("", acc, encoding=UTF8)
+  @encoding.decode_to(b"", acc, encoding=UTF8)
   inspect(acc.to_string(), content="")
 }
 
@@ -766,7 +766,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
     Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
-  assert_eq(chars.get_char(1), Some('H'))
+  debug_inspect(chars.get_char(1), content="Some('H')")
 }
 
 ///|
@@ -812,7 +812,7 @@ test "decode_lossy_to/UTF8" {
 test "decode_lossy_to/empty" {
   let acc = StringBuilder::new()
   let decoder = @encoding.decoder(UTF8)
-  decoder.decode_lossy_to("", acc)
+  decoder.decode_lossy_to(b"", acc)
   inspect(acc.to_string(), content="")
 }
 

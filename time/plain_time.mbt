@@ -68,7 +68,7 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
         @string.parse_int(hour_str),
         @string.parse_int(minute_str),
         @string.parse_int(second_str),
-        @string.parse_int(add_suffix_zero(nanosecond_str.to_string(), 9)),
+        @string.parse_int(add_suffix_zero(nanosecond_str.to_owned(), 9)),
       )
     _ => fail(invalid_time_err)
   }

@@ -18,6 +18,7 @@ pub(all) suberror RationalError {
   RationalError(String)
 } derive(ToJson, @debug.Debug)
 pub impl Eq for RationalError
+#deprecated
 pub impl Show for RationalError
 
 // Types and methods

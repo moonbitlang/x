@@ -57,7 +57,7 @@ test {
   let st = Stack::new()
   st.push(1)
   st.push(2)
-  inspect(st.pop(), content="Some(2)")
+  debug_inspect(st.pop(), content="Some(2)")
 }
 ```
 
@@ -84,7 +84,7 @@ If you don't want to remove the element, you can use the `peek` method and the u
 ///|
 test {
   let st = Stack::of([1, 2, 3])
-  inspect(st.peek(), content="Some(1)") // Some(1)
+  debug_inspect(st.peek(), content="Some(1)")
   inspect(st.unsafe_peek(), content="1") // 1
 }
 ```

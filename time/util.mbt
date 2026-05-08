@@ -56,7 +56,7 @@ fn remove_suffix_zero(s : StringView) -> StringView {
 /// This is used for formatting fractional seconds in time and duration string outputs.
 fn format_nanos(nanos : Int64) -> String {
   let nanos_str = nanos.to_string().pad_start(9, '0')
-  StringView::add(".", remove_suffix_zero(nanos_str)).to_string()
+  StringView::add(".", remove_suffix_zero(nanos_str)).to_owned()
 }
 
 ///|
