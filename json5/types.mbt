@@ -70,3 +70,8 @@ pub fn ParseError::to_string(self : ParseError) -> String {
 pub impl Show for ParseError with output(self : ParseError, logger : &Logger) -> Unit {
   logger.write_string(ParseError::to_string(self))
 }
+
+///|
+pub impl Debug for ParseError with to_repr(self) {
+  Repr::literal(self.to_string())
+}

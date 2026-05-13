@@ -1,6 +1,7 @@
 import {
   "moonbitlang/core/int64",
   "moonbitlang/core/quickcheck",
+  "moonbitlang/core/debug",
 }
 
 import {

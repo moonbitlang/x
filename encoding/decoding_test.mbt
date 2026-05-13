@@ -386,7 +386,7 @@ test "decoding UTF8 encoded data" {
   assert_eq(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode(buf.to_bytes())
-  inspect(chars.iter().collect(), content="['👋', '再', '见']")
+  debug_inspect(chars.iter().collect(), content="['👋', '再', '见']")
 }
 
 ///|
@@ -404,9 +404,11 @@ test "decoding UTF16LE encoded data with UTF8" {
   // NOTE: Expected to be malformed here
   let chars = try? decoder.decode(buf.to_bytes())
   assert_true(chars is Err(_))
-  inspect(
+  debug_inspect(
     chars,
-    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+    content=(
+      #|Err(<moonbitlang/x/encoding.MalformedError.MalformedError: ...>)
+    ),
   )
 }
 
@@ -419,9 +421,11 @@ test "decode_to/UTF16LE-UTF8/MalformedError" {
   }
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
-  inspect(
+  debug_inspect(
     try? decoder.decode_to(buf.to_bytes(), acc),
-    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+    content=(
+      #|Err(<moonbitlang/x/encoding.MalformedError.MalformedError: ...>)
+    ),
   )
 }
 
@@ -437,9 +441,11 @@ test "decode_to/UTF16LE-UTF8/TruncatedError" {
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
   let result = try? decoder.decode_to(bytes_view, acc)
-  inspect(
+  debug_inspect(
     result,
-    content="Err(moonbitlang/x/encoding.TruncatedError.TruncatedError)",
+    content=(
+      #|Err(<moonbitlang/x/encoding.TruncatedError.TruncatedError: ...>)
+    ),
   )
 }
 
@@ -455,14 +461,14 @@ test "decode_to/UTF16LE-UTF8/stream" {
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
   let result = try? decoder.decode_to(bytes_view, acc, stream=true)
-  inspect(result, content="Ok(())")
+  debug_inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳")
   let result = try? decoder.decode_to(
     [bytes[bytes.length() - 1]],
     acc,
     stream=true,
   )
-  inspect(result, content="Ok(())")
+  debug_inspect(result, content="Ok(())")
   inspect(acc.to_string(), content="跑步🏃游泳🏊")
 }
 
@@ -490,7 +496,7 @@ test "decoding UTF8 encoded data with UTF16LE" {
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode(buf.to_bytes())
   // NOTE: Happens to be legal UTF16LE
-  inspect(
+  debug_inspect(
     chars.iter().collect(),
     content="['럨', '\\u{e691}', 'ꖭ', '鿰', '莏', '룦', '\\u{e6b8}', '뎳', '鿰', '誏']",
   )
@@ -525,9 +531,11 @@ test "decoding UTF16BE encoded data with UTF8" {
   // NOTE: Expected to be malformed here
   let chars = try? decoder.decode(buf.to_bytes())
   assert_true(chars is Err(_))
-  inspect(
+  debug_inspect(
     chars,
-    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+    content=(
+      #|Err(<moonbitlang/x/encoding.MalformedError.MalformedError: ...>)
+    ),
   )
 }
 
@@ -540,9 +548,11 @@ test "decode_to/UTF16BE-UTF8" {
   }
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
-  inspect(
+  debug_inspect(
     try? decoder.decode_to(buf.to_bytes(), acc),
-    content="Err(moonbitlang/x/encoding.MalformedError.MalformedError)",
+    content=(
+      #|Err(<moonbitlang/x/encoding.MalformedError.MalformedError: ...>)
+    ),
   )
 }
 
@@ -560,9 +570,22 @@ test "decoding UTF8 encoded data with UTF16BE" {
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode(buf.to_bytes())
   // NOTE: Happens to be legal UTF16BE
-  inspect(
+  debug_inspect(
     chars.to_array(),
-    content="['\\u{e8b7}', '釦', '궥', '\\u{f09f}', '较', '\\u{e6b8}', '룦', '뎳', '\\u{f09f}', '辊']",
+    content=(
+      #|[
+      #|  '\u{e8b7}',
+      #|  '釦',
+      #|  '궥',
+      #|  '\u{f09f}',
+      #|  '较',
+      #|  '\u{e6b8}',
+      #|  '룦',
+      #|  '뎳',
+      #|  '\u{f09f}',
+      #|  '辊',
+      #|]
+    ),
   )
 }
 
@@ -594,7 +617,7 @@ test "decoding UTF16LE encoded data with UTF16BE" {
   let decoder = @encoding.decoder(UTF16BE)
   let chars = decoder.decode(buf.to_bytes())
   // NOTE: Happens to be legal UTF16BE
-  inspect(
+  debug_inspect(
     chars.to_array(),
     content="['톍', '敫', '㳘', '쏟', '㡮', '\\u{f36c}', '㳘', '쫟']",
   )
@@ -628,7 +651,7 @@ test "decoding UTF16BE encoded data with UTF16LE" {
   let decoder = @encoding.decoder(UTF16LE)
   let chars = decoder.decode(buf.to_bytes())
   // NOTE: Happens to be legal UTF16LE
-  inspect(
+  debug_inspect(
     chars.to_array(),
     content="['톍', '敫', '㳘', '쏟', '㡮', '\\u{f36c}', '㳘', '쫟']",
   )
@@ -661,7 +684,7 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   let chars = decoder.decode_lossy(buf.to_bytes())
-  inspect(
+  debug_inspect(
     chars.to_array(),
     content="['э', 'e', 'k', '<', '�', '�', 'n', '�', '�']",
   )

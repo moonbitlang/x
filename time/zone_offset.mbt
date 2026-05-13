@@ -92,6 +92,11 @@ pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
 }
 
 ///|
+pub impl Debug for ZoneOffset with to_repr(self) {
+  Repr::literal(self.to_string())
+}
+
+///|
 pub impl Eq for ZoneOffset with equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }

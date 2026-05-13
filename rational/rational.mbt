@@ -714,6 +714,11 @@ pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
 }
 
 ///|
+pub impl[T : Integral] Debug for Rational[T] with to_repr(self) {
+  Repr::literal(self.to_string())
+}
+
+///|
 pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
   size,
   rs,
@@ -1083,11 +1088,11 @@ test "eq and compare" {
 ///|
 test "from_double normal case" {
   let result = try? from_double(0.5)
-  assert_eq(result, Ok(new_unchecked(1L, 2L)))
+  @debug.assert_eq(result, Ok(new_unchecked(1L, 2L)))
 }
 
 ///|
 test "from_double edge case" {
   let result = try? from_double(9_223_372_036_800_000_000.0)
-  assert_eq(result, Ok(new_unchecked(9_223_372_036_800_000_000L, 1L)))
+  @debug.assert_eq(result, Ok(new_unchecked(9_223_372_036_800_000_000L, 1L)))
 }

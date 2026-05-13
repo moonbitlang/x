@@ -132,6 +132,11 @@ pub impl Show for ZonedDateTime with output(
 }
 
 ///|
+pub impl Debug for ZonedDateTime with to_repr(self) {
+  Repr::literal(self.to_string())
+}
+
+///|
 /// Returns the elapsed seconds since the unix epoch.
 pub fn ZonedDateTime::to_unix_second(self : ZonedDateTime) -> Int64 {
   self.datetime.to_unix_second() - self.offset.seconds().to_int64()

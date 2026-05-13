@@ -45,6 +45,7 @@ pub impl[T : Integral] Mul for Rational[T]
 pub impl[T : Integral] Neg for Rational[T]
 pub impl[T : Integral] Show for Rational[T]
 pub impl[T : Integral] Sub for Rational[T]
+pub impl[T : Integral] @debug.Debug for Rational[T]
 pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
 
 // Type aliases

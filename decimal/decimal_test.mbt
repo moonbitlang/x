@@ -409,7 +409,7 @@ test "decimal_json_serialization" {
 
   // Test to_json
   let json = d.to_json()
-  inspect(
+  debug_inspect(
     json,
     content=(
       #|String("123.45")

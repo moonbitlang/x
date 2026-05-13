@@ -16,7 +16,7 @@ test {
 
   // creates a ZonedDateTime from unix second and time zone.
   let date_time = try? @time.unix(1714227729L, nanosecond=1000, zone~)
-  inspect(
+  debug_inspect(
     date_time,
     content="Ok(2024-04-27T22:22:09.000001+08:00[Asia/Shanghai])",
   )

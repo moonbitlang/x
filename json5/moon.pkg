@@ -2,3 +2,7 @@ import {
   "moonbitlang/core/double",
   "moonbitlang/core/string",
 }
+
+import {
+  "moonbitlang/core/debug",
+} for "test"

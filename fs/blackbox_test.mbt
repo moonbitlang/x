@@ -71,7 +71,7 @@ test "read_dir" {
   @fs.write_string_to_file(file_b, "b")
   let files = @fs.read_dir(dir)
   files.sort()
-  inspect(
+  debug_inspect(
     files,
     content=(
       #|["file_a.txt", "file_b.txt", ".hidden_dir", "example_dir"]
