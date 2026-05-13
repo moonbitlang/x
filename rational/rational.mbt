@@ -365,10 +365,9 @@ fn[T] overflow_error() -> T raise RationalError {
 /// Example:
 ///
 /// ```moonbit check
-/// #warnings("-deprecated")
 /// test {
 ///   let error = RationalError::RationalError("division by zero")
-///   inspect(
+///   debug_inspect(
 ///     error,
 ///     content=(
 ///       #|RationalError("division by zero")
@@ -380,24 +379,6 @@ fn[T] overflow_error() -> T raise RationalError {
 pub(all) suberror RationalError {
   RationalError(String)
 } derive(Debug, ToJson(style="legacy"))
-
-///|
-pub impl Show for RationalError with output(
-  self : RationalError,
-  logger : &Logger,
-) -> Unit {
-  match self {
-    RationalError(message) => {
-      logger.write_string("RationalError(")
-      logger.write_object(message)
-      logger.write_char(')')
-    }
-  }
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for RationalError
 
 ///|
 /// Compares two `RationalError` values for equality.
@@ -711,6 +692,11 @@ pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
     logger.write_char('/')
     self.denominator.output(logger)
   }
+}
+
+///|
+pub impl[T : Integral] Debug for Rational[T] with to_repr(self) {
+  Repr::literal(self.to_string())
 }
 
 ///|
@@ -1083,11 +1069,11 @@ test "eq and compare" {
 ///|
 test "from_double normal case" {
   let result = try? from_double(0.5)
-  assert_eq(result, Ok(new_unchecked(1L, 2L)))
+  @debug.assert_eq(result, Ok(new_unchecked(1L, 2L)))
 }
 
 ///|
 test "from_double edge case" {
   let result = try? from_double(9_223_372_036_800_000_000.0)
-  assert_eq(result, Ok(new_unchecked(9_223_372_036_800_000_000L, 1L)))
+  @debug.assert_eq(result, Ok(new_unchecked(9_223_372_036_800_000_000L, 1L)))
 }
