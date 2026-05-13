@@ -112,38 +112,38 @@ fn split(s : String, delimiter : Char) -> Array[String] {
 
 ///|
 test "split" {
-  inspect(
+  debug_inspect(
     split("2000-01-01", '-'),
     content=(
       #|["2000", "01", "01"]
     ),
   )
-  inspect(
+  debug_inspect(
     split("-01-01", '-'),
     content=(
       #|["", "01", "01"]
     ),
   )
-  inspect(
+  debug_inspect(
     split("12-31", '-'),
     content=(
       #|["12", "31"]
     ),
   )
-  inspect(
+  debug_inspect(
     split("-01", '-'),
     content=(
       #|["", "01"]
     ),
   )
-  inspect(
+  debug_inspect(
     split("-", '-'),
     content=(
       #|["", ""]
     ),
   )
-  inspect(split("", '-'), content="[]")
-  inspect(
+  debug_inspect(split("", '-'), content="[]")
+  debug_inspect(
     split("0", '-'),
     content=(
       #|["0"]
@@ -213,16 +213,16 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "checked_add_int" {
-  inspect(try? checked_add_int(1, 1), content="Ok(2)")
-  inspect(try? checked_add_int(1, -1), content="Ok(0)")
-  inspect(try? checked_add_int(-1, -1), content="Ok(-2)")
-  inspect(
+  debug_inspect(try? checked_add_int(1, 1), content="Ok(2)")
+  debug_inspect(try? checked_add_int(1, -1), content="Ok(0)")
+  debug_inspect(try? checked_add_int(-1, -1), content="Ok(-2)")
+  debug_inspect(
     try? checked_add_int(@int.MAX_VALUE, 1),
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
-  inspect(
+  debug_inspect(
     try? checked_add_int(@int.MIN_VALUE, -1),
     content=(
       #|Err(Failure("Int overflow"))
@@ -232,16 +232,16 @@ test "checked_add_int" {
 
 ///|
 test "checked_mul_int" {
-  inspect(try? checked_mul_int(2, 3), content="Ok(6)")
-  inspect(try? checked_mul_int(2, -3), content="Ok(-6)")
-  inspect(try? checked_mul_int(-2, -3), content="Ok(6)")
-  inspect(
+  debug_inspect(try? checked_mul_int(2, 3), content="Ok(6)")
+  debug_inspect(try? checked_mul_int(2, -3), content="Ok(-6)")
+  debug_inspect(try? checked_mul_int(-2, -3), content="Ok(6)")
+  debug_inspect(
     try? checked_mul_int(@int.MAX_VALUE, 2),
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
-  inspect(
+  debug_inspect(
     try? checked_mul_int(@int.MIN_VALUE, 2),
     content=(
       #|Err(Failure("Int overflow"))
@@ -251,16 +251,16 @@ test "checked_mul_int" {
 
 ///|
 test "checked_add_int64" {
-  inspect(try? checked_add_int64(1L, 1L), content="Ok(2)")
-  inspect(try? checked_add_int64(1L, -1L), content="Ok(0)")
-  inspect(try? checked_add_int64(-1L, -1L), content="Ok(-2)")
-  inspect(
+  debug_inspect(try? checked_add_int64(1L, 1L), content="Ok(2)")
+  debug_inspect(try? checked_add_int64(1L, -1L), content="Ok(0)")
+  debug_inspect(try? checked_add_int64(-1L, -1L), content="Ok(-2)")
+  debug_inspect(
     try? checked_add_int64(1L, @int64.MAX_VALUE),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
-  inspect(
+  debug_inspect(
     try? checked_add_int64(-1L, @int64.MIN_VALUE),
     content=(
       #|Err(Failure("Int64 overflow"))
@@ -270,16 +270,16 @@ test "checked_add_int64" {
 
 ///|
 test "checked_mul_int64" {
-  inspect(try? checked_mul_int64(2L, 3L), content="Ok(6)")
-  inspect(try? checked_mul_int64(2L, -3L), content="Ok(-6)")
-  inspect(try? checked_mul_int64(-2L, -3L), content="Ok(6)")
-  inspect(
+  debug_inspect(try? checked_mul_int64(2L, 3L), content="Ok(6)")
+  debug_inspect(try? checked_mul_int64(2L, -3L), content="Ok(-6)")
+  debug_inspect(try? checked_mul_int64(-2L, -3L), content="Ok(6)")
+  debug_inspect(
     try? checked_mul_int64(@int64.MAX_VALUE, 2L),
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
-  inspect(
+  debug_inspect(
     try? checked_mul_int64(@int64.MIN_VALUE, 2L),
     content=(
       #|Err(Failure("Int64 overflow"))
@@ -312,12 +312,12 @@ fn floor_div_int(x : Int, y : Int) -> Int raise Error {
 
 ///|
 test "floor_div_int" {
-  inspect(try? floor_div_int(1, 10), content="Ok(0)")
-  inspect(try? floor_div_int(-1, 10), content="Ok(-1)")
-  inspect(try? floor_div_int(9, 10), content="Ok(0)")
-  inspect(try? floor_div_int(-9, 10), content="Ok(-1)")
-  inspect(try? floor_div_int(0, 10), content="Ok(0)")
-  inspect(
+  debug_inspect(try? floor_div_int(1, 10), content="Ok(0)")
+  debug_inspect(try? floor_div_int(-1, 10), content="Ok(-1)")
+  debug_inspect(try? floor_div_int(9, 10), content="Ok(0)")
+  debug_inspect(try? floor_div_int(-9, 10), content="Ok(-1)")
+  debug_inspect(try? floor_div_int(0, 10), content="Ok(0)")
+  debug_inspect(
     try? floor_div_int(10, 0),
     content=(
       #|Err(Failure("division by zero"))
@@ -336,11 +336,11 @@ fn floor_div_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "floor_div_int64" {
-  inspect(try? floor_div_int64(1L, 10L), content="Ok(0)")
-  inspect(try? floor_div_int64(-1L, 10L), content="Ok(-1)")
-  inspect(try? floor_div_int64(9L, 10L), content="Ok(0)")
-  inspect(try? floor_div_int64(-9L, 10L), content="Ok(-1)")
-  inspect(try? floor_div_int64(0L, 10L), content="Ok(0)")
+  debug_inspect(try? floor_div_int64(1L, 10L), content="Ok(0)")
+  debug_inspect(try? floor_div_int64(-1L, 10L), content="Ok(-1)")
+  debug_inspect(try? floor_div_int64(9L, 10L), content="Ok(0)")
+  debug_inspect(try? floor_div_int64(-9L, 10L), content="Ok(-1)")
+  debug_inspect(try? floor_div_int64(0L, 10L), content="Ok(0)")
   assert_true((try? floor_div_int64(10L, 0L)) is Err(_))
 }
 
@@ -351,12 +351,12 @@ fn floor_mod_int(x : Int, y : Int) -> Int raise Error {
 
 ///|
 test "floor_mod_int" {
-  inspect(try? floor_mod_int(1, 10), content="Ok(1)")
-  inspect(try? floor_mod_int(-1, 10), content="Ok(9)")
-  inspect(try? floor_mod_int(11, 10), content="Ok(1)")
-  inspect(try? floor_mod_int(-11, 10), content="Ok(9)")
-  inspect(try? floor_mod_int(0, 10), content="Ok(0)")
-  inspect(
+  debug_inspect(try? floor_mod_int(1, 10), content="Ok(1)")
+  debug_inspect(try? floor_mod_int(-1, 10), content="Ok(9)")
+  debug_inspect(try? floor_mod_int(11, 10), content="Ok(1)")
+  debug_inspect(try? floor_mod_int(-11, 10), content="Ok(9)")
+  debug_inspect(try? floor_mod_int(0, 10), content="Ok(0)")
+  debug_inspect(
     try? floor_mod_int(10, 0),
     content=(
       #|Err(Failure("division by zero"))
@@ -371,10 +371,10 @@ fn floor_mod_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "floor_mod_int64" {
-  inspect(try? floor_mod_int64(1L, 10L), content="Ok(1)")
-  inspect(try? floor_mod_int64(-1L, 10L), content="Ok(9)")
-  inspect(try? floor_mod_int64(11L, 10L), content="Ok(1)")
-  inspect(try? floor_mod_int64(-11L, 10L), content="Ok(9)")
-  inspect(try? floor_mod_int64(0L, 10L), content="Ok(0)")
+  debug_inspect(try? floor_mod_int64(1L, 10L), content="Ok(1)")
+  debug_inspect(try? floor_mod_int64(-1L, 10L), content="Ok(9)")
+  debug_inspect(try? floor_mod_int64(11L, 10L), content="Ok(1)")
+  debug_inspect(try? floor_mod_int64(-11L, 10L), content="Ok(9)")
+  debug_inspect(try? floor_mod_int64(0L, 10L), content="Ok(0)")
   assert_true((try? floor_mod_int64(10L, 0L)) is Err(_))
 }

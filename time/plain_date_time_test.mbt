@@ -108,7 +108,6 @@ test "from_string" {
 }
 
 ///|
-#warnings("-deprecated")
 test "getters" {
   let d = @time.PlainDateTime::of(
     2000,

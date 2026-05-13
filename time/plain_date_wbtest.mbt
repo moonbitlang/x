@@ -30,12 +30,12 @@ test "date_to_fixed_days" {
 
 ///|
 test "fixed_days_to_year_ord" {
-  inspect(fixed_days_to_year_ord(0L), content="(0, 1)")
-  inspect(fixed_days_to_year_ord(1L), content="(0, 2)")
-  inspect(fixed_days_to_year_ord(366L), content="(1, 1)")
-  inspect(fixed_days_to_year_ord(731L), content="(2, 1)")
-  inspect(fixed_days_to_year_ord(719528L), content="(1970, 1)")
-  inspect(fixed_days_to_year_ord(-365L), content="(-1, 1)")
-  inspect(fixed_days_to_year_ord(-730L), content="(-2, 1)")
-  inspect(fixed_days_to_year_ord(-719527L), content="(-1970, 1)")
+  debug_inspect(fixed_days_to_year_ord(0L), content="(0, 1)")
+  debug_inspect(fixed_days_to_year_ord(1L), content="(0, 2)")
+  debug_inspect(fixed_days_to_year_ord(366L), content="(1, 1)")
+  debug_inspect(fixed_days_to_year_ord(731L), content="(2, 1)")
+  debug_inspect(fixed_days_to_year_ord(719528L), content="(1970, 1)")
+  debug_inspect(fixed_days_to_year_ord(-365L), content="(-1, 1)")
+  debug_inspect(fixed_days_to_year_ord(-730L), content="(-2, 1)")
+  debug_inspect(fixed_days_to_year_ord(-719527L), content="(-1970, 1)")
 }

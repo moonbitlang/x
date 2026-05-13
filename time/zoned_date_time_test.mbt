@@ -99,7 +99,6 @@ test "conversions" {
 }
 
 ///|
-#warnings("-deprecated")
 test "getters" {
   let zone = @time.fixed_zone("Asia/Shanghai", 8 * 60 * 60)
   let zdt = @time.ZonedDateTime::of(

@@ -183,7 +183,7 @@ pub fn Zone::is_fixed(Self) -> Bool
 pub fn Zone::to_string(Self) -> String
 pub impl Show for Zone
 
-type ZoneOffset
+type ZoneOffset derive(@debug.Debug)
 pub fn ZoneOffset::abbreviation(Self) -> String
 pub fn ZoneOffset::from_seconds(Int, abbrev? : String, dst? : Bool) -> Self raise
 pub fn ZoneOffset::id(Self) -> String
