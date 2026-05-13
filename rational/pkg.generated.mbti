@@ -18,8 +18,6 @@ pub(all) suberror RationalError {
   RationalError(String)
 } derive(ToJson, @debug.Debug)
 pub impl Eq for RationalError
-#deprecated
-pub impl Show for RationalError
 
 // Types and methods
 type Rational[T] derive(Eq)
@@ -45,6 +43,7 @@ pub impl[T : Integral] Mul for Rational[T]
 pub impl[T : Integral] Neg for Rational[T]
 pub impl[T : Integral] Show for Rational[T]
 pub impl[T : Integral] Sub for Rational[T]
+pub impl[T : Integral] @debug.Debug for Rational[T]
 pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
 
 // Type aliases
