@@ -25,24 +25,6 @@ pub(all) enum Variant {
 } derive(Debug)
 
 ///|
-pub impl Show for Variant with output(self : Variant, logger : &Logger) -> Unit {
-  match self {
-    ReservedNCS => logger.write_string("ReservedNCS")
-    RFC4122(version) => {
-      logger.write_string("RFC4122(")
-      logger.write_object(version)
-      logger.write_char(')')
-    }
-    ReservedMicrosoft => logger.write_string("ReservedMicrosoft")
-    ReservedFuture => logger.write_string("ReservedFuture")
-  }
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for Variant
-
-///|
 /// The UUID version number.
 ///
 /// This is only used when the variant is `RFC4122`.
@@ -55,26 +37,6 @@ pub(all) enum Version {
   V5
   Unknown(Int)
 } derive(Debug)
-
-///|
-pub impl Show for Version with output(self : Version, logger : &Logger) -> Unit {
-  match self {
-    V1 => logger.write_string("V1")
-    V2 => logger.write_string("V2")
-    V3 => logger.write_string("V3")
-    V4 => logger.write_string("V4")
-    V5 => logger.write_string("V5")
-    Unknown(version) => {
-      logger.write_string("Unknown(")
-      logger.write_object(version)
-      logger.write_char(')')
-    }
-  }
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for Version
 
 ///|
 fn Version::from_int64(int : Int64) -> Version {
@@ -146,19 +108,19 @@ pub fn UUID::as_version(self : UUID, version : Version) -> UUID {
 
 ///|
 test "variant" {
-  inspect(
+  debug_inspect(
     from_hex("81a277a6-771b-1a55-6246-fa3763226aa0").variant(),
     content="ReservedNCS",
   )
-  inspect(
+  debug_inspect(
     from_hex("42e0e55d-cee5-044c-b3a6-18a7dc5ae8b4").variant(),
     content="RFC4122(Unknown(0))",
   )
-  inspect(
+  debug_inspect(
     from_hex("1db64c57-6b48-fd91-dab2-d3accd060480").variant(),
     content="ReservedMicrosoft",
   )
-  inspect(
+  debug_inspect(
     from_hex("96b2d68d-f97d-9358-f2b1-79cbc6d43c83").variant(),
     content="ReservedFuture",
   )
@@ -178,13 +140,13 @@ test "version" {
 
 ///|
 test "show" {
-  inspect(
+  debug_inspect(
     RFC4122(V4),
     content=(
       #|RFC4122(V4)
     ),
   )
-  inspect(
+  debug_inspect(
     Unknown(7),
     content=(
       #|Unknown(7)

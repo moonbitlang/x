@@ -172,29 +172,6 @@ priv suberror PathError {
   PathError(start~ : Int, message~ : String)
 } derive(Debug)
 
-///|
-impl Show for PathError with output(self : PathError, logger : &Logger) -> Unit {
-  match self {
-    PathError(start~, message~) => {
-      logger.write_string("PathError(start=")
-      logger.write_object(start)
-      logger.write_string(", message=")
-      logger.write_object(message)
-      logger.write_char(')')
-    }
-  }
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-impl Show for PathError
-
-///|
-fn PathError::_use_path_error_debug(self : PathError) -> Repr {
-  to_repr(self)
-}
-
-///|
 /// In order to make code more clean, 
 /// so we have to define many string constants to avoid escape sequences 
 /// and MoonBit directly use mutli-line string literals in callsite should wrap used ()

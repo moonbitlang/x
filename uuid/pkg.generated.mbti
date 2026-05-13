@@ -28,8 +28,6 @@ pub(all) enum Variant {
   ReservedMicrosoft
   ReservedFuture
 } derive(@debug.Debug)
-#deprecated
-pub impl Show for Variant
 
 pub(all) enum Version {
   V1
@@ -39,8 +37,6 @@ pub(all) enum Version {
   V5
   Unknown(Int)
 } derive(@debug.Debug)
-#deprecated
-pub impl Show for Version
 
 // Type aliases
 

@@ -188,18 +188,3 @@ pub fn decode(
 pub suberror DecodeError {
   InvalidChar(Char)
 } derive(Debug)
-
-///|
-pub impl Show for DecodeError with output(self : DecodeError, logger : &Logger) -> Unit {
-  match self {
-    InvalidChar(ch) => {
-      logger.write_string("InvalidChar(")
-      logger.write_object(ch)
-      logger.write_char(')')
-    }
-  }
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for DecodeError

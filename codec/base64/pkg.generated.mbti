@@ -14,8 +14,6 @@ pub fn encode(BytesView, url_safe? : Bool) -> String
 pub suberror DecodeError {
   InvalidChar(Char)
 } derive(@debug.Debug)
-#deprecated
-pub impl Show for DecodeError
 
 // Types and methods
 type Decoder
