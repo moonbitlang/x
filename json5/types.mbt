@@ -19,20 +19,6 @@ pub(all) struct Position {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for Position with output(self : Position, logger : &Logger) -> Unit {
-  let { line, column } = self
-  logger.write_string("{line: ")
-  logger.write_object(line)
-  logger.write_string(", column: ")
-  logger.write_object(column)
-  logger.write_char('}')
-}
-
-///|
-#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
-pub impl Show for Position
-
-///|
 pub(all) enum ParseErrorData {
   NoValidToken(Position)
   InvalidChar(Position, Char)

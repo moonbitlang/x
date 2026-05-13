@@ -188,16 +188,3 @@ test "Windows edge cases" {
   let path = WinPath::parse(".\\")
   inspect(path)
 }
-
-///|
-test "PathError show" {
-  inspect(
-    PathError::PathError(
-      start=7,
-      message="Windows path: backslash '\\\\' at position 7 not allowed in path component",
-    ),
-    content=(
-      #|PathError(start=7, message="Windows path: backslash '\\\\' at position 7 not allowed in path component")
-    ),
-  )
-}

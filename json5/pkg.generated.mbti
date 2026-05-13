@@ -28,8 +28,6 @@ pub(all) struct Position {
   line : Int
   column : Int
 } derive(Eq, @debug.Debug)
-#deprecated
-pub impl Show for Position
 
 // Type aliases
 
