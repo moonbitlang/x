@@ -14,10 +14,26 @@
 
 ///|
 test "fixed" {
-  inspect(fixed_zone("CST", 8 * 60 * 60).offsets, content="[+08:00]")
+  debug_inspect(
+    fixed_zone("CST", 8 * 60 * 60).offsets.map(Show::to_string),
+    content=(
+      #|["+08:00"]
+    ),
+  )
+  debug_inspect(
+    fixed_zone("CST", 8 * 60 * 60).offsets,
+    content=(
+      #|[{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }]
+    ),
+  )
 }
 
 ///|
 test "utc" {
-  inspect(utc_zone.offsets, content="[Z]")
+  debug_inspect(
+    utc_zone.offsets.map(Show::to_string),
+    content=(
+      #|["Z"]
+    ),
+  )
 }

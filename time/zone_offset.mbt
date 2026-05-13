@@ -19,7 +19,7 @@ struct ZoneOffset {
   abbrev : String // e.g. "PST", "CST", "EST", "UTC", etc.
   seconds : Int
   dst : Bool // daylight savings time
-}
+} derive(Debug)
 
 ///|
 let max_offset_hours = 18
