@@ -46,7 +46,7 @@ fn parse_value2(ctx : ParseContext, tok : Token) -> Json raise ParseError {
 
 ///|
 fn parse_object(ctx : ParseContext) -> Json raise ParseError {
-  let map = Map::new()
+  let map = Map([])
   for ;; {
     let tok = lex_property_name(ctx)
     match tok {
