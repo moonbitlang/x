@@ -513,7 +513,7 @@ pub fn[T] Stack::to_array(self : Stack[T]) -> Array[T] {
 
 ///|
 test "to_array" {
-  inspect(of([3, 2, 1]).to_array(), content="[3, 2, 1]")
+  debug_inspect(of([3, 2, 1]).to_array(), content="[3, 2, 1]")
 }
 
 ///|

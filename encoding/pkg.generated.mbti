@@ -3,6 +3,7 @@ package "moonbitlang/x/encoding"
 
 import {
   "moonbitlang/core/buffer",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -35,11 +36,11 @@ pub fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 // Errors
 pub suberror MalformedError {
   MalformedError(Bytes)
-}
+} derive(@debug.Debug)
 
 pub suberror TruncatedError {
   TruncatedError(Bytes)
-}
+} derive(@debug.Debug)
 
 // Types and methods
 type Decoder
