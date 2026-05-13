@@ -15,12 +15,12 @@
 ///|
 pub suberror MalformedError {
   MalformedError(Bytes)
-}
+} derive(Debug)
 
 ///|
 pub suberror TruncatedError {
   TruncatedError(Bytes)
-}
+} derive(Debug)
 
 ///|
 pub(all) enum Encoding {

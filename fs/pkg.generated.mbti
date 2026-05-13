@@ -32,8 +32,6 @@ pub fn write_string_to_file(String, String, encoding? : String) -> Unit raise IO
 pub(all) suberror IOError {
   IOError(String)
 } derive(@debug.Debug)
-#deprecated
-pub impl Show for IOError
 
 // Types and methods
 

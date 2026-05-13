@@ -122,7 +122,7 @@ You can convert the stack to an array using the `to_array` method or the `iter` 
 ///|
 test {
   let st = Stack::of([1, 2, 3])
-  inspect(st.to_array(), content="[1, 2, 3]")
-  inspect(Array::from_iter(st.iter()), content="[1, 2, 3]")
+  debug_inspect(st.to_array(), content="[1, 2, 3]")
+  debug_inspect(Array::from_iter(st.iter()), content="[1, 2, 3]")
 }
 ```

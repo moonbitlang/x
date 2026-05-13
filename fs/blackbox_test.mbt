@@ -71,7 +71,7 @@ test "read_dir" {
   @fs.write_string_to_file(file_b, "b")
   let files = @fs.read_dir(dir)
   files.sort()
-  inspect(
+  debug_inspect(
     files,
     content=(
       #|["file_a.txt", "file_b.txt", ".hidden_dir", "example_dir"]
@@ -99,15 +99,4 @@ test "create_dir_and_remove_dir" {
   assert_false(@fs.is_file(dir))
   @fs.remove_dir(dir)
   assert_false(@fs.path_exists(dir))
-}
-
-///|
-#warnings("-deprecated")
-test "io_error show" {
-  inspect(
-    @fs.IOError("boom"),
-    content=(
-      #|IOError("boom")
-    ),
-  )
 }
