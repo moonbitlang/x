@@ -16,6 +16,10 @@
 test "basename/dirname" {
   inspect(Path::basename("a\\b"), content="b")
   inspect(Path::dirname("a\\b"), content="a")
+  inspect(Path::basename("a/b"), content="b")
+  inspect(Path::dirname("a/b"), content="a")
+  inspect(Path::basename("C:/foo"), content="foo")
+  inspect(Path::dirname("C:/foo"), content="C:/")
   inspect(Path::basename("a\\b\\"))
   inspect(Path::dirname("a\\b\\"), content="a\\b")
 }
@@ -63,7 +67,8 @@ test "is_absolute" {
     content=true,
   )
   // device namespace
-  json_inspect(Path::is_absolute("\\\\.\\COM56"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\COM56"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\COM56\\"), content=true)
   // unc 
   json_inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
   // volume letter root 
@@ -93,7 +98,7 @@ test "relative" {
   inspect(Path::relative(base=from, to), content="..")
   let from = "C:\\Users\\user_name"
   let to = "C:\\Users\\user_name"
-  inspect(Path::relative(base=from, to), content="")
+  inspect(Path::relative(base=from, to), content=".")
   let from = "C:\\Users\\user_name\\proj_a"
   let to = "C:\\Users\\user_name\\proj_b"
   inspect(Path::relative(base=from, to), content="..\\proj_b")
@@ -252,18 +257,18 @@ test "extname edge cases" {
   inspect(Path::extname("C:\\path\\file"), content="")
 
   // Hidden files
-  inspect(Path::extname(".hidden"), content=".hidden")
+  inspect(Path::extname(".hidden"), content="")
   inspect(Path::extname(".hidden.txt"), content=".txt")
-  inspect(Path::extname("C:\\path\\.hidden"), content=".hidden")
+  inspect(Path::extname("C:\\path\\.hidden"), content="")
   inspect(Path::extname("C:\\path\\.hidden.txt"), content=".txt")
 
   // Dot files and directories
-  inspect(Path::extname("."), content=".")
-  inspect(Path::extname(".."), content=".")
+  inspect(Path::extname("."), content="")
+  inspect(Path::extname(".."), content="")
   inspect(Path::extname(".\\file"), content="")
   inspect(Path::extname("..\\file"), content="")
-  inspect(Path::extname("C:\\a\\."), content=".")
-  inspect(Path::extname("C:\\a\\.."), content=".")
+  inspect(Path::extname("C:\\a\\."), content="")
+  inspect(Path::extname("C:\\a\\.."), content="")
 
   // Multiple extensions
   inspect(Path::extname("file.tar.gz"), content=".gz")
@@ -280,7 +285,8 @@ test "extname edge cases" {
   inspect(Path::extname("C:\\path\\file.txt\\"), content="")
 
   // Extensions at different positions
-  inspect(Path::extname(".txt"), content=".txt")
+  inspect(Path::extname(".txt"), content="")
+  inspect(Path::extname("....jpg"), content="")
   inspect(Path::extname("a.b.c"), content=".c")
   inspect(Path::extname("a."), content=".")
   inspect(Path::extname("C:\\path\\a."), content=".")
@@ -311,7 +317,10 @@ test "is_absolute advanced edge cases" {
   json_inspect(Path::is_absolute("\\"), content=true)
   json_inspect(Path::is_absolute("\\\\"), content=true) // This might be interpreted as start of UNC
   json_inspect(Path::is_absolute("\\\\\\"), content=true)
+  json_inspect(Path::is_absolute("/"), content=true)
+  json_inspect(Path::is_absolute("/temp"), content=true)
   json_inspect(Path::is_absolute("C:\\"), content=true)
+  json_inspect(Path::is_absolute("C:/temp"), content=true)
   json_inspect(Path::is_absolute("D:\\temp"), content=true)
 
   // Relative paths with drive letters
@@ -321,7 +330,7 @@ test "is_absolute advanced edge cases" {
   json_inspect(Path::is_absolute("Z:relative"), content=false)
 
   // Various UNC path formats
-  json_inspect(Path::is_absolute("\\\\server\\share"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\share"), content=false)
   json_inspect(Path::is_absolute("\\\\server\\share\\"), content=true)
   json_inspect(Path::is_absolute("\\\\server\\share\\file"), content=true)
   json_inspect(Path::is_absolute("\\\\localhost\\c$\\temp"), content=true)
@@ -340,13 +349,14 @@ test "is_absolute advanced edge cases" {
   )
 
   // Device namespace paths
-  json_inspect(Path::is_absolute("\\\\.\\COM1"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\LPT1"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\PRN"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\AUX"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\NUL"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\CON"), content=true)
-  json_inspect(Path::is_absolute("\\\\.\\PhysicalDrive0"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\COM1"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\COM1\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\LPT1"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\PRN"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\AUX"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\NUL"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\CON"), content=false)
+  json_inspect(Path::is_absolute("\\\\.\\PhysicalDrive0"), content=false)
 
   // Volume GUID paths
   json_inspect(
@@ -399,27 +409,30 @@ test "join edge cases" {
   inspect(
     Path::join("a", ""),
     content=(
-      #|a
+      #|a\
     ),
   )
   inspect(Path::join("", "b"), content="b")
 
   // Both paths are absolute - second wins
   inspect(Path::join("C:\\a", "D:\\b"), content="D:\\b")
-  inspect(Path::join("C:\\a\\c", "\\b"), content="\\b")
+  inspect(Path::join("C:\\a\\c", "\\b"), content="C:\\b")
+  inspect(Path::join("C:\\a\\c", "/b"), content="C:/b")
   inspect(
     Path::join("\\\\server1\\share1", "\\\\server2\\share2"),
     content="\\\\server2\\share2",
   )
 
   // Drive letter combinations
-  inspect(Path::join("C:", "temp"), content="C:\\temp")
+  inspect(Path::join("C:", "temp"), content="C:temp")
   inspect(Path::join("C:\\", "temp"), content="C:\\temp")
   inspect(Path::join("C:\\folder", "temp"), content="C:\\folder\\temp")
   inspect(Path::join("C:folder", "temp"), content="C:folder\\temp")
 
   // Various separator combinations
   inspect(Path::join("a", "b\\c"), content="a\\b\\c")
+  inspect(Path::join("a", "/b"), content="/b")
+  inspect(Path::join("a/", "b"), content="a/b")
   inspect(Path::join("a\\", "b\\c"), content="a\\b\\c")
   inspect(Path::join("a\\\\", "b"), content="a\\\\b")
   inspect(Path::join("a\\\\\\", "b"), content="a\\\\\\b")
@@ -476,11 +489,11 @@ test "join edge cases" {
 ///|
 test "normalize edge cases" {
   // Empty path
-  inspect(Path::normalize(""), content="")
+  inspect(Path::normalize(""), content=".")
 
   // Simple dot resolution
-  inspect(Path::normalize("."), content="")
-  inspect(Path::normalize(".\\"), content="")
+  inspect(Path::normalize("."), content=".")
+  inspect(Path::normalize(".\\"), content=".")
   inspect(Path::normalize("a\\."), content="a")
   inspect(Path::normalize(".\\a"), content="a")
   inspect(Path::normalize(".\\a\\"), content="a")
@@ -489,8 +502,8 @@ test "normalize edge cases" {
   // Double dot resolution
   inspect(Path::normalize(".."), content="..")
   inspect(Path::normalize("..\\"), content="..")
-  inspect(Path::normalize("a\\.."), content="")
-  inspect(Path::normalize("a\\..\\"), content="")
+  inspect(Path::normalize("a\\.."), content=".")
+  inspect(Path::normalize("a\\..\\"), content=".")
   inspect(Path::normalize("..\\a"), content="..\\a")
   inspect(Path::normalize("a\\..\\b"), content="b")
   inspect(Path::normalize("a\\b\\.."), content="a")
@@ -500,8 +513,10 @@ test "normalize edge cases" {
   // Multiple consecutive separators
   inspect(Path::normalize("a\\\\b"), content="a\\b")
   inspect(Path::normalize("a\\\\\\b"), content="a\\b")
-  inspect(Path::normalize("\\\\a\\\\b"), content="\\\\a\\\\b")
-  inspect(Path::normalize("\\\\\\a\\\\\\b"), content="\\\\\\a\\\\\\b")
+  inspect(Path::normalize("\\\\a\\\\b"), content="\\a\\b")
+  inspect(Path::normalize("\\\\\\a\\\\\\b"), content="\\a\\b")
+  inspect(Path::normalize("a/b"), content="a\\b")
+  inspect(Path::normalize("C:/foo"), content="C:\\foo")
 
   // Drive letter paths
   inspect(Path::normalize("C:\\.\\temp"), content="C:\\temp")
@@ -527,7 +542,7 @@ test "normalize edge cases" {
 
   // Root paths with dots
   inspect(Path::normalize("\\."), content="\\")
-  inspect(Path::normalize("\\./"), content="\\./")
+  inspect(Path::normalize("\\./"), content="\\")
   inspect(Path::normalize("\\.."), content="\\")
   inspect(Path::normalize("\\..\\"), content="\\")
   inspect(Path::normalize("\\a\\.."), content="\\")
@@ -546,11 +561,15 @@ test "normalize edge cases" {
   // Verbatim paths (should preserve structure)
   inspect(
     Path::normalize("\\\\?\\C:\\temp\\.\\file"),
-    content="\\\\?\\C:\\temp\\file",
+    content="\\\\?\\C:\\temp\\.\\file",
   )
   inspect(
     Path::normalize("\\\\?\\UNC\\server\\share\\folder\\..\\file"),
-    content="\\\\?\\UNC\\server\\share\\file",
+    content="\\\\?\\UNC\\server\\share\\folder\\..\\file",
+  )
+  inspect(
+    Path::normalize("\\\\.\\COM1\\foo\\..\\bar"),
+    content="\\\\.\\COM1\\foo\\..\\bar",
   )
 }
 
@@ -559,11 +578,11 @@ test "relative edge cases" {
   // Same paths
   let same1 = "C:\\Users\\user"
   let same2 = "C:\\Users\\user"
-  inspect(Path::relative(base=same1, same2), content="")
+  inspect(Path::relative(base=same1, same2), content=".")
 
   // Same paths with different normalization
-  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\.\\b"), content="")
-  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\c\\..\\b"), content="")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\.\\b"), content=".")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\c\\..\\b"), content=".")
 
   // Different drives should return empty (different prefixes)
   inspect(Path::relative(base="C:\\temp", "D:\\temp"), content="")
@@ -596,11 +615,11 @@ test "relative edge cases" {
   // Paths with dots
   inspect(
     Path::relative(base="C:\\Users\\user", "C:\\Users\\user\\."),
-    content="",
+    content=".",
   )
   inspect(
     Path::relative(base="C:\\Users\\user\\.", "C:\\Users\\user"),
-    content="",
+    content=".",
   )
   inspect(
     Path::relative(base="C:\\Users\\user", "C:\\Users\\user\\.."),
@@ -631,8 +650,8 @@ test "relative edge cases" {
   )
 
   // Mixed case drives (Windows is case-insensitive, but let's test)
-  inspect(Path::relative(base="c:\\temp", "C:\\temp\\file"), content="")
-  inspect(Path::relative(base="C:\\TEMP", "c:\\temp\\FILE"), content="")
+  inspect(Path::relative(base="c:\\temp", "C:\\temp\\file"), content="file")
+  inspect(Path::relative(base="C:\\TEMP", "c:\\temp\\FILE"), content="FILE")
 }
 
 ///|
@@ -659,8 +678,15 @@ test "resolve edge cases" {
   // Verbatim paths
   inspect(
     Path::resolve("\\\\?\\C:\\temp\\.\\file"),
-    content="\\\\?\\C:\\temp\\file",
+    content="\\\\?\\C:\\temp\\.\\file",
   )
+}
+
+///|
+test "resolve slash fallback matches ntpath.abspath" {
+  let resolved = Path::resolve("a/b").to_string()
+  assert_eq(resolved, Path::resolve("a\\b").to_string())
+  assert_eq(resolved.replace_all(old="/", new="\\"), resolved)
 }
 
 ///|
@@ -682,7 +708,7 @@ test "Windows-specific path behaviors" {
   // Test drive letter edge cases
   json_inspect(Path::is_absolute("A:"), content=false) // Relative to current dir on drive A
   json_inspect(Path::is_absolute("Z:\\"), content=true) // Root of drive Z
-  inspect(Path::join("C:", "temp"), content="C:\\temp") // Relative path on drive C
+  inspect(Path::join("C:", "temp"), content="C:temp") // Relative path on drive C
   inspect(Path::join("C:\\", "temp"), content="C:\\temp") // Absolute path on drive C
 
   // Test UNC path components
@@ -706,5 +732,13 @@ test "Windows-specific path behaviors" {
 test "join/windows relative path but specifies drive letter" {
   inspect(Path::join("lhs", "C:rhs"), content="C:rhs")
   inspect(Path::join("C:lhs", "C:rhs"), content="C:lhs\\rhs")
+  inspect(Path::join("C:lhs", "c:rhs"), content="c:lhs\\rhs")
+  inspect(Path::join("C:\\lhs", "c:rhs"), content="c:\\lhs\\rhs")
   inspect(Path::join("C:lhs", "D:rhs"), content="D:rhs")
+}
+
+///|
+test "relative compatibility exceptions" {
+  inspect(Path::relative(base="C:\\temp", ""), content="")
+  inspect(Path::relative(base="C:\\temp", "D:\\temp"), content="")
 }
