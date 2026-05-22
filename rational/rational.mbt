@@ -95,7 +95,7 @@ fn[T : Integral] new_unchecked(numerator : T, denominator : T) -> Rational[T] {
 ///|
 /// NOTE: we don't check overflow here, to align with the `op_add` of `Int64`.
 /// TODO: add a `checked_add` method.
-pub impl[T : Integral] Add for Rational[T] with add(self, other) {
+pub impl[T : Integral] Add for Rational[T] with fn add(self, other) {
   new_unchecked(
     self.numerator * other.denominator + other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -122,7 +122,7 @@ pub impl[T : Integral] Add for Rational[T] with add(self, other) {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Sub for Rational[T] with sub(self, other) {
+pub impl[T : Integral] Sub for Rational[T] with fn sub(self, other) {
   new_unchecked(
     self.numerator * other.denominator - other.numerator * self.denominator,
     self.denominator * other.denominator,
@@ -150,7 +150,7 @@ pub impl[T : Integral] Sub for Rational[T] with sub(self, other) {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Mul for Rational[T] with mul(self, other) {
+pub impl[T : Integral] Mul for Rational[T] with fn mul(self, other) {
   new_unchecked(
     self.numerator * other.numerator,
     self.denominator * other.denominator,
@@ -183,7 +183,7 @@ pub impl[T : Integral] Mul for Rational[T] with mul(self, other) {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Div for Rational[T] with div(self, other) {
+pub impl[T : Integral] Div for Rational[T] with fn div(self, other) {
   if other.numerator.signum() < 0 {
     new_unchecked(
       self.numerator * -other.denominator,
@@ -250,7 +250,7 @@ pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Neg for Rational[T] with neg(self : Rational[T]) -> Rational[
+pub impl[T : Integral] Neg for Rational[T] with fn neg(self : Rational[T]) -> Rational[
   T,
 ] {
   new_unchecked(-self.numerator, self.denominator)
@@ -309,7 +309,7 @@ pub fn[T : Integral] Rational::abs(self : Rational[T]) -> Rational[T] {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Compare for Rational[T] with compare(
+pub impl[T : Integral] Compare for Rational[T] with fn compare(
   self : Rational[T],
   other : Rational[T],
 ) -> Int {
@@ -403,7 +403,7 @@ pub(all) suberror RationalError {
 /// }
 /// ```
 ///
-pub impl Eq for RationalError with equal(
+pub impl Eq for RationalError with fn equal(
   self : RationalError,
   other : RationalError,
 ) -> Bool {
@@ -682,7 +682,7 @@ pub fn[T : Integral] Rational::fract(self : Rational[T]) -> Rational[T] {
 /// }
 /// ```
 ///
-pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
+pub impl[T : Integral] Show for Rational[T] with fn output(self, logger) {
   if self.numerator == T::from_int(0) {
     logger.write_char('0')
   } else if self.denominator == T::from_int(1) {
@@ -695,12 +695,12 @@ pub impl[T : Integral] Show for Rational[T] with output(self, logger) {
 }
 
 ///|
-pub impl[T : Integral] Debug for Rational[T] with to_repr(self) {
+pub impl[T : Integral] Debug for Rational[T] with fn to_repr(self) {
   Repr::literal(self.to_string())
 }
 
 ///|
-pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with arbitrary(
+pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with fn arbitrary(
   size,
   rs,
 ) {

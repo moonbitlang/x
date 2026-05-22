@@ -137,7 +137,7 @@ pub fn Duration::to_string(self : Duration) -> String {
 }
 
 ///|
-pub impl Show for Duration with output(self : Duration, logger : &Logger) -> Unit {
+pub impl Show for Duration with fn output(self : Duration, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
