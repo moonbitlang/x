@@ -48,7 +48,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
     }
     _ => ()
   }
-  let new_buf = @buffer.new(size_hint=src.length() * 4)
+  let new_buf = Buffer(size_hint=src.length() * 4)
   let write = match encoding {
     UTF8 => write_utf8_char
     UTF16BE => write_utf16be_char
@@ -75,7 +75,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 ///
 /// ```moonbit check
 /// test {
-///   let buf = @buffer.new()
+///   let buf = Buffer()
 ///   let text = "Hello, world"
 ///   @encoding.encode_to(text, buf, encoding=UTF16)
 ///   inspect(buf.to_string(), content="Hello, world")
@@ -95,7 +95,7 @@ pub fn encode_to(
       for char in src {
         write_utf16be_char(buffer, char)
       }
-    UTF16 | UTF16LE => buffer.write_string(src)
+    UTF16 | UTF16LE => buffer.write_string_utf16le(src)
   }
 }
 
@@ -105,7 +105,7 @@ pub fn encode_to(
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf8_bytes(value : Char) -> Bytes {
-  let buf = @buffer.new(size_hint=4)
+  let buf = Buffer(size_hint=4)
   write_utf8_char(buf, value)
   buf.to_bytes()
 }
@@ -127,7 +127,7 @@ pub fn to_utf16_bytes(value : Char) -> Bytes {
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16le_bytes(value : Char) -> Bytes {
-  let buf = @buffer.new(size_hint=4)
+  let buf = Buffer(size_hint=4)
   write_utf16le_char(buf, value)
   buf.to_bytes()
 }
@@ -138,7 +138,7 @@ pub fn to_utf16le_bytes(value : Char) -> Bytes {
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16be_bytes(value : Char) -> Bytes {
-  let buf = @buffer.new(size_hint=4)
+  let buf = Buffer(size_hint=4)
   write_utf16be_char(buf, value)
   buf.to_bytes()
 }

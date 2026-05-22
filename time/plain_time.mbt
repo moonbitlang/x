@@ -91,7 +91,7 @@ pub fn PlainTime::to_string(self : PlainTime) -> String {
 }
 
 ///|
-pub impl Show for PlainTime with output(self : PlainTime, logger : &Logger) -> Unit {
+pub impl Show for PlainTime with fn output(self : PlainTime, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
@@ -326,7 +326,7 @@ pub fn PlainTime::until(
 ///|
 /// Combines this time with a date to creates a PlainDateTime
 pub fn PlainTime::at_date(self : PlainTime, date : PlainDate) -> PlainDateTime {
-  PlainDateTime::{ date, time: self }
+  { date, time: self }
 }
 
 // *****************************

@@ -530,7 +530,7 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
       (nonce[i * 4 + 2].to_uint() << 16) |
       (nonce[i * 4 + 3].to_uint() << 24)
   }
-  ChaCha::{
+  {
     key: key_,
     nonce: nonce_,
     key_stream: FixedArray::make(16, 0U),

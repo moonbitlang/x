@@ -27,25 +27,25 @@ fn test_parse(input : String, loc~ : SourceLoc) -> Json raise Error {
 ///|
 test "parses empty objects" {
   let json = test_parse("{}")
-  @debug.assert_eq(json, Json::object(Map::of([])))
+  @debug.assert_eq(json, Json::object(Map([])))
 }
 
 ///|
 test "parses double string property names" {
   let json = test_parse("{\"a\":1}")
-  @debug.assert_eq(json, Json::object(Map::of([("a", Json::number(1.0))])))
+  @debug.assert_eq(json, Json::object(Map([("a", Json::number(1.0))])))
 }
 
 ///|
 test "parses single string property names" {
   let json = test_parse("{a:1}")
-  @debug.assert_eq(json, Json::object(Map::of([("a", Json::number(1.0))])))
+  @debug.assert_eq(json, Json::object(Map([("a", Json::number(1.0))])))
 }
 
 ///|
 test "parses unquoted property names" {
   let json = test_parse("{a:1}")
-  @debug.assert_eq(json, Json::object(Map::of([("a", Json::number(1.0))])))
+  @debug.assert_eq(json, Json::object(Map([("a", Json::number(1.0))])))
 }
 
 ///|
@@ -54,7 +54,7 @@ test "parses special character property names" {
   @debug.assert_eq(
     json,
     Json::object(
-      Map::of([
+      Map([
         ("$_", Json::number(1.0)),
         ("_$", Json::number(2.0)),
         ("a\u200C", Json::number(3.0)),
@@ -68,7 +68,7 @@ test "parses unicode property names" {
   let json = test_parse("{ùńîċõďë:9}")
   @debug.assert_eq(
     json,
-    Json::object(Map::of([("ùńîċõďë", Json::number(9.0))])),
+    Json::object(Map([("ùńîċõďë", Json::number(9.0))])),
   )
 }
 
@@ -78,7 +78,7 @@ test "parses escaped property names" {
   @debug.assert_eq(
     json,
     Json::object(
-      Map::of([
+      Map([
         ("ab", Json::number(1.0)),
         ("$_", Json::number(2.0)),
         ("_$", Json::number(3.0)),
@@ -90,10 +90,7 @@ test "parses escaped property names" {
 ///|
 test "preserves __proto__ property names" {
   let json = test_parse("{\"__proto__\":1}")
-  @debug.assert_eq(
-    json,
-    Json::object(Map::of([("__proto__", Json::number(1.0))])),
-  )
+  @debug.assert_eq(json, Json::object(Map([("__proto__", Json::number(1.0))])))
 }
 
 ///|
@@ -101,9 +98,7 @@ test "parses multiple properties" {
   let json = test_parse("{abc:1,def:2}")
   @debug.assert_eq(
     json,
-    Json::object(
-      Map::of([("abc", Json::number(1.0)), ("def", Json::number(2.0))]),
-    ),
+    Json::object(Map([("abc", Json::number(1.0)), ("def", Json::number(2.0))])),
   )
 }
 
@@ -112,9 +107,7 @@ test "parses nested objects" {
   let json = test_parse("{a:{b:2}}")
   @debug.assert_eq(
     json,
-    Json::object(
-      Map::of([("a", Json::object(Map::of([("b", Json::number(2.0))])))]),
-    ),
+    Json::object(Map([("a", Json::object(Map([("b", Json::number(2.0))])))])),
   )
 }
 //endregion
@@ -274,7 +267,7 @@ test "parses signed and unsigned Infinity" {
 test "parses NaN" {
   let json = test_parse("NaN")
   let ok = match json {
-    Json::Number(n, ..) => n.is_nan()
+    Number(n, ..) => n.is_nan()
     _ => false
   }
   assert_true(ok)
@@ -284,7 +277,7 @@ test "parses NaN" {
 test "parses signed NaN" {
   let json = test_parse("-NaN")
   let ok = match json {
-    Json::Number(n, ..) => n.is_nan()
+    Number(n, ..) => n.is_nan()
     _ => false
   }
   assert_true(ok)
@@ -354,19 +347,19 @@ test "parses escaped characters" {
 ///|
 test "parses single-line comments" {
   let json = test_parse("{//comment\n}")
-  @debug.assert_eq(json, Json::object(Map::of([])))
+  @debug.assert_eq(json, Json::object(Map([])))
 }
 
 ///|
 test "parses single-line comments at end of input" {
   let json = test_parse("{}//comment")
-  @debug.assert_eq(json, Json::object(Map::of([])))
+  @debug.assert_eq(json, Json::object(Map([])))
 }
 
 ///|
 test "parses multi-line comments" {
   let json = test_parse("{/*comment\n** */}")
-  @debug.assert_eq(json, Json::object(Map::of([])))
+  @debug.assert_eq(json, Json::object(Map([])))
 }
 //endregion
 
@@ -375,6 +368,6 @@ test "parses multi-line comments" {
 ///|
 test "parses whitespace" {
   let json = test_parse("{\t\u000b\u000c \u00A0\uFEFF\n\r\u2028\u2029\u2003}")
-  @debug.assert_eq(json, Json::object(Map::of([])))
+  @debug.assert_eq(json, Json::object(Map([])))
 }
 //endregion

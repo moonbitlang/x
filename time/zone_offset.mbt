@@ -35,7 +35,7 @@ let min_offset_seconds : Int = min_offset_hours * seconds_per_hour.to_int()
 
 ///|
 /// UTC+0 offset.
-pub let utc_offset : ZoneOffset = ZoneOffset::{
+pub let utc_offset : ZoneOffset = {
   id: "Z",
   abbrev: "UTC",
   seconds: 0,
@@ -87,17 +87,17 @@ pub fn ZoneOffset::abbreviation(self : ZoneOffset) -> String {
 }
 
 ///|
-pub impl Show for ZoneOffset with output(self : ZoneOffset, logger : &Logger) {
+pub impl Show for ZoneOffset with fn output(self : ZoneOffset, logger : &Logger) {
   logger.write_string(self.to_string())
 }
 
 ///|
-pub impl Eq for ZoneOffset with equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
+pub impl Eq for ZoneOffset with fn equal(self : ZoneOffset, other : ZoneOffset) -> Bool {
   self.seconds == other.seconds
 }
 
 ///|
-pub impl Compare for ZoneOffset with compare(
+pub impl Compare for ZoneOffset with fn compare(
   self : ZoneOffset,
   other : ZoneOffset,
 ) -> Int {

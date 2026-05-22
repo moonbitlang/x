@@ -33,7 +33,7 @@ pub fn fixed_zone(
   dst? : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
-  Zone::{ id, offsets: [offset], transitions: [] }
+  { id, offsets: [offset], transitions: [] }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn Zone::to_string(self : Zone) -> String {
 }
 
 ///|
-pub impl Show for Zone with output(self : Zone, logger : &Logger) -> Unit {
+pub impl Show for Zone with fn output(self : Zone, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
