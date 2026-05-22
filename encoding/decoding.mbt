@@ -422,7 +422,7 @@ fn Decoder::eoi(self : Decoder) -> Unit {
 ///|
 fn Decoder::refill(self : Decoder, k : Cont) -> Decode {
   self.eoi()
-  self.ret(k, Decode::Refill(Bytes::from_array(self.t)))
+  self.ret(k, Refill(Bytes::from_array(self.t)))
 }
 
 ///|
@@ -459,7 +459,7 @@ fn t_fill(k : Cont, decoder : Decoder) -> Decode {
 fn Decoder::decode_utf_8(self : Decoder) -> Decode {
   let rem = self.i_rem()
   if rem <= 0 {
-    Decode::End
+    End
   } else {
     let idx = self.i[self.i_pos].to_int()
     let need = utf_8_len[idx]
@@ -586,7 +586,7 @@ priv enum UTF16Decode {
 fn Decoder::decode_utf_16le(self : Decoder) -> Decode {
   let rem = self.i_rem()
   if rem <= 0 {
-    Decode::End
+    End
   } else if rem < 2 {
     self.t_need(2)
     t_fill(Decoder::t_decode_utf_16le, self)
@@ -693,7 +693,7 @@ fn r_utf_16(
 fn Decoder::decode_utf_16be(self : Decoder) -> Decode {
   let rem = self.i_rem()
   if rem <= 0 {
-    Decode::End
+    End
   } else if rem < 2 {
     self.t_need(2)
     t_fill(Decoder::t_decode_utf_16be, self)

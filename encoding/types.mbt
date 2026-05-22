@@ -101,7 +101,7 @@ fn malformed_pair(
   let (j0, j1) = if be { (0, 1) } else { (1, 0) }
   bs0[j0] = (hi >> 8).to_byte()
   bs0[j1] = hi.land(0xFF).to_byte()
-  let bs = @buffer.new(size_hint=bs0.length() + bs1.length())
+  let bs = Buffer(size_hint=bs0.length() + bs1.length())
   // specify a known length to skip call method `bs0.length()`
   bs.write_bytes(Bytes::from_array(bs0[0:2]))
   // ditto

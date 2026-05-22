@@ -640,13 +640,13 @@ pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
 
 ///|
 /// Returns the default value (zero) for Decimal.
-pub impl Default for Decimal with default() {
+pub impl Default for Decimal with fn default() {
   zero()
 }
 
 ///|
 /// Tests equality between two decimals.
-pub impl Eq for Decimal with equal(self : Decimal, other : Decimal) -> Bool {
+pub impl Eq for Decimal with fn equal(self : Decimal, other : Decimal) -> Bool {
   // Normalize both decimals to the same scale for comparison
   let max_scale = Int::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
@@ -658,7 +658,7 @@ pub impl Eq for Decimal with equal(self : Decimal, other : Decimal) -> Bool {
 
 ///|
 /// Compares two decimals and returns their relative order.
-pub impl Compare for Decimal with compare(self : Decimal, other : Decimal) -> Int {
+pub impl Compare for Decimal with fn compare(self : Decimal, other : Decimal) -> Int {
   // Normalize both decimals to the same scale for comparison
   let max_scale = Int::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
@@ -670,7 +670,7 @@ pub impl Compare for Decimal with compare(self : Decimal, other : Decimal) -> In
 
 ///|
 /// Adds two decimals.
-pub impl Add for Decimal with add(self : Decimal, other : Decimal) -> Decimal {
+pub impl Add for Decimal with fn add(self : Decimal, other : Decimal) -> Decimal {
   // Normalize both decimals to the same scale
   let max_scale = Int::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
@@ -685,7 +685,7 @@ pub impl Add for Decimal with add(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 /// Subtracts one decimal from another.
-pub impl Sub for Decimal with sub(self : Decimal, other : Decimal) -> Decimal {
+pub impl Sub for Decimal with fn sub(self : Decimal, other : Decimal) -> Decimal {
   // Normalize both decimals to the same scale
   let max_scale = Int::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
@@ -700,7 +700,7 @@ pub impl Sub for Decimal with sub(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 /// Multiplies two decimals.
-pub impl Mul for Decimal with mul(self : Decimal, other : Decimal) -> Decimal {
+pub impl Mul for Decimal with fn mul(self : Decimal, other : Decimal) -> Decimal {
   let new_coeff = self.coefficient * other.coefficient
   let new_scale = self.scale + other.scale
 
@@ -720,7 +720,7 @@ pub impl Mul for Decimal with mul(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 /// Implements division with maximum precision.
-pub impl Div for Decimal with div(self : Decimal, other : Decimal) -> Decimal {
+pub impl Div for Decimal with fn div(self : Decimal, other : Decimal) -> Decimal {
   if other.is_zero() {
     abort("Division by zero")
   }
@@ -737,27 +737,27 @@ pub impl Div for Decimal with div(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 /// Returns the negation of the decimal.
-pub impl Neg for Decimal with neg(self : Decimal) -> Decimal {
+pub impl Neg for Decimal with fn neg(self : Decimal) -> Decimal {
   { coefficient: -self.coefficient, scale: self.scale }
 }
 
 ///|
 /// Converts the decimal to its string representation.
-pub impl Show for Decimal with output(self, logger) {
+pub impl Show for Decimal with fn output(self, logger) {
   logger.write_string(self.to_string())
 }
 
 ///|
 /// Converts a decimal to its JSON representation as a string.
-pub impl ToJson for Decimal with to_json(self : Decimal) -> Json {
+pub impl ToJson for Decimal with fn to_json(self : Decimal) -> Json {
   Json::string(self.to_string())
 }
 
 ///|
 /// Creates a decimal from its JSON representation.
-pub impl @json.FromJson for Decimal with from_json(json, path) {
+pub impl @json.FromJson for Decimal with fn from_json(json, path) {
   guard json is String(s) else {
-    raise @json.JsonDecodeError(
+    raise JsonDecodeError(
       (path, "Decimal::from_json: expected string representation"),
     )
   }
@@ -765,7 +765,7 @@ pub impl @json.FromJson for Decimal with from_json(json, path) {
   match result {
     Some(d) => d
     None =>
-      raise @json.JsonDecodeError(
+      raise JsonDecodeError(
         (path, "Decimal::from_json: invalid decimal string"),
       )
   }
@@ -773,14 +773,14 @@ pub impl @json.FromJson for Decimal with from_json(json, path) {
 
 ///|
 /// Implements hash for decimal values.
-pub impl Hash for Decimal with hash_combine(self, hasher) {
+pub impl Hash for Decimal with fn hash_combine(self, hasher) {
   hasher.combine(self.coefficient)
   hasher.combine(self.scale)
 }
 
 ///|
 /// Generates arbitrary decimal values for testing.
-pub impl @quickcheck.Arbitrary for Decimal with arbitrary(size, rs) {
+pub impl @quickcheck.Arbitrary for Decimal with fn arbitrary(size, rs) {
   let coeff = @quickcheck.Arbitrary::arbitrary(size, rs)
   let scale = rs.next_int() % (max_scale + 1)
   new_unchecked(coeff, scale)

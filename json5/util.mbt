@@ -25,7 +25,7 @@ fn offset_to_position(input : String, offset : Int) -> Position {
       column += 1
     }
   }
-  return Position::{ line, column }
+  return { line, column }
 }
 
 ///|

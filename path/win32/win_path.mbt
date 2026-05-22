@@ -139,26 +139,26 @@ fn windows_path_component_from(
   start~ : Int,
 ) -> StringView raise PathError {
   guard !s.is_empty() else {
-    raise PathError::PathError(
+    raise PathError(
       start~,
       message="Windows path: empty path component not allowed",
     )
   }
   guard !windows_reserved_names_set.contains(s) else {
-    raise PathError::PathError(
+    raise PathError(
       start~,
       message="Windows path: '\{s}' is a reserved name (CON, PRN, AUX, NUL, COM1-9, LPT1-9)",
     )
   }
   for i, ch in s {
     guard !is_windows_reserved_character(ch) else {
-      raise PathError::PathError(
+      raise PathError(
         start=start + i,
         message="Windows path: character '\{ch}' at position \{start+i} is not allowed (reserved characters: < > : \" / \\ | ? * and control characters)",
       )
     }
     guard ch != '\\' else {
-      raise PathError::PathError(
+      raise PathError(
         start=start + i,
         message="Windows path: backslash '\\' at position \{start+i} not allowed in path component",
       )
@@ -208,7 +208,7 @@ const UncPrefix : String =
 const BackSlash : Char = '\\'
 
 ///|
-impl Show for WinPrefix with output(self, logger) {
+impl Show for WinPrefix with fn output(self, logger) {
   match self {
     Root => logger.write_char(BackSlash)
     VerbatimSymlink(symlink~) => {
@@ -274,7 +274,7 @@ fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
 }
 
 ///|
-impl Show for WinPath with output(self, logger) {
+impl Show for WinPath with fn output(self, logger) {
   WinPath::output(self, logger)
 }
 
@@ -347,14 +347,11 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
     // this pattern exect match the whole path string
     // pattern: `\\?\<symlink>`
     ("\\\\\?\\" ("[^\\]+" as symlink)) =>
-      WinPath::{
-        prefix: VerbatimSymlink(symlink=symlink.to_owned()),
-        components: [],
-      }
+      { prefix: VerbatimSymlink(symlink=symlink.to_owned()), components: [] }
     // this pattern exect match the whole path string
     // pattern: `\\?\UNC\<hostname>\<shared_folder>`
     ("\\\\\?UNC\\" ("[^\\]+" as hostname) "\\" ("[^\\]+" as shared_folder)) =>
-      WinPath::{
+      {
         prefix: VerbatimUNC(
           hostname=hostname.to_owned(),
           shared_folder=shared_folder.to_owned(),
@@ -364,7 +361,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
     // this pattern exect match the whole path string
     // pattern: `\\<hostname>\<shared_folder>`
     ("\\\\" ("[^\\]+" as hostname) "\\" ("[^\\]+" as shared_folder)) =>
-      WinPath::{
+      {
         prefix: UNC(
           hostname=hostname.to_owned(),
           shared_folder=shared_folder.to_owned(),
@@ -374,19 +371,19 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
     // this pattern exect match the whole path string
     // pattern: `\\.\<device>`
     ("\\\\\.\\" ("[^\\]+" as device)) =>
-      WinPath::{ prefix: DeviceNS(device=device.to_owned()), components: [] }
+      { prefix: DeviceNS(device=device.to_owned()), components: [] }
     // this pattern exect match the whole path string
     // pattern: `\\?\<letter>:\`
     //
     // backslashes elimination
     ("\\\\\?\\" ("[a-zA-Z]" as letter) ":(\\)+") =>
-      WinPath::{ prefix: VerbatimVolumeLetterRoot(letter), components: [] }
+      { prefix: VerbatimVolumeLetterRoot(letter), components: [] }
     // this pattern exect match the whole path string
     // pattern: `<letter>:\`
     // 
     // backslashes elimination
     (("[a-zA-Z]" as letter) ":(\\)+") =>
-      WinPath::{ prefix: VolumeLetterRoot(letter), components: [] }
+      { prefix: VolumeLetterRoot(letter), components: [] }
     // this pattern exect match the whole path string
     // pattern: `\\?\` followed by relative path components
     ("\\\\\?\\" "\\|\.\.|\.") =>
@@ -397,7 +394,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
     // this pattern exect match the whole path string
     // pattern: `\\?\Volume{<guid>}`
     ("\\\\\?\\Volume[{]" ("[^}]+" as guid) "[}]") =>
-      WinPath::{ prefix: VerbatimVolumeGUID(guid.to_owned()), components: [] }
+      { prefix: VerbatimVolumeGUID(guid.to_owned()), components: [] }
     //-----------------------------------------------------------------------------
     // with <rest_of_path>
     //-----------------------------------------------------------------------------
@@ -411,10 +408,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{
-        prefix: VerbatimSymlink(symlink=symlink.to_owned()),
-        components,
-      }
+      { prefix: VerbatimSymlink(symlink=symlink.to_owned()), components }
     }
     // pattern: `\\?\UNC\<hostname>\<shared_folder>\<rest_of_path>`
     //
@@ -435,7 +429,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{
+      {
         prefix: VerbatimUNC(
           hostname=hostname.to_owned(),
           shared_folder=shared_folder.to_owned(),
@@ -456,7 +450,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{
+      {
         prefix: UNC(
           hostname=hostname.to_owned(),
           shared_folder=shared_folder.to_owned(),
@@ -471,7 +465,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{ prefix: VerbatimVolumeGUID(guid.to_owned()), components }
+      { prefix: VerbatimVolumeGUID(guid.to_owned()), components }
     }
     // pattern: `\\.\<device>\<rest_of_path>`
     //
@@ -483,7 +477,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{ prefix: DeviceNS(device=device.to_owned()), components }
+      { prefix: DeviceNS(device=device.to_owned()), components }
     }
     // pattern: `\\?\<letter>:\<rest_of_path>`
     //
@@ -494,7 +488,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{ prefix: VerbatimVolumeLetterRoot(letter), components }
+      { prefix: VerbatimVolumeLetterRoot(letter), components }
     }
     ("\\\\\?\\" "\\|\.\.|\.", _) =>
       // pattern: `\\?\` followed by relative path components
@@ -512,7 +506,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=1,
         root_eliminate=true,
       )
-      WinPath::{ prefix: Root, components }
+      { prefix: Root, components }
     }
 
     // pattern: `<letter>:\<rest_of_path>`
@@ -524,7 +518,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{ prefix: VolumeLetterRoot(letter), components }
+      { prefix: VolumeLetterRoot(letter), components }
     }
     // pattern: `<letter>:<rest_of_path>`
     //
@@ -535,7 +529,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=true,
       )
-      WinPath::{ prefix: VolumeLetter(letter), components }
+      { prefix: VolumeLetter(letter), components }
     }
 
     // syntax: `<path_component>\<rest_of_path>`
@@ -546,7 +540,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=0,
         root_eliminate=false,
       )
-      WinPath::{ prefix: None, components }
+      { prefix: None, components }
     }
     // current path 
     // syntax: `.\<rest_of_path>`
@@ -557,7 +551,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=prefix.char_length(),
         root_eliminate=false,
       )
-      WinPath::{ prefix: None, components }
+      { prefix: None, components }
     }
     non_prefix_hint_path => {
       let components = parse_windows_relative_path(
@@ -565,7 +559,7 @@ fn WinPath::parse(path : StringView) -> WinPath raise PathError {
         start=0,
         root_eliminate=false,
       )
-      WinPath::{ prefix: None, components }
+      { prefix: None, components }
     }
   }
 }

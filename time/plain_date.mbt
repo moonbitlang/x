@@ -30,7 +30,7 @@ pub fn PlainDate::of(
   if !validate_ymd(year, month, day) {
     fail(invalid_date_err)
   }
-  PlainDate::{ year, month, day }
+  { year, month, day }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn PlainDate::from_year_ord(
     day -= calc_days_in_month(year, month)
     month += 1
   }
-  PlainDate::{ year, month, day }
+  { year, month, day }
 }
 
 ///|
@@ -104,17 +104,20 @@ pub fn PlainDate::to_string(self : PlainDate) -> String {
 }
 
 ///|
-pub impl Show for PlainDate with output(self : PlainDate, logger : &Logger) {
+pub impl Show for PlainDate with fn output(self : PlainDate, logger : &Logger) {
   logger.write_string(self.to_string())
 }
 
 ///|
-pub impl Eq for PlainDate with equal(self : PlainDate, other : PlainDate) -> Bool {
+pub impl Eq for PlainDate with fn equal(self : PlainDate, other : PlainDate) -> Bool {
   self.compare(other) == 0
 }
 
 ///|
-pub impl Compare for PlainDate with compare(self : PlainDate, other : PlainDate) -> Int {
+pub impl Compare for PlainDate with fn compare(
+  self : PlainDate,
+  other : PlainDate,
+) -> Int {
   if self.year > other.year {
     1
   } else if self.year < other.year {
@@ -438,7 +441,7 @@ fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
   if d > max_day {
     d = max_day
   }
-  PlainDate::{ year, month, day: d }
+  { year, month, day: d }
 }
 
 ///|

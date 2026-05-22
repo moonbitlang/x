@@ -59,8 +59,8 @@ fn lex_skip_whitespace(ctx : ParseContext) -> Unit raise ParseError {
 fn lex_after_array_value(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
-    Some(']') => Token::RBracket
-    Some(',') => Token::Comma
+    Some(']') => RBracket
+    Some(',') => Comma
     Some(_) => invalid_char(ctx, shift=-1)
     None => parse_error(InvalidEof)
   }
@@ -70,7 +70,7 @@ fn lex_after_array_value(ctx : ParseContext) -> Token raise ParseError {
 fn lex_after_property_name(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
-    Some(':') => Token::Colon
+    Some(':') => Colon
     Some(_) => invalid_char(ctx, shift=-1)
     None => parse_error(InvalidEof)
   }
@@ -80,8 +80,8 @@ fn lex_after_property_name(ctx : ParseContext) -> Token raise ParseError {
 fn lex_after_object_value(ctx : ParseContext) -> Token raise ParseError {
   lex_skip_whitespace(ctx)
   match read_char(ctx) {
-    Some('}') => Token::RBrace
-    Some(',') => Token::Comma
+    Some('}') => RBrace
+    Some(',') => Comma
     Some(_) => invalid_char(ctx, shift=-1)
     None => parse_error(InvalidEof)
   }

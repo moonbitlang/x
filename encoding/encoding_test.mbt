@@ -27,7 +27,7 @@ test "encoding String to UTF8" {
 ///|
 test "encode_to/UTF8" {
   let src = "你好👀"
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.encode_to(src, buf, encoding=UTF8)
   inspect(
     buf.to_bytes(),
@@ -52,7 +52,7 @@ test "encoding String to UTF16 (alias of UTF16LE)" {
 ///|
 test "encode_to/UTF16" {
   let src = "LISP programmers know the value of everything"
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.encode_to(src, buf, encoding=UTF16)
   inspect(
     buf.to_bytes(),
@@ -77,7 +77,7 @@ test "encoding String to UTF16LE" {
 ///|
 test "encode_to/UTF16LE" {
   let src = "and the cost of nothing"
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.encode_to(src, buf, encoding=UTF16LE)
   inspect(
     buf.to_bytes(),
@@ -102,7 +102,7 @@ test "encoding String to UTF16BE" {
 ///|
 test "encode_to/UTF16BE" {
   let src = "λf.(λx.f(x x))(λx.f(x x))"
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.encode_to(src, buf, encoding=UTF16BE)
   inspect(
     buf.to_bytes(),
@@ -226,7 +226,7 @@ test "to_utf16be_bytes" {
 
 ///|
 test "write_utf8_char" {
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.write_utf8_char(buf, 'A')
   @encoding.write_utf8_char(buf, 'α')
   @encoding.write_utf8_char(buf, '啊')
@@ -241,7 +241,7 @@ test "write_utf8_char" {
 
 ///|
 test "write_utf16_char (alias for write_utf16le_char)" {
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.write_utf16_char(buf, 'A')
   @encoding.write_utf16_char(buf, 'α')
   @encoding.write_utf16_char(buf, '啊')
@@ -256,7 +256,7 @@ test "write_utf16_char (alias for write_utf16le_char)" {
 
 ///|
 test "write_utf16le_char" {
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.write_utf16le_char(buf, 'A')
   @encoding.write_utf16le_char(buf, 'α')
   @encoding.write_utf16le_char(buf, '啊')
@@ -271,7 +271,7 @@ test "write_utf16le_char" {
 
 ///|
 test "write_utf16be_char" {
-  let buf = @buffer.new(size_hint=10)
+  let buf = Buffer(size_hint=10)
   @encoding.write_utf16be_char(buf, 'A')
   @encoding.write_utf16be_char(buf, 'α')
   @encoding.write_utf16be_char(buf, '啊')

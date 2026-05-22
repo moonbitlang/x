@@ -38,9 +38,7 @@
 ///
 /// ```moonbit check
 /// test {
-///   let _u = @uuid.from_hex("9558cfadb48547c70f9adf1f75cdef29").as_version(
-///     @uuid.V4,
-///   )
+///   let _u = @uuid.from_hex("9558cfadb48547c70f9adf1f75cdef29").as_version(V4)
 /// }
 /// ```
 ///
@@ -204,6 +202,6 @@ pub fn UUID::to_string(self : UUID) -> String {
 }
 
 ///|
-pub impl Show for UUID with output(self : UUID, logger : &Logger) -> Unit {
+pub impl Show for UUID with fn output(self : UUID, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
