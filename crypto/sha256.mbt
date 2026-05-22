@@ -113,7 +113,7 @@ pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with update(self : SHA256, data : BytesView) -> Unit {
+pub impl CryptoHasher for SHA256 with fn update(self : SHA256, data : BytesView) -> Unit {
   self.update(data)
 }
 
@@ -187,17 +187,17 @@ fn SHA256::_finalize_into(
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with size(_self : SHA256) -> Int {
+pub impl CryptoHasher for SHA256 with fn size(_self : SHA256) -> Int {
   32
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with block_size(_self : SHA256) -> Int {
+pub impl CryptoHasher for SHA256 with fn block_size(_self : SHA256) -> Int {
   64
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
+pub impl CryptoHasher for SHA256 with fn reset(self : SHA256) -> Unit {
   self.reg[0] = 0x6a09e667
   self.reg[1] = 0xbb67ae85
   self.reg[2] = 0x3c6ef372
@@ -213,7 +213,7 @@ pub impl CryptoHasher for SHA256 with reset(self : SHA256) -> Unit {
 
 ///|
 /// Compute the Sha256 digest from given Sha256Context
-pub impl CryptoHasher for SHA256 with finalize_into(
+pub impl CryptoHasher for SHA256 with fn finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
   offset~ : Int,

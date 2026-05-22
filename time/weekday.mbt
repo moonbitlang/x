@@ -24,7 +24,7 @@ pub(all) enum Weekday {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for Weekday with output(self : Weekday, logger : &Logger) -> Unit {
+pub impl Show for Weekday with fn output(self : Weekday, logger : &Logger) -> Unit {
   match self {
     Monday => logger.write_string("Monday")
     Tuesday => logger.write_string("Tuesday")

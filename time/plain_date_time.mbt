@@ -87,7 +87,7 @@ pub fn PlainDateTime::to_string(self : PlainDateTime) -> String {
 }
 
 ///|
-pub impl Show for PlainDateTime with output(
+pub impl Show for PlainDateTime with fn output(
   self : PlainDateTime,
   logger : &Logger,
 ) -> Unit {

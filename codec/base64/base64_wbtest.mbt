@@ -16,7 +16,7 @@
 struct CustomBytes(BytesView)
 
 ///|
-impl Show for CustomBytes with output(self, logger) {
+impl Show for CustomBytes with fn output(self, logger) {
   for b in self.0 {
     if b is (b' '..=b'~') {
       logger.write_char(b.to_char())

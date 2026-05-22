@@ -17,12 +17,12 @@
 pub(all) struct Path(String) derive(Eq)
 
 ///|
-pub impl Show for Path with output(path, logger) {
+pub impl Show for Path with fn output(path, logger) {
   logger.write_object(path.0)
 }
 
 ///|
-pub impl Show for Path with to_string(path) {
+pub impl Show for Path with fn to_string(path) {
   path.0
 }
 

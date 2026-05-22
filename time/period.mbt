@@ -94,7 +94,7 @@ pub fn Period::to_string(self : Period) -> String {
 }
 
 ///|
-pub impl Show for Period with output(self : Period, logger : &Logger) {
+pub impl Show for Period with fn output(self : Period, logger : &Logger) {
   logger.write_string(self.to_string())
 }
 

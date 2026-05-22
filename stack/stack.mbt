@@ -89,7 +89,7 @@ test "of" {
 }
 
 ///|
-pub impl[T : Show] Show for Stack[T] with output(self, logger : &Logger) -> Unit {
+pub impl[T : Show] Show for Stack[T] with fn output(self, logger : &Logger) -> Unit {
   logger.write_string("Stack::[")
   let mut i = 0
   self.elements.each(fn(t) {

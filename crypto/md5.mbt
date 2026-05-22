@@ -29,17 +29,17 @@ struct MD5 {
 let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
 ///|
-pub impl CryptoHasher for MD5 with size(_self : MD5) -> Int {
+pub impl CryptoHasher for MD5 with fn size(_self : MD5) -> Int {
   16
 }
 
 ///|
-pub impl CryptoHasher for MD5 with block_size(_self : MD5) -> Int {
+pub impl CryptoHasher for MD5 with fn block_size(_self : MD5) -> Int {
   64
 }
 
 ///|
-pub impl CryptoHasher for MD5 with reset(self : MD5) -> Unit {
+pub impl CryptoHasher for MD5 with fn reset(self : MD5) -> Unit {
   self.state = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]
   self.count = [0, 0]
   self.buffer = FixedArray::make(64, Byte::default())
@@ -52,7 +52,7 @@ pub fn[Data : ByteSource] MD5::update(self : MD5, data : Data) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for MD5 with update(self : MD5, data : BytesView) -> Unit {
+pub impl CryptoHasher for MD5 with fn update(self : MD5, data : BytesView) -> Unit {
   md5_update(self, data)
 }
 
@@ -63,7 +63,7 @@ pub fn MD5::finalize(self : MD5) -> FixedArray[Byte] {
 
 ///|
 /// an alias of `MD5Context::compute()`
-pub impl CryptoHasher for MD5 with finalize_into(
+pub impl CryptoHasher for MD5 with fn finalize_into(
   self : MD5,
   buffer : FixedArray[Byte],
   offset~ : Int,

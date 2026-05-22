@@ -15,12 +15,12 @@
 ///|
 #deprecated("The `Num` trait is deprecated.")
 pub trait Num {
-  from_int(Int) -> Self
-  op_add(Self, Self) -> Self
-  op_sub(Self, Self) -> Self
-  op_mul(Self, Self) -> Self
-  op_div(Self, Self) -> Self
-  op_neg(Self) -> Self
-  abs(Self) -> Self
-  signum(Self) -> Self
+  fn from_int(Int) -> Self
+  fn op_add(Self, Self) -> Self
+  fn op_sub(Self, Self) -> Self
+  fn op_mul(Self, Self) -> Self
+  fn op_div(Self, Self) -> Self
+  fn op_neg(Self) -> Self
+  fn abs(Self) -> Self
+  fn signum(Self) -> Self
 }

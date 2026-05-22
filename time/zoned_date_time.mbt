@@ -124,7 +124,7 @@ pub fn ZonedDateTime::to_string(self : ZonedDateTime) -> String {
 }
 
 ///|
-pub impl Show for ZonedDateTime with output(
+pub impl Show for ZonedDateTime with fn output(
   self : ZonedDateTime,
   logger : &Logger,
 ) -> Unit {

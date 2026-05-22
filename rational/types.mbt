@@ -25,48 +25,48 @@ struct Rational[T] {
 
 ///|
 trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary {
-  from_int(Int) -> Self
-  signum(self : Self) -> Int
-  abs(self : Self) -> Self
+  fn from_int(Int) -> Self
+  fn signum(self : Self) -> Int
+  fn abs(self : Self) -> Self
 }
 
 ///|
-pub impl Integral for Int64 with from_int(i : Int) -> Int64 {
+pub impl Integral for Int64 with fn from_int(i : Int) -> Int64 {
   i.to_int64()
 }
 
 ///|
-pub impl Integral for Int64 with abs(self : Int64) -> Int64 {
+pub impl Integral for Int64 with fn abs(self : Int64) -> Int64 {
   self.abs()
 }
 
 ///|
-pub impl Integral for Int64 with signum(self : Int64) -> Int {
+pub impl Integral for Int64 with fn signum(self : Int64) -> Int {
   self.compare(0L)
 }
 
 ///|
-pub impl Integral for Int with from_int(i : Int) -> Int {
+pub impl Integral for Int with fn from_int(i : Int) -> Int {
   i
 }
 
 ///|
-pub impl Integral for Int with abs(self : Int) -> Int {
+pub impl Integral for Int with fn abs(self : Int) -> Int {
   self.abs()
 }
 
 ///|
-pub impl Integral for Int with signum(self : Int) -> Int {
+pub impl Integral for Int with fn signum(self : Int) -> Int {
   self.compare(0)
 }
 
 ///|
-pub impl Integral for BigInt with from_int(i : Int) -> BigInt {
+pub impl Integral for BigInt with fn from_int(i : Int) -> BigInt {
   BigInt::from_int(i)
 }
 
 ///|
-pub impl Integral for BigInt with abs(self : BigInt) -> BigInt {
+pub impl Integral for BigInt with fn abs(self : BigInt) -> BigInt {
   if self < 0N {
     -self
   } else {
@@ -75,7 +75,7 @@ pub impl Integral for BigInt with abs(self : BigInt) -> BigInt {
 }
 
 ///|
-pub impl Integral for BigInt with signum(self : BigInt) -> Int {
+pub impl Integral for BigInt with fn signum(self : BigInt) -> Int {
   self.compare(0N)
 }
 

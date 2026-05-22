@@ -14,9 +14,9 @@
 
 ///|
 trait ByteSource {
-  op_get(Self, index : Int) -> Byte
-  length(Self) -> Int
-  blit_to(
+  fn op_get(Self, index : Int) -> Byte
+  fn length(Self) -> Int
+  fn blit_to(
     Self,
     dst : FixedArray[Byte],
     len~ : Int,
@@ -26,17 +26,17 @@ trait ByteSource {
 }
 
 ///|
-pub impl ByteSource for FixedArray[Byte] with op_get(self, index) {
+pub impl ByteSource for FixedArray[Byte] with fn op_get(self, index) {
   self[index]
 }
 
 ///|
-pub impl ByteSource for FixedArray[Byte] with length(self) {
+pub impl ByteSource for FixedArray[Byte] with fn length(self) {
   self.length()
 }
 
 ///|
-pub impl ByteSource for FixedArray[Byte] with blit_to(
+pub impl ByteSource for FixedArray[Byte] with fn blit_to(
   self,
   dst,
   len~,
@@ -47,17 +47,17 @@ pub impl ByteSource for FixedArray[Byte] with blit_to(
 }
 
 ///|
-pub impl ByteSource for BytesView with op_get(self, index) {
+pub impl ByteSource for BytesView with fn op_get(self, index) {
   self[index]
 }
 
 ///|
-pub impl ByteSource for BytesView with length(self) {
+pub impl ByteSource for BytesView with fn length(self) {
   self.length()
 }
 
 ///|
-pub impl ByteSource for BytesView with blit_to(
+pub impl ByteSource for BytesView with fn blit_to(
   self,
   dst,
   len~,
@@ -68,17 +68,17 @@ pub impl ByteSource for BytesView with blit_to(
 }
 
 ///|
-pub impl ByteSource for Bytes with op_get(self, index) {
+pub impl ByteSource for Bytes with fn op_get(self, index) {
   self[index]
 }
 
 ///|
-pub impl ByteSource for Bytes with length(self) {
+pub impl ByteSource for Bytes with fn length(self) {
   self.length()
 }
 
 ///|
-pub impl ByteSource for Bytes with blit_to(
+pub impl ByteSource for Bytes with fn blit_to(
   self,
   dst,
   len~,

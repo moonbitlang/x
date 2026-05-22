@@ -171,7 +171,7 @@ pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for SM3 with update(self : SM3, data : BytesView) -> Unit {
+pub impl CryptoHasher for SM3 with fn update(self : SM3, data : BytesView) -> Unit {
   self.update(data)
 }
 
@@ -243,17 +243,17 @@ fn SM3::_finalize_into(
 }
 
 ///|
-pub impl CryptoHasher for SM3 with size(_self : SM3) -> Int {
+pub impl CryptoHasher for SM3 with fn size(_self : SM3) -> Int {
   32
 }
 
 ///|
-pub impl CryptoHasher for SM3 with block_size(_self : SM3) -> Int {
+pub impl CryptoHasher for SM3 with fn block_size(_self : SM3) -> Int {
   64
 }
 
 ///|
-pub impl CryptoHasher for SM3 with reset(self : SM3) -> Unit {
+pub impl CryptoHasher for SM3 with fn reset(self : SM3) -> Unit {
   self.reg[0] = 0x7380166F
   self.reg[1] = 0x4914B2B9
   self.reg[2] = 0x172442D7
@@ -269,7 +269,7 @@ pub impl CryptoHasher for SM3 with reset(self : SM3) -> Unit {
 
 ///|
 /// Compute the SM3 digest from given SM3Context
-pub impl CryptoHasher for SM3 with finalize_into(
+pub impl CryptoHasher for SM3 with fn finalize_into(
   self : SM3,
   buffer : FixedArray[Byte],
   offset~ : Int,
