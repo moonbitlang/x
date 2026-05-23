@@ -89,24 +89,20 @@ test "add_suffix_zero" {
 }
 
 ///|
-/// FIXME: use split method of String
 fn split(s : String, delimiter : Char) -> Array[String] {
   let spl = []
   if s.length() == 0 {
     return spl
   }
-  let buf = StringBuilder::new(size_hint=0)
   let delimiter_code = Char::to_int(delimiter).to_uint16()
+  let mut start = 0
   for i = 0; i < s.length(); i = i + 1 {
-    let code_unit = s.code_unit_at(i)
-    if code_unit == delimiter_code {
-      spl.push(buf.to_string())
-      buf.reset()
-    } else {
-      buf.write_char(UInt16::unsafe_to_char(code_unit))
+    if s.code_unit_at(i) == delimiter_code {
+      spl.push(s[start:i].to_owned())
+      start = i + 1
     }
   }
-  spl.push(buf.to_string())
+  spl.push(s[start:].to_owned())
   spl
 }
 
