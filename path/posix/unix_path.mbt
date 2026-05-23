@@ -85,10 +85,10 @@ impl Show for UnixPath with fn output(self : UnixPath, logger : &Logger) -> Unit
   match components {
     [] => ()
     [x, .. xs] => {
-      logger.write_string(x.to_owned())
+      logger.write_view(x)
       for x in xs {
         logger.write_char('/')
-        logger.write_string(x.to_owned())
+        logger.write_view(x)
       }
     }
   }

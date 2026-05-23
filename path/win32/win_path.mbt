@@ -264,10 +264,10 @@ fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
   match components {
     [] => ()
     [x, .. xs] => {
-      logger.write_string(x.to_owned())
+      logger.write_view(x)
       for component in xs {
         logger.write_char(BackSlash)
-        logger.write_string(component.to_owned())
+        logger.write_view(component)
       }
     }
   }
