@@ -54,9 +54,28 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
     UTF16BE => write_utf16be_char
     _ => abort("unreachable")
   }
-  for char in src {
-    // SAFETY: Assume String are always valid UTF16LE
-    write(new_buf, char)
+  // Walk by UTF-16 code unit and assemble surrogate pairs inline. This
+  // avoids `for char in src`, which goes through String::iter +
+  // Iter::next per char (~30% of self time on an ASCII-heavy 64 KiB
+  // bench even though the inner body is small).
+  let len = src.length()
+  let mut i = 0
+  while i < len {
+    let cu = src.unsafe_get(i).to_int()
+    i += 1
+    let cp = if cu >= 0xD800 && cu <= 0xDBFF && i < len {
+      let cu2 = src.unsafe_get(i).to_int()
+      if cu2 >= 0xDC00 && cu2 <= 0xDFFF {
+        i += 1
+        ((cu - 0xD800) * 0x400) + (cu2 - 0xDC00) + 0x10000
+      } else {
+        cu
+      }
+    } else {
+      cu
+    }
+    // SAFETY: Assume String contains valid UTF-16
+    write(new_buf, cp.unsafe_to_char())
   }
   new_buf.to_bytes()
 }
