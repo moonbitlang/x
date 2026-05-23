@@ -49,8 +49,14 @@ fn lex_number_end(
   start : Int,
   end : Int,
 ) -> Double raise ParseError {
-  let s = ctx.input[start:end].to_owned()
-  @string.parse_double(s) catch {
-    _ => parse_error(InvalidNumber(offset_to_position(ctx.input, start), s))
+  // parse_double already accepts a StringView; only materialize an
+  // owned String for the error payload (the cold path). Saves one
+  // allocation + memcpy per number on the happy path.
+  let view = ctx.input[start:end]
+  @string.parse_double(view) catch {
+    _ =>
+      parse_error(
+        InvalidNumber(offset_to_position(ctx.input, start), view.to_string()),
+      )
   }
 }
