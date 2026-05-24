@@ -29,9 +29,7 @@ pub impl Show for Path with fn to_string(path) {
 ///|
 /// Returns the last path component of the given path.
 ///
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Uses Python `ntpath.split()` semantics, where both `\` and `/` are separators.
 /// 
 /// ```moonbit check
 /// test {
@@ -40,21 +38,13 @@ pub impl Show for Path with fn to_string(path) {
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let prefix = path.prefix()
-  let rest = path.0.view(start_offset=prefix.length())
-  match rest.rev_find("\\") {
-    None => rest
-    Some(idx) if idx >= rest.length() => ""
-    Some(idx) => rest[idx + 1:]
-  }
+  nt_split(path.0).tail
 }
 
 ///|
-/// Returns path without its last path component and trailing backslashes.
-/// 
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Returns path without its last path component and trailing separators.
+///
+/// Uses Python `ntpath.split()` semantics, where both `\` and `/` are separators.
 /// 
 /// ```moonbit check
 /// test {
@@ -63,44 +53,11 @@ pub fn Path::basename(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
-  let prefix = path.prefix()
-  let rest = path.0.view(start_offset=prefix.length())
-  let last_slash_pos = rest.rev_find("\\")
-  match last_slash_pos {
-    None => prefix.to_owned()
-    Some(idx) => {
-      let dirname_with_trailing_slashes = rest[0:idx]
-      let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
-        char_set="\\",
-      )
-      if dirname_trim_end.is_empty() {
-        path.0
-        .view(
-          start_offset=0,
-          end_offset=prefix.length() + dirname_with_trailing_slashes.length(),
-        )
-        .to_owned()
-      } else {
-        path.0
-        .view(
-          start_offset=0,
-          end_offset=prefix.length() + dirname_trim_end.length(),
-        )
-        .to_owned()
-      }
-    }
-  }
+  nt_split(path.0).head
 }
 
 ///|
-test {
-  let path : Path = "\\\\\\"
-  inspect(path.prefix(), content="\\\\\\")
-  // inspect(path.0.view)
-}
-
-///|
-/// Returns the string of the basename after the last `.` delimiter.
+/// Returns the extension part using Python `ntpath.splitext(path)[1]` semantics.
 /// 
 /// ```moonbit check
 /// test {
@@ -109,17 +66,15 @@ test {
 /// }
 /// ```
 pub fn Path::extname(path : Path) -> StringView {
-  let basename = Path::basename(path)
-  match basename.rev_find(".") {
-    None => ""
-    Some(idx) => basename[idx:]
-  }
+  nt_splitext_ext(path.0)
 }
 
 ///|
 /// Returns whether the given path is absolute.
 /// 
-/// edge cases: when path is empty, return false
+/// A `\\?\` prefix is absolute; otherwise the post-drive path must start with
+/// `\` or `/`. Empty paths, drive-relative paths, and UNC/device roots without
+/// a remaining root marker return false.
 /// 
 /// ```moonbit check
 /// test {
@@ -131,161 +86,34 @@ pub fn Path::extname(path : Path) -> StringView {
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
-  lexmatch path with longest {
-    ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => true
-    (
-      "\\\\\?UNC\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => true
-    (
-      "\\\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => true
-    ("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]", _rest) => true
-    ("\\\\\.\\" ("[^\\]+" as _device) "(\\)+", _rest) => true
-    ("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+", _rest) => true
-    ("\\", _rest) => true
-    (("[a-zA-Z]" as _letter) ":(\\)+", _rest) => true
-    (("[a-zA-Z]" as _letter) ":", _rest) => false
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => true
-    _ => false
+  if path.replace_all(old="/", new="\\").has_prefix("\\\\?\\") {
+    true
+  } else {
+    let split = nt_splitdrive(path)
+    !split.rest.is_empty() && nt_starts_with_sep(split.rest)
   }
 }
 
 ///|
-fn Path::prefix(path : Path) -> StringView {
-  let path = path.0
-  lexmatch path with longest {
-    (("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+") as prefix, _rest) => prefix
-    (
-      (
-        "\\\\\?UNC\\"
-        ("[^\\]+" as _hostname)
-        "\\"
-        ("[^\\]+" as _shared_folder)
-        "(\\)+"
-      ) as prefix,
-      _rest
-    ) => prefix
-    (
-      ("\\\\" ("[^\\]+" as _hostname) "\\" ("[^\\]+" as _shared_folder) "(\\)*") as prefix,
-      _rest
-    ) => prefix
-    (("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]") as prefix, _rest) => prefix
-    (("\\\\\.\\" ("[^\\]+" as _device) "(\\)+") as prefix, _rest) => prefix
-    (("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
-    ("\\+" as prefix, _rest) => prefix
-    ((("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
-    ((("[a-zA-Z]" as _letter) ":") as prefix, _rest) => prefix
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+" as prefix, _rest) => prefix
-    _ => ""
-  }
-}
-
-///|
-fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
-  lexmatch rhs with longest {
-    ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => None
-    (
-      "\\\\\?UNC\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => None
-    (
-      "\\\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => None
-    ("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]", _rest) => None
-    ("\\\\\.\\" ("[^\\]+" as _device) "(\\)+", _rest) => None
-    ("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
-    ("\\", _rest) => None
-    (("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
-    (("[a-zA-Z]" as rhs_letter) ":", rhs_rest) =>
-      lexmatch lhs with longest {
-        (("[a-zA-Z]" as lhs_letter) ":", _rest) =>
-          if lhs_letter == rhs_letter {
-            Some(rhs_rest)
-          } else {
-            None
-          }
-        _ => None
-      }
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => None
-    rhs_rest => Some(rhs_rest)
-  }
-}
-
-///|
-/// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute or on a different drive, return rhs
-/// 
-/// edge cases:
-///  1. when lhs and rhs both are empty, return empty string
-///  2. ignore empty string
+/// Joins two path strings using Python `ntpath.join(lhs, rhs)` single-step
+/// semantics. Drive-relative paths such as `C:temp` stay drive-relative, and an
+/// empty rhs preserves Python's trailing-separator behavior.
 /// 
 /// ```moonbit check
 /// test {
-///   let path1 : Path = "C::\\Program Files"
+///   let path1 : Path = "C:\\Program Files"
 ///   let path2 : Path = "App"
-///   inspect(path1.join(path2), content="C::\\Program Files\\App")
+///   inspect(path1.join(path2), content="C:\\Program Files\\App")
 /// }
 /// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
-  let lhs = lhs.0
-  let rhs = rhs.0
-  // ignore empty string
-  if lhs.is_empty() {
-    return rhs
-  }
-  // ignore empty string
-  if rhs.is_empty() {
-    return lhs
-  }
-  match join_rest(lhs, rhs) {
-    None => rhs
-    Some(rhs) =>
-      match lhs {
-        [] => rhs.to_owned()
-        [.., '\\'] as all => {
-          let builder = StringBuilder::new()
-          builder.write_stringview(all)
-          builder.write_stringview(rhs)
-          builder.to_string()
-        }
-        without_tailing_slashes => {
-          let builder = StringBuilder::new()
-          builder.write_stringview(without_tailing_slashes)
-          builder.write_char('\\')
-          builder.write_stringview(rhs)
-          builder.to_string()
-        }
-      }
-  }
+  nt_join2(lhs.0, rhs.0)
 }
 
 ///|
-/// 1. resolve `.` by directly removing it
-/// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
-/// 3. remove redundant backslashes 
-/// 4. preserve trailing slash or backslash
-/// 
-/// edge cases:
-///   1. when path is empty, return empty string
+/// Normalizes with Python `ntpath.normpath` string rules: `/` becomes `\`, an
+/// empty relative result becomes `.`, and `\\?\` / `\\.\` special prefixes are
+/// returned unchanged.
 /// 
 /// ```moonbit check
 /// test {
@@ -294,21 +122,19 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
-  let path = path.0
-  // if failed to normalize, return the original path
-  WinPath::parse(path).to_string() catch {
-    _ => path
-  }
+  nt_normpath(path.0)
 }
 
 ///|
 /// Return the `to` relative path when `from` is the current working directory.
 /// 
-/// property: `@path.join(from,@path.relative(from,to)) == @path.normalize(to)`
+/// property: when `relative` does not return the compatibility exception `""`,
+/// `@path.normalize(@path.join(from,@path.relative(from,to))) == @path.normalize(to)`
 /// 
 /// edge cases: 
-///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
-///  2. when `from` and `to` have different prefixes, return empty string
+///  1. when `@path.normalize(from) == @path.normalize(to)`, return `.`
+///  2. when `from` and `to` have different drives/prefixes, return empty string
+///  3. when `to` is empty, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
@@ -320,35 +146,7 @@ pub fn Path::normalize(path : Path) -> Path {
 /// }
 /// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
-  let cwd = @env.current_dir().unwrap()
-  let from = try! WinPath::parse(Path::join(cwd, base).0)
-  let to = try! WinPath::parse(Path::join(cwd, path).0)
-  if from.prefix == to.prefix {
-    let mut cnt = 0
-    // remove the common path component prefix
-    for left = from.components[:], right = to.components[:] {
-      match (left, right) {
-        ([x, .. xs], [y, .. ys]) if x == y => {
-          cnt += 1
-          continue xs, ys
-        }
-        _ => break
-      }
-    }
-    let components : Array[StringView] = []
-    let goto_parent_cnt = from.components.length() - cnt
-    for _ in 0..<goto_parent_cnt {
-      components.push("..")
-    }
-    let rest_path = to.components[cnt:]
-    for comp in rest_path {
-      components.push(comp)
-    }
-    let path = WinPath::{ prefix: None, components }
-    path.to_string()
-  } else {
-    ""
-  }
+  nt_relpath(path.0, base.0)
 }
 
 ///|

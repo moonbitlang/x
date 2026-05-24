@@ -1,6 +1,6 @@
 # Path Utilities for Windows Systems
 
-This package provides path manipulation utilities specifically designed for Windows systems. It handles paths using backslashes (`\`) as the path separator and supports various Windows path formats including UNC paths, device paths, and volume identifiers.
+This package provides path manipulation utilities specifically designed for Windows systems. It follows Python `ntpath` string behavior for Windows paths, treating both backslashes (`\`) and forward slashes (`/`) as path separators where `ntpath` does.
 
 ## Overview
 
@@ -26,12 +26,16 @@ test "basename and dirname examples" {
   inspect(path.basename(), content="user")
   let path : Path = "project\\src\\main.mbt"
   inspect(path.basename(), content="main.mbt")
+  let path : Path = "project/src/main.mbt"
+  inspect(path.basename(), content="main.mbt")
 
   // Get the directory part
   let path : Path = "C:\\Users\\user"
   inspect(path.dirname(), content="C:\\Users")
   let path : Path = "project\\src\\main.mbt"
   inspect(path.dirname(), content="project\\src")
+  let path : Path = "project/src/main.mbt"
+  inspect(path.dirname(), content="project/src")
 
   // Handle trailing backslashes
   let path : Path = "C:\\Users\\"
@@ -59,6 +63,8 @@ test "extension extraction" {
   inspect(path.extname(), content="")
   let path : Path = "project\\"
   inspect(path.extname(), content="")
+  let path : Path = ".hidden"
+  inspect(path.extname(), content="")
 }
 ```
 
@@ -66,7 +72,7 @@ test "extension extraction" {
 
 ### Absolute Path Detection
 
-Windows has various types of absolute paths. The function correctly identifies them all:
+Windows has several forms that can be absolute. This function follows Python's `ntpath.isabs` string rules. Under those rules, share or device roots without a remaining root marker are not considered absolute:
 
 ```moonbit check
 ///|
@@ -88,8 +94,10 @@ test "absolute path detection" {
   // Volume GUID paths
   let path : Path = "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\file"
   json_inspect(path.is_absolute(), content=true)
-  // Device namespace paths
+  // Device namespace roots need a root marker after the device name
   let path : Path = "\\\\.\\COM56"
+  json_inspect(path.is_absolute(), content=false)
+  let path : Path = "\\\\.\\COM56\\"
   json_inspect(path.is_absolute(), content=true)
   // Verbatim symlink paths
   let path : Path = "\\\\?\\GLOBALROOT\\file"
@@ -121,9 +129,14 @@ test "path joining" {
   // Handle trailing backslashes
   let path : Path = "Users\\"
   inspect(path.join("user"), content="Users\\user")
+  // Drive-relative paths stay drive-relative
+  let path : Path = "C:"
+  inspect(path.join("temp"), content="C:temp")
   // Absolute paths override
   let path : Path = "relative"
   inspect(path.join("\\absolute"), content="\\absolute")
+  let path : Path = "C:\\base"
+  inspect(path.join("/absolute"), content="C:/absolute")
   let path : Path = "C:\\"
   inspect(
     path.join("folder").join("file.txt").to_string(),
@@ -151,6 +164,10 @@ test "path normalization" {
   inspect(path.normalize(), content="\\c")
   let path : Path = "a\\b\\c\\.."
   inspect(path.normalize(), content="a\\b")
+  let path : Path = ""
+  inspect(path.normalize(), content=".")
+  let path : Path = "a/b"
+  inspect(path.normalize(), content="a\\b")
 }
 ```
 
@@ -174,7 +191,7 @@ test "relative path calculation" {
   // Same path
   let base = "C:\\Users\\user_name"
   let path : Path = "C:\\Users\\user_name"
-  inspect(path.relative(base~), content="")
+  inspect(path.relative(base~), content=".")
 
   // Sibling directories
   let base = "C:\\Users\\user_name\\proj_a"
@@ -228,7 +245,7 @@ test "platform constants" {
 
 ## Windows Path Types
 
-Windows supports several types of absolute paths:
+Windows supports several path prefixes:
 
 1. **Drive Letter Paths**: `C:\folder\file`
 2. **UNC Paths**: `\\server\share\file` (network shares)
@@ -238,24 +255,25 @@ Windows supports several types of absolute paths:
 6. **Device Paths**: `\\.\device`
 7. **Symlink Paths**: `\\?\GLOBALROOT\file`
 
-The `is_absolute` function correctly identifies all these formats.
+The `is_absolute` function follows Python `ntpath.isabs`: root markers such as `\` and `/` are absolute, `\\?\` paths are absolute, and UNC or device share roots without a remaining root marker are not absolute.
 
 ## Key Properties
 
 The package maintains several important properties:
 
-1. **Basename/Dirname relationship**: For most paths, joining dirname and basename gives the original path
-2. **Relative/Join relationship**: `join(from, relative(base=from, to))` equals `normalize(to)`
-3. **Idempotent normalization**: `normalize(normalize(path))` equals `normalize(path)`
+1. **Basename/Dirname relationship**: For decomposable paths, `normalize(join(dirname(path), basename(path)))` matches `normalize(path)`. This accounts for `ntpath` accepting both `\` and `/` as separators while `join` uses Windows joining rules.
+2. **Relative/Join relationship**: When `relative(base=from, to)` does not return the compatibility exception `""`, `normalize(join(from, relative(base=from, to)))` matches `normalize(to)`.
+3. **Relative same-path result**: `relative(base=path, path)` returns `.`
+4. **Idempotent normalization**: `normalize(normalize(path))` equals `normalize(path)`
 
 ## Edge Cases
 
 The implementation handles various Windows-specific edge cases:
 
 - Drive-relative paths (`C:folder`) are treated as relative, not absolute
-- Empty paths return appropriate default values
+- `normalize("")` returns `.`
 - Trailing backslashes are preserved where semantically important
-- All Windows path prefix types are properly recognized
-- The functions are consistent with Python's `os.path` module behavior
+- Windows path prefixes are handled with Python `ntpath` string rules
+- The functions are consistent with Python 3.10 `ntpath` behavior except `relative` returns `""` where Python would raise `ValueError` for an empty target or different drives
 
 This makes the package reliable for real-world path manipulation in Windows environments, handling the complexity of Windows path formats while providing a clean, consistent API.
