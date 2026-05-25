@@ -67,7 +67,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
       let cu2 = src.unsafe_get(i).to_int()
       if cu2 >= 0xDC00 && cu2 <= 0xDFFF {
         i += 1
-        ((cu - 0xD800) * 0x400) + (cu2 - 0xDC00) + 0x10000
+        (cu - 0xD800) * 0x400 + (cu2 - 0xDC00) + 0x10000
       } else {
         cu
       }
