@@ -205,7 +205,10 @@ pub suberror DecodeError {
 } derive(Debug)
 
 ///|
-pub impl Show for DecodeError with output(self : DecodeError, logger : &Logger) -> Unit {
+pub impl Show for DecodeError with fn output(
+  self : DecodeError,
+  logger : &Logger,
+) -> Unit {
   match self {
     InvalidChar(ch) => {
       logger.write_string("InvalidChar(")
