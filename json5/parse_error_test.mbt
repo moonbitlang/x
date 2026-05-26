@@ -96,6 +96,12 @@ test "throws on invalid characters following an exponent sign" {
 }
 
 ///|
+test "throws on number parse failures" {
+  let res = try? @json5.parse("1e999999")
+  debug_inspect(res, content="Err(Invalid number 1e999999 at line 1, column 0)")
+}
+
+///|
 test "throws on invalid characters following a hexadecimal indicator" {
   let res = try? @json5.parse("0xg")
   debug_inspect(res, content="Err(Invalid character g at line 1, column 2)")
