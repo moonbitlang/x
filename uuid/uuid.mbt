@@ -162,23 +162,28 @@ pub fn from_hex(hex : String) -> UUID raise Error {
 }
 
 ///|
+#cfg(not(target="js"))
 let hex_table : Array[Int] = "0123456789abcdef".to_array().map(c => c.to_int())
 
 ///|
+#cfg(not(target="js"))
 let dash : Int = '-'.to_int()
 
 ///|
+#cfg(not(target="js"))
 let segments : ReadOnlyArray[Int] = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
 
 ///|
+#cfg(not(target="js"))
 let size : Int = (
     segments.fold((acc, x) => acc + x, init=0) + segments.length() - 2
   ) *
   2
 
 ///|
+#cfg(not(target="js"))
 pub fn UUID::to_string(self : UUID) -> String {
   // This is a manually-composed UTF-16 string
   let rv = FixedArray::make(size, b'\x00')
@@ -203,6 +208,28 @@ pub fn UUID::to_string(self : UUID) -> String {
       break rv.unsafe_reinterpret_as_bytes().to_unchecked_string()
     }
   }
+}
+
+///|
+#cfg(target="js")
+pub fn UUID::to_string(self : UUID) -> String {
+  let hi = self.hi
+    .reinterpret_as_uint64()
+    .to_string(radix=16)
+    .pad_start(16, '0')
+  let lo = self.lo
+    .reinterpret_as_uint64()
+    .to_string(radix=16)
+    .pad_start(16, '0')
+  hi[:8].to_owned() +
+  "-" +
+  hi[8:12].to_owned() +
+  "-" +
+  hi[12:16].to_owned() +
+  "-" +
+  lo[:4].to_owned() +
+  "-" +
+  lo[4:].to_owned()
 }
 
 ///|
