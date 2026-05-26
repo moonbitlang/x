@@ -25,22 +25,22 @@ test "of" {
 }
 
 ///|
-test "from_string" {
-  inspect(@time.PlainTime::from_string("00:00"), content="00:00:00")
-  inspect(@time.PlainTime::from_string("23:59"), content="23:59:00")
-  inspect(@time.PlainTime::from_string("24:00"), content="24:00:00")
-  inspect(@time.PlainTime::from_string("23:59:59"), content="23:59:59")
-  inspect(@time.PlainTime::from_string("01:00:00.123"), content="01:00:00.123")
+test "from_str" {
+  inspect(@time.PlainTime::from_str("00:00"), content="00:00:00")
+  inspect(@time.PlainTime::from_str("23:59"), content="23:59:00")
+  inspect(@time.PlainTime::from_str("24:00"), content="24:00:00")
+  inspect(@time.PlainTime::from_str("23:59:59"), content="23:59:59")
+  inspect(@time.PlainTime::from_str("01:00:00.123"), content="01:00:00.123")
   inspect(
-    @time.PlainTime::from_string("01:00:00.0000123"),
+    @time.PlainTime::from_str("01:00:00.0000123"),
     content="01:00:00.0000123",
   )
-  assert_true((try? @time.PlainTime::from_string("1:00")) is Err(_))
-  assert_true((try? @time.PlainTime::from_string("10:0")) is Err(_))
-  assert_true((try? @time.PlainTime::from_string("100000")) is Err(_))
-  assert_true((try? @time.PlainTime::from_string("123:00:00")) is Err(_))
-  assert_true((try? @time.PlainTime::from_string("10:00:00.123zzz")) is Err(_))
-  assert_true((try? @time.PlainTime::from_string("z1:00:00")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("1:00")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("10:0")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("100000")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("123:00:00")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("10:00:00.123zzz")) is Err(_))
+  assert_true((try? @time.PlainTime::from_str("z1:00:00")) is Err(_))
 }
 
 ///|

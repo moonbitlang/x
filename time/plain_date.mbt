@@ -70,7 +70,13 @@ pub fn PlainDate::to_unix_day(self : PlainDate) -> Int64 {
 
 ///|
 /// Creates a PlainDate from a string, like "2008-08-08".
+#deprecated("Use `PlainDate::from_str` instead")
 pub fn PlainDate::from_string(str : String) -> PlainDate raise Error {
+  PlainDate::parse_str(str)
+}
+
+///|
+fn PlainDate::parse_str(str : StringView) -> PlainDate raise Error {
   lexmatch str with longest {
     (
       ("-?[0-9]{4}" as year_str)
@@ -86,6 +92,11 @@ pub fn PlainDate::from_string(str : String) -> PlainDate raise Error {
     }
     _ => fail(invalid_date_err)
   }
+}
+
+///|
+pub impl @string.FromStr for PlainDate with fn from_str(str) {
+  PlainDate::parse_str(str)
 }
 
 ///|

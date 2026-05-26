@@ -3,6 +3,7 @@ package "moonbitlang/x/time"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/string",
 }
 
 // Values
@@ -25,6 +26,7 @@ pub fn Duration::add_hours(Self, Int64) -> Self raise
 pub fn Duration::add_minutes(Self, Int64) -> Self raise
 pub fn Duration::add_nanoseconds(Self, Int64) -> Self raise
 pub fn Duration::add_seconds(Self, Int64) -> Self raise
+#deprecated
 pub fn Duration::from_string(String) -> Self raise
 pub fn Duration::is_neg(Self) -> Bool
 pub fn Duration::is_zero(Self) -> Bool
@@ -38,6 +40,7 @@ pub fn Duration::with_nanoseconds(Self, Int) -> Self raise
 pub fn Duration::with_seconds(Self, Int64) -> Self
 pub fn Duration::zero() -> Self
 pub impl Show for Duration
+pub impl @string.FromStr for Duration
 
 type Period derive(Compare, Eq)
 pub fn Period::add_days(Self, Int) -> Self raise
@@ -76,6 +79,7 @@ pub fn PlainDate::days_in_week(Self) -> Int
 pub fn PlainDate::days_in_year(Self) -> Int
 pub fn PlainDate::era(Self) -> String
 pub fn PlainDate::era_year(Self) -> Int
+#deprecated
 pub fn PlainDate::from_string(String) -> Self raise
 pub fn PlainDate::from_unix_day(Int64) -> Self raise
 pub fn PlainDate::from_year_ord(Int, Int) -> Self raise
@@ -96,6 +100,7 @@ pub fn PlainDate::year(Self) -> Int
 pub impl Compare for PlainDate
 pub impl Eq for PlainDate
 pub impl Show for PlainDate
+pub impl @string.FromStr for PlainDate
 
 type PlainDateTime derive(Compare, Eq)
 pub fn PlainDateTime::add_days(Self, Int64) -> Self raise
@@ -114,6 +119,7 @@ pub fn PlainDateTime::days_in_week(Self) -> Int
 pub fn PlainDateTime::days_in_year(Self) -> Int
 pub fn PlainDateTime::era(Self) -> String
 pub fn PlainDateTime::era_year(Self) -> Int
+#deprecated
 pub fn PlainDateTime::from_string(String) -> Self raise
 pub fn PlainDateTime::from_unix_second(Int64, Int, ZoneOffset) -> Self raise
 pub fn PlainDateTime::hour(Self) -> Int
@@ -140,6 +146,7 @@ pub fn PlainDateTime::with_second(Self, Int) -> Self raise
 pub fn PlainDateTime::with_year(Self, Int) -> Self raise
 pub fn PlainDateTime::year(Self) -> Int
 pub impl Show for PlainDateTime
+pub impl @string.FromStr for PlainDateTime
 
 type PlainTime derive(Compare, Eq)
 pub fn PlainTime::add_duration(Self, Duration) -> Self raise
@@ -150,6 +157,7 @@ pub fn PlainTime::add_seconds(Self, Int64) -> Self raise
 pub fn PlainTime::at_date(Self, PlainDate) -> PlainDateTime
 pub fn PlainTime::from_nanosecond_of_day(Int64) -> Self raise
 pub fn PlainTime::from_second_of_day(Int) -> Self raise
+#deprecated
 pub fn PlainTime::from_string(String) -> Self raise
 pub fn PlainTime::hour(Self) -> Int
 pub fn PlainTime::minute(Self) -> Int
@@ -165,6 +173,7 @@ pub fn PlainTime::with_minute(Self, Int) -> Self raise
 pub fn PlainTime::with_nanosecond(Self, Int) -> Self raise
 pub fn PlainTime::with_second(Self, Int) -> Self raise
 pub impl Show for PlainTime
+pub impl @string.FromStr for PlainTime
 
 pub(all) enum Weekday {
   Monday

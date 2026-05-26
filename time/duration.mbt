@@ -54,7 +54,13 @@ pub fn Duration::zero() -> Duration {
 
 ///|
 /// Parses a ISO 8601 format string like `PT[n]H[n]M[n].[n]S`.
+#deprecated("Use `Duration::from_str` instead")
 pub fn Duration::from_string(str : String) -> Duration raise Error {
+  Duration::parse_str(str)
+}
+
+///|
+fn Duration::parse_str(str : StringView) -> Duration raise Error {
   guard str is [.. "PT", ..] else { fail(invalid_duration_err) }
   let mut hours = 0L
   let mut minutes = 0L
@@ -75,21 +81,31 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
       }
       'S' => {
         let s = buf.to_string()
-        let splits = split(s, '.')
-        if splits.is_empty() || splits.length() > 2 {
+        if s.is_empty() {
           fail(invalid_duration_err)
         }
-        if splits.length() > 0 && splits[0] != "" {
-          let secs_str = splits[0]
+        let splits = s.split(".")
+        let secs_str = match splits.next() {
+          Some(part) => part
+          None => fail(invalid_duration_err)
+        }
+        let nanos_str = splits.next()
+        match splits.next() {
+          Some(_) => fail(invalid_duration_err)
+          None => ()
+        }
+        if !secs_str.is_empty() {
           seconds = @string.from_str(secs_str)
         }
-        if splits.length() > 1 && splits[1] != "" {
-          let mut nanos_str = splits[1]
-          nanos_str = add_suffix_zero(nanos_str, 9)
-          if seconds < 0L {
-            nanos_str = "-" + nanos_str
+        match nanos_str {
+          Some(nanos) if !nanos.is_empty() => {
+            let mut nanos_str = add_suffix_zero(nanos, 9)
+            if seconds < 0L {
+              nanos_str = "-" + nanos_str
+            }
+            nanoseconds = @string.from_str(nanos_str)
           }
-          nanoseconds = @string.from_str(nanos_str)
+          _ => ()
         }
         break
       }
@@ -97,6 +113,11 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
     }
   }
   Duration::of(hours~, minutes~, seconds~, nanoseconds~)
+}
+
+///|
+pub impl @string.FromStr for Duration with fn from_str(str) {
+  Duration::parse_str(str)
 }
 
 ///|

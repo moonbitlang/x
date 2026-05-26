@@ -42,16 +42,16 @@ test "from_year_ord" {
 }
 
 ///|
-test "from_string" {
-  inspect(@time.PlainDate::from_string("9999-01-01"), content="9999-01-01")
-  inspect(@time.PlainDate::from_string("0000-01-01"), content="0000-01-01")
-  inspect(@time.PlainDate::from_string("0001-01-01"), content="0001-01-01")
-  inspect(@time.PlainDate::from_string("-9999-01-01"), content="-9999-01-01")
-  assert_true((try? @time.PlainDate::from_string("10000-01-01")) is Err(_))
-  assert_true((try? @time.PlainDate::from_string("-10000-01-01")) is Err(_))
-  assert_true((try? @time.PlainDate::from_string("-01-01")) is Err(_))
-  assert_true((try? @time.PlainDate::from_string("12-31")) is Err(_))
-  assert_true((try? @time.PlainDate::from_string("-01")) is Err(_))
+test "from_str" {
+  inspect(@time.PlainDate::from_str("9999-01-01"), content="9999-01-01")
+  inspect(@time.PlainDate::from_str("0000-01-01"), content="0000-01-01")
+  inspect(@time.PlainDate::from_str("0001-01-01"), content="0001-01-01")
+  inspect(@time.PlainDate::from_str("-9999-01-01"), content="-9999-01-01")
+  assert_true((try? @time.PlainDate::from_str("10000-01-01")) is Err(_))
+  assert_true((try? @time.PlainDate::from_str("-10000-01-01")) is Err(_))
+  assert_true((try? @time.PlainDate::from_str("-01-01")) is Err(_))
+  assert_true((try? @time.PlainDate::from_str("12-31")) is Err(_))
+  assert_true((try? @time.PlainDate::from_str("-01")) is Err(_))
 }
 
 ///|

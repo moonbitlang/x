@@ -13,19 +13,19 @@
 // limitations under the License.
 
 ///|
-test "from_string" {
-  inspect(@time.Duration::from_string("PT0S"), content="PT0S")
+test "from_str" {
+  inspect(@time.Duration::from_str("PT0S"), content="PT0S")
   inspect(
-    @time.Duration::from_string("PT1H2M3.456789S"),
+    @time.Duration::from_str("PT1H2M3.456789S"),
     content="PT1H2M3.456789S",
   )
   inspect(
-    @time.Duration::from_string("PT-1H-2M-3.456789S"),
+    @time.Duration::from_str("PT-1H-2M-3.456789S"),
     content="PT-1H-2M-3.456789S",
   )
-  inspect(@time.Duration::from_string("PT0.45S"), content="PT0.45S")
-  assert_true((try? @time.Duration::from_string("PT0.000.45S")) is Err(_))
-  assert_true((try? @time.Duration::from_string("P1Y2M3DT4H5M6S")) is Err(_))
+  inspect(@time.Duration::from_str("PT0.45S"), content="PT0.45S")
+  assert_true((try? @time.Duration::from_str("PT0.000.45S")) is Err(_))
+  assert_true((try? @time.Duration::from_str("P1Y2M3DT4H5M6S")) is Err(_))
 }
 
 ///|

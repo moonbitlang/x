@@ -38,7 +38,13 @@ pub fn PlainTime::of(
 
 ///|
 /// Creates a PlainTime from a string, like '10:20:30.45678'.
+#deprecated("Use `PlainTime::from_str` instead")
 pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
+  PlainTime::parse_str(str)
+}
+
+///|
+fn PlainTime::parse_str(str : StringView) -> PlainTime raise Error {
   let (hour, minute, second, nanosecond) = lexmatch str with longest {
     (("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str)) =>
       (@string.parse_int(hour_str), @string.parse_int(minute_str), 0, 0)
@@ -68,11 +74,16 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
         @string.parse_int(hour_str),
         @string.parse_int(minute_str),
         @string.parse_int(second_str),
-        @string.parse_int(add_suffix_zero(nanosecond_str.to_owned(), 9)),
+        @string.parse_int(add_suffix_zero(nanosecond_str, 9)),
       )
     _ => fail(invalid_time_err)
   }
   PlainTime::of(hour, minute, second, nanosecond)
+}
+
+///|
+pub impl @string.FromStr for PlainTime with fn from_str(str) {
+  PlainTime::parse_str(str)
 }
 
 ///|
