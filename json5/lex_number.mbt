@@ -56,7 +56,7 @@ fn lex_number_end(
   @string.parse_double(view) catch {
     _ =>
       parse_error(
-        InvalidNumber(offset_to_position(ctx.input, start), view.to_string()),
+        InvalidNumber(offset_to_position(ctx.input, start), view.to_owned()),
       )
   }
 }
