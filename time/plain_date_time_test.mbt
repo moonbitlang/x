@@ -77,34 +77,34 @@ test "from_unix_second" {
 }
 
 ///|
-test "from_string" {
+test "from_str" {
   inspect(
-    @time.PlainDateTime::from_string("0000-01-01T00:00:00"),
+    @time.PlainDateTime::from_str("0000-01-01T00:00:00"),
     content="0000-01-01T00:00:00",
   )
   inspect(
-    @time.PlainDateTime::from_string("9999-12-31T23:59:59"),
+    @time.PlainDateTime::from_str("9999-12-31T23:59:59"),
     content="9999-12-31T23:59:59",
   )
   inspect(
-    @time.PlainDateTime::from_string("-9999-12-31T23:59:59"),
+    @time.PlainDateTime::from_str("-9999-12-31T23:59:59"),
     content="-9999-12-31T23:59:59",
   )
   inspect(
-    @time.PlainDateTime::from_string("2000-01-01T00:00:00.12345"),
+    @time.PlainDateTime::from_str("2000-01-01T00:00:00.12345"),
     content="2000-01-01T00:00:00.12345",
   )
   assert_true(
-    (try? @time.PlainDateTime::from_string("9999-12-31T23:59:60")) is Err(_),
+    (try? @time.PlainDateTime::from_str("9999-12-31T23:59:60")) is Err(_),
   )
   assert_true(
-    (try? @time.PlainDateTime::from_string("10000-12-31T23:59:60")) is Err(_),
+    (try? @time.PlainDateTime::from_str("10000-12-31T23:59:60")) is Err(_),
   )
   assert_true(
-    (try? @time.PlainDateTime::from_string("2000-01-01 00:00:00")) is Err(_),
+    (try? @time.PlainDateTime::from_str("2000-01-01 00:00:00")) is Err(_),
   )
-  assert_true((try? @time.PlainDateTime::from_string("2000-01-01")) is Err(_))
-  assert_true((try? @time.PlainDateTime::from_string("00:00:00")) is Err(_))
+  assert_true((try? @time.PlainDateTime::from_str("2000-01-01")) is Err(_))
+  assert_true((try? @time.PlainDateTime::from_str("00:00:00")) is Err(_))
 }
 
 ///|

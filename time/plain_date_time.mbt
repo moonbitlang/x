@@ -65,15 +65,36 @@ pub fn PlainDateTime::to_unix_second(self : PlainDateTime) -> Int64 {
 
 ///|
 /// Creates a PlainTime from a string, like '2008-08-08T20:00:00'.
+#deprecated("Use `PlainDateTime::from_str` instead")
 pub fn PlainDateTime::from_string(str : String) -> PlainDateTime raise Error {
+  PlainDateTime::parse_str(str)
+}
+
+///|
+fn PlainDateTime::parse_str(str : StringView) -> PlainDateTime raise Error {
   // TODO: better parsing implementation
-  let split = split(str, 'T')
-  if split.length() != 2 {
-    fail(invalid_date_time_err)
+  let split = str.split("T")
+  let date_str = match split.next() {
+    Some(part) => part
+    None => fail(invalid_date_time_err)
   }
-  let date = PlainDate::from_string(split[0])
-  let time = PlainTime::from_string(split[1])
-  { date, time }
+  let time_str = match split.next() {
+    Some(part) => part
+    None => fail(invalid_date_time_err)
+  }
+  match split.next() {
+    Some(_) => fail(invalid_date_time_err)
+    None => {
+      let date = PlainDate::parse_str(date_str)
+      let time = PlainTime::parse_str(time_str)
+      { date, time }
+    }
+  }
+}
+
+///|
+pub impl @string.FromStr for PlainDateTime with fn from_str(str) {
+  PlainDateTime::parse_str(str)
 }
 
 ///|

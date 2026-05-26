@@ -71,9 +71,9 @@ test "remove_suffix_zero && format_nanos" {
 }
 
 ///|
-fn add_suffix_zero(s : String, len : Int) -> String {
+fn add_suffix_zero(s : StringView, len : Int) -> String {
   let buf = StringBuilder::new(size_hint=len)
-  buf.write_string(s)
+  buf.write_stringview(s)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
   }
@@ -86,69 +86,6 @@ test "add_suffix_zero" {
   inspect(add_suffix_zero("1", 1), content="1")
   inspect(add_suffix_zero("1", 2), content="10")
   inspect(add_suffix_zero("1", 3), content="100")
-}
-
-///|
-/// FIXME: use split method of String
-fn split(s : String, delimiter : Char) -> Array[String] {
-  let spl = []
-  if s.length() == 0 {
-    return spl
-  }
-  let buf = StringBuilder::new(size_hint=0)
-  let delimiter_code = Char::to_int(delimiter).to_uint16()
-  for i = 0; i < s.length(); i = i + 1 {
-    let code_unit = s.code_unit_at(i)
-    if code_unit == delimiter_code {
-      spl.push(buf.to_string())
-      buf.reset()
-    } else {
-      buf.write_char(UInt16::unsafe_to_char(code_unit))
-    }
-  }
-  spl.push(buf.to_string())
-  spl
-}
-
-///|
-test "split" {
-  debug_inspect(
-    split("2000-01-01", '-'),
-    content=(
-      #|["2000", "01", "01"]
-    ),
-  )
-  debug_inspect(
-    split("-01-01", '-'),
-    content=(
-      #|["", "01", "01"]
-    ),
-  )
-  debug_inspect(
-    split("12-31", '-'),
-    content=(
-      #|["12", "31"]
-    ),
-  )
-  debug_inspect(
-    split("-01", '-'),
-    content=(
-      #|["", "01"]
-    ),
-  )
-  debug_inspect(
-    split("-", '-'),
-    content=(
-      #|["", ""]
-    ),
-  )
-  debug_inspect(split("", '-'), content="[]")
-  debug_inspect(
-    split("0", '-'),
-    content=(
-      #|["0"]
-    ),
-  )
 }
 
 ///|
