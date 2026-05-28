@@ -81,7 +81,7 @@ extern "js" fn FsUnitResult::error_message(self : Self) -> String =
   #| (res) => res.content
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn read_file_sync(path : String) -> Bytes = "readFileSync"
 
 ///|
@@ -99,7 +99,7 @@ extern "js" fn read_file_ffi(
   #| }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn write_file_sync(path : String, content : Bytes) -> Unit = "writeFileSync"
 
 ///|
@@ -167,7 +167,7 @@ fn write_string_to_file_internal(
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn path_exists_ffi(path : String) -> Bool = "existsSync"
 
 ///|
@@ -176,7 +176,7 @@ pub fn path_exists_internal(path : String) -> Bool {
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn read_dir_sync(path : String) -> Array[String] = "readdirSync"
 
 ///|
@@ -203,7 +203,7 @@ fn read_dir_internal(path : String) -> Array[String] raise IOError {
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn create_dir_sync(path : String, options : FsOptions) -> Unit = "mkdirSync"
 
 ///|
@@ -229,7 +229,7 @@ fn create_dir_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn stat_sync(path : String) -> FsStats = "statSync"
 
 ///|
@@ -279,7 +279,7 @@ fn is_file_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn remove_dir_sync(path : String, options : FsOptions) -> Unit = "rmSync"
 
 ///|
@@ -305,7 +305,7 @@ fn remove_dir_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
-#module("fs")
+#module("node:fs")
 extern "js" fn remove_file_sync(path : String) -> Unit = "unlinkSync"
 
 ///|
