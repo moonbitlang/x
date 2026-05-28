@@ -21,6 +21,66 @@ priv type FsStats
 priv type FsOptions
 
 ///|
+#external
+priv type FsBytesResult
+
+///|
+extern "js" fn FsBytesResult::is_ok(self : Self) -> Bool =
+  #| (res) => res.tag === "ok"
+
+///|
+extern "js" fn FsBytesResult::content(self : Self) -> Bytes =
+  #| (res) => res.content
+
+///|
+extern "js" fn FsBytesResult::error_message(self : Self) -> String =
+  #| (res) => res.content
+
+///|
+#external
+priv type FsStringArrayResult
+
+///|
+extern "js" fn FsStringArrayResult::is_ok(self : Self) -> Bool =
+  #| (res) => res.tag === "ok"
+
+///|
+extern "js" fn FsStringArrayResult::content(self : Self) -> Array[String] =
+  #| (res) => res.content
+
+///|
+extern "js" fn FsStringArrayResult::error_message(self : Self) -> String =
+  #| (res) => res.content
+
+///|
+#external
+priv type FsBoolResult
+
+///|
+extern "js" fn FsBoolResult::is_ok(self : Self) -> Bool =
+  #| (res) => res.tag === "ok"
+
+///|
+extern "js" fn FsBoolResult::content(self : Self) -> Bool =
+  #| (res) => res.content
+
+///|
+extern "js" fn FsBoolResult::error_message(self : Self) -> String =
+  #| (res) => res.content
+
+///|
+#external
+priv type FsUnitResult
+
+///|
+extern "js" fn FsUnitResult::is_ok(self : Self) -> Bool =
+  #| (res) => res.tag === "ok"
+
+///|
+extern "js" fn FsUnitResult::error_message(self : Self) -> String =
+  #| (res) => res.content
+
+///|
 #module("fs")
 extern "js" fn read_file_sync(path : String) -> Bytes = "readFileSync"
 
@@ -28,15 +88,13 @@ extern "js" fn read_file_sync(path : String) -> Bytes = "readFileSync"
 extern "js" fn read_file_ffi(
   read_file : (String) -> Bytes,
   path : String,
-) -> Int =
+) -> FsBytesResult =
   #| function(readFile, path) {
   #|   try {
   #|     const content = readFile(path);
-  #|     globalThis.fileContent = content;
-  #|     return 0;
+  #|     return { tag: "ok", content };
   #|   } catch (error) {
-  #|     globalThis.errorMessage = error.message;
-  #|     return -1;
+  #|     return { tag: "err", content: error.message };
   #|   }
   #| }
 
@@ -49,42 +107,23 @@ extern "js" fn write_file_ffi(
   write_file : (String, Bytes) -> Unit,
   path : String,
   content : Bytes,
-) -> Int =
+) -> FsUnitResult =
   #| function(writeFile, path, content) {
   #|   try {
   #|     writeFile(path, Buffer.from(content));
-  #|     return 0;
+  #|     return { tag: "ok", content: "" };
   #|   } catch (error) {
-  #|     globalThis.errorMessage = error.message;
-  #|     return -1;
+  #|     return { tag: "err", content: error.message };
   #|   }
-  #| }
-
-///|
-extern "js" fn get_file_content_ffi() -> Bytes =
-  #| function() {
-  #|   return globalThis.fileContent;
-  #| }
-
-///|
-extern "js" fn get_dir_files_ffi() -> Array[String] =
-  #| function() {
-  #|   return globalThis.files;
-  #| }
-
-///|
-extern "js" fn get_error_message_ffi() -> String =
-  #| function() {
-  #|   return globalThis.errorMessage || '';
   #| }
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let res = read_file_ffi(read_file_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
-  get_file_content_ffi()
+  res.content()
 }
 
 ///|
@@ -107,8 +146,8 @@ fn write_bytes_to_file_internal(
   content : Bytes,
 ) -> Unit raise IOError {
   let res = write_file_ffi(write_file_sync, path, content)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
 }
 
@@ -144,25 +183,23 @@ extern "js" fn read_dir_sync(path : String) -> Array[String] = "readdirSync"
 extern "js" fn read_dir_ffi(
   read_dir : (String) -> Array[String],
   path : String,
-) -> Int =
+) -> FsStringArrayResult =
   #| function(readDir, path) {
   #|  try {
   #|    const files = readDir(path);
-  #|    globalThis.files = files;
-  #|    return 0;
+  #|    return { tag: "ok", content: files };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn read_dir_internal(path : String) -> Array[String] raise IOError {
   let res = read_dir_ffi(read_dir_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
-  get_dir_files_ffi()
+  res.content()
 }
 
 ///|
@@ -173,22 +210,21 @@ extern "js" fn create_dir_sync(path : String, options : FsOptions) -> Unit = "mk
 extern "js" fn create_dir_ffi(
   create_dir : (String, FsOptions) -> Unit,
   path : String,
-) -> Int =
+) -> FsUnitResult =
   #| function(createDir, path) {
   #|  try {
   #|    createDir(path, { recursive: true });
-  #|    return 0;
+  #|    return { tag: "ok", content: "" };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn create_dir_internal(path : String) -> Unit raise IOError {
   let res = create_dir_ffi(create_dir_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
 }
 
@@ -197,45 +233,49 @@ fn create_dir_internal(path : String) -> Unit raise IOError {
 extern "js" fn stat_sync(path : String) -> FsStats = "statSync"
 
 ///|
-extern "js" fn is_dir_ffi(stat : (String) -> FsStats, path : String) -> Int =
+extern "js" fn is_dir_ffi(
+  stat : (String) -> FsStats,
+  path : String,
+) -> FsBoolResult =
   #| function(stat, path) {
   #|  try {
   #|    const stats = stat(path);
-  #|    return stats.isDirectory() ? 1 : 0;
+  #|    return { tag: "ok", content: stats.isDirectory() };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn is_dir_internal(path : String) -> Bool raise IOError {
   let res = is_dir_ffi(stat_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
-  res == 1
+  res.content()
 }
 
 ///|
-extern "js" fn is_file_ffi(stat : (String) -> FsStats, path : String) -> Int =
+extern "js" fn is_file_ffi(
+  stat : (String) -> FsStats,
+  path : String,
+) -> FsBoolResult =
   #| function(stat, path) {
   #|  try {
   #|    const stats = stat(path);
-  #|    return stats.isFile() ? 1 : 0;
+  #|    return { tag: "ok", content: stats.isFile() };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn is_file_internal(path : String) -> Bool raise IOError {
   let res = is_file_ffi(stat_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
-  res == 1
+  res.content()
 }
 
 ///|
@@ -246,22 +286,21 @@ extern "js" fn remove_dir_sync(path : String, options : FsOptions) -> Unit = "rm
 extern "js" fn remove_dir_ffi(
   remove_dir : (String, FsOptions) -> Unit,
   path : String,
-) -> Int =
+) -> FsUnitResult =
   #| function(removeDir, path) {
   #|  try {
   #|    removeDir(path, { recursive: true });
-  #|    return 0;
+  #|    return { tag: "ok", content: "" };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn remove_dir_internal(path : String) -> Unit raise IOError {
   let res = remove_dir_ffi(remove_dir_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
 }
 
@@ -273,21 +312,20 @@ extern "js" fn remove_file_sync(path : String) -> Unit = "unlinkSync"
 extern "js" fn remove_file_ffi(
   remove_file : (String) -> Unit,
   path : String,
-) -> Int =
+) -> FsUnitResult =
   #| function(removeFile, path) {
   #|  try {
   #|    removeFile(path);
-  #|    return 0;
+  #|    return { tag: "ok", content: "" };
   #|  } catch (error) {
-  #|    globalThis.errorMessage = error.message;
-  #|    return -1;
+  #|    return { tag: "err", content: error.message };
   #|  }
   #| }
 
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
   let res = remove_file_ffi(remove_file_sync, path)
-  if res == -1 {
-    raise IOError(get_error_message_ffi())
+  if !res.is_ok() {
+    raise IOError(res.error_message())
   }
 }
