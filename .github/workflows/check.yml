@@ -61,6 +61,10 @@ jobs:
           - name: windows-latest
 
     runs-on: ${{ matrix.os.name }}
+
+    defaults:
+      run:
+        shell: bash
     
     env: 
       OS_PLATFORM: ${{ matrix.os.name }}
@@ -76,6 +80,7 @@ jobs:
 
       - name: install on windows
         if: ${{ matrix.os.name == 'windows-latest' }}
+        shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
@@ -128,6 +133,10 @@ jobs:
 
     runs-on: ${{ matrix.os.name }}
 
+    defaults:
+      run:
+        shell: bash
+
     env:
       OS_PLATFORM: ${{ matrix.os.name }}
 
@@ -144,6 +153,7 @@ jobs:
         env:
           MOONBIT_INSTALL_VERSION: pre-release
         if: ${{ matrix.os.name == 'windows-latest' }}
+        shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
@@ -186,6 +196,10 @@ jobs:
 
     runs-on: ${{ matrix.os.name }}
 
+    defaults:
+      run:
+        shell: bash
+
     env: 
       OS_PLATFORM: ${{ matrix.os.name }}
 
@@ -202,6 +216,7 @@ jobs:
         env:
           MOONBIT_INSTALL_VERSION: nightly
         if: ${{ matrix.os.name == 'windows-latest' }}
+        shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
