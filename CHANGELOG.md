@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `@fs` JS backend imports to use MoonBit import annotations and Node's
+  `node:fs`, preserving ESM/CJS output format (#248)
+
 ## [0.4.40]
 
 ### Changed
