@@ -13,11 +13,25 @@
 // limitations under the License.
 
 ///|
-extern "js" fn read_file_ffi(path : String) -> Int =
-  #| function(path) {
-  #|   var fs = require('fs');
+#external
+priv type FsStats
+
+///|
+#external
+priv type FsOptions
+
+///|
+#module("fs")
+extern "js" fn read_file_sync(path : String) -> Bytes = "readFileSync"
+
+///|
+extern "js" fn read_file_ffi(
+  read_file : (String) -> Bytes,
+  path : String,
+) -> Int =
+  #| function(readFile, path) {
   #|   try {
-  #|     const content = fs.readFileSync(path);
+  #|     const content = readFile(path);
   #|     globalThis.fileContent = content;
   #|     return 0;
   #|   } catch (error) {
@@ -27,11 +41,18 @@ extern "js" fn read_file_ffi(path : String) -> Int =
   #| }
 
 ///|
-extern "js" fn write_file_ffi(path : String, content : Bytes) -> Int =
-  #| function(path, content) {
-  #|   var fs = require('fs');
+#module("fs")
+extern "js" fn write_file_sync(path : String, content : Bytes) -> Unit = "writeFileSync"
+
+///|
+extern "js" fn write_file_ffi(
+  write_file : (String, Bytes) -> Unit,
+  path : String,
+  content : Bytes,
+) -> Int =
+  #| function(writeFile, path, content) {
   #|   try {
-  #|     fs.writeFileSync(path, Buffer.from(content));
+  #|     writeFile(path, Buffer.from(content));
   #|     return 0;
   #|   } catch (error) {
   #|     globalThis.errorMessage = error.message;
@@ -59,7 +80,7 @@ extern "js" fn get_error_message_ffi() -> String =
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let res = read_file_ffi(path)
+  let res = read_file_ffi(read_file_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
@@ -85,7 +106,7 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let res = write_file_ffi(path, content)
+  let res = write_file_ffi(write_file_sync, path, content)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
@@ -107,11 +128,8 @@ fn write_string_to_file_internal(
 }
 
 ///|
-extern "js" fn path_exists_ffi(path : String) -> Bool =
-  #| function(path) {
-  #|  var fs = require('fs');
-  #|  return fs.existsSync(path);
-  #| }
+#module("fs")
+extern "js" fn path_exists_ffi(path : String) -> Bool = "existsSync"
 
 ///|
 pub fn path_exists_internal(path : String) -> Bool {
@@ -119,11 +137,17 @@ pub fn path_exists_internal(path : String) -> Bool {
 }
 
 ///|
-extern "js" fn read_dir_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+#module("fs")
+extern "js" fn read_dir_sync(path : String) -> Array[String] = "readdirSync"
+
+///|
+extern "js" fn read_dir_ffi(
+  read_dir : (String) -> Array[String],
+  path : String,
+) -> Int =
+  #| function(readDir, path) {
   #|  try {
-  #|    const files = fs.readdirSync(path);
+  #|    const files = readDir(path);
   #|    globalThis.files = files;
   #|    return 0;
   #|  } catch (error) {
@@ -134,7 +158,7 @@ extern "js" fn read_dir_ffi(path : String) -> Int =
 
 ///|
 fn read_dir_internal(path : String) -> Array[String] raise IOError {
-  let res = read_dir_ffi(path)
+  let res = read_dir_ffi(read_dir_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
@@ -142,11 +166,17 @@ fn read_dir_internal(path : String) -> Array[String] raise IOError {
 }
 
 ///|
-extern "js" fn create_dir_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+#module("fs")
+extern "js" fn create_dir_sync(path : String, options : FsOptions) -> Unit = "mkdirSync"
+
+///|
+extern "js" fn create_dir_ffi(
+  create_dir : (String, FsOptions) -> Unit,
+  path : String,
+) -> Int =
+  #| function(createDir, path) {
   #|  try {
-  #|    fs.mkdirSync(path, { recursive: true });
+  #|    createDir(path, { recursive: true });
   #|    return 0;
   #|  } catch (error) {
   #|    globalThis.errorMessage = error.message;
@@ -156,18 +186,21 @@ extern "js" fn create_dir_ffi(path : String) -> Int =
 
 ///|
 fn create_dir_internal(path : String) -> Unit raise IOError {
-  let res = create_dir_ffi(path)
+  let res = create_dir_ffi(create_dir_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
 }
 
 ///|
-extern "js" fn is_dir_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+#module("fs")
+extern "js" fn stat_sync(path : String) -> FsStats = "statSync"
+
+///|
+extern "js" fn is_dir_ffi(stat : (String) -> FsStats, path : String) -> Int =
+  #| function(stat, path) {
   #|  try {
-  #|    const stats = fs.statSync(path);
+  #|    const stats = stat(path);
   #|    return stats.isDirectory() ? 1 : 0;
   #|  } catch (error) {
   #|    globalThis.errorMessage = error.message;
@@ -177,7 +210,7 @@ extern "js" fn is_dir_ffi(path : String) -> Int =
 
 ///|
 fn is_dir_internal(path : String) -> Bool raise IOError {
-  let res = is_dir_ffi(path)
+  let res = is_dir_ffi(stat_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
@@ -185,11 +218,10 @@ fn is_dir_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
-extern "js" fn is_file_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+extern "js" fn is_file_ffi(stat : (String) -> FsStats, path : String) -> Int =
+  #| function(stat, path) {
   #|  try {
-  #|    const stats = fs.statSync(path);
+  #|    const stats = stat(path);
   #|    return stats.isFile() ? 1 : 0;
   #|  } catch (error) {
   #|    globalThis.errorMessage = error.message;
@@ -199,7 +231,7 @@ extern "js" fn is_file_ffi(path : String) -> Int =
 
 ///|
 fn is_file_internal(path : String) -> Bool raise IOError {
-  let res = is_file_ffi(path)
+  let res = is_file_ffi(stat_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
@@ -207,11 +239,17 @@ fn is_file_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
-extern "js" fn remove_dir_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+#module("fs")
+extern "js" fn remove_dir_sync(path : String, options : FsOptions) -> Unit = "rmSync"
+
+///|
+extern "js" fn remove_dir_ffi(
+  remove_dir : (String, FsOptions) -> Unit,
+  path : String,
+) -> Int =
+  #| function(removeDir, path) {
   #|  try {
-  #|    fs.rmSync(path, { recursive: true });
+  #|    removeDir(path, { recursive: true });
   #|    return 0;
   #|  } catch (error) {
   #|    globalThis.errorMessage = error.message;
@@ -221,18 +259,24 @@ extern "js" fn remove_dir_ffi(path : String) -> Int =
 
 ///|
 fn remove_dir_internal(path : String) -> Unit raise IOError {
-  let res = remove_dir_ffi(path)
+  let res = remove_dir_ffi(remove_dir_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
 }
 
 ///|
-extern "js" fn remove_file_ffi(path : String) -> Int =
-  #| function(path) {
-  #|  var fs = require('fs');
+#module("fs")
+extern "js" fn remove_file_sync(path : String) -> Unit = "unlinkSync"
+
+///|
+extern "js" fn remove_file_ffi(
+  remove_file : (String) -> Unit,
+  path : String,
+) -> Int =
+  #| function(removeFile, path) {
   #|  try {
-  #|    fs.unlinkSync(path);
+  #|    removeFile(path);
   #|    return 0;
   #|  } catch (error) {
   #|    globalThis.errorMessage = error.message;
@@ -242,7 +286,7 @@ extern "js" fn remove_file_ffi(path : String) -> Int =
 
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
-  let res = remove_file_ffi(path)
+  let res = remove_file_ffi(remove_file_sync, path)
   if res == -1 {
     raise IOError(get_error_message_ffi())
   }
