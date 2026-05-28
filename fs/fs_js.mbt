@@ -26,7 +26,7 @@ priv type FsBytesResult
 
 ///|
 extern "js" fn FsBytesResult::is_ok(self : Self) -> Bool =
-  #| (res) => res.tag === "ok"
+  #| (res) => res.ok
 
 ///|
 extern "js" fn FsBytesResult::content(self : Self) -> Bytes =
@@ -42,7 +42,7 @@ priv type FsStringArrayResult
 
 ///|
 extern "js" fn FsStringArrayResult::is_ok(self : Self) -> Bool =
-  #| (res) => res.tag === "ok"
+  #| (res) => res.ok
 
 ///|
 extern "js" fn FsStringArrayResult::content(self : Self) -> Array[String] =
@@ -58,7 +58,7 @@ priv type FsBoolResult
 
 ///|
 extern "js" fn FsBoolResult::is_ok(self : Self) -> Bool =
-  #| (res) => res.tag === "ok"
+  #| (res) => res.ok
 
 ///|
 extern "js" fn FsBoolResult::content(self : Self) -> Bool =
@@ -74,7 +74,7 @@ priv type FsUnitResult
 
 ///|
 extern "js" fn FsUnitResult::is_ok(self : Self) -> Bool =
-  #| (res) => res.tag === "ok"
+  #| (res) => res.ok
 
 ///|
 extern "js" fn FsUnitResult::error_message(self : Self) -> String =
@@ -92,9 +92,9 @@ extern "js" fn read_file_ffi(
   #| function(readFile, path) {
   #|   try {
   #|     const content = readFile(path);
-  #|     return { tag: "ok", content };
+  #|     return { ok: true, content };
   #|   } catch (error) {
-  #|     return { tag: "err", content: error.message };
+  #|     return { ok: false, content: error.message };
   #|   }
   #| }
 
@@ -111,9 +111,9 @@ extern "js" fn write_file_ffi(
   #| function(writeFile, path, content) {
   #|   try {
   #|     writeFile(path, Buffer.from(content));
-  #|     return { tag: "ok", content: "" };
+  #|     return { ok: true, content: "" };
   #|   } catch (error) {
-  #|     return { tag: "err", content: error.message };
+  #|     return { ok: false, content: error.message };
   #|   }
   #| }
 
@@ -187,9 +187,9 @@ extern "js" fn read_dir_ffi(
   #| function(readDir, path) {
   #|  try {
   #|    const files = readDir(path);
-  #|    return { tag: "ok", content: files };
+  #|    return { ok: true, content: files };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
@@ -214,9 +214,9 @@ extern "js" fn create_dir_ffi(
   #| function(createDir, path) {
   #|  try {
   #|    createDir(path, { recursive: true });
-  #|    return { tag: "ok", content: "" };
+  #|    return { ok: true, content: "" };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
@@ -240,9 +240,9 @@ extern "js" fn is_dir_ffi(
   #| function(stat, path) {
   #|  try {
   #|    const stats = stat(path);
-  #|    return { tag: "ok", content: stats.isDirectory() };
+  #|    return { ok: true, content: stats.isDirectory() };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
@@ -263,9 +263,9 @@ extern "js" fn is_file_ffi(
   #| function(stat, path) {
   #|  try {
   #|    const stats = stat(path);
-  #|    return { tag: "ok", content: stats.isFile() };
+  #|    return { ok: true, content: stats.isFile() };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
@@ -290,9 +290,9 @@ extern "js" fn remove_dir_ffi(
   #| function(removeDir, path) {
   #|  try {
   #|    removeDir(path, { recursive: true });
-  #|    return { tag: "ok", content: "" };
+  #|    return { ok: true, content: "" };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
@@ -316,9 +316,9 @@ extern "js" fn remove_file_ffi(
   #| function(removeFile, path) {
   #|  try {
   #|    removeFile(path);
-  #|    return { tag: "ok", content: "" };
+  #|    return { ok: true, content: "" };
   #|  } catch (error) {
-  #|    return { tag: "err", content: error.message };
+  #|    return { ok: false, content: error.message };
   #|  }
   #| }
 
