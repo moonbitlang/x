@@ -6,46 +6,47 @@
 
 ### Added
 
-- Added `Debug` implementation for `@rational`
+- Added `Debug` implementation for `@rational` (#237)
 
 ### Fixed
 
 - Fixed `@fs` JS backend imports to use MoonBit import annotations and Node's
   `node:fs`, preserving ESM/CJS output format (#248)
-- Fixed `@json5` support for debug assertions
+- Fixed `@json5` support for debug assertions (#237)
 
 ### Changed
 
-- Removed deprecated `@benchmark` package
-- Removed deprecated `Show` implementations
-- Improved performance for `@json5`, `@path`, `@time`, and `@uuid`
-- Updated MoonBit toolchain support and refreshed interface files
+- Removed deprecated `@benchmark` package (#237)
+- Removed deprecated `Show` implementations (#237)
+- Improved performance for `@json5` (#240), `@path` (#244), `@time` (#246),
+  and `@uuid` (#243)
+- Updated MoonBit toolchain support and refreshed interface files (#239, #240)
 
 ## [0.4.43]
 
 ### Fixed
 
 - Fixed `Path::join` to ignore empty components
-- Kept `Show` implementation for `@time.Weekday`
+- Kept `Show` implementation for `@time.Weekday` (#232)
 
 ## [0.4.42]
 
 ### Fixed
 
-- Fixed `Path::resolve` to normalize joined relative paths
-- Cleaned up deprecated `@strconv` usages
+- Fixed `Path::resolve` to normalize joined relative paths (#232)
+- Cleaned up deprecated `@strconv` usages (#232)
 
 ### Changed
 
 - Switched to derived `Debug` implementations and deprecated `Show`
-  implementations
+  implementations (#232)
 
 ## [0.4.41]
 
 ### Changed
 
 - Updated MoonBit toolchain support to 20260310 and migrated package manifests
-  to `moon.pkg`
+  to `moon.pkg` (#230)
 
 ## [0.4.40]
 
