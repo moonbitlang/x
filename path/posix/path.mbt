@@ -14,7 +14,7 @@
 
 ///|
 /// A newtype wrapper provide path operation methods.
-pub(all) struct Path(String) derive(Eq)
+pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
 pub impl Show for Path with fn output(path, logger) {

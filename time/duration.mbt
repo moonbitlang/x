@@ -17,7 +17,7 @@
 struct Duration {
   secs : Int64
   nanos : Int
-} derive(Eq, Compare)
+} derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a Duration from hours, minutes, seconds and nanoseconds.

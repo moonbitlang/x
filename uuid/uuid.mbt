@@ -236,3 +236,8 @@ pub fn UUID::to_string(self : UUID) -> String {
 pub impl Show for UUID with fn output(self : UUID, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
+
+///|
+pub impl Debug for UUID with fn to_repr(self : UUID) -> Repr {
+  Repr::ctor("UUID", [(None, Repr::string(self.to_string()))])
+}

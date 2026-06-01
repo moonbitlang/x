@@ -77,6 +77,7 @@ test "decimal_string_conversion" {
     None => fail("Failed to parse")
   }
   inspect(d1.to_string(), content="123.45")
+  debug_inspect(d1, content="{ coefficient: 12345, scale: 2 }")
   let d2 = match @decimal.Decimal::from_string("0.001") {
     Some(d) => d
     None => fail("Failed to parse")

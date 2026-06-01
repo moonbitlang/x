@@ -18,7 +18,7 @@ struct ZonedDateTime {
   datetime : PlainDateTime
   zone : Zone
   offset : ZoneOffset
-}
+} derive(Debug)
 
 ///|
 /// Creates a ZonedDateTime from year, month, day, hour, minute, second and a time zone.

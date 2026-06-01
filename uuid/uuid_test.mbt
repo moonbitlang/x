@@ -16,6 +16,10 @@
 test "from_hex" {
   let hex = "13cb501c-1234-5678-9034-abcdef937e20"
   inspect(@uuid.from_hex(hex), content=hex)
+  debug_inspect(
+    @uuid.from_hex(hex),
+    content="UUID(\"13cb501c-1234-5678-9034-abcdef937e20\")",
+  )
   inspect(
     @uuid.from_hex("12345678-1234-1234-1234-ABCDEF098765"),
     content="12345678-1234-1234-1234-abcdef098765",

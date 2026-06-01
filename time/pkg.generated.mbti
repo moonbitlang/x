@@ -20,7 +20,7 @@ pub let utc_zone : Zone
 // Errors
 
 // Types and methods
-type Duration derive(Compare, Eq)
+type Duration derive(Compare, Eq, @debug.Debug)
 pub fn Duration::add_duration(Self, Self) -> Self raise
 pub fn Duration::add_hours(Self, Int64) -> Self raise
 pub fn Duration::add_minutes(Self, Int64) -> Self raise
@@ -42,7 +42,7 @@ pub fn Duration::zero() -> Self
 pub impl Show for Duration
 pub impl @string.FromStr for Duration
 
-type Period derive(Compare, Eq)
+type Period derive(Compare, Eq, @debug.Debug)
 pub fn Period::add_days(Self, Int) -> Self raise
 pub fn Period::add_months(Self, Int) -> Self raise
 pub fn Period::add_period(Self, Self) -> Self raise
@@ -67,7 +67,7 @@ pub fn Period::years(Self) -> Int
 pub fn Period::zero() -> Self
 pub impl Show for Period
 
-type PlainDate
+type PlainDate derive(@debug.Debug)
 pub fn PlainDate::add_days(Self, Int64) -> Self raise
 pub fn PlainDate::add_months(Self, Int64) -> Self raise
 pub fn PlainDate::add_period(Self, Period) -> Self raise
@@ -102,7 +102,7 @@ pub impl Eq for PlainDate
 pub impl Show for PlainDate
 pub impl @string.FromStr for PlainDate
 
-type PlainDateTime derive(Compare, Eq)
+type PlainDateTime derive(Compare, Eq, @debug.Debug)
 pub fn PlainDateTime::add_days(Self, Int64) -> Self raise
 pub fn PlainDateTime::add_duration(Self, Duration) -> Self raise
 pub fn PlainDateTime::add_hours(Self, Int64) -> Self raise
@@ -148,7 +148,7 @@ pub fn PlainDateTime::year(Self) -> Int
 pub impl Show for PlainDateTime
 pub impl @string.FromStr for PlainDateTime
 
-type PlainTime derive(Compare, Eq)
+type PlainTime derive(Compare, Eq, @debug.Debug)
 pub fn PlainTime::add_duration(Self, Duration) -> Self raise
 pub fn PlainTime::add_hours(Self, Int64) -> Self raise
 pub fn PlainTime::add_minutes(Self, Int64) -> Self raise
@@ -186,7 +186,7 @@ pub(all) enum Weekday {
 } derive(Eq, @debug.Debug)
 pub impl Show for Weekday
 
-type Zone derive(Eq)
+type Zone derive(Eq, @debug.Debug)
 pub fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 pub fn Zone::is_fixed(Self) -> Bool
 pub fn Zone::to_string(Self) -> String
@@ -204,7 +204,7 @@ pub impl Compare for ZoneOffset
 pub impl Eq for ZoneOffset
 pub impl Show for ZoneOffset
 
-type ZonedDateTime
+type ZonedDateTime derive(@debug.Debug)
 pub fn ZonedDateTime::add_days(Self, Int64) -> Self raise
 pub fn ZonedDateTime::add_hours(Self, Int64) -> Self raise
 pub fn ZonedDateTime::add_minutes(Self, Int64) -> Self raise

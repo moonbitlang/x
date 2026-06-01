@@ -27,6 +27,13 @@ test "throws on documents with only comments" {
 }
 
 ///|
+test "debug parse error data" {
+  let pos : @json5.Position = { line: 1, column: 2 }
+  let data : @json5.ParseErrorData = InvalidChar(pos, 'x')
+  debug_inspect(data, content="InvalidChar({ line: 1, column: 2 }, 'x')")
+}
+
+///|
 test "throws on incomplete single line comments" {
   let res = try? @json5.parse("/a")
   debug_inspect(res, content="Err(No valid token at line 1, column 1)")

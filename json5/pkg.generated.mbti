@@ -23,7 +23,7 @@ pub(all) enum ParseErrorData {
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct Position {
   line : Int

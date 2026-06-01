@@ -18,7 +18,7 @@ struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int)] // (timestamp, offset_index)
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// UTC time zone.

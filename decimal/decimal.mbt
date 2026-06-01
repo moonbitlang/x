@@ -48,7 +48,7 @@
 pub struct Decimal {
   coefficient : @bigint.BigInt
   scale : Int
-}
+} derive(Debug)
 
 ///|
 /// Maximum number of decimal places (scale) allowed.
