@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.4.45]
+
+### Added
+
+- Added `Debug` implementations for common value types in `@decimal`,
+  `@encoding`, `@json5`, `@path`, `@stack`, `@time`, and `@uuid` (#250)
+
 ## [0.4.44]
 
 ### Added

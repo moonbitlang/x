@@ -17,7 +17,7 @@
 struct PlainDateTime {
   date : PlainDate
   time : PlainTime
-} derive(Eq, Compare)
+} derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a PlainDateTime from the year, month, day, hour, minute, second and nanosecond.

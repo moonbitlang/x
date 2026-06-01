@@ -19,7 +19,7 @@ struct PlainTime {
   minute : Int
   second : Int
   nanosecond : Int
-} derive(Eq, Compare)
+} derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a PlainTime from the hour, minute, second and nanosecond.

@@ -18,7 +18,7 @@ struct PlainDate {
   year : Int
   month : Int
   day : Int
-}
+} derive(Debug)
 
 ///|
 /// Creates a PlainDate from the year, month and day.

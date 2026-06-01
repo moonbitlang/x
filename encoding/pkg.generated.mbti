@@ -58,7 +58,7 @@ pub(all) enum Encoding {
   UTF16
   UTF16LE
   UTF16BE
-}
+} derive(@debug.Debug)
 
 // Type aliases
 

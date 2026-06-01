@@ -2,6 +2,7 @@
 package "moonbitlang/x/stack"
 
 import {
+  "moonbitlang/core/debug",
   "moonbitlang/core/list",
 }
 
@@ -46,6 +47,7 @@ pub fn[T] Stack::to_list(Self[T]) -> @list.List[T]
 pub fn[T] Stack::unsafe_peek(Self[T]) -> T
 pub fn[T] Stack::unsafe_pop(Self[T]) -> T
 pub impl[T : Show] Show for Stack[T]
+pub impl[T : @debug.Debug] @debug.Debug for Stack[T]
 
 // Type aliases
 

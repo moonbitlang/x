@@ -21,6 +21,11 @@ test "basename/dirname" {
 }
 
 ///|
+test "debug" {
+  debug_inspect(Path::join("a", "b"), content="Path(\"a/b\")")
+}
+
+///|
 test "dirname/edge cases" {
   // Root paths
   inspect(Path::dirname("/"), content="/")

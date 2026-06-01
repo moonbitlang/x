@@ -25,6 +25,12 @@ test "encoding String to UTF8" {
 }
 
 ///|
+test "debug encoding" {
+  let encodings : Array[@encoding.Encoding] = [UTF8, UTF16, UTF16LE, UTF16BE]
+  debug_inspect(encodings, content="[UTF8, UTF16, UTF16LE, UTF16BE]")
+}
+
+///|
 test "encode_to/UTF8" {
   let src = "你好👀"
   let buf = Buffer(size_hint=10)

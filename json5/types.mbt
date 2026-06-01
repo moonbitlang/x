@@ -25,7 +25,7 @@ pub(all) enum ParseErrorData {
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 pub(all) suberror ParseError {

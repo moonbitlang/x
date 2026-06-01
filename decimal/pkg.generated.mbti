@@ -3,6 +3,7 @@ package "moonbitlang/x/decimal"
 
 import {
   "moonbitlang/core/bigint",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/quickcheck/splitmix",
@@ -23,7 +24,7 @@ pub fn zero() -> Decimal
 pub struct Decimal {
   coefficient : @bigint.BigInt
   scale : Int
-}
+} derive(@debug.Debug)
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
