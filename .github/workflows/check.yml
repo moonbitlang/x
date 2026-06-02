@@ -22,7 +22,7 @@ jobs:
       OS_PLATFORM: ${{ matrix.os.name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: install
         if: ${{ matrix.os.name != 'windows-latest' }}
@@ -89,7 +89,7 @@ jobs:
       OS_PLATFORM: ${{ matrix.os.name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: install
         if: ${{ matrix.os.name != 'windows-latest' }}
@@ -145,7 +145,7 @@ jobs:
     runs-on: macos-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: install
         run: |
@@ -182,7 +182,7 @@ jobs:
         run: curl -LsSf https://github.com/crate-ci/typos/releases/download/$TYPOS_VERSION/typos-$TYPOS_VERSION-x86_64-unknown-linux-musl.tar.gz | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -194,7 +194,7 @@ jobs:
     env:
       HAWKEYE_VERSION: v5.5.1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Download HawkEye
         run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/korandoru/hawkeye/releases/download/$HAWKEYE_VERSION/hawkeye-installer.sh | sh
       - name: Check License Header
@@ -203,7 +203,7 @@ jobs:
   moon-json-format-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: check `moon.*.json` format
         shell: bash
