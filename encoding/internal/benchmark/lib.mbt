@@ -67,7 +67,12 @@ pub fn bench_decoding_streaming(
   let test_data_group = test_data.to_array().chunks(1000).map(Bytes::from_array)
   let decoder = @encoding.decoder(encoding)
   for td in test_data_group {
-    guard (try? decoder.consume(td)) is Ok(_)
+    guard (try decoder.consume(td) catch {
+        err => Err(err)
+      } noraise {
+        value => Ok(value)
+      })
+      is Ok(_)
   }
   println("decoded data \{test_data.length()}")
 }
@@ -85,6 +90,11 @@ pub fn bench_decoding_batch(
   let rand = @random.Rand::chacha8(seed~)
   let test_data = random(rand, 1024000)
   let decoder = @encoding.decoder(encoding)
-  guard (try? decoder.decode(test_data)) is Ok(_)
+  guard (try decoder.decode(test_data) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    })
+    is Ok(_)
   println("decoded data \{test_data.length()}")
 }
