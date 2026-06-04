@@ -15,7 +15,11 @@
 ///|
 #callsite(autofill(loc))
 fn test_parse(input : String, loc~ : SourceLoc) -> Json raise Error {
-  let v = try? @json5.parse(input)
+  let v = try @json5.parse(input) catch {
+    err => Err(err)
+  } noraise {
+    value => Ok(value)
+  }
   match v {
     Ok(v) => v
     Err(err) => fail("Parse failed, \{loc}, \{err}")

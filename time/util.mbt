@@ -150,17 +150,46 @@ fn checked_mul_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "checked_add_int" {
-  debug_inspect(try? checked_add_int(1, 1), content="Ok(2)")
-  debug_inspect(try? checked_add_int(1, -1), content="Ok(0)")
-  debug_inspect(try? checked_add_int(-1, -1), content="Ok(-2)")
   debug_inspect(
-    try? checked_add_int(@int.MAX_VALUE, 1),
+    try checked_add_int(1, 1) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(2)",
+  )
+  debug_inspect(
+    try checked_add_int(1, -1) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try checked_add_int(-1, -1) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-2)",
+  )
+  debug_inspect(
+    try checked_add_int(@int.MAX_VALUE, 1) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
   debug_inspect(
-    try? checked_add_int(@int.MIN_VALUE, -1),
+    try checked_add_int(@int.MIN_VALUE, -1) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int overflow"))
     ),
@@ -169,17 +198,46 @@ test "checked_add_int" {
 
 ///|
 test "checked_mul_int" {
-  debug_inspect(try? checked_mul_int(2, 3), content="Ok(6)")
-  debug_inspect(try? checked_mul_int(2, -3), content="Ok(-6)")
-  debug_inspect(try? checked_mul_int(-2, -3), content="Ok(6)")
   debug_inspect(
-    try? checked_mul_int(@int.MAX_VALUE, 2),
+    try checked_mul_int(2, 3) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(6)",
+  )
+  debug_inspect(
+    try checked_mul_int(2, -3) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-6)",
+  )
+  debug_inspect(
+    try checked_mul_int(-2, -3) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(6)",
+  )
+  debug_inspect(
+    try checked_mul_int(@int.MAX_VALUE, 2) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int overflow"))
     ),
   )
   debug_inspect(
-    try? checked_mul_int(@int.MIN_VALUE, 2),
+    try checked_mul_int(@int.MIN_VALUE, 2) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int overflow"))
     ),
@@ -188,17 +246,46 @@ test "checked_mul_int" {
 
 ///|
 test "checked_add_int64" {
-  debug_inspect(try? checked_add_int64(1L, 1L), content="Ok(2)")
-  debug_inspect(try? checked_add_int64(1L, -1L), content="Ok(0)")
-  debug_inspect(try? checked_add_int64(-1L, -1L), content="Ok(-2)")
   debug_inspect(
-    try? checked_add_int64(1L, @int64.MAX_VALUE),
+    try checked_add_int64(1L, 1L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(2)",
+  )
+  debug_inspect(
+    try checked_add_int64(1L, -1L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try checked_add_int64(-1L, -1L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-2)",
+  )
+  debug_inspect(
+    try checked_add_int64(1L, @int64.MAX_VALUE) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
   debug_inspect(
-    try? checked_add_int64(-1L, @int64.MIN_VALUE),
+    try checked_add_int64(-1L, @int64.MIN_VALUE) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
@@ -207,17 +294,46 @@ test "checked_add_int64" {
 
 ///|
 test "checked_mul_int64" {
-  debug_inspect(try? checked_mul_int64(2L, 3L), content="Ok(6)")
-  debug_inspect(try? checked_mul_int64(2L, -3L), content="Ok(-6)")
-  debug_inspect(try? checked_mul_int64(-2L, -3L), content="Ok(6)")
   debug_inspect(
-    try? checked_mul_int64(@int64.MAX_VALUE, 2L),
+    try checked_mul_int64(2L, 3L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(6)",
+  )
+  debug_inspect(
+    try checked_mul_int64(2L, -3L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-6)",
+  )
+  debug_inspect(
+    try checked_mul_int64(-2L, -3L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(6)",
+  )
+  debug_inspect(
+    try checked_mul_int64(@int64.MAX_VALUE, 2L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
   )
   debug_inspect(
-    try? checked_mul_int64(@int64.MIN_VALUE, 2L),
+    try checked_mul_int64(@int64.MIN_VALUE, 2L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("Int64 overflow"))
     ),
@@ -249,13 +365,52 @@ fn floor_div_int(x : Int, y : Int) -> Int raise Error {
 
 ///|
 test "floor_div_int" {
-  debug_inspect(try? floor_div_int(1, 10), content="Ok(0)")
-  debug_inspect(try? floor_div_int(-1, 10), content="Ok(-1)")
-  debug_inspect(try? floor_div_int(9, 10), content="Ok(0)")
-  debug_inspect(try? floor_div_int(-9, 10), content="Ok(-1)")
-  debug_inspect(try? floor_div_int(0, 10), content="Ok(0)")
   debug_inspect(
-    try? floor_div_int(10, 0),
+    try floor_div_int(1, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_div_int(-1, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-1)",
+  )
+  debug_inspect(
+    try floor_div_int(9, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_div_int(-9, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-1)",
+  )
+  debug_inspect(
+    try floor_div_int(0, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_div_int(10, 0) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("division by zero"))
     ),
@@ -273,12 +428,54 @@ fn floor_div_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "floor_div_int64" {
-  debug_inspect(try? floor_div_int64(1L, 10L), content="Ok(0)")
-  debug_inspect(try? floor_div_int64(-1L, 10L), content="Ok(-1)")
-  debug_inspect(try? floor_div_int64(9L, 10L), content="Ok(0)")
-  debug_inspect(try? floor_div_int64(-9L, 10L), content="Ok(-1)")
-  debug_inspect(try? floor_div_int64(0L, 10L), content="Ok(0)")
-  assert_true((try? floor_div_int64(10L, 0L)) is Err(_))
+  debug_inspect(
+    try floor_div_int64(1L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_div_int64(-1L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-1)",
+  )
+  debug_inspect(
+    try floor_div_int64(9L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_div_int64(-9L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(-1)",
+  )
+  debug_inspect(
+    try floor_div_int64(0L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  assert_true(
+    (try floor_div_int64(10L, 0L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    })
+    is Err(_),
+  )
 }
 
 ///|
@@ -288,13 +485,52 @@ fn floor_mod_int(x : Int, y : Int) -> Int raise Error {
 
 ///|
 test "floor_mod_int" {
-  debug_inspect(try? floor_mod_int(1, 10), content="Ok(1)")
-  debug_inspect(try? floor_mod_int(-1, 10), content="Ok(9)")
-  debug_inspect(try? floor_mod_int(11, 10), content="Ok(1)")
-  debug_inspect(try? floor_mod_int(-11, 10), content="Ok(9)")
-  debug_inspect(try? floor_mod_int(0, 10), content="Ok(0)")
   debug_inspect(
-    try? floor_mod_int(10, 0),
+    try floor_mod_int(1, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(1)",
+  )
+  debug_inspect(
+    try floor_mod_int(-1, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(9)",
+  )
+  debug_inspect(
+    try floor_mod_int(11, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(1)",
+  )
+  debug_inspect(
+    try floor_mod_int(-11, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(9)",
+  )
+  debug_inspect(
+    try floor_mod_int(0, 10) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  debug_inspect(
+    try floor_mod_int(10, 0) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
     content=(
       #|Err(Failure("division by zero"))
     ),
@@ -308,10 +544,52 @@ fn floor_mod_int64(x : Int64, y : Int64) -> Int64 raise Error {
 
 ///|
 test "floor_mod_int64" {
-  debug_inspect(try? floor_mod_int64(1L, 10L), content="Ok(1)")
-  debug_inspect(try? floor_mod_int64(-1L, 10L), content="Ok(9)")
-  debug_inspect(try? floor_mod_int64(11L, 10L), content="Ok(1)")
-  debug_inspect(try? floor_mod_int64(-11L, 10L), content="Ok(9)")
-  debug_inspect(try? floor_mod_int64(0L, 10L), content="Ok(0)")
-  assert_true((try? floor_mod_int64(10L, 0L)) is Err(_))
+  debug_inspect(
+    try floor_mod_int64(1L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(1)",
+  )
+  debug_inspect(
+    try floor_mod_int64(-1L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(9)",
+  )
+  debug_inspect(
+    try floor_mod_int64(11L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(1)",
+  )
+  debug_inspect(
+    try floor_mod_int64(-11L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(9)",
+  )
+  debug_inspect(
+    try floor_mod_int64(0L, 10L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Ok(0)",
+  )
+  assert_true(
+    (try floor_mod_int64(10L, 0L) catch {
+      err => Err(err)
+    } noraise {
+      value => Ok(value)
+    })
+    is Err(_),
+  )
 }
