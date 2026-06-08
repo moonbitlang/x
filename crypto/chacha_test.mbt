@@ -48,11 +48,19 @@ test "chacha stream encrypt RFC8439" {
 ///|
 test "chacha with error" {
   inspect(
-    (try? @crypto.ChaCha::chacha8(b"", Bytes::make(12, b'\x00'))) is Err(_),
+    try @crypto.ChaCha::chacha8(b"", Bytes::make(12, b'\x00')) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
     content="true",
   )
   inspect(
-    (try? @crypto.ChaCha::chacha8(Bytes::make(32, b'\x00'), b"")) is Err(_),
+    try @crypto.ChaCha::chacha8(Bytes::make(32, b'\x00'), b"") catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
     content="true",
   )
 }

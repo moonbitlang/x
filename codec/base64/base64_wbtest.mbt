@@ -53,5 +53,12 @@ test "base64 decode" {
 
 ///|
 test "base64 decode with errors" {
-  debug_inspect(try? decode("中文"), content="Err(InvalidChar('中'))")
+  debug_inspect(
+    try decode("中文") catch {
+      e => Err(e)
+    } noraise {
+      value => Ok(value)
+    },
+    content="Err(InvalidChar('中'))",
+  )
 }

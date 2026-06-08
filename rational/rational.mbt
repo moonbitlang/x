@@ -1068,12 +1068,13 @@ test "eq and compare" {
 
 ///|
 test "from_double normal case" {
-  let result = try? from_double(0.5)
-  @debug.assert_eq(result, Ok(new_unchecked(1L, 2L)))
+  @debug.assert_eq(from_double(0.5), new_unchecked(1L, 2L))
 }
 
 ///|
 test "from_double edge case" {
-  let result = try? from_double(9_223_372_036_800_000_000.0)
-  @debug.assert_eq(result, Ok(new_unchecked(9_223_372_036_800_000_000L, 1L)))
+  @debug.assert_eq(
+    from_double(9_223_372_036_800_000_000.0),
+    new_unchecked(9_223_372_036_800_000_000L, 1L),
+  )
 }

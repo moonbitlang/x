@@ -47,8 +47,20 @@ test "add_hours" {
     Duration::zero().add_hours(@int64.MIN_VALUE / seconds_per_hour),
     content="PT-2562047788015215H",
   )
-  assert_true((try? Duration::zero().add_hours(@int64.MAX_VALUE)) is Err(_))
-  assert_true((try? Duration::zero().add_hours(@int64.MIN_VALUE)) is Err(_))
+  assert_true(
+    try Duration::zero().add_hours(@int64.MAX_VALUE) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
+  assert_true(
+    try Duration::zero().add_hours(@int64.MIN_VALUE) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
 }
 
 ///|
@@ -64,8 +76,20 @@ test "add_minutes" {
     Duration::zero().add_minutes(@int64.MIN_VALUE / seconds_per_minute),
     content="PT-2562047788015215H-30M",
   )
-  assert_true((try? Duration::zero().add_minutes(@int64.MAX_VALUE)) is Err(_))
-  assert_true((try? Duration::zero().add_minutes(@int64.MIN_VALUE)) is Err(_))
+  assert_true(
+    try Duration::zero().add_minutes(@int64.MAX_VALUE) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
+  assert_true(
+    try Duration::zero().add_minutes(@int64.MIN_VALUE) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
 }
 
 ///|
@@ -106,16 +130,22 @@ test "add_nanoseconds" {
     content="PT-2562047H-47M-16.854775808S",
   )
   assert_true(
-    (try? Duration::of(seconds=@int64.MAX_VALUE).add_nanoseconds(
-      @int64.MAX_VALUE,
-    ))
-    is Err(_),
+    try
+      Duration::of(seconds=@int64.MAX_VALUE).add_nanoseconds(@int64.MAX_VALUE)
+    catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
   )
   assert_true(
-    (try? Duration::of(seconds=@int64.MIN_VALUE).add_nanoseconds(
-      @int64.MIN_VALUE,
-    ))
-    is Err(_),
+    try
+      Duration::of(seconds=@int64.MIN_VALUE).add_nanoseconds(@int64.MIN_VALUE)
+    catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
   )
 }
 
@@ -132,6 +162,18 @@ test "op_add" {
   inspect(p1.op_add(p2), content="PT0S")
   inspect(p1.op_add(p1), content="PT2H2M2.000002S")
   inspect(p2.op_add(p2), content="PT-2H-2M-2.000002S")
-  assert_true((try? p1.op_add(p3)) is Err(_))
-  assert_true((try? p2.op_add(p4)) is Err(_))
+  assert_true(
+    try p1.op_add(p3) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
+  assert_true(
+    try p2.op_add(p4) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
 }

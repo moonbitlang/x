@@ -99,8 +99,20 @@ test "bytes" {
       #|b"\xc9\x82\xfbh\xdfPL\xa1\x91\xf8\xba\xa2\x04\x09\xe5\xb9"
     ),
   )
-  assert_true((try? from_bytes(Bytes::new(15))) is Err(_))
-  assert_true((try? from_bytes(Bytes::new(17))) is Err(_))
+  assert_true(
+    try from_bytes(Bytes::new(15)) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
+  assert_true(
+    try from_bytes(Bytes::new(17)) catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
 }
 
 ///|

@@ -57,12 +57,20 @@ test "division" {
 
 ///|
 test "from_double overflow" {
-  let result = try? @rational.from_double(10.0e200)
+  let result = try @rational.from_double(10.0e200) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
   )
-  let result = try? @rational.from_double(-10.0e200)
+  let result = try @rational.from_double(-10.0e200) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
@@ -71,7 +79,11 @@ test "from_double overflow" {
 
 ///|
 test "from_double NaN" {
-  let result = try? @rational.from_double(@double.not_a_number)
+  let result = try @rational.from_double(@double.not_a_number) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: cannot convert NaN")),
@@ -80,12 +92,20 @@ test "from_double NaN" {
 
 ///|
 test "from_double overflow edge case" {
-  let result = try? @rational.from_double(9_223_372_036_854_775_807.1)
+  let result = try @rational.from_double(9_223_372_036_854_775_807.1) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
   )
-  let result = try? @rational.from_double(-9_223_372_036_854_775_807.1)
+  let result = try @rational.from_double(-9_223_372_036_854_775_807.1) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
@@ -94,12 +114,20 @@ test "from_double overflow edge case" {
 
 ///|
 test "from_double infinity" {
-  let result = try? @rational.from_double(@double.infinity)
+  let result = try @rational.from_double(@double.infinity) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
   )
-  let result = try? @rational.from_double(@double.neg_infinity)
+  let result = try @rational.from_double(@double.neg_infinity) catch {
+    e => Err(e)
+  } noraise {
+    rational => Ok(rational)
+  }
   @debug.assert_eq(
     result,
     Err(RationalError("Rational::from_double: overflow")),
