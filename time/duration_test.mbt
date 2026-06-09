@@ -24,20 +24,8 @@ test "from_str" {
     content="PT-1H-2M-3.456789S",
   )
   inspect(@time.Duration::from_str("PT0.45S"), content="PT0.45S")
-  assert_true(
-    try @time.Duration::from_str("PT0.000.45S") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.Duration::from_str("P1Y2M3DT4H5M6S") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => @time.Duration::from_str("PT0.000.45S"))
+  @test.assert_raise(() => @time.Duration::from_str("P1Y2M3DT4H5M6S"))
 }
 
 ///|
@@ -82,20 +70,12 @@ test "add_seconds" {
     @time.Duration::zero().add_seconds(@int64.MIN_VALUE),
     content="PT-2562047788015215H-30M-8S",
   )
-  assert_true(
-    try @time.Duration::of(seconds=1L).add_seconds(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.Duration::of(seconds=-1L).add_seconds(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => {
+    @time.Duration::of(seconds=1L).add_seconds(@int64.MAX_VALUE)
+  })
+  @test.assert_raise(() => {
+    @time.Duration::of(seconds=-1L).add_seconds(@int64.MIN_VALUE)
+  })
 }
 
 ///|
@@ -110,11 +90,5 @@ test "with_nanoseconds" {
   let d = @time.Duration::of(nanoseconds=1000L)
   inspect(d.with_nanoseconds(1000), content="PT0.000001S")
   inspect(d.with_nanoseconds(2000), content="PT0.000002S")
-  assert_true(
-    try d.with_nanoseconds(1_000_000_000) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.with_nanoseconds(1_000_000_000))
 }

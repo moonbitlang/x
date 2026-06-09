@@ -4,5 +4,6 @@ import {
 }
 
 import {
+  "moonbitlang/core/test",
   "moonbitlang/x/encoding",
 } for "test"

@@ -15,23 +15,18 @@
 //region errors
 
 ///|
+fn parse_error(input : String) -> Error raise {
+  @test.expect_error(() => @json5.parse(input))
+}
+
+///|
 test "throws on empty documents" {
-  let res = try @json5.parse("") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error(""), content="Unexpected end of file")
 }
 
 ///|
 test "throws on documents with only comments" {
-  let res = try @json5.parse("//a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("//a"), content="Unexpected end of file")
 }
 
 ///|
@@ -43,350 +38,234 @@ test "debug parse error data" {
 
 ///|
 test "throws on incomplete single line comments" {
-  let res = try @json5.parse("/a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(parse_error("/a"), content="No valid token at line 1, column 1")
 }
 
 ///|
 test "throws on unterminated multiline comments" {
-  let res = try @json5.parse("/*") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("/*"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unterminated multiline comment closings" {
-  let res = try @json5.parse("/**") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("/**"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on invalid characters in values" {
-  let res = try @json5.parse("a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(parse_error("a"), content="No valid token at line 1, column 1")
 }
 
 ///|
 test "throws on invalid characters in identifier start escapes" {
-  let res = try @json5.parse("{\\a:1}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character a at line 1, column 2)")
+  debug_inspect(
+    parse_error("{\\a:1}"),
+    content="Invalid character a at line 1, column 2",
+  )
 }
 
 ///|
 test "throws on invalid characters in identifier continue escapes" {
-  let res = try @json5.parse("{a\\a:1}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character a at line 1, column 3)")
+  debug_inspect(
+    parse_error("{a\\a:1}"),
+    content="Invalid character a at line 1, column 3",
+  )
 }
 
 ///|
 test "throws on invalid identifier continue characters" {
-  let res = try @json5.parse("{a\\u0021:1}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
   debug_inspect(
-    res,
-    content="Err(Invalid escape sequence in identifier at line 1, column 2)",
+    parse_error("{a\\u0021:1}"),
+    content="Invalid escape sequence in identifier at line 1, column 2",
   )
 }
 
 ///|
 test "throws on invalid characters following a sign" {
-  let res = try @json5.parse("-a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(parse_error("-a"), content="No valid token at line 1, column 1")
 }
 
 ///|
 test "throws on invalid characters following a leading decimal point" {
-  let res = try @json5.parse(".a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(parse_error(".a"), content="No valid token at line 1, column 1")
 }
 
 ///|
 test "throws on invalid characters following an exponent indicator" {
-  let res = try @json5.parse("1ea") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character e at line 1, column 1)")
+  debug_inspect(
+    parse_error("1ea"),
+    content="Invalid character e at line 1, column 1",
+  )
 }
 
 ///|
 test "throws on invalid characters following an exponent sign" {
-  let res = try @json5.parse("1e-a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character e at line 1, column 1)")
+  debug_inspect(
+    parse_error("1e-a"),
+    content="Invalid character e at line 1, column 1",
+  )
 }
 
 ///|
 test "throws on number parse failures" {
-  let res = try @json5.parse("1e999999") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid number 1e999999 at line 1, column 0)")
+  debug_inspect(
+    parse_error("1e999999"),
+    content="Invalid number 1e999999 at line 1, column 0",
+  )
 }
 
 ///|
 test "throws on invalid characters following a hexadecimal indicator" {
-  let res = try @json5.parse("0xg") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character g at line 1, column 2)")
+  debug_inspect(
+    parse_error("0xg"),
+    content="Invalid character g at line 1, column 2",
+  )
 }
 
 ///|
 test "throws on invalid new lines in strings" {
-  let res = try @json5.parse("\"\n\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
   debug_inspect(
-    res,
+    parse_error("\"\n\""),
     content=(
-      #|Err(Invalid character 
-      #| at line 1, column 1)
+      #|Invalid character 
+      #| at line 1, column 1
     ),
   )
 }
 
 ///|
 test "throws on unterminated strings" {
-  let res = try @json5.parse("\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("\""), content="Unexpected end of file")
 }
 
 ///|
 test "throws on invalid identifier start characters in property names" {
-  let res = try @json5.parse("{!:1}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character ! at line 1, column 1)")
+  debug_inspect(
+    parse_error("{!:1}"),
+    content="Invalid character ! at line 1, column 1",
+  )
 }
 
 ///|
 test "throws on invalid characters following a property name" {
-  let res = try @json5.parse("{a!1}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character ! at line 1, column 2)")
+  debug_inspect(
+    parse_error("{a!1}"),
+    content="Invalid character ! at line 1, column 2",
+  )
 }
 
 ///|
 test "throws on invalid characters following a property value" {
-  let res = try @json5.parse("{a:1!}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character ! at line 1, column 4)")
+  debug_inspect(
+    parse_error("{a:1!}"),
+    content="Invalid character ! at line 1, column 4",
+  )
 }
 
 ///|
 test "throws on invalid characters following an array value" {
-  let res = try @json5.parse("[1!]") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character ! at line 1, column 2)")
+  debug_inspect(
+    parse_error("[1!]"),
+    content="Invalid character ! at line 1, column 2",
+  )
 }
 
 ///|
 test "throws on invalid characters in literals" {
-  let res = try @json5.parse("tru!") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(
+    parse_error("tru!"),
+    content="No valid token at line 1, column 1",
+  )
 }
 
 ///|
 test "throws on unterminated escapes" {
-  let res = try @json5.parse("\"\\") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("\"\\"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on invalid first digits in hexadecimal escapes" {
-  let res = try @json5.parse("\"\\xg\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character g at line 1, column 3)")
+  debug_inspect(
+    parse_error("\"\\xg\""),
+    content="Invalid character g at line 1, column 3",
+  )
 }
 
 ///|
 test "throws on invalid second digits in hexadecimal escapes" {
-  let res = try @json5.parse("\"\\x0g\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character g at line 1, column 4)")
+  debug_inspect(
+    parse_error("\"\\x0g\""),
+    content="Invalid character g at line 1, column 4",
+  )
 }
 
 ///|
 test "throws on invalid unicode escapes" {
-  let res = try @json5.parse("\"\\u000g\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character g at line 1, column 6)")
+  debug_inspect(
+    parse_error("\"\\u000g\""),
+    content="Invalid character g at line 1, column 6",
+  )
 }
 
 ///|
 test "throws on escaped digits" {
-  let res = try @json5.parse("\"\\1\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character 1 at line 1, column 2)")
+  debug_inspect(
+    parse_error("\"\\1\""),
+    content="Invalid character 1 at line 1, column 2",
+  )
 }
 
 ///|
 test "throws on octal escapes" {
-  let res = try @json5.parse("\"\\01\"") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character 1 at line 1, column 3)")
+  debug_inspect(
+    parse_error("\"\\01\""),
+    content="Invalid character 1 at line 1, column 3",
+  )
 }
 
 ///|
 test "throws on multiple values" {
-  let res = try @json5.parse("1 2") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Invalid character 2 at line 1, column 2)")
+  debug_inspect(
+    parse_error("1 2"),
+    content="Invalid character 2 at line 1, column 2",
+  )
 }
 
 ///|
 test "throws with control characters escaped in the message" {
-  let res = try @json5.parse("\u{01}") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(No valid token at line 1, column 1)")
+  debug_inspect(
+    parse_error("\u{01}"),
+    content="No valid token at line 1, column 1",
+  )
 }
 
 ///|
 test "throws on unclosed objects before property names" {
-  let res = try @json5.parse("{") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("{"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unclosed objects after property names" {
-  let res = try @json5.parse("{a") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("{a"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unclosed objects before property values" {
-  let res = try @json5.parse("{a:") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("{a:"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unclosed objects after property values" {
-  let res = try @json5.parse("{a:1") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("{a:1"), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unclosed arrays before values" {
-  let res = try @json5.parse("[") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("["), content="Unexpected end of file")
 }
 
 ///|
 test "throws on unclosed arrays after values" {
-  let res = try @json5.parse("[1") catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(res, content="Err(Unexpected end of file)")
+  debug_inspect(parse_error("[1"), content="Unexpected end of file")
 }
 //endregion

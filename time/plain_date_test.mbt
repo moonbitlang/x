@@ -21,27 +21,9 @@ test "of" {
   inspect(@time.PlainDate::of(-1, 1, 1), content="-0001-01-01")
   inspect(@time.PlainDate::of(-2000, 2, 29), content="-2000-02-29")
   inspect(@time.PlainDate::of(-9999, 1, 1), content="-9999-01-01")
-  assert_true(
-    try @time.PlainDate::of(2001, 2, 29) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::of(2001, 1, 32) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::of(10000, 1, 1) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => @time.PlainDate::of(2001, 2, 29))
+  @test.assert_raise(() => @time.PlainDate::of(2001, 1, 32))
+  @test.assert_raise(() => @time.PlainDate::of(10000, 1, 1))
 }
 
 ///|
@@ -53,34 +35,10 @@ test "from_year_ord" {
   inspect(@time.PlainDate::from_year_ord(-2000, 366), content="-2000-12-31")
   inspect(@time.PlainDate::from_year_ord(9999, 365), content="9999-12-31")
   inspect(@time.PlainDate::from_year_ord(-9999, 365), content="-9999-12-31")
-  assert_true(
-    try @time.PlainDate::from_year_ord(2001, 366) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_year_ord(-2001, 366) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_year_ord(10000, 365) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_year_ord(-10000, 365) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => @time.PlainDate::from_year_ord(2001, 366))
+  @test.assert_raise(() => @time.PlainDate::from_year_ord(-2001, 366))
+  @test.assert_raise(() => @time.PlainDate::from_year_ord(10000, 365))
+  @test.assert_raise(() => @time.PlainDate::from_year_ord(-10000, 365))
 }
 
 ///|
@@ -89,41 +47,11 @@ test "from_str" {
   inspect(@time.PlainDate::from_str("0000-01-01"), content="0000-01-01")
   inspect(@time.PlainDate::from_str("0001-01-01"), content="0001-01-01")
   inspect(@time.PlainDate::from_str("-9999-01-01"), content="-9999-01-01")
-  assert_true(
-    try @time.PlainDate::from_str("10000-01-01") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_str("-10000-01-01") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_str("-01-01") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_str("12-31") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try @time.PlainDate::from_str("-01") catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => @time.PlainDate::from_str("10000-01-01"))
+  @test.assert_raise(() => @time.PlainDate::from_str("-10000-01-01"))
+  @test.assert_raise(() => @time.PlainDate::from_str("-01-01"))
+  @test.assert_raise(() => @time.PlainDate::from_str("12-31"))
+  @test.assert_raise(() => @time.PlainDate::from_str("-01"))
 }
 
 ///|
@@ -265,20 +193,8 @@ test "add_years" {
   inspect(d.add_years(7999L), content="9999-02-28")
   inspect(d.add_years(-2001L), content="-0001-02-28")
   inspect(d.add_years(-9999L), content="-7999-02-28")
-  assert_true(
-    try d.add_years(8000L) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_years(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_years(8000L))
+  @test.assert_raise(() => d.add_years(@int64.MAX_VALUE))
   inspect(d.add_years(@int64.MIN_VALUE), content="2000-02-29")
 }
 
@@ -292,27 +208,9 @@ test "add_months" {
   inspect(d.add_months(12L), content="2001-02-28")
   inspect(d.add_months(24L), content="2002-02-28")
   inspect(d.add_months(12L * -2000L), content="0000-02-29")
-  assert_true(
-    try d.add_months(12L * 8000L) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_months(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_months(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_months(12L * 8000L))
+  @test.assert_raise(() => d.add_months(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_months(@int64.MIN_VALUE))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_months(0L), content="-2000-02-29")
   inspect(d.add_months(1L), content="-2000-03-29")
@@ -321,27 +219,9 @@ test "add_months" {
   inspect(d.add_months(12L), content="-1999-02-28")
   inspect(d.add_months(24L), content="-1998-02-28")
   inspect(d.add_months(12L * 10000L), content="8000-02-29")
-  assert_true(
-    try d.add_months(12L * -8000L) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_months(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_months(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_months(12L * -8000L))
+  @test.assert_raise(() => d.add_months(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_months(@int64.MIN_VALUE))
 }
 
 ///|
@@ -352,40 +232,16 @@ test "add_weeks" {
   inspect(d.add_weeks(-1L), content="2000-02-22")
   inspect(d.add_weeks(3L), content="2000-03-21")
   inspect(d.add_weeks(-3L), content="2000-02-08")
-  assert_true(
-    try d.add_weeks(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_weeks(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_weeks(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_weeks(@int64.MIN_VALUE))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_weeks(0L), content="-2000-02-29")
   inspect(d.add_weeks(1L), content="-2000-03-07")
   inspect(d.add_weeks(-1L), content="-2000-02-22")
   inspect(d.add_weeks(3L), content="-2000-03-21")
   inspect(d.add_weeks(-3L), content="-2000-02-08")
-  assert_true(
-    try d.add_weeks(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_weeks(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_weeks(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_weeks(@int64.MIN_VALUE))
 }
 
 ///|
@@ -396,40 +252,16 @@ test "add_days" {
   inspect(d.add_days(-1L), content="2000-02-28")
   inspect(d.add_days(365L), content="2001-02-28")
   inspect(d.add_days(-365L), content="1999-03-01")
-  assert_true(
-    try d.add_days(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_days(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_days(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_days(@int64.MIN_VALUE))
   let d = @time.PlainDate::of(-2000, 2, 29)
   inspect(d.add_days(0L), content="-2000-02-29")
   inspect(d.add_days(1L), content="-2000-03-01")
   inspect(d.add_days(-1L), content="-2000-02-28")
   inspect(d.add_days(365L), content="-1999-02-28")
   inspect(d.add_days(-365L), content="-2001-03-01")
-  assert_true(
-    try d.add_days(@int64.MAX_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.add_days(@int64.MIN_VALUE) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.add_days(@int64.MAX_VALUE))
+  @test.assert_raise(() => d.add_days(@int64.MIN_VALUE))
 }
 
 ///|
@@ -453,20 +285,8 @@ test "with_year" {
   inspect(d.with_year(0), content="0000-02-29")
   inspect(d.with_year(9999), content="9999-02-28")
   inspect(d.with_year(-9999), content="-9999-02-28")
-  assert_true(
-    try d.with_year(10000) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.with_year(-10000) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.with_year(10000))
+  @test.assert_raise(() => d.with_year(-10000))
 }
 
 ///|
@@ -475,20 +295,8 @@ test "with_month" {
   inspect(d.with_month(1), content="2000-01-31")
   inspect(d.with_month(2), content="2000-02-29")
   inspect(d.with_month(4), content="2000-04-30")
-  assert_true(
-    try d.with_month(0) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.with_month(13) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.with_month(0))
+  @test.assert_raise(() => d.with_month(13))
 }
 
 ///|
@@ -496,20 +304,8 @@ test "with_day" {
   let d = @time.PlainDate::of(2000, 2, 29)
   inspect(d.with_day(29), content="2000-02-29")
   inspect(d.with_day(1), content="2000-02-01")
-  assert_true(
-    try d.with_day(0) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.with_day(30) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.with_day(0))
+  @test.assert_raise(() => d.with_day(30))
 }
 
 ///|
@@ -517,20 +313,8 @@ test "with_ordinal" {
   let d = @time.PlainDate::of(2000, 2, 29)
   inspect(d.with_ordinal(1), content="2000-01-01")
   inspect(d.with_ordinal(366), content="2000-12-31")
-  assert_true(
-    try d.with_ordinal(0) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
-  assert_true(
-    try d.with_ordinal(367) catch {
-      _ => true
-    } noraise {
-      _ => false
-    },
-  )
+  @test.assert_raise(() => d.with_ordinal(0))
+  @test.assert_raise(() => d.with_ordinal(367))
 }
 
 ///|
