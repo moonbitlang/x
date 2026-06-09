@@ -402,13 +402,8 @@ test "decoding UTF16LE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
-  let chars = try decoder.decode(buf.to_bytes()) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  assert_true(chars is Err(_))
-  debug_inspect(chars, content="Err(MalformedError(<Bytes: [0xd8, 0xc3]>))")
+  let err = @test.expect_error(() => decoder.decode(buf.to_bytes()))
+  debug_inspect(err, content="MalformedError(<Bytes: [0xd8, 0xc3]>)")
 }
 
 ///|
@@ -421,12 +416,8 @@ test "decode_to/UTF16LE-UTF8/MalformedError" {
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
   debug_inspect(
-    try decoder.decode_to(buf.to_bytes(), acc) catch {
-      e => Err(e)
-    } noraise {
-      value => Ok(value)
-    },
-    content="Err(MalformedError(<Bytes: [0xd8, 0xc3]>))",
+    @test.expect_error(() => decoder.decode_to(buf.to_bytes(), acc)),
+    content="MalformedError(<Bytes: [0xd8, 0xc3]>)",
   )
 }
 
@@ -441,14 +432,10 @@ test "decode_to/UTF16LE-UTF8/TruncatedError" {
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
-  let result = try decoder.decode_to(bytes_view, acc) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
+  let result = @test.expect_error(() => decoder.decode_to(bytes_view, acc))
   debug_inspect(
     result,
-    content="Err(TruncatedError(<Bytes: [0xca, 0x00, 0x00, 0x00]>))",
+    content="TruncatedError(<Bytes: [0xca, 0x00, 0x00, 0x00]>)",
   )
 }
 
@@ -463,21 +450,9 @@ test "decode_to/UTF16LE-UTF8/stream" {
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder::new()
-  let result = try decoder.decode_to(bytes_view, acc, stream=true) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(result, content="Ok(())")
+  decoder.decode_to(bytes_view, acc, stream=true)
   inspect(acc.to_string(), content="跑步🏃游泳")
-  let result = try
-    decoder.decode_to([bytes[bytes.length() - 1]], acc, stream=true)
-  catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  debug_inspect(result, content="Ok(())")
+  decoder.decode_to([bytes[bytes.length() - 1]], acc, stream=true)
   inspect(acc.to_string(), content="跑步🏃游泳🏊")
 }
 
@@ -538,13 +513,8 @@ test "decoding UTF16BE encoded data with UTF8" {
   )
   let decoder = @encoding.decoder(UTF8)
   // NOTE: Expected to be malformed here
-  let chars = try decoder.decode(buf.to_bytes()) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  assert_true(chars is Err(_))
-  debug_inspect(chars, content="Err(MalformedError(<Bytes: [0x8d]>))")
+  let err = @test.expect_error(() => decoder.decode(buf.to_bytes()))
+  debug_inspect(err, content="MalformedError(<Bytes: [0x8d]>)")
 }
 
 ///|
@@ -557,12 +527,8 @@ test "decode_to/UTF16BE-UTF8" {
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder::new()
   debug_inspect(
-    try decoder.decode_to(buf.to_bytes(), acc) catch {
-      e => Err(e)
-    } noraise {
-      value => Ok(value)
-    },
-    content="Err(MalformedError(<Bytes: [0x8d]>))",
+    @test.expect_error(() => decoder.decode_to(buf.to_bytes(), acc)),
+    content="MalformedError(<Bytes: [0x8d]>)",
   )
 }
 
@@ -863,12 +829,7 @@ test "Not all UTF16LE is format-legal UTF16BE and vice versa" {
 
   // invalid in UTF16BE
   let decoder_utf16be = @encoding.decoder(UTF16BE)
-  let malformedError = try decoder_utf16be.decode(bytes_le) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  assert_true(malformedError is Err(_))
+  @test.assert_raise(() => decoder_utf16be.decode(bytes_le))
 
   // vice versa
   let bytes_be = b"\x00\xD8\x00\xD9"
@@ -880,10 +841,5 @@ test "Not all UTF16LE is format-legal UTF16BE and vice versa" {
 
   // invalid in UTF16LE
   let decoder_utf16le = @encoding.decoder(UTF16LE)
-  let malformedError = try decoder_utf16le.decode(bytes_be) catch {
-    e => Err(e)
-  } noraise {
-    value => Ok(value)
-  }
-  assert_true(malformedError is Err(_))
+  @test.assert_raise(() => decoder_utf16le.decode(bytes_be))
 }
