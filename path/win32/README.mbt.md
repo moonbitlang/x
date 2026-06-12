@@ -201,7 +201,7 @@ test "path resolution" {
 }
 ```
 
-```moonbit skip nocheck
+```mbt nocheck
 ///|
 test {
   let path : Path = "a\\b\\..\\c"

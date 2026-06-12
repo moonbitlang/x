@@ -41,9 +41,11 @@ pub impl Show for Path with fn to_string(path) {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "usr/local/bin"
-/// inspect(path.basename(), content="bin")
+/// ```mbt check
+/// test {
+///   let path : Path = "usr/local/bin"
+///   inspect(path.basename(), content="bin")
+/// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
   if is_windows {
@@ -60,9 +62,11 @@ pub fn Path::basename(path : Path) -> StringView {
 /// 
 /// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "usr/local/bin"
-/// inspect(path.dirname(), content="usr/local")
+/// ```mbt check
+/// test {
+///   let path : Path = "usr/local/bin"
+///   inspect(path.dirname(), content="usr/local")
+/// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
   if is_windows {
@@ -75,9 +79,11 @@ pub fn Path::dirname(path : Path) -> Path {
 ///|
 /// Returns the string of the basename after the last `.` delimiter.
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "archive.tar.gz"
-/// inspect(path.extname(), content=".gz")
+/// ```mbt check
+/// test {
+///   let path : Path = "archive.tar.gz"
+///   inspect(path.extname(), content=".gz")
+/// }
 /// ```
 pub fn Path::extname(path : Path) -> StringView {
   if is_windows {
@@ -92,11 +98,13 @@ pub fn Path::extname(path : Path) -> StringView {
 /// 
 /// edge cases: when path is empty, return false
 /// 
-/// ```moonbit skip nocheck
-/// let path1 : Path = "/usr/local/bin"
-/// let path2 : Path = "usr/local/bin"
-/// json_inspect(path1.is_absolute(), content=true)
-/// json_inspect(path2.is_absolute(), content=false)
+/// ```mbt check
+/// test {
+///   let path1 : Path = "/usr/local/bin"
+///   let path2 : Path = "usr/local/bin"
+///   json_inspect(path1.is_absolute(), content=true)
+///   json_inspect(path2.is_absolute(), content=false)
+/// }
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   if is_windows {
@@ -141,9 +149,11 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///   1. when path is empty, return empty string
 ///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "/usr//local/../bin/"
-/// inspect(path.normalize(), content="/usr/bin")
+/// ```mbt check
+/// test {
+///   let path : Path = "/usr//local/../bin/"
+///   inspect(path.normalize(), content="/usr/bin")
+/// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
   if is_windows {
@@ -164,10 +174,12 @@ pub fn Path::normalize(path : Path) -> Path {
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit skip nocheck
-/// let base : Path = "/usr/local/bin"
-/// let path : Path = "/usr/local/share/doc"
-/// inspect(path.relative(base~), content="../share/doc")
+/// ```mbt check
+/// test {
+///   let base : Path = "/usr/local/bin"
+///   let path : Path = "/usr/local/share/doc"
+///   inspect(path.relative(base~), content="../share/doc")
+/// }
 /// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   if is_windows {
