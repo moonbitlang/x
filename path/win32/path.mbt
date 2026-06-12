@@ -356,11 +356,6 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 /// 2. if path is relative, join current working directory and path, and then normalize it.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-/// 
-/// ```moonbit skip nocheck
-/// let path : Path = "Documents\\Project"
-/// inspect(path.resolve(), content="C:\\your\\current_working_directory\\Documents\\Project")
-/// ```
 pub fn Path::resolve(path : Path) -> Path {
   if Path::is_absolute(path) {
     Path::normalize(path)

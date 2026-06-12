@@ -245,10 +245,6 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit skip nocheck
-/// let path : Path = "project/src"
-/// inspect(path.resolve(), content="/your/current_working_directory/project/src")
-/// ```
 pub fn Path::resolve(path : Path) -> Path {
   if Path::is_absolute(path) {
     Path::normalize(path)
