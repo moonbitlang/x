@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `AGENTS.md` with repository guidance for agent contributions (#283)
+
 ## [0.4.45]
 
 ### Added
