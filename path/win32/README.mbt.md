@@ -1,6 +1,6 @@
 # Path Utilities for Windows Systems
 
-This package provides path manipulation utilities specifically designed for Windows systems. It handles paths using backslashes (`\`) as the path separator and supports various Windows path formats including UNC paths, device paths, and volume identifiers.
+This package provides Node-compatible Windows path manipulation utilities. It handles paths using backslashes (`\`) as the output separator and accepts both `/` and `\` as input separators.
 
 ## Overview
 
@@ -35,8 +35,8 @@ test "basename and dirname examples" {
 
   // Handle trailing backslashes
   let path : Path = "C:\\Users\\"
-  inspect(path.basename(), content="")
-  inspect(path.dirname(), content="C:\\Users")
+  inspect(path.basename(), content="Users")
+  inspect(path.dirname(), content="C:\\")
 }
 ```
 
@@ -121,9 +121,9 @@ test "path joining" {
   // Handle trailing backslashes
   let path : Path = "Users\\"
   inspect(path.join("user"), content="Users\\user")
-  // Absolute paths override
+  // Absolute right-hand paths are joined then normalized
   let path : Path = "relative"
-  inspect(path.join("\\absolute"), content="\\absolute")
+  inspect(path.join("\\absolute"), content="relative\\absolute")
   let path : Path = "C:\\"
   inspect(
     path.join("folder").join("file.txt").to_string(),
@@ -143,7 +143,7 @@ Clean up redundant components and resolve `.` and `..`:
 test "path normalization" {
   // Remove redundant components
   let path : Path = "a\\.\\b\\..\\c\\"
-  inspect(path.normalize(), content="a\\c")
+  inspect(path.normalize(), content="a\\c\\")
   let path : Path = "C:\\Users\\..\\Windows"
   inspect(path.normalize(), content="C:\\Windows")
   // Handle complex cases
@@ -256,6 +256,6 @@ The implementation handles various Windows-specific edge cases:
 - Empty paths return appropriate default values
 - Trailing backslashes are preserved where semantically important
 - All Windows path prefix types are properly recognized
-- The functions are consistent with Python's `os.path` module behavior
+- The functions follow Node `path.win32` behavior for this package's existing API surface
 
 This makes the package reliable for real-world path manipulation in Windows environments, handling the complexity of Windows path formats while providing a clean, consistent API.

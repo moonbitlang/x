@@ -17,6 +17,119 @@
 pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
+fn is_ascii_alpha(ch : Char) -> Bool {
+  match ch {
+    'a'..='z' | 'A'..='Z' => true
+    _ => false
+  }
+}
+
+///|
+fn is_win_sep(ch : Char) -> Bool {
+  ch == '\\' || ch == '/'
+}
+
+///|
+fn is_win_sep_at(path : String, index : Int) -> Bool {
+  match path.get_char(index) {
+    Some(ch) => is_win_sep(ch)
+    None => false
+  }
+}
+
+///|
+fn has_win_drive(path : String) -> Bool {
+  if path.length() < 2 || path.get_char(1) != Some(':') {
+    false
+  } else {
+    match path.get_char(0) {
+      Some(ch) => is_ascii_alpha(ch)
+      _ => false
+    }
+  }
+}
+
+///|
+fn find_next_win_sep(path : String, start : Int) -> Int? {
+  for i = start; i < path.length(); i = i + 1 {
+    if is_win_sep_at(path, i) {
+      return Some(i)
+    }
+  }
+  None
+}
+
+///|
+fn skip_win_separators(path : String, start : Int) -> Int {
+  let mut index = start
+  while index < path.length() && is_win_sep_at(path, index) {
+    index += 1
+  }
+  index
+}
+
+///|
+fn win_root_end(path : String) -> Int {
+  if path.is_empty() {
+    return 0
+  }
+  if has_win_drive(path) {
+    if path.length() > 2 && is_win_sep_at(path, 2) {
+      return 3
+    }
+    return 2
+  }
+  if !is_win_sep_at(path, 0) {
+    return 0
+  }
+  if path.length() == 1 || !is_win_sep_at(path, 1) {
+    return 1
+  }
+  if path.length() > 2 && is_win_sep_at(path, 2) {
+    return 1
+  }
+  let server_start = 2
+  guard server_start < path.length() else { return 1 }
+  match find_next_win_sep(path, server_start) {
+    None => 1
+    Some(server_end) => {
+      let share_start = skip_win_separators(path, server_end)
+      guard share_start < path.length() else { return 1 }
+      match find_next_win_sep(path, share_start) {
+        None => path.length()
+        Some(share_end) => share_end + 1
+      }
+    }
+  }
+}
+
+///|
+fn is_drive_relative(path : String) -> Bool {
+  has_win_drive(path) && (path.length() == 2 || !is_win_sep_at(path, 2))
+}
+
+///|
+fn current_dir_for_drive(device : StringView) -> String {
+  let device = device.to_owned()
+  let cwd = match @env.get_env_var("=" + device) {
+    Some(dir) => dir
+    None => @env.current_dir().unwrap()
+  }
+  if has_win_drive(cwd) &&
+    !cwd[0:2].equal_ignore_ascii_case(device) &&
+    cwd.length() > 2 &&
+    is_win_sep_at(cwd, 2) {
+    device + "\\"
+  } else if !has_win_drive(cwd) && cwd.length() > 0 && is_win_sep_at(cwd, 0) {
+    device + cwd
+  } else if !has_win_drive(cwd) {
+    device + "\\" + cwd
+  } else {
+    cwd
+  }
+}
+
+///|
 pub impl Show for Path with fn output(path, logger) {
   logger.write_object(path.0)
 }
@@ -29,66 +142,82 @@ pub impl Show for Path with fn to_string(path) {
 ///|
 /// Returns the last path component of the given path.
 ///
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// This follows Node `path.win32.basename`: both `/` and `\` are separators,
+/// trailing separators are ignored, and root-only paths return an empty name.
 /// 
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr\\local\\bin"
-///   inspect(path.basename(), content="bin")
+///   let path : Path = "usr\\local\\"
+///   inspect(path.basename(), content="local")
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let prefix = path.prefix()
-  let rest = path.0.view(start_offset=prefix.length())
-  match rest.rev_find("\\") {
-    None => rest
-    Some(idx) if idx >= rest.length() => ""
-    Some(idx) => rest[idx + 1:]
+  let path = path.0
+  let root_end = if has_win_drive(path) { 2 } else { 0 }
+  let mut start = root_end
+  let mut end = -1
+  let mut matched_sep = true
+  for i = path.length() - 1; i >= root_end; i = i - 1 {
+    if is_win_sep_at(path, i) {
+      if !matched_sep {
+        start = i + 1
+        break
+      }
+    } else if end == -1 {
+      matched_sep = false
+      end = i + 1
+    }
+  }
+  if end == -1 {
+    ""
+  } else {
+    path[start:end]
   }
 }
 
 ///|
-/// Returns path without its last path component and trailing backslashes.
-/// 
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Returns the directory portion of the given path.
+///
+/// This follows Node `path.win32.dirname`: both separators are recognized and
+/// the returned directory preserves the original separator spelling.
 /// 
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr\\local\\bin"
-///   inspect(path.dirname(), content="usr\\local")
+///   let path : Path = "usr\\local\\"
+///   inspect(path.dirname(), content="usr")
 /// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
-  let prefix = path.prefix()
-  let rest = path.0.view(start_offset=prefix.length())
-  let last_slash_pos = rest.rev_find("\\")
-  match last_slash_pos {
-    None => prefix.to_owned()
-    Some(idx) => {
-      let dirname_with_trailing_slashes = rest[0:idx]
-      let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
-        char_set="\\",
-      )
-      if dirname_trim_end.is_empty() {
-        path.0
-        .view(
-          start_offset=0,
-          end_offset=prefix.length() + dirname_with_trailing_slashes.length(),
-        )
-        .to_owned()
-      } else {
-        path.0
-        .view(
-          start_offset=0,
-          end_offset=prefix.length() + dirname_trim_end.length(),
-        )
-        .to_owned()
+  let path = path.0
+  if path.is_empty() {
+    return "."
+  }
+  let root_end = win_root_end(path)
+  if root_end >= path.length() {
+    return path
+  }
+  let mut end = -1
+  let mut matched_sep = true
+  for i = path.length() - 1; i >= root_end; i = i - 1 {
+    if is_win_sep_at(path, i) {
+      if !matched_sep {
+        end = i
+        break
       }
+    } else {
+      matched_sep = false
     }
+  }
+  if end == -1 {
+    if root_end > 0 {
+      path[0:root_end].to_owned()
+    } else {
+      "."
+    }
+  } else if end < root_end {
+    path[0:root_end].to_owned()
+  } else {
+    path[0:end].to_owned()
   }
 }
 
@@ -100,7 +229,9 @@ test {
 }
 
 ///|
-/// Returns the string of the basename after the last `.` delimiter.
+/// Returns the extension of the last path component.
+///
+/// This follows Node `path.win32.extname` dotfile rules.
 /// 
 /// ```moonbit check
 /// test {
@@ -110,8 +241,12 @@ test {
 /// ```
 pub fn Path::extname(path : Path) -> StringView {
   let basename = Path::basename(path)
+  if basename == "." || basename == ".." {
+    return ""
+  }
   match basename.rev_find(".") {
     None => ""
+    Some(0) => ""
     Some(idx) => basename[idx:]
   }
 }
@@ -131,32 +266,12 @@ pub fn Path::extname(path : Path) -> StringView {
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
   let path = path.0
-  lexmatch path with longest {
-    ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => true
-    (
-      "\\\\\?UNC\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => true
-    (
-      "\\\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
-    ) => true
-    ("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]", _rest) => true
-    ("\\\\\.\\" ("[^\\]+" as _device) "(\\)+", _rest) => true
-    ("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+", _rest) => true
-    ("\\", _rest) => true
-    (("[a-zA-Z]" as _letter) ":(\\)+", _rest) => true
-    (("[a-zA-Z]" as _letter) ":", _rest) => false
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => true
-    _ => false
+  if path.is_empty() {
+    false
+  } else if is_win_sep_at(path, 0) {
+    true
+  } else {
+    has_win_drive(path) && path.length() > 2 && is_win_sep_at(path, 2)
   }
 }
 
@@ -231,12 +346,9 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 }
 
 ///|
-/// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute or on a different drive, return rhs
-/// 
-/// edge cases:
-///  1. when lhs and rhs both are empty, return empty string
-///  2. ignore empty string
+/// Concatenates two path strings with `\`, then normalizes the result.
+///
+/// Absolute right-hand paths and different-drive paths do not override `lhs`.
 /// 
 /// ```moonbit check
 /// test {
@@ -248,34 +360,20 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
-  // ignore empty string
+  if lhs.is_empty() && rhs.is_empty() {
+    return "."
+  }
   if lhs.is_empty() {
-    return rhs
+    return Path::normalize(rhs)
   }
-  // ignore empty string
   if rhs.is_empty() {
-    return lhs
+    return Path::normalize(lhs)
   }
-  match join_rest(lhs, rhs) {
-    None => rhs
-    Some(rhs) =>
-      match lhs {
-        [] => rhs.to_owned()
-        [.., '\\'] as all => {
-          let builder = StringBuilder::new()
-          builder.write_stringview(all)
-          builder.write_stringview(rhs)
-          builder.to_string()
-        }
-        without_tailing_slashes => {
-          let builder = StringBuilder::new()
-          builder.write_stringview(without_tailing_slashes)
-          builder.write_char('\\')
-          builder.write_stringview(rhs)
-          builder.to_string()
-        }
-      }
-  }
+  let builder = StringBuilder::new()
+  builder.write_stringview(lhs)
+  builder.write_char('\\')
+  builder.write_stringview(rhs)
+  Path::normalize(builder.to_string())
 }
 
 ///|
@@ -285,19 +383,44 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// 4. preserve trailing slash or backslash
 /// 
 /// edge cases:
-///   1. when path is empty, return empty string
+///   1. when path is empty, return `.`
 /// 
 /// ```moonbit check
 /// test {
 ///   let path : Path = "C:\\usr\\\\local\\..\\bin\\"
-///   inspect(path.normalize(), content="C:\\usr\\bin")
+///   inspect(path.normalize(), content="C:\\usr\\bin\\")
+///
+///   let rooted_path : Path = "/usr//local/../bin/"
+///   inspect(rooted_path.normalize(), content="\\usr\\bin\\")
 /// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
-  let path = path.0
-  // if failed to normalize, return the original path
-  WinPath::parse(path).to_string() catch {
-    _ => path
+  WinPath::parse(path.0).to_string()
+}
+
+///|
+fn is_regular_win_root(path : WinPath) -> Bool {
+  if path.components.is_empty() {
+    match path.prefix {
+      Root | VolumeLetterRoot(_) | UNC(_) => true
+      _ => false
+    }
+  } else {
+    false
+  }
+}
+
+///|
+fn trim_resolved_trailing_separators(path : Path) -> Path {
+  let parsed = WinPath::parse(path.0)
+  if is_regular_win_root(parsed) {
+    return path
+  }
+  let raw = path.0
+  if raw is [.. rest, lastchar] && is_win_sep(lastchar) {
+    Path(rest.to_owned())
+  } else {
+    path
   }
 }
 
@@ -308,7 +431,7 @@ pub fn Path::normalize(path : Path) -> Path {
 /// 
 /// edge cases: 
 ///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
-///  2. when `from` and `to` have different prefixes, return empty string
+///  2. when roots differ, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
@@ -317,18 +440,23 @@ pub fn Path::normalize(path : Path) -> Path {
 ///   let path : Path = "C:\\Users\\Alice\\Documents\\Project"
 ///   let base : Path = "C:\\Users\\Alice"
 ///   inspect(path.relative(base~), content="Documents\\Project")
+///
+///   let base : Path = "/usr/local/bin"
+///   let path : Path = "/usr/local/share/doc"
+///   inspect(path.relative(base~), content="..\\share\\doc")
 /// }
 /// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
-  let cwd = @env.current_dir().unwrap()
-  let from = try! WinPath::parse(Path::join(cwd, base).0)
-  let to = try! WinPath::parse(Path::join(cwd, path).0)
-  if from.prefix == to.prefix {
+  let resolved_from = Path::resolve(base)
+  let resolved_to = Path::resolve(path)
+  let from = WinPath::parse(resolved_from.0)
+  let to = WinPath::parse(resolved_to.0)
+  if from.prefix.to_string().equal_ignore_ascii_case(to.prefix.to_string()) {
     let mut cnt = 0
     // remove the common path component prefix
     for left = from.components[:], right = to.components[:] {
       match (left, right) {
-        ([x, .. xs], [y, .. ys]) if x == y => {
+        ([x, .. xs], [y, .. ys]) if x.equal_ignore_ascii_case(y) => {
           cnt += 1
           continue xs, ys
         }
@@ -344,10 +472,18 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
     for comp in rest_path {
       components.push(comp)
     }
-    let path = WinPath::{ prefix: None, components }
-    path.to_string()
+    if components.is_empty() {
+      ""
+    } else {
+      let path = WinPath::{
+        prefix: None,
+        trailing_separator: false,
+        components,
+      }
+      path.to_string()
+    }
   } else {
-    ""
+    resolved_to
   }
 }
 
@@ -357,11 +493,21 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 pub fn Path::resolve(path : Path) -> Path {
-  if Path::is_absolute(path) {
+  let raw_path = path.0
+  let resolved = if Path::is_absolute(path) {
     Path::normalize(path)
+  } else if is_drive_relative(raw_path) {
+    let base = Path::normalize(current_dir_for_drive(raw_path[0:2]))
+    let tail = raw_path[2:]
+    if tail.is_empty() {
+      base
+    } else {
+      Path::join(base, tail.to_owned()) |> Path::normalize
+    }
   } else {
     Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
   }
+  trim_resolved_trailing_separators(resolved)
 }
 
 ///|
