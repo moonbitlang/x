@@ -1,6 +1,6 @@
 # Path Utilities for POSIX Systems
 
-This package provides path manipulation utilities specifically designed for POSIX-compliant systems (Unix, Linux, macOS). It handles paths using forward slashes (`/`) as the path separator.
+This package provides Node-compatible POSIX path manipulation utilities. It handles paths using forward slashes (`/`) as the path separator.
 
 ## Overview
 
@@ -35,8 +35,8 @@ test "basename and dirname examples" {
 
   // Handle trailing slashes
   let path : Path = "usr/local/"
-  inspect(path.basename(), content="")
-  inspect(path.dirname(), content="usr/local")
+  inspect(path.basename(), content="local")
+  inspect(path.dirname(), content="usr")
 }
 ```
 
@@ -103,9 +103,9 @@ test "path joining" {
   let path : Path = "usr/"
   inspect(path.join("local"), content="usr/local")
 
-  // Absolute paths override
+  // Absolute right-hand paths are joined then normalized
   let path : Path = "relative"
-  inspect(path.join("/absolute"), content="/absolute")
+  inspect(path.join("/absolute"), content="relative/absolute")
   let path : Path = "/"
   let path = path.join("folder").join("file.txt")
   inspect(path.to_string(), content="/folder/file.txt")
@@ -123,7 +123,7 @@ Clean up redundant components and resolve `.` and `..`:
 test "path normalization" {
   // Remove redundant components
   let path : Path = "a/./b/../c/"
-  inspect(path.normalize(), content="a/c")
+  inspect(path.normalize(), content="a/c/")
   let path : Path = "/usr/local/../bin"
   inspect(path.normalize(), content="/usr/bin")
   // Handle complex cases
@@ -218,7 +218,7 @@ The implementation handles various edge cases consistently:
 
 - Empty paths are handled appropriately
 - Trailing slashes are preserved where semantically important
-- Double leading slashes (`//`) are preserved per POSIX standards
-- The functions are consistent with Python's `os.path` module behavior rather than strict POSIX compliance where they differ
+- Double leading slashes (`//`) are normalized to a single root slash during normalization
+- The functions follow Node `path.posix` behavior for this package's existing API surface
 
 This makes the package reliable for real-world path manipulation in POSIX environments.

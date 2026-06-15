@@ -17,6 +17,11 @@
 pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
+fn is_posix_sep_at(path : String, index : Int) -> Bool {
+  path.get_char(index) == Some('/')
+}
+
+///|
 pub impl Show for Path with fn output(path, logger) {
   logger.write_object(path.0)
 }
@@ -29,59 +34,86 @@ pub impl Show for Path with fn to_string(path) {
 ///|
 /// Returns the last path component of the given path.
 ///
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// This follows Node `path.posix.basename`: trailing separators are ignored and
+/// repeated separators are not normalized before scanning.
 /// 
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr/local/bin"
-///   inspect(path.basename(), content="bin")
+///   let path : Path = "usr/local/"
+///   inspect(path.basename(), content="local")
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
   let path = path.0
-  match path.rev_find("/") {
-    None => path
-    Some(idx) if idx >= path.length() => ""
-    Some(idx) => path[idx + 1:]
+  let mut start = 0
+  let mut end = -1
+  let mut matched_slash = true
+  for i = path.length() - 1; i >= 0; i = i - 1 {
+    if is_posix_sep_at(path, i) {
+      if !matched_slash {
+        start = i + 1
+        break
+      }
+    } else if end == -1 {
+      matched_slash = false
+      end = i + 1
+    }
+  }
+  if end == -1 {
+    ""
+  } else {
+    path[start:end]
   }
 }
 
 ///|
-/// Returns path without its last path component and trailing slashes.
-/// 
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Returns the directory portion of the given path.
+///
+/// This follows Node `path.posix.dirname`: it ignores trailing separators while
+/// preserving repeated separators that participate in the directory portion.
 /// 
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr/local/bin"
-///   inspect(path.dirname(), content="usr/local")
+///   let path : Path = "usr/local/"
+///   inspect(path.dirname(), content="usr")
 /// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
   let path = path.0
-  let last_slash_pos = path.rev_find("/")
-  match last_slash_pos {
-    None => ""
-    Some(idx) => {
-      let dirname_with_trailing_slashes = path[0:idx]
-      let dirname_trim_end = dirname_with_trailing_slashes.trim_end(
-        char_set="/",
-      )
-      if dirname_trim_end.is_empty() {
-        path[0:idx + 1].to_owned()
-      } else {
-        dirname_trim_end.to_owned()
+  if path.is_empty() {
+    return "."
+  }
+  let has_root = is_posix_sep_at(path, 0)
+  let mut end = -1
+  let mut matched_slash = true
+  for i = path.length() - 1; i >= 1; i = i - 1 {
+    if is_posix_sep_at(path, i) {
+      if !matched_slash {
+        end = i
+        break
       }
+    } else {
+      matched_slash = false
     }
+  }
+  if end == -1 {
+    if has_root {
+      "/"
+    } else {
+      "."
+    }
+  } else if has_root && end == 1 {
+    "//"
+  } else {
+    path[0:end].to_owned()
   }
 }
 
 ///|
-/// Returns the string of the basename after the last `.` delimiter.
+/// Returns the extension of the last path component.
+///
+/// This follows Node `path.posix.extname` dotfile rules: a leading dot by
+/// itself does not start an extension.
 /// 
 /// ```moonbit check
 /// test {
@@ -91,8 +123,12 @@ pub fn Path::dirname(path : Path) -> Path {
 /// ```
 pub fn Path::extname(path : Path) -> StringView {
   let basename = Path::basename(path)
+  if basename == "." || basename == ".." {
+    return ""
+  }
   match basename.rev_find(".") {
     None => ""
+    Some(0) => ""
     Some(idx) => basename[idx:]
   }
 }
@@ -119,50 +155,36 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 }
 
 ///|
-/// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute path, return rhs
+/// Concatenates two path strings with `/`, then normalizes the result.
+///
+/// Unlike `resolve`, an absolute right-hand path does not override `lhs`.
 /// 
-/// edge cases:
-///  1. when lhs and rhs both are empty, return empty string
-///  2. ignore empty string
-/// 
-/// ```moonbit check
+/// ```mbt check
 /// test {
-///   let path : Path = "/usr/local"
-///   inspect(path.join("bin"), content="/usr/local/bin")
+///   assert_eq(Path::join("/usr/local", "bin"), "/usr/local/bin")
+///   assert_eq(Path::join("/usr/local", "/usr"), "/usr/local/usr")
+///   assert_eq(Path::join("/usr/local", ""), "/usr/local")
+///   assert_eq(Path::join("", "local/bin"), "local/bin")
+///   assert_eq(Path::join("", ""), ".")
 /// }
 /// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
-  if Path::is_absolute(rhs) {
-    return rhs
+  if lhs.is_empty() && rhs.is_empty() {
+    return "."
   }
-  // ignore empty string
   if lhs.is_empty() {
-    return rhs
+    return Path::normalize(rhs)
   }
-  // ignore empty string
   if rhs.is_empty() {
-    return lhs
+    return Path::normalize(lhs)
   }
-
-  match lhs {
-    [] => rhs
-    [.., '/'] as all => {
-      let builder = StringBuilder::new()
-      builder.write_stringview(all)
-      builder.write_stringview(rhs)
-      builder.to_string()
-    }
-    without_tailing_slashes => {
-      let builder = StringBuilder::new()
-      builder.write_stringview(without_tailing_slashes)
-      builder.write_char('/')
-      builder.write_stringview(rhs)
-      builder.to_string()
-    }
-  }
+  let builder = StringBuilder::new()
+  builder.write_stringview(lhs)
+  builder.write_char('/')
+  builder.write_stringview(rhs)
+  Path::normalize(builder.to_string())
 }
 
 ///|
@@ -172,18 +194,26 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// 4. preserve trailing slash
 /// 
 /// edge cases:
-///   1. when path is empty, return empty string
-///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
+///   1. when path is empty, return `.`
+///   2. leading `//` is normalized to `/`, following Node `path.posix`.
 /// 
 /// ```moonbit check
 /// test {
 ///   let path : Path = "/usr//local/../bin/"
-///   inspect(path.normalize(), content="/usr/bin")
+///   inspect(path.normalize(), content="/usr/bin/")
 /// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
-  UnixPath::parse(path.0).to_string() catch {
-    _ => path
+  UnixPath::parse(path.0).to_string()
+}
+
+///|
+fn trim_resolved_trailing_separators(path : Path) -> Path {
+  let raw = path.0
+  if raw is [.. rest, lastchar] && lastchar == '/' && !rest.is_empty() {
+    Path(rest.to_owned())
+  } else {
+    path
   }
 }
 
@@ -206,11 +236,8 @@ pub fn Path::normalize(path : Path) -> Path {
 /// }
 /// ```
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
-  let path = path.0
-  let base = base.0
-  let cwd = @env.current_dir().unwrap()
-  let from = try! UnixPath::parse(Path::join(cwd, base).0)
-  let to = try! UnixPath::parse(Path::join(cwd, path).0)
+  let from = UnixPath::parse(Path::resolve(base).0)
+  let to = UnixPath::parse(Path::resolve(path).0)
   if from.prefix == to.prefix {
     let mut cnt = 0
     // remove the common path component prefix
@@ -232,8 +259,16 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
     for comp in rest_path {
       components.push(comp)
     }
-    let path = UnixPath::{ prefix: None, components }
-    path.to_string()
+    if components.is_empty() {
+      ""
+    } else {
+      let path = UnixPath::{
+        prefix: None,
+        trailing_separator: false,
+        components,
+      }
+      path.to_string()
+    }
   } else {
     ""
   }
@@ -246,11 +281,12 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
 pub fn Path::resolve(path : Path) -> Path {
-  if Path::is_absolute(path) {
+  let resolved = if Path::is_absolute(path) {
     Path::normalize(path)
   } else {
     Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
   }
+  trim_resolved_trailing_separators(resolved)
 }
 
 ///|

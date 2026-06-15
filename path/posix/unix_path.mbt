@@ -18,13 +18,6 @@ priv enum UnixPrefix {
   ///
   /// A pathname consisting of a single <slash> shall resolve to the root directory of the process.
   Root
-  /// Syntax: `//`
-  ///
-  /// [Posix 4.13 Pathname Resolution](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
-  ///
-  /// > If a pathname begins with two successive <slash> characters, 
-  /// > the first component following the leading <slash> characters may be interpreted in an implementation-defined manner,
-  /// > although more than two leading <slash> characters shall be treated as a single <slash> character.
   SlashSlash
   None
 } derive(ToJson, Hash, Eq)
@@ -35,175 +28,121 @@ priv enum UnixPrefix {
 /// 
 priv struct UnixPath {
   prefix : UnixPrefix
+  trailing_separator : Bool
   components : Array[StringView]
 } derive(ToJson, Hash, Eq)
 
 ///|
-fn unix_path_component_from(s : StringView) -> StringView raise PathError {
-  guard !s.is_empty() else {
-    raise PathError(
-      start=0,
-      message="Unix path: empty path component not allowed",
-    )
-  }
-  guard s.get_char(0) != Some('-') else {
-    raise PathError(
-      start=0,
-      message="Unix path: component '\{s}' cannot start with '-' (not portable according to POSIX standard)",
-    )
-  }
-  for i, ch in s {
-    guard ch != '/' else {
-      raise PathError(
-        start=i,
-        message="Unix path: forward slash '/' at position \{i} not allowed in path component",
-      )
-    }
-    guard ch != '\u0000' else {
-      raise PathError(
-        start=i,
-        message="Unix path: null character (\\u0000) at position \{i} not allowed in path component",
-      )
-    }
-  }
-  s
+fn is_unix_sep_at(path : StringView, index : Int) -> Bool {
+  path.get_char(index) == Some('/')
 }
 
 ///|
-priv suberror PathError {
-  PathError(start~ : Int, message~ : String)
-} derive(Debug)
-
-///|
 impl Show for UnixPath with fn output(self : UnixPath, logger : &Logger) -> Unit {
-  let { prefix, components } = self
+  let { prefix, trailing_separator, components } = self
   match prefix {
     Root => logger.write_char('/')
-    SlashSlash => logger.write_string("//")
+    SlashSlash => logger.write_char('/')
     None => ()
   }
   match components {
-    [] => ()
+    [] =>
+      if prefix is None {
+        if trailing_separator {
+          logger.write_string("./")
+        } else {
+          logger.write_char('.')
+        }
+      }
     [x, .. xs] => {
       logger.write_view(x)
       for x in xs {
         logger.write_char('/')
         logger.write_view(x)
       }
+      if trailing_separator {
+        logger.write_char('/')
+      }
     }
   }
 }
 
 ///|
-fn parse_unix_relative_path(
-  s : StringView,
-  start~ : Int,
-  root_eliminate~ : Bool,
-) -> Array[StringView] raise PathError {
-  let mut rest = s
-  let components : Array[StringView] = []
-  let mut start = start
-  for ;; {
-    lexmatch rest with longest {
-      // pattern: <path_component><slashes>
-      // slashes elimination
-      ((("[^/]+" as s) "(/)+") as all, r) => {
-        match s {
-          "." => ()
-          ".." =>
-            match (components.pop(), root_eliminate) {
-              (Some(".."), _) => {
-                components.push("..")
-                components.push("..")
-              }
-              (None, true) => ()
-              (None, false) => components.push("..")
-              (Some(_), _) => ()
-            }
-          _ => components.push(s)
-        }
-        start += all.char_length()
-        rest = r
-      }
-      // pattern: <dot-dot>
-      "\.\." => {
-        match (components.pop(), root_eliminate) {
-          (Some(".."), _) => {
-            components.push("..")
+fn push_unix_component(
+  components : Array[StringView],
+  component : StringView,
+  allow_above_root~ : Bool,
+) -> Unit {
+  match component {
+    "." => ()
+    ".." =>
+      match components.pop() {
+        Some("..") => {
+          components.push("..")
+          if allow_above_root {
             components.push("..")
           }
-          (None, true) => ()
-          (None, false) => components.push("..")
-          (Some(_), _) => ()
         }
+        None => if allow_above_root { components.push("..") }
+        Some(_) => ()
+      }
+    _ => components.push(component)
+  }
+}
+
+///|
+fn skip_unix_separators(path : StringView, start : Int) -> Int {
+  let mut index = start
+  while index < path.length() && is_unix_sep_at(path, index) {
+    index += 1
+  }
+  index
+}
+
+///|
+fn parse_unix_components(
+  path : StringView,
+  start : Int,
+  allow_above_root~ : Bool,
+) -> Array[StringView] {
+  let components : Array[StringView] = []
+  let mut component_start = start
+  let mut index = start
+  while index <= path.length() {
+    if index == path.length() || is_unix_sep_at(path, index) {
+      if component_start < index {
+        push_unix_component(
+          components,
+          path[component_start:index],
+          allow_above_root~,
+        )
+      }
+      if index == path.length() {
         break
       }
-      // pattern: <dot>
-      "\." => break
-      ("[^/]+" as filename) => {
-        components.push(filename)
-        break
-      }
-      "$" => break
-      _ => raise PathError(start~, message="Invalid Unix path")
+      index = skip_unix_separators(path, index)
+      component_start = index
+    } else {
+      index += 1
     }
   }
   components
 }
 
 ///|
-fn UnixPath::parse(path : StringView) -> UnixPath raise PathError {
-  lexmatch path with longest {
-    // current path
-    // syntax: `./<rest_of_path>`
-    // slashes elimination 
-    ("\./+" as prefix, rest) => {
-      let directory = parse_unix_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=false,
-      )
-      { prefix: None, components: directory }
-    }
-    // syntax: `<path_component>/<rest_of_path>`
-    // slashes elimination
-    ("[^/]+/+", _) => {
-      let directory = parse_unix_relative_path(
-        path,
-        start=0,
-        root_eliminate=false,
-      )
-      { prefix: None, components: directory }
-    }
-    // root path 
-    // syntax: `/<rest_of_path>` or `/{3,}<rest_of_path>`
-    //
-    // slashes elimination
-    ("/|/{3,}", rest) => {
-      let directory = parse_unix_relative_path(
-        rest,
-        start=1,
-        root_eliminate=true,
-      )
-      { prefix: Root, components: directory }
-    }
-    // syntax: `//<rest_of_path>
-    // 
-    ("//", rest) => {
-      let directory = parse_unix_relative_path(
-        rest,
-        start=1,
-        root_eliminate=true,
-      )
-      { prefix: SlashSlash, components: directory }
-    }
-    non_prefix_hint_path => {
-      let directory = parse_unix_relative_path(
-        non_prefix_hint_path,
-        start=0,
-        root_eliminate=false,
-      )
-      { prefix: None, components: directory }
-    }
+fn UnixPath::parse(path : StringView) -> UnixPath {
+  let prefix = if !path.is_empty() && is_unix_sep_at(path, 0) {
+    Root
+  } else {
+    None
   }
+  let start = if prefix is Root { skip_unix_separators(path, 0) } else { 0 }
+  let trailing_separator = path.length() > 0 &&
+    is_unix_sep_at(path, path.length() - 1)
+  let components = parse_unix_components(
+    path,
+    start,
+    allow_above_root=prefix is None,
+  )
+  { prefix, trailing_separator, components }
 }

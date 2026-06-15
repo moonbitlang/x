@@ -13,73 +13,60 @@
 // limitations under the License.
 
 ///|
-test "Unix absolute path" {
-  let path = UnixPath::parse("/../folder/file")
-  inspect(path, content="/folder/file")
-  let path = UnixPath::parse("/folder/file")
-  inspect(path, content="/folder/file")
-  let path = UnixPath::parse("/")
-  inspect(path, content="/")
+test "UnixPath absolute normalization" {
+  inspect(UnixPath::parse("/../folder/file"), content="/folder/file")
+  inspect(UnixPath::parse("/folder/file"), content="/folder/file")
+  inspect(UnixPath::parse("/"), content="/")
+  inspect(UnixPath::parse("/."), content="/")
+  inspect(UnixPath::parse("/./"), content="/")
+  inspect(UnixPath::parse("/.."), content="/")
+  inspect(UnixPath::parse("/../"), content="/")
+  inspect(UnixPath::parse("/a/.."), content="/")
+  inspect(UnixPath::parse("/a/../"), content="/")
+  inspect(UnixPath::parse("/a/../b"), content="/b")
 }
 
 ///|
-test "Unix path normalization" {
-  let path = UnixPath::parse("./a/b/./c/../d/../..")
-  inspect(path, content="a")
-  let path = UnixPath::parse("/a/b/..")
-  inspect(path, content="/a")
-  let path = UnixPath::parse("/../..")
-  inspect(path, content="/")
-  let path = UnixPath::parse("/../a/b/../c/../../..")
-  inspect(path, content="/")
-  let path = UnixPath::parse("/../a/b/../c/../..")
-  inspect(path, content="/")
-  let path = UnixPath::parse("/../a/b/../c")
-  inspect(path, content="/a/c")
+test "UnixPath relative normalization" {
+  inspect(UnixPath::parse(""), content=".")
+  inspect(UnixPath::parse("."), content=".")
+  inspect(UnixPath::parse("./"), content="./")
+  inspect(UnixPath::parse("./folder/file"), content="folder/file")
+  inspect(
+    UnixPath::parse("containers/finger_tree"),
+    content="containers/finger_tree",
+  )
+  inspect(
+    UnixPath::parse("containers/finger_tree/finger_tree.mbt"),
+    content="containers/finger_tree/finger_tree.mbt",
+  )
+  inspect(UnixPath::parse(".."), content="..")
+  inspect(UnixPath::parse("../"), content="../")
+  inspect(UnixPath::parse("a/.."), content=".")
+  inspect(UnixPath::parse("a/../"), content="./")
+  inspect(UnixPath::parse("../a"), content="../a")
+  inspect(UnixPath::parse("a/../b"), content="b")
+  inspect(UnixPath::parse("a/b/.."), content="a")
+  inspect(UnixPath::parse("a/b/../"), content="a/")
+  inspect(UnixPath::parse("a/b/../c"), content="a/c")
 }
 
 ///|
-test "Unix relative path" {
-  let path = UnixPath::parse("./folder/file")
-  inspect(path, content="folder/file")
-  let path = UnixPath::parse("containers/finger_tree")
-  inspect(path, content="containers/finger_tree")
-  let path = UnixPath::parse("containers/finger_tree/finger_tree.mbt")
-  inspect(path, content="containers/finger_tree/finger_tree.mbt")
-}
-
-///|
-test "Unix inner path normalization for slashes" {
-  let path = UnixPath::parse("./a//b////c")
-  inspect(path, content="a/b/c")
-}
-
-///|
-test "Unix slashes normalization" {
-  let path = UnixPath::parse("///home/username/project")
-  inspect(path, content="/home/username/project")
-  let path = UnixPath::parse(".//a/b//c/e////d")
-  inspect(path, content="a/b/c/e/d")
-}
-
-///|
-test "Unix multiple tailing slashes normalization" {
-  let path = UnixPath::parse("/folder//")
-  inspect(path, content="/folder")
-  let path = UnixPath::parse("./a/b/c///")
-  inspect(path, content="a/b/c")
-  let path = UnixPath::parse("./a/b/c////")
-  inspect(path, content="a/b/c")
-}
-
-///|
-test "Unix edge cases" {
-  let path = UnixPath::parse("/")
-  inspect(path, content="/")
-  let path = UnixPath::parse("./")
-  inspect(path)
-  let path = UnixPath::parse("//")
-  inspect(path, content="//")
-  let path = UnixPath::parse("///")
-  inspect(path, content="/")
+test "UnixPath slash and trailing separator normalization" {
+  inspect(UnixPath::parse("./a//b////c"), content="a/b/c")
+  inspect(
+    UnixPath::parse("///home/username/project"),
+    content="/home/username/project",
+  )
+  inspect(UnixPath::parse(".//a/b//c/e////d"), content="a/b/c/e/d")
+  inspect(UnixPath::parse("//"), content="/")
+  inspect(UnixPath::parse("///"), content="/")
+  inspect(UnixPath::parse("//a//b"), content="/a/b")
+  inspect(UnixPath::parse("///a///b"), content="/a/b")
+  inspect(UnixPath::parse("/folder//"), content="/folder/")
+  inspect(UnixPath::parse("./a/b/c///"), content="a/b/c/")
+  inspect(UnixPath::parse("./a/b/c////"), content="a/b/c/")
+  inspect(UnixPath::parse("a/./"), content="a/")
+  inspect(UnixPath::parse("a/b/c/"), content="a/b/c/")
+  inspect(UnixPath::parse("a/./b/../c/"), content="a/c/")
 }
