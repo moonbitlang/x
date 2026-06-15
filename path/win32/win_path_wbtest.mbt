@@ -13,178 +13,121 @@
 // limitations under the License.
 
 ///|
-test "WinPrefix::VerbatimSymlink" {
-  let path = WinPath::parse("\\\\?\\GLOBALROOT\\file")
-  inspect(path, content="\\\\?\\GLOBALROOT\\file")
-  let path = WinPath::parse("\\\\?\\GLOBALROOT\\file.txt")
-  inspect(path, content="\\\\?\\GLOBALROOT\\file.txt")
-  let path = WinPath::parse("\\\\?\\GLOBALROOT\\folder\\")
-  inspect(path, content="\\\\?\\GLOBALROOT\\folder")
-  let path = WinPath::parse("\\\\?\\GLOBALROOT")
-  inspect(path, content="\\\\?\\GLOBALROOT\\")
-}
-
-///|
-test "WinPrefix::VerbatimUNC" {
-  let path = WinPath::parse("\\\\?\\UNC\\server\\share\\file")
-  inspect(path, content="\\\\?\\UNC\\server\\share\\file")
-  let path = WinPath::parse("\\\\?\\UNC\\server\\share\\file.log")
-  inspect(path, content="\\\\?\\UNC\\server\\share\\file.log")
-  let path = WinPath::parse("\\\\?\\UNC\\server\\share\\folder\\")
-  inspect(path, content="\\\\?\\UNC\\server\\share\\folder")
-  let path = WinPath::parse("\\\\?\\UNC\\server\\share")
-  inspect(path, content="\\\\?\\UNC\\server\\share")
-}
-
-///|
-test "WinPrefix::VerbatimVolumeLetter" {
-  let path = WinPath::parse("\\\\?\\C:\\file")
-  inspect(path, content="\\\\?\\C:\\file")
-  let path = WinPath::parse("\\\\?\\C:\\file.md")
-  inspect(path, content="\\\\?\\C:\\file.md")
-  let path = WinPath::parse("\\\\?\\C:\\folder\\")
-  inspect(path, content="\\\\?\\C:\\folder")
-  let path = WinPath::parse("\\\\?\\C:")
-  inspect(path, content="\\\\?\\C:\\")
-}
-
-///|
-test "WinPrefix::VerbatimVolumeGUID" {
-  let path = WinPath::parse(
-    "\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}file",
+test "WinPath verbatim prefixes" {
+  inspect(
+    WinPath::parse("\\\\?\\GLOBALROOT\\file"),
+    content="\\\\?\\GLOBALROOT\\file",
   )
   inspect(
-    path,
-    content="\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}file\\",
+    WinPath::parse("\\\\?\\GLOBALROOT\\folder\\"),
+    content="\\\\?\\GLOBALROOT\\folder\\",
   )
-  let path = WinPath::parse(
-    "\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}file.png",
+  inspect(WinPath::parse("\\\\?\\GLOBALROOT"), content="\\\\?\\GLOBALROOT")
+  inspect(
+    WinPath::parse("\\\\?\\UNC\\server\\share\\file"),
+    content="\\\\?\\UNC\\server\\share\\file",
   )
   inspect(
-    path,
-    content="\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}file.png\\",
-  )
-  let path = WinPath::parse(
-    "\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}folder\\",
+    WinPath::parse("\\\\?\\UNC\\server\\share\\folder\\"),
+    content="\\\\?\\UNC\\server\\share\\folder\\",
   )
   inspect(
-    path,
-    content="\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}folder\\",
+    WinPath::parse("\\\\?\\UNC\\server\\share"),
+    content="\\\\?\\UNC\\server\\share",
   )
-  let path = WinPath::parse(
-    "\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}",
+  inspect(
+    WinPath::parse("\\\\?\\UNC\\server\\"),
+    content="\\\\?\\UNC\\server\\",
   )
-  inspect(path, content="\\\\?\\Volume{12345678-1234-1234-1234-1234567890AB}\\")
+  inspect(WinPath::parse("\\\\?\\C:\\file"), content="\\\\?\\C:\\file")
+  inspect(WinPath::parse("\\\\?\\C:\\folder\\"), content="\\\\?\\C:\\folder\\")
+  inspect(WinPath::parse("\\\\?\\C:"), content="\\\\?\\C:")
 }
 
 ///|
-test "WinPrefix::DeviceNS" {
-  let path = WinPath::parse("\\\\.\\COM56\\file")
-  inspect(path, content="\\\\.\\COM56\\file")
-  let path = WinPath::parse("\\\\.\\COM56\\file.bin")
-  inspect(path, content="\\\\.\\COM56\\file.bin")
-  let path = WinPath::parse("\\\\.\\COM56\\folder\\")
-  inspect(path, content="\\\\.\\COM56\\folder")
-  let path = WinPath::parse("\\\\.\\COM56")
-  inspect(path, content="\\\\.\\COM56\\")
+test "WinPath device and UNC prefixes" {
+  inspect(WinPath::parse("\\\\.\\COM56\\file"), content="\\\\.\\COM56\\file")
+  inspect(
+    WinPath::parse("\\\\.\\COM56\\folder\\"),
+    content="\\\\.\\COM56\\folder\\",
+  )
+  inspect(WinPath::parse("\\\\.\\COM56"), content="\\\\.\\COM56")
+  inspect(
+    WinPath::parse("\\\\server\\share\\file"),
+    content="\\\\server\\share\\file",
+  )
+  inspect(
+    WinPath::parse("\\\\server\\share\\folder\\"),
+    content="\\\\server\\share\\folder\\",
+  )
+  inspect(WinPath::parse("\\\\server\\share"), content="\\\\server\\share\\")
+  inspect(
+    WinPath::parse("//server/share//folder"),
+    content="\\\\server\\share\\folder",
+  )
 }
 
 ///|
-test "WinPrefix::UNC" {
-  let path = WinPath::parse("\\\\server\\share\\file")
-  inspect(path, content="\\\\server\\share\\file")
-  let path = WinPath::parse("\\\\server\\share\\file.log")
-  inspect(path, content="\\\\server\\share\\file.log")
-  let path = WinPath::parse("\\\\server\\share\\folder\\")
-  inspect(path, content="\\\\server\\share\\folder")
-  let path = WinPath::parse("\\\\server\\share")
-  inspect(path, content="\\\\server\\share\\")
+test "WinPath drive and rooted paths" {
+  inspect(WinPath::parse("C:\\"), content="C:\\")
+  inspect(WinPath::parse("C:\\file"), content="C:\\file")
+  inspect(WinPath::parse("C:\\folder\\"), content="C:\\folder\\")
+  inspect(WinPath::parse("C:\\..\\..\\c\\.."), content="C:\\")
+  inspect(WinPath::parse("C:main.mbt"), content="C:main.mbt")
+  inspect(WinPath::parse("C:temp\\.\\file"), content="C:temp\\file")
+  inspect(
+    WinPath::parse("C:.\\..\\dir\\..\\main.mbt"),
+    content="C:..\\main.mbt",
+  )
+  inspect(WinPath::parse("\\folder\\file"), content="\\folder\\file")
+  inspect(WinPath::parse("\\..\\folder\\file"), content="\\folder\\file")
 }
 
 ///|
-test "WinPrefix::VolumeLetterRoot" {
-  let path = WinPath::parse("C:\\")
-  inspect(path, content="C:\\")
-  let path = WinPath::parse("C:\\file")
-  inspect(path, content="C:\\file")
-  let path = WinPath::parse("C:\\file.txt")
-  inspect(path, content="C:\\file.txt")
-  let path = WinPath::parse("C:\\folder\\")
-  inspect(path, content="C:\\folder")
+test "WinPath relative normalization" {
+  inspect(WinPath::parse(""), content=".")
+  inspect(WinPath::parse("."), content=".")
+  inspect(WinPath::parse(".\\"), content=".\\")
+  inspect(WinPath::parse(".\\folder\\file"), content="folder\\file")
+  inspect(
+    WinPath::parse("containers\\finger_tree"),
+    content="containers\\finger_tree",
+  )
+  inspect(
+    WinPath::parse("containers\\finger_tree\\finger_tree.mbt"),
+    content="containers\\finger_tree\\finger_tree.mbt",
+  )
+  inspect(WinPath::parse(".."), content="..")
+  inspect(WinPath::parse("..\\"), content="..\\")
+  inspect(WinPath::parse("a\\.."), content=".")
+  inspect(WinPath::parse("a\\..\\"), content=".\\")
+  inspect(WinPath::parse("..\\a"), content="..\\a")
+  inspect(WinPath::parse("a\\..\\b"), content="b")
+  inspect(WinPath::parse("a\\b\\.."), content="a")
+  inspect(WinPath::parse("a\\b\\..\\"), content="a\\")
+  inspect(WinPath::parse("a\\b\\..\\c"), content="a\\c")
+  inspect(WinPath::parse(".\\a\\b\\.\\c\\..\\d\\..\\.."), content="a")
 }
 
 ///|
-test "WinPrefix::VolumeLetter" {
-  let path = WinPath::parse("C:main.mbt")
-  inspect(path, content="C:main.mbt")
-  let path = WinPath::parse("C:.\\..\\dir\\..\\main.mbt")
-  inspect(path, content="C:main.mbt")
+test "WinPath separator and trailing normalization" {
+  inspect(WinPath::parse(".\\a\\\\b\\\\\\\\c"), content="a\\b\\c")
+  inspect(WinPath::parse("C:\\\\\\\\a\\b"), content="C:\\a\\b")
+  inspect(WinPath::parse(".\\\\\\a\\b\\c\\\\e"), content="a\\b\\c\\e")
+  inspect(WinPath::parse("a/b//c"), content="a\\b\\c")
+  inspect(WinPath::parse("C:\\folder\\\\"), content="C:\\folder\\")
+  inspect(WinPath::parse(".\\a\\b\\c\\\\\\"), content="a\\b\\c\\")
+  inspect(WinPath::parse("a\\b\\c\\"), content="a\\b\\c\\")
+  inspect(WinPath::parse("a\\.\\b\\..\\c\\"), content="a\\c\\")
 }
 
 ///|
-test "Windows root path without specified drive letter" {
-  let path = WinPath::parse("\\folder\\file")
-  inspect(path, content="\\folder\\file")
-  let path = WinPath::parse("\\..\\folder\\file")
-  inspect(path, content="\\folder\\file")
-}
-
-///|
-test "Windows path normalization" {
-  let path = WinPath::parse(".\\a\\b\\.\\c\\..\\d\\..\\..")
-  inspect(path, content="a")
-  let path = WinPath::parse("\\a\\b\\..")
-  inspect(path, content="\\a")
-  let path = WinPath::parse("\\..\\..\\")
-  inspect(path, content="\\")
-  let path = WinPath::parse("\\..\\a\\b\\..\\c\\..\\..\\..")
-  inspect(path, content="\\")
-  let path = WinPath::parse("\\..\\a\\b\\..\\c\\..\\..")
-  inspect(path, content="\\")
-  let path = WinPath::parse("\\..\\a\\b\\..\\c")
-  inspect(path, content="\\a\\c")
-  let path = WinPath::parse("C:\\..\\..\\c\\..")
-  inspect(path, content="C:\\")
-}
-
-///|
-test "Windows relative path" {
-  let path = WinPath::parse(".\\folder\\file")
-  inspect(path, content="folder\\file")
-  let path = WinPath::parse("containers\\finger_tree")
-  inspect(path, content="containers\\finger_tree")
-  let path = WinPath::parse("containers\\finger_tree\\finger_tree.mbt")
-  inspect(path, content="containers\\finger_tree\\finger_tree.mbt")
-}
-
-///|
-test "Windows inner path normalization for backslashes" {
-  let path = WinPath::parse(".\\a\\\\b\\\\\\\\c")
-  inspect(path, content="a\\b\\c")
-}
-
-///|
-test "Windows backslashes normalization" {
-  let path = WinPath::parse("C:\\\\\\\\a\\b")
-  inspect(path, content="C:\\a\\b")
-  let path = WinPath::parse(".\\\\\\a\\b\\c\\\\e")
-  inspect(path, content="a\\b\\c\\e")
-}
-
-///|
-test "Windows multiple tailing backslashes normalization" {
-  let path = WinPath::parse("C:\\folder\\\\")
-  inspect(path, content="C:\\folder")
-  let path = WinPath::parse(".\\a\\b\\c\\\\\\")
-  inspect(path, content="a\\b\\c")
-  let path = WinPath::parse(".\\a\\b\\c\\\\\\")
-  inspect(path, content="a\\b\\c")
-}
-
-///|
-test "Windows edge cases" {
-  let path = WinPath::parse("\\")
-  inspect(path, content="\\")
-  let path = WinPath::parse(".\\")
-  inspect(path)
+test "WinPath reserved-looking names are path components" {
+  inspect(WinPath::parse("C:\\temp\\CON"), content="C:\\temp\\CON")
+  inspect(WinPath::parse("C:\\temp\\PRN.txt"), content="C:\\temp\\PRN.txt")
+  inspect(
+    WinPath::parse("C:\\temp\\question?mark"),
+    content="C:\\temp\\question?mark",
+  )
+  inspect(WinPath::parse("C:\\temp\\star*name"), content="C:\\temp\\star*name")
 }

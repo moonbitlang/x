@@ -18,6 +18,7 @@
 /// [Microsoft Maximum Path Length Limitation](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
 priv struct WinPath {
   prefix : WinPrefix
+  trailing_separator : Bool
   components : Array[StringView]
 } derive(ToJson, Hash, Eq)
 
@@ -96,85 +97,8 @@ priv enum WinPrefix {
   None
 } derive(ToJson, Hash, Eq)
 
-///|
-let windows_reserved_names : FixedArray[String] = [
-  ///
-  "CON", "PRN", "AUX", "NUL",
-  ///
-   "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-  ///
-   "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-  ///
-   "COM\u00b9", "COM\u00b2", "COM\u00b3",
-  ///
-   "LPT\u00b9", "LPT\u00b2", "LPT\u00b3",
-]
-
-///|
-let windows_reserved_names_set : Set[StringView] = Set::from_iter(
-  windows_reserved_names.iter().map(x => x),
-)
-
-///|
-fn is_windows_reserved_character(ch : Char) -> Bool {
-  match ch {
-    '<'
-    | '>'
-    | ':'
-    | '\"'
-    | '/'
-    | '\\'
-    | '|'
-    | '?'
-    | '*'
-    | '\u0000'
-    | '\u0001'..='\u001F' => true
-    _ => false
-  }
-}
-
-///|
-fn windows_path_component_from(
-  s : StringView,
-  start~ : Int,
-) -> StringView raise PathError {
-  guard !s.is_empty() else {
-    raise PathError(
-      start~,
-      message="Windows path: empty path component not allowed",
-    )
-  }
-  guard !windows_reserved_names_set.contains(s) else {
-    raise PathError(
-      start~,
-      message="Windows path: '\{s}' is a reserved name (CON, PRN, AUX, NUL, COM1-9, LPT1-9)",
-    )
-  }
-  for i, ch in s {
-    guard !is_windows_reserved_character(ch) else {
-      raise PathError(
-        start=start + i,
-        message="Windows path: character '\{ch}' at position \{start+i} is not allowed (reserved characters: < > : \" / \\ | ? * and control characters)",
-      )
-    }
-    guard ch != '\\' else {
-      raise PathError(
-        start=start + i,
-        message="Windows path: backslash '\\' at position \{start+i} not allowed in path component",
-      )
-    }
-  }
-  s
-}
-
-///|
-priv suberror PathError {
-  PathError(start~ : Int, message~ : String)
-} derive(Debug)
-
-/// In order to make code more clean, 
-/// so we have to define many string constants to avoid escape sequences 
-/// and MoonBit directly use mutli-line string literals in callsite should wrap used ()
+/// In order to make code more clean,
+/// so we have to define many string constants to avoid escape sequences.
 
 ///|
 const VerbatimPrefix : String =
@@ -259,15 +183,85 @@ impl Show for WinPrefix with fn output(self, logger) {
 
 ///|
 fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
-  let { prefix, components } = self
-  logger.write_object(prefix)
+  let { prefix, trailing_separator, components } = self
+  let mut prefix_ends_with_sep = false
+  match prefix {
+    Root => {
+      logger.write_char(BackSlash)
+      prefix_ends_with_sep = true
+    }
+    VerbatimSymlink(symlink~) => {
+      logger.write_string(VerbatimPrefix)
+      logger.write_string(symlink)
+    }
+    VerbatimUNC(hostname~, shared_folder~) => {
+      logger.write_string(VerbatimUncPrefix)
+      logger.write_string(hostname)
+      logger.write_char(BackSlash)
+      logger.write_string(shared_folder)
+    }
+    VerbatimVolumeLetterRoot(letter) => {
+      logger.write_string(VerbatimPrefix)
+      logger.write_char(letter)
+      logger.write_string(ColonBackslash)
+      prefix_ends_with_sep = true
+    }
+    VerbatimVolumeGUID(guid) => {
+      logger.write_string(VolumePrefix)
+      logger.write_string(guid)
+      logger.write_string(VolumeSuffix)
+    }
+    DeviceNS(device~) => {
+      logger.write_string(DevicePrefix)
+      logger.write_string(device)
+    }
+    UNC(hostname~, shared_folder~) => {
+      logger.write_string(UncPrefix)
+      logger.write_string(hostname)
+      logger.write_char(BackSlash)
+      logger.write_string(shared_folder)
+      logger.write_char(BackSlash)
+      prefix_ends_with_sep = true
+    }
+    VolumeLetterRoot(letter) => {
+      logger.write_char(letter)
+      logger.write_string(ColonBackslash)
+      prefix_ends_with_sep = true
+    }
+    VolumeLetter(letter) => {
+      logger.write_char(letter)
+      logger.write_string(":")
+    }
+    None => ()
+  }
   match components {
-    [] => ()
+    [] =>
+      match prefix {
+        None | VolumeLetter(_) =>
+          if trailing_separator {
+            logger.write_string(".\\")
+          } else {
+            logger.write_char('.')
+          }
+        VerbatimSymlink(_)
+        | VerbatimUNC(_)
+        | VerbatimVolumeGUID(_)
+        | DeviceNS(_) => if trailing_separator { logger.write_char(BackSlash) }
+        _ => ()
+      }
     [x, .. xs] => {
+      if !prefix_ends_with_sep &&
+        !(prefix is None) &&
+        !(prefix is VolumeLetter(_)) {
+        logger.write_char(BackSlash)
+      }
       logger.write_view(x)
       for component in xs {
         logger.write_char(BackSlash)
         logger.write_view(component)
+      }
+      if trailing_separator {
+        logger.write_char(BackSlash)
       }
     }
   }
@@ -279,287 +273,338 @@ impl Show for WinPath with fn output(self, logger) {
 }
 
 ///|
-fn parse_windows_relative_path(
-  s : StringView,
-  start~ : Int,
-  root_eliminate~ : Bool,
-) -> Array[StringView] raise PathError {
-  let mut rest = s
-  let components : Array[StringView] = []
-  let mut start = start
-  for ;; {
-    lexmatch rest with longest {
-      // pattern: <path_component><backslashes>
-      // backslashes elimination
-      ((("[^\\]+" as s) "(\\)+") as all, r) => {
-        match s {
-          "." => ()
-          ".." =>
-            match (components.pop(), root_eliminate) {
-              (Some(".."), _) => {
-                components.push("..")
-                components.push("..")
-              }
-              (None, true) => ()
-              (None, false) => components.push("..")
-              (Some(_), _) => ()
-            }
-          _ => components.push(s)
-        }
-        start += all.char_length()
-        rest = r
-      }
-      // pattern: <dot-dot>
-      "\.\." => {
-        match (components.pop(), root_eliminate) {
-          (Some(".."), _) => {
-            components.push("..")
+fn is_win_sep_at_view(path : StringView, index : Int) -> Bool {
+  match path.get_char(index) {
+    Some(ch) => is_win_sep(ch)
+    _ => false
+  }
+}
+
+///|
+fn has_win_drive_view(path : StringView, start : Int) -> Bool {
+  if start + 1 >= path.length() || path.get_char(start + 1) != Some(':') {
+    false
+  } else {
+    match path.get_char(start) {
+      Some(ch) => is_ascii_alpha(ch)
+      _ => false
+    }
+  }
+}
+
+///|
+fn skip_win_separators_view(path : StringView, start : Int) -> Int {
+  let mut index = start
+  while index < path.length() && is_win_sep_at_view(path, index) {
+    index += 1
+  }
+  index
+}
+
+///|
+fn find_next_win_sep_view(path : StringView, start : Int) -> Int? {
+  for i = start; i < path.length(); i = i + 1 {
+    if is_win_sep_at_view(path, i) {
+      return Some(i)
+    }
+  }
+  None
+}
+
+///|
+fn find_win_char_view(path : StringView, start : Int, target : Char) -> Int? {
+  for i = start; i < path.length(); i = i + 1 {
+    if path.get_char(i) == Some(target) {
+      return Some(i)
+    }
+  }
+  None
+}
+
+///|
+fn push_windows_component(
+  components : Array[StringView],
+  component : StringView,
+  allow_above_root~ : Bool,
+) -> Unit {
+  match component {
+    "." => ()
+    ".." =>
+      match components.pop() {
+        Some("..") => {
+          components.push("..")
+          if allow_above_root {
             components.push("..")
           }
-          (None, true) => ()
-          (None, false) => components.push("..")
-          (Some(_), _) => ()
         }
+        None => if allow_above_root { components.push("..") }
+        Some(_) => ()
+      }
+    _ => components.push(component)
+  }
+}
+
+///|
+fn parse_windows_components(
+  path : StringView,
+  start : Int,
+  allow_above_root~ : Bool,
+) -> Array[StringView] {
+  let components : Array[StringView] = []
+  let mut component_start = start
+  let mut index = start
+  while index <= path.length() {
+    if index == path.length() || is_win_sep_at_view(path, index) {
+      if component_start < index {
+        push_windows_component(
+          components,
+          path[component_start:index],
+          allow_above_root~,
+        )
+      }
+      if index == path.length() {
         break
       }
-      // pattern: <dot>
-      "\." => break
-      ("[^\\]+" as filename) => {
-        components.push(filename)
-        break
-      }
-      "$" => break
-      _ =>
-        raise PathError(start~, message="Invalid Windows path in relative part")
+      index = skip_win_separators_view(path, index)
+      component_start = index
+    } else {
+      index += 1
     }
   }
   components
 }
 
 ///|
-
-///|
-fn WinPath::parse(path : StringView) -> WinPath raise PathError {
-  lexmatch path with longest {
-    //-----------------------------------------------------------------------------
-    // without <rest_of_path>
-    //-----------------------------------------------------------------------------
-    // this pattern exect match the whole path string
-    // pattern: `\\?\<symlink>`
-    ("\\\\\?\\" ("[^\\]+" as symlink)) =>
-      { prefix: VerbatimSymlink(symlink=symlink.to_owned()), components: [] }
-    // this pattern exect match the whole path string
-    // pattern: `\\?\UNC\<hostname>\<shared_folder>`
-    ("\\\\\?UNC\\" ("[^\\]+" as hostname) "\\" ("[^\\]+" as shared_folder)) =>
-      {
-        prefix: VerbatimUNC(
-          hostname=hostname.to_owned(),
-          shared_folder=shared_folder.to_owned(),
-        ),
-        components: [],
+fn parse_verbatim_prefixed_path(
+  path : StringView,
+  trailing_separator : Bool,
+) -> WinPath? {
+  guard path.length() >= 4 && path.get_char(2) == Some('?') else { return None }
+  let marker_end = 4
+  guard is_win_sep_at_view(path, 3) else { return None }
+  if path.length() >= marker_end + 4 &&
+    path[marker_end:marker_end + 3].equal_ignore_ascii_case("UNC") &&
+    is_win_sep_at_view(path, marker_end + 3) {
+    let hostname_start = skip_win_separators_view(path, marker_end + 3)
+    match find_next_win_sep_view(path, hostname_start) {
+      Some(hostname_end) => {
+        let share_start = skip_win_separators_view(path, hostname_end)
+        guard share_start < path.length() else {
+          return Some({
+            prefix: VerbatimSymlink(symlink="UNC"),
+            trailing_separator,
+            components: [path[hostname_start:hostname_end]],
+          })
+        }
+        let share_end = match find_next_win_sep_view(path, share_start) {
+          Some(index) => index
+          _ => path.length()
+        }
+        let component_start = if share_end < path.length() {
+          skip_win_separators_view(path, share_end)
+        } else {
+          path.length()
+        }
+        let components = parse_windows_components(
+          path,
+          component_start,
+          allow_above_root=false,
+        )
+        return Some({
+          prefix: VerbatimUNC(
+            hostname=path[hostname_start:hostname_end].to_owned(),
+            shared_folder=path[share_start:share_end].to_owned(),
+          ),
+          trailing_separator,
+          components,
+        })
       }
-    // this pattern exect match the whole path string
-    // pattern: `\\<hostname>\<shared_folder>`
-    ("\\\\" ("[^\\]+" as hostname) "\\" ("[^\\]+" as shared_folder)) =>
-      {
-        prefix: UNC(
-          hostname=hostname.to_owned(),
-          shared_folder=shared_folder.to_owned(),
-        ),
-        components: [],
-      }
-    // this pattern exect match the whole path string
-    // pattern: `\\.\<device>`
-    ("\\\\\.\\" ("[^\\]+" as device)) =>
-      { prefix: DeviceNS(device=device.to_owned()), components: [] }
-    // this pattern exect match the whole path string
-    // pattern: `\\?\<letter>:\`
-    //
-    // backslashes elimination
-    ("\\\\\?\\" ("[a-zA-Z]" as letter) ":(\\)+") =>
-      { prefix: VerbatimVolumeLetterRoot(letter), components: [] }
-    // this pattern exect match the whole path string
-    // pattern: `<letter>:\`
-    // 
-    // backslashes elimination
-    (("[a-zA-Z]" as letter) ":(\\)+") =>
-      { prefix: VolumeLetterRoot(letter), components: [] }
-    // this pattern exect match the whole path string
-    // pattern: `\\?\` followed by relative path components
-    ("\\\\\?\\" "\\|\.\.|\.") =>
-      raise PathError(
-        start=0,
-        message="Invalid Windows path: Verbatim prefix can use for relative path",
-      )
-    // this pattern exect match the whole path string
-    // pattern: `\\?\Volume{<guid>}`
-    ("\\\\\?\\Volume[{]" ("[^}]+" as guid) "[}]") =>
-      { prefix: VerbatimVolumeGUID(guid.to_owned()), components: [] }
-    //-----------------------------------------------------------------------------
-    // with <rest_of_path>
-    //-----------------------------------------------------------------------------
-    // pattern: `\\?\<symlink>\<rest_of_path>`
-    //
-    // backslashes elimination
-    (("\\\\\?\\" ("[^\\]+" as symlink) "(\\)+") as prefix, rest) => {
-      // Warning: won't check the symlink name here
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: VerbatimSymlink(symlink=symlink.to_owned()), components }
-    }
-    // pattern: `\\?\UNC\<hostname>\<shared_folder>\<rest_of_path>`
-    //
-    // backslashes elimination
-    (
-      (
-        "\\\\\?UNC\\"
-        ("[^\\]+" as hostname)
-        "\\"
-        ("[^\\]+" as shared_folder)
-        "(\\)+"
-      ) as prefix,
-      rest
-    ) => {
-      // Warning: won't check the hostname and shared_folder here
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      {
-        prefix: VerbatimUNC(
-          hostname=hostname.to_owned(),
-          shared_folder=shared_folder.to_owned(),
-        ),
-        components,
-      }
-    }
-    // pattern: `\\<hostname>\<shared_folder>\<rest_of_path>`
-    //
-    // backslashes elimination
-    (
-      ("\\\\" ("[^\\]+" as hostname) "\\" ("[^\\]+" as shared_folder) "(\\)+") as prefix,
-      rest
-    ) => {
-      // Warning: won't check the hostname and shared_folder here
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      {
-        prefix: UNC(
-          hostname=hostname.to_owned(),
-          shared_folder=shared_folder.to_owned(),
-        ),
-        components,
-      }
-    }
-    // pattern: `\\?\Volume{<guid>}<rest_of_path>`
-    (("\\\\\?\\Volume[{]" ("[^}]+" as guid) "[}]") as prefix, rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: VerbatimVolumeGUID(guid.to_owned()), components }
-    }
-    // pattern: `\\.\<device>\<rest_of_path>`
-    //
-    // backslashes elimination
-    (("\\\\\.\\" ("[^\\]+" as device) "(\\)+") as prefix, rest) => {
-      // check the device name here
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: DeviceNS(device=device.to_owned()), components }
-    }
-    // pattern: `\\?\<letter>:\<rest_of_path>`
-    //
-    // backslashes elimination
-    (("\\\\\?\\" ("[a-zA-Z]" as letter) ":(\\)+") as prefix, rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: VerbatimVolumeLetterRoot(letter), components }
-    }
-    ("\\\\\?\\" "\\|\.\.|\.", _) =>
-      // pattern: `\\?\` followed by relative path components
-      raise PathError(
-        start=0,
-        message="Invalid Windows path: Verbatim prefix can use for relative path",
-      )
-    // root path but without derive letter 
-    // syntax: `\<rest_of_path>`
-    // Warning: here doesn't support backslash elimination, 
-    //          because prefix backslashes elimination is conflicted with UNC path format
-    ("\\", rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=1,
-        root_eliminate=true,
-      )
-      { prefix: Root, components }
-    }
-
-    // pattern: `<letter>:\<rest_of_path>`
-    //
-    // backslashes elimination
-    ((("[a-zA-Z]" as letter) ":(\\)+") as prefix, rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: VolumeLetterRoot(letter), components }
-    }
-    // pattern: `<letter>:<rest_of_path>`
-    //
-    // backslashes elimination
-    ((("[a-zA-Z]" as letter) ":") as prefix, rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=true,
-      )
-      { prefix: VolumeLetter(letter), components }
-    }
-
-    // syntax: `<path_component>\<rest_of_path>`
-    // backslashes elimination
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _) => {
-      let components = parse_windows_relative_path(
-        path,
-        start=0,
-        root_eliminate=false,
-      )
-      { prefix: None, components }
-    }
-    // current path 
-    // syntax: `.\<rest_of_path>`
-    // backslashes elimination
-    ("\.(\\)+" as prefix, rest) => {
-      let components = parse_windows_relative_path(
-        rest,
-        start=prefix.char_length(),
-        root_eliminate=false,
-      )
-      { prefix: None, components }
-    }
-    non_prefix_hint_path => {
-      let components = parse_windows_relative_path(
-        non_prefix_hint_path,
-        start=0,
-        root_eliminate=false,
-      )
-      { prefix: None, components }
+      _ => ()
     }
   }
+  let part_start = marker_end
+  guard part_start < path.length() else {
+    return Some({
+      prefix: VerbatimSymlink(symlink=""),
+      trailing_separator,
+      components: [],
+    })
+  }
+  if path.length() > part_start + 7 &&
+    path[part_start:part_start + 7] == "Volume{" {
+    match find_win_char_view(path, part_start + 7, '}') {
+      Some(guid_end) => {
+        let component_start = if guid_end + 1 < path.length() {
+          skip_win_separators_view(path, guid_end + 1)
+        } else {
+          path.length()
+        }
+        let components = parse_windows_components(
+          path,
+          component_start,
+          allow_above_root=false,
+        )
+        return Some({
+          prefix: VerbatimVolumeGUID(path[part_start + 7:guid_end].to_owned()),
+          trailing_separator,
+          components,
+        })
+      }
+      _ => ()
+    }
+  }
+  let part_end = match find_next_win_sep_view(path, part_start) {
+    Some(index) => index
+    _ => path.length()
+  }
+  if has_win_drive_view(path, part_start) &&
+    part_start + 2 == part_end &&
+    part_end < path.length() {
+    let components = parse_windows_components(
+      path,
+      skip_win_separators_view(path, part_end),
+      allow_above_root=false,
+    )
+    return Some({
+      prefix: VerbatimVolumeLetterRoot(
+        path[part_start:part_start + 1].get_char(0).unwrap(),
+      ),
+      trailing_separator,
+      components,
+    })
+  }
+  let components = if part_end < path.length() {
+    parse_windows_components(
+      path,
+      skip_win_separators_view(path, part_end),
+      allow_above_root=false,
+    )
+  } else {
+    []
+  }
+  Some({
+    prefix: VerbatimSymlink(symlink=path[part_start:part_end].to_owned()),
+    trailing_separator,
+    components,
+  })
+}
+
+///|
+fn parse_device_prefixed_path(
+  path : StringView,
+  trailing_separator : Bool,
+) -> WinPath? {
+  guard path.length() >= 4 && path.get_char(2) == Some('.') else { return None }
+  guard is_win_sep_at_view(path, 3) else { return None }
+  let part_start = 4
+  guard part_start < path.length() else {
+    return Some({
+      prefix: DeviceNS(device=""),
+      trailing_separator,
+      components: [],
+    })
+  }
+  let part_end = match find_next_win_sep_view(path, part_start) {
+    Some(index) => index
+    _ => path.length()
+  }
+  let components = if part_end < path.length() {
+    parse_windows_components(
+      path,
+      skip_win_separators_view(path, part_end),
+      allow_above_root=false,
+    )
+  } else {
+    []
+  }
+  Some({
+    prefix: DeviceNS(device=path[part_start:part_end].to_owned()),
+    trailing_separator,
+    components,
+  })
+}
+
+///|
+fn parse_unc_path(path : StringView, trailing_separator : Bool) -> WinPath? {
+  guard path.length() <= 2 || !is_win_sep_at_view(path, 2) else { return None }
+  let hostname_start = 2
+  guard hostname_start < path.length() else { return None }
+  match find_next_win_sep_view(path, hostname_start) {
+    Some(hostname_end) => {
+      let share_start = skip_win_separators_view(path, hostname_end)
+      guard share_start < path.length() else { return None }
+      let share_end = match find_next_win_sep_view(path, share_start) {
+        Some(index) => index
+        _ => path.length()
+      }
+      let component_start = if share_end < path.length() {
+        skip_win_separators_view(path, share_end)
+      } else {
+        path.length()
+      }
+      let components = parse_windows_components(
+        path,
+        component_start,
+        allow_above_root=false,
+      )
+      Some({
+        prefix: UNC(
+          hostname=path[hostname_start:hostname_end].to_owned(),
+          shared_folder=path[share_start:share_end].to_owned(),
+        ),
+        trailing_separator,
+        components,
+      })
+    }
+    _ => None
+  }
+}
+
+///|
+fn WinPath::parse(path : StringView) -> WinPath {
+  let trailing_separator = path.length() > 0 &&
+    is_win_sep_at_view(path, path.length() - 1)
+  if path.length() >= 2 &&
+    is_win_sep_at_view(path, 0) &&
+    is_win_sep_at_view(path, 1) {
+    match parse_verbatim_prefixed_path(path, trailing_separator) {
+      Some(parsed) => return parsed
+      _ => ()
+    }
+    match parse_device_prefixed_path(path, trailing_separator) {
+      Some(parsed) => return parsed
+      _ => ()
+    }
+    match parse_unc_path(path, trailing_separator) {
+      Some(parsed) => return parsed
+      _ => ()
+    }
+  }
+  if has_win_drive_view(path, 0) {
+    let letter = path[0:1].get_char(0).unwrap()
+    if path.length() > 2 && is_win_sep_at_view(path, 2) {
+      let components = parse_windows_components(
+        path,
+        skip_win_separators_view(path, 2),
+        allow_above_root=false,
+      )
+      return {
+        prefix: VolumeLetterRoot(letter),
+        trailing_separator,
+        components,
+      }
+    }
+    let components = parse_windows_components(path, 2, allow_above_root=true)
+    return { prefix: VolumeLetter(letter), trailing_separator, components }
+  }
+  if path.length() > 0 && is_win_sep_at_view(path, 0) {
+    let components = parse_windows_components(
+      path,
+      skip_win_separators_view(path, 0),
+      allow_above_root=false,
+    )
+    return { prefix: Root, trailing_separator, components }
+  }
+  let components = parse_windows_components(path, 0, allow_above_root=true)
+  { prefix: None, trailing_separator, components }
 }
