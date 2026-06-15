@@ -13,9 +13,10 @@
 // limitations under the License.
 
 ///|
-/// Terminology:
-/// 
-/// path component is original from [posix 4.13 pathname resolution](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
+/// Path utilities with the existing MoonBit API surface.
+///
+/// Behavior follows Node `node:path` for the active platform flavor. The
+/// top-level package dispatches to `@path/posix` or `@path/win32` at runtime.
 
 ///|
 let is_windows : Bool = @ffi.is_windows()
@@ -37,9 +38,7 @@ pub impl Show for Path with fn to_string(path) {
 ///|
 /// Returns the last path component of the given path.
 ///
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Trailing separators are ignored, following Node `path.basename`.
 /// 
 /// ```mbt check
 /// test {
@@ -56,11 +55,7 @@ pub fn Path::basename(path : Path) -> StringView {
 }
 
 ///|
-/// Returns path without its last path component and trailing slashes.
-/// 
-/// property: `@path.join(@path.dirname(path), @path.basename(path)) == path`
-/// 
-/// Warning: basename function not respect this POSIX standard, but consistent with Python `os.path` module.
+/// Returns the directory portion of the path, following Node `path.dirname`.
 /// 
 /// ```mbt check
 /// test {
@@ -77,7 +72,8 @@ pub fn Path::dirname(path : Path) -> Path {
 }
 
 ///|
-/// Returns the string of the basename after the last `.` delimiter.
+/// Returns the extension of the last path component, following Node
+/// `path.extname` dotfile rules.
 /// 
 /// ```mbt check
 /// test {
@@ -115,22 +111,11 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 }
 
 ///|
-/// 1. string concatenation with OS platform specific path separator
-/// 2. if rhs is absolute or on a different drive in Windows, return rhs.
+/// Concatenates two path strings with the active separator, then normalizes.
+///
+/// Absolute right-hand paths do not override `lhs`. When both inputs are empty,
+/// the result is `"."`.
 /// 
-/// edge cases:
-///  1. when lhs and rhs both are empty, return empty string
-///  2. ignore empty string
-/// 
-/// ```moonbit nocheck
-/// test {
-///   assert_eq(Path::join("/usr/local", "bin"), "/usr/local/bin")
-///   assert_eq(Path::join("/usr/local", "/usr"), "/usr")
-///   assert_eq(Path::join("/usr/local", ""), "/usr/local")
-///   assert_eq(Path::join("", "local/bin"), "local/bin")
-///   assert_eq(Path::join("", ""), "")
-/// }
-/// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   if is_windows {
     @win32.Path::join(lhs.0, rhs.0).0
@@ -146,15 +131,10 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// 4. preserve trailing slash or backslash
 /// 
 /// edge cases:
-///   1. when path is empty, return empty string
-///   2. when path is contains two leading forward slashes like `//`, return `//`. respect POSIX standard, this behavior is inconsistent with Node.js path module.
+///   1. when path is empty, return `.`
+///   2. POSIX leading `//` is normalized to `/`, following Node behavior.
 /// 
-/// ```mbt check
-/// test {
-///   let path : Path = "/usr//local/../bin/"
-///   inspect(path.normalize(), content="/usr/bin")
-/// }
-/// ```
+/// See `@path/posix` and `@path/win32` for separator-specific examples.
 pub fn Path::normalize(path : Path) -> Path {
   if is_windows {
     @win32.Path::normalize(path.0).to_string()
@@ -170,17 +150,11 @@ pub fn Path::normalize(path : Path) -> Path {
 /// 
 /// edge cases: 
 ///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
-///  2. when `from` and `to` have different prefixes, return empty string
+///  2. on Windows, different roots return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```mbt check
-/// test {
-///   let base : Path = "/usr/local/bin"
-///   let path : Path = "/usr/local/share/doc"
-///   inspect(path.relative(base~), content="../share/doc")
-/// }
-/// ```
+/// See `@path/posix` and `@path/win32` for separator-specific examples.
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   if is_windows {
     @win32.Path::relative(path.0, base=base.0).0
@@ -195,10 +169,6 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
-/// ```moonbit skip skip nocheck
-/// let path : Path = "project/src"
-/// inspect(path.resolve(), content="/your/current_working_directory/project/src")
-/// ```
 pub fn Path::resolve(path : Path) -> Path {
   if is_windows {
     @win32.Path::resolve(path.0).to_string()

@@ -17,3 +17,16 @@ test "debug" {
   let path : @path.Path = "a/b"
   debug_inspect(path, content="Path(\"a/b\")")
 }
+
+///|
+test "node-compatible top-level dispatch smoke" {
+  if sep == '/' {
+    inspect(Path::join("a", "/b"), content="a/b")
+    inspect(Path::normalize(""), content=".")
+    inspect(Path::extname(".hidden"), content="")
+  } else {
+    inspect(Path::join("a", "\\b"), content="a\\b")
+    inspect(Path::normalize(""), content=".")
+    inspect(Path::extname(".hidden"), content="")
+  }
+}
