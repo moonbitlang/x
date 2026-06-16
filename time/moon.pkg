@@ -2,6 +2,7 @@ import {
   "moonbitlang/core/int64",
   "moonbitlang/core/int",
   "moonbitlang/core/string",
+  "moonbitlang/core/test",
 }
 
 import {

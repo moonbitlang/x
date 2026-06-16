@@ -7,6 +7,47 @@ on:
   pull_request:
 
 jobs:
+  pre-release-version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install pre-release
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: get stable version info
+        id: stable
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/version.json > version.json
+          STABLE_MOONC_VERSION=$(jq -r '.items[] | select(.name == "moonc") | .version' version.json)
+          echo "Stable moonc version: $STABLE_MOONC_VERSION"
+          echo "stable-version=$STABLE_MOONC_VERSION" >> $GITHUB_OUTPUT
+
+      - name: get pre-release version info
+        id: prerelease
+        run: |
+          PRERELEASE_MOONC_VERSION=$(moonc -v 2>&1 | head -1)
+          echo "Pre-release moonc version: $PRERELEASE_MOONC_VERSION"
+          echo "prerelease-version=$PRERELEASE_MOONC_VERSION" >> $GITHUB_OUTPUT
+
+      - name: check if pre-release build should run
+        id: check
+        run: |
+          STABLE_MOONC_VERSION="${{ steps.stable.outputs.stable-version }}"
+          PRERELEASE_MOONC_VERSION="${{ steps.prerelease.outputs.prerelease-version }}"
+
+          if [[ "$STABLE_MOONC_VERSION" != "$PRERELEASE_MOONC_VERSION" ]]; then
+            echo "Pre-release and stable versions differ, running pre-release-build"
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pre-release and stable versions match, skipping pre-release-build"
+            echo "should-run=false" >> $GITHUB_OUTPUT
+          fi
+
   stable-build:
     strategy:
       fail-fast: false
@@ -68,6 +109,75 @@ jobs:
         run: moon check
         # Currently disabled to maintain the compatibility for @immut/list
         # run: moon check --deny-warn
+
+      - name: moon info
+        run: |
+          moon info
+          git diff --exit-code
+
+      - name: format diff
+        run: |
+          moon fmt
+          git diff --exit-code
+
+  pre-release-build:
+    needs: pre-release-version-check
+    if: ${{ needs.pre-release-version-check.outputs.should-run == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: ubuntu-latest
+          - name: macos-latest
+          - name: windows-latest
+
+    runs-on: ${{ matrix.os.name }}
+
+    env:
+      OS_PLATFORM: ${{ matrix.os.name }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install on windows
+        env:
+          MOONBIT_INSTALL_VERSION: pre-release
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Setup MSVC
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: moon version
+        run: |
+          moon version --all
+          moonrun --version
+
+      - name: moon test
+        run: |
+          moon test --target all --serial --release
+          moon test --target all --serial
+
+      - name: moon test(native)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          command: |
+            moon test --target native --release
+            moon test --target native
+
+      - name: moon check
+        run: moon check
 
       - name: moon info
         run: |

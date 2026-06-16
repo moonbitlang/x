@@ -3,3 +3,7 @@ import {
   "moonbitlang/core/double",
   "moonbitlang/core/string",
 }
+
+import {
+  "moonbitlang/core/test",
+} for "test"
