@@ -38,8 +38,8 @@ fn is_win_sep_at(path : String, index : Int) -> Bool {
 }
 
 ///|
-fn has_win_drive(path : String) -> Bool {
-  if path.length() < 2 || path.get_char(1) != Some(':') {
+fn start_with_win_drive(path : String) -> Bool {
+  if path.length() < 2 || !(path.get_char(1) is Some(':')) {
     false
   } else {
     match path.get_char(0) {
@@ -73,7 +73,7 @@ fn win_root_end(path : String) -> Int {
   if path.is_empty() {
     return 0
   }
-  if has_win_drive(path) {
+  if start_with_win_drive(path) {
     if path.length() > 2 && is_win_sep_at(path, 2) {
       return 3
     }
@@ -105,7 +105,7 @@ fn win_root_end(path : String) -> Int {
 
 ///|
 fn is_drive_relative(path : String) -> Bool {
-  has_win_drive(path) && (path.length() == 2 || !is_win_sep_at(path, 2))
+  start_with_win_drive(path) && (path.length() == 2 || !is_win_sep_at(path, 2))
 }
 
 ///|
@@ -115,14 +115,16 @@ fn current_dir_for_drive(device : StringView) -> String {
     Some(dir) => dir
     None => @env.current_dir().unwrap()
   }
-  if has_win_drive(cwd) &&
+  if start_with_win_drive(cwd) &&
     !cwd[0:2].equal_ignore_ascii_case(device) &&
     cwd.length() > 2 &&
     is_win_sep_at(cwd, 2) {
     device + "\\"
-  } else if !has_win_drive(cwd) && cwd.length() > 0 && is_win_sep_at(cwd, 0) {
+  } else if !start_with_win_drive(cwd) &&
+    cwd.length() > 0 &&
+    is_win_sep_at(cwd, 0) {
     device + cwd
-  } else if !has_win_drive(cwd) {
+  } else if !start_with_win_drive(cwd) {
     device + "\\" + cwd
   } else {
     cwd
@@ -153,7 +155,7 @@ pub impl Show for Path with fn to_string(path) {
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
   let path = path.0
-  let root_end = if has_win_drive(path) { 2 } else { 0 }
+  let root_end = if start_with_win_drive(path) { 2 } else { 0 }
   let mut start = root_end
   let mut end = -1
   let mut matched_sep = true
@@ -271,7 +273,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
   } else if is_win_sep_at(path, 0) {
     true
   } else {
-    has_win_drive(path) && path.length() > 2 && is_win_sep_at(path, 2)
+    start_with_win_drive(path) && path.length() > 2 && is_win_sep_at(path, 2)
   }
 }
 
