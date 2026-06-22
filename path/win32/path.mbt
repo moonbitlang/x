@@ -50,6 +50,15 @@ fn start_with_win_drive(path : String) -> Bool {
 }
 
 ///|
+fn strip_win_drive(path : String) -> StringView {
+  if path is [ch, ':', .. rest] && is_ascii_alpha(ch) {
+    return rest
+  } else {
+    return path
+  }
+}
+
+///|
 fn find_next_win_sep(path : String, start : Int) -> Int? {
   for i = start; i < path.length(); i = i + 1 {
     if is_win_sep_at(path, i) {
@@ -154,26 +163,17 @@ pub impl Show for Path with fn to_string(path) {
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let path = path.0
-  let root_end = if start_with_win_drive(path) { 2 } else { 0 }
-  let mut start = root_end
-  let mut end = -1
-  let mut matched_sep = true
-  for i = path.length() - 1; i >= root_end; i = i - 1 {
-    if is_win_sep_at(path, i) {
-      if !matched_sep {
-        start = i + 1
-        break
-      }
-    } else if end == -1 {
-      matched_sep = false
-      end = i + 1
-    }
+  // strip win drive
+  let mut path = strip_win_drive(path.0)
+  // strip all trailing separator
+  while path is [.. rest, last_char] && (last_char == '\\' || last_char == '/') {
+    path = rest
   }
-  if end == -1 {
-    ""
-  } else {
-    path[start:end]
+  // return content after last separator
+  match (path.rev_find("/"), path.rev_find("\\")) {
+    (None, None) => path
+    (Some(idx), None) | (None, Some(idx)) => path[idx + 1:]
+    (Some(lidx), Some(ridx)) => path[@cmp.maximum(lidx, ridx) + 1:]
   }
 }
 
