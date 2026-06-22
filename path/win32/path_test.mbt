@@ -48,6 +48,18 @@ test "basename node fixtures" {
 }
 
 ///|
+test "basename: mixed separator" {
+  inspect(Path::basename("a/b\\c"), content="c")
+  inspect(Path::basename("a\\b/c"), content="c")
+  inspect(Path::basename("C:a/b\\c"), content="c")
+  inspect(Path::basename("C:\\a/b\\c"), content="c")
+  inspect(Path::basename("//server/share\\file"), content="file")
+  inspect(Path::basename("\\\\server/share\\folder/file"), content="file")
+  inspect(Path::basename("a/b\\c\\"), content="c")
+  inspect(Path::basename("a\\b/c/"), content="c")
+}
+
+///|
 test "dirname node fixtures" {
   inspect(Path::dirname(""), content=".")
   inspect(Path::dirname("a"), content=".")
