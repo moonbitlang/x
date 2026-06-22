@@ -44,25 +44,15 @@ pub impl Show for Path with fn to_string(path) {
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let path = path.0
-  let mut start = 0
-  let mut end = -1
-  let mut matched_slash = true
-  for i = path.length() - 1; i >= 0; i = i - 1 {
-    if is_posix_sep_at(path, i) {
-      if !matched_slash {
-        start = i + 1
-        break
-      }
-    } else if end == -1 {
-      matched_slash = false
-      end = i + 1
-    }
+  let mut path = path.0[:]
+  // strip all trailing separator
+  while path is [.. rest, last_char] && last_char == '/' {
+    path = rest
   }
-  if end == -1 {
-    ""
-  } else {
-    path[start:end]
+  // return content after last separator
+  match path.rev_find("/") {
+    None => path
+    Some(idx) => path[idx + 1:]
   }
 }
 
