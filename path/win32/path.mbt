@@ -456,6 +456,9 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 ///  2. when resolved paths have no common root boundary, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+///
+/// Known issue: Unicode case folding is incomplete. Some non-Latin paths that
+/// Node treats as equal ignoring case may produce a relative path.
 /// 
 /// ```moonbit check
 /// test {
