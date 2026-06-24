@@ -489,8 +489,61 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-fn win_char_equal_ignore_ascii_case(left : Char, right : Char) -> Bool {
-  left.to_ascii_lowercase() == right.to_ascii_lowercase()
+fn win_char_to_common_lower(ch : Char) -> Char {
+  match ch {
+    'A'..='Z' => ch.to_ascii_lowercase()
+    'À' => 'à'
+    'Á' => 'á'
+    'Â' => 'â'
+    'Ã' => 'ã'
+    'Ä' => 'ä'
+    'Å' => 'å'
+    'Æ' => 'æ'
+    'Ç' => 'ç'
+    'È' => 'è'
+    'É' => 'é'
+    'Ê' => 'ê'
+    'Ë' => 'ë'
+    'Ì' => 'ì'
+    'Í' => 'í'
+    'Î' => 'î'
+    'Ï' => 'ï'
+    'Ð' => 'ð'
+    'Ñ' => 'ñ'
+    'Ò' => 'ò'
+    'Ó' => 'ó'
+    'Ô' => 'ô'
+    'Õ' => 'õ'
+    'Ö' => 'ö'
+    'Ø' => 'ø'
+    'Ù' => 'ù'
+    'Ú' => 'ú'
+    'Û' => 'û'
+    'Ü' => 'ü'
+    'Ý' => 'ý'
+    'Þ' => 'þ'
+    'Ÿ' => 'ÿ'
+    _ => ch
+  }
+}
+
+///|
+fn win_char_equal_ignore_case(left : Char, right : Char) -> Bool {
+  win_char_to_common_lower(left) == win_char_to_common_lower(right)
+}
+
+///|
+fn win_string_equal_ignore_case(left : String, right : String) -> Bool {
+  if left.length() != right.length() {
+    return false
+  }
+  for i in 0..<left.length() {
+    guard (left.get_char(i), right.get_char(i)) is (Some(left), Some(right)) &&
+      win_char_equal_ignore_case(left, right) else {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -531,7 +584,7 @@ fn write_parent_steps(
 
 ///|
 fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
-  if from_orig == to_orig || from_orig.equal_ignore_ascii_case(to_orig) {
+  if from_orig == to_orig || win_string_equal_ignore_case(from_orig, to_orig) {
     return ""
   }
   let from_start = trim_leading_backslashes(from_orig)
@@ -546,7 +599,7 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
   while i < length {
     let from_char = from_orig.get_char(from_start + i).unwrap()
     let to_char = to_orig.get_char(to_start + i).unwrap()
-    if !win_char_equal_ignore_ascii_case(from_char, to_char) {
+    if !win_char_equal_ignore_case(from_char, to_char) {
       break
     } else if from_char == '\\' {
       last_common_sep = i
