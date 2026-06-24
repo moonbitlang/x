@@ -51,32 +51,14 @@ priv enum WinPrefix {
   ///
   /// Example: `\Users\username\Documents\`
   Root
-  /// Syntax: `\\?\<SYMLINK>\` 
-  ///
-  /// Example: `\\?\GLOBALROOT\`
-  VerbatimSymlink(symlink~ : String)
-  /// Syntax: `\\?\UNC\<SERVER>\<SHARE>\`
-  ///
-  /// Example: `\\?\UNC\server\share\`
-  VerbatimUNC(hostname~ : String, shared_folder~ : String)
-  /// Syntax: `\\?\<L>:\`
+  /// Syntax: `\\?\`
   ///
   /// Example: `\\?\C:\`
-  VerbatimVolumeLetterRoot(Char)
-  /// Syntax: `\\?\Volume{<GUID>}`
+  VerbatimRoot
+  /// Syntax: `\\.`
   ///
-  /// Example: `\\?\Volume{26a21bda-a627-11d7-9931-806e6f6e6963}`
-  ///
-  /// Warning: this letter is case-insensitive.
-  ///
-  /// [Microsoft Enumerating Volume GUID Paths](https://learn.microsoft.com/en-us/windows/win32/fileio/enumerating-unique-volume-names)
-  VerbatimVolumeGUID(String)
-  /// Syntax: `\\.\<DEVICE>\`
-  ///
-  /// Example: `\\.\COM56\`
-  ///
-  /// [Microsoft Win32 Device Namespaces](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#win32-device-namespaces)
-  DeviceNS(device~ : String)
+  /// Example: `\\.\COM56`
+  DeviceRoot
   /// Syntax: `\\<SERVER>\<SHARE>\`
   ///
   /// Example: `\\server\share\`
@@ -105,20 +87,8 @@ const VerbatimPrefix : String =
   #|\\?\
 
 ///|
-const VerbatimUncPrefix : String =
-  #|\\?\UNC\
-
-///|
 const ColonBackslash : String =
   #|:\
-
-///|
-const VolumePrefix : String =
-  #|\\?\Volume{
-
-///|
-const VolumeSuffix : String =
-  #|}
 
 ///|
 const DevicePrefix : String =
@@ -135,33 +105,8 @@ const BackSlash : Char = '\\'
 impl Show for WinPrefix with fn output(self, logger) {
   match self {
     Root => logger.write_char(BackSlash)
-    VerbatimSymlink(symlink~) => {
-      logger.write_string(VerbatimPrefix)
-      logger.write_string(symlink)
-      logger.write_char(BackSlash)
-    }
-    VerbatimUNC(hostname~, shared_folder~) => {
-      logger.write_string(VerbatimUncPrefix)
-      logger.write_string(hostname)
-      logger.write_char(BackSlash)
-      logger.write_string(shared_folder)
-      logger.write_char(BackSlash)
-    }
-    VerbatimVolumeLetterRoot(letter) => {
-      logger.write_string(VerbatimPrefix)
-      logger.write_char(letter)
-      logger.write_string(ColonBackslash)
-    }
-    VerbatimVolumeGUID(guid) => {
-      logger.write_string(VolumePrefix)
-      logger.write_string(guid)
-      logger.write_string(VolumeSuffix)
-    }
-    DeviceNS(device~) => {
-      logger.write_string(DevicePrefix)
-      logger.write_string(device)
-      logger.write_char(BackSlash)
-    }
+    VerbatimRoot => logger.write_string(VerbatimPrefix)
+    DeviceRoot => logger.write_string(DevicePrefix)
     UNC(hostname~, shared_folder~) => {
       logger.write_string(UncPrefix)
       logger.write_string(hostname)
@@ -190,30 +135,13 @@ fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
       logger.write_char(BackSlash)
       prefix_ends_with_sep = true
     }
-    VerbatimSymlink(symlink~) => {
+    VerbatimRoot => {
       logger.write_string(VerbatimPrefix)
-      logger.write_string(symlink)
-    }
-    VerbatimUNC(hostname~, shared_folder~) => {
-      logger.write_string(VerbatimUncPrefix)
-      logger.write_string(hostname)
-      logger.write_char(BackSlash)
-      logger.write_string(shared_folder)
-    }
-    VerbatimVolumeLetterRoot(letter) => {
-      logger.write_string(VerbatimPrefix)
-      logger.write_char(letter)
-      logger.write_string(ColonBackslash)
       prefix_ends_with_sep = true
     }
-    VerbatimVolumeGUID(guid) => {
-      logger.write_string(VolumePrefix)
-      logger.write_string(guid)
-      logger.write_string(VolumeSuffix)
-    }
-    DeviceNS(device~) => {
+    DeviceRoot => {
       logger.write_string(DevicePrefix)
-      logger.write_string(device)
+      prefix_ends_with_sep = true
     }
     UNC(hostname~, shared_folder~) => {
       logger.write_string(UncPrefix)
@@ -243,10 +171,7 @@ fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
           } else {
             logger.write_char('.')
           }
-        VerbatimSymlink(_)
-        | VerbatimUNC(_)
-        | VerbatimVolumeGUID(_)
-        | DeviceNS(_) => if trailing_separator { logger.write_char(BackSlash) }
+        VerbatimRoot | DeviceRoot => ()
         _ => ()
       }
     [x, .. xs] => {
@@ -312,16 +237,6 @@ fn find_next_win_sep_view(path : StringView, start : Int) -> Int? {
 }
 
 ///|
-fn find_win_char_view(path : StringView, start : Int, target : Char) -> Int? {
-  for i = start; i < path.length(); i = i + 1 {
-    if path.get_char(i) == Some(target) {
-      return Some(i)
-    }
-  }
-  None
-}
-
-///|
 fn push_windows_component(
   components : Array[StringView],
   component : StringView,
@@ -380,113 +295,14 @@ fn parse_verbatim_prefixed_path(
   trailing_separator : Bool,
 ) -> WinPath? {
   guard path.length() >= 4 && path.get_char(2) == Some('?') else { return None }
-  let marker_end = 4
   guard is_win_sep_at_view(path, 3) else { return None }
-  if path.length() >= marker_end + 4 &&
-    path[marker_end:marker_end + 3].equal_ignore_ascii_case("UNC") &&
-    is_win_sep_at_view(path, marker_end + 3) {
-    let hostname_start = skip_win_separators_view(path, marker_end + 3)
-    match find_next_win_sep_view(path, hostname_start) {
-      Some(hostname_end) => {
-        let share_start = skip_win_separators_view(path, hostname_end)
-        guard share_start < path.length() else {
-          return Some({
-            prefix: VerbatimSymlink(symlink="UNC"),
-            trailing_separator,
-            components: [path[hostname_start:hostname_end]],
-          })
-        }
-        let share_end = match find_next_win_sep_view(path, share_start) {
-          Some(index) => index
-          _ => path.length()
-        }
-        let component_start = if share_end < path.length() {
-          skip_win_separators_view(path, share_end)
-        } else {
-          path.length()
-        }
-        let components = parse_windows_components(
-          path,
-          component_start,
-          allow_above_root=false,
-        )
-        return Some({
-          prefix: VerbatimUNC(
-            hostname=path[hostname_start:hostname_end].to_owned(),
-            shared_folder=path[share_start:share_end].to_owned(),
-          ),
-          trailing_separator,
-          components,
-        })
-      }
-      _ => ()
-    }
-  }
-  let part_start = marker_end
-  guard part_start < path.length() else {
-    return Some({
-      prefix: VerbatimSymlink(symlink=""),
-      trailing_separator,
-      components: [],
-    })
-  }
-  if path.length() > part_start + 7 &&
-    path[part_start:part_start + 7] == "Volume{" {
-    match find_win_char_view(path, part_start + 7, '}') {
-      Some(guid_end) => {
-        let component_start = if guid_end + 1 < path.length() {
-          skip_win_separators_view(path, guid_end + 1)
-        } else {
-          path.length()
-        }
-        let components = parse_windows_components(
-          path,
-          component_start,
-          allow_above_root=false,
-        )
-        return Some({
-          prefix: VerbatimVolumeGUID(path[part_start + 7:guid_end].to_owned()),
-          trailing_separator,
-          components,
-        })
-      }
-      _ => ()
-    }
-  }
-  let part_end = match find_next_win_sep_view(path, part_start) {
-    Some(index) => index
-    _ => path.length()
-  }
-  if has_win_drive_view(path, part_start) &&
-    part_start + 2 == part_end &&
-    part_end < path.length() {
-    let components = parse_windows_components(
-      path,
-      skip_win_separators_view(path, part_end),
-      allow_above_root=false,
-    )
-    return Some({
-      prefix: VerbatimVolumeLetterRoot(
-        path[part_start:part_start + 1].get_char(0).unwrap(),
-      ),
-      trailing_separator,
-      components,
-    })
-  }
-  let components = if part_end < path.length() {
-    parse_windows_components(
-      path,
-      skip_win_separators_view(path, part_end),
-      allow_above_root=false,
-    )
-  } else {
-    []
-  }
-  Some({
-    prefix: VerbatimSymlink(symlink=path[part_start:part_end].to_owned()),
-    trailing_separator,
-    components,
-  })
+  let marker_end = 4
+  let components = parse_windows_components(
+    path,
+    marker_end,
+    allow_above_root=false,
+  )
+  Some({ prefix: VerbatimRoot, trailing_separator, components })
 }
 
 ///|
@@ -497,31 +313,12 @@ fn parse_device_prefixed_path(
   guard path.length() >= 4 && path.get_char(2) == Some('.') else { return None }
   guard is_win_sep_at_view(path, 3) else { return None }
   let part_start = 4
-  guard part_start < path.length() else {
-    return Some({
-      prefix: DeviceNS(device=""),
-      trailing_separator,
-      components: [],
-    })
-  }
-  let part_end = match find_next_win_sep_view(path, part_start) {
-    Some(index) => index
-    _ => path.length()
-  }
-  let components = if part_end < path.length() {
-    parse_windows_components(
-      path,
-      skip_win_separators_view(path, part_end),
-      allow_above_root=false,
-    )
-  } else {
-    []
-  }
-  Some({
-    prefix: DeviceNS(device=path[part_start:part_end].to_owned()),
-    trailing_separator,
-    components,
-  })
+  let components = parse_windows_components(
+    path,
+    part_start,
+    allow_above_root=false,
+  )
+  Some({ prefix: DeviceRoot, trailing_separator, components })
 }
 
 ///|
