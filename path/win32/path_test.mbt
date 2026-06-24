@@ -274,6 +274,25 @@ test "normalize node fixtures" {
     content="\\\\?\\UNC\\server\\share\\file",
   )
   inspect(
+    Path::normalize("\\\\?\\UNC\\server\\share\\.."),
+    content="\\\\?\\UNC\\server",
+  )
+  inspect(
+    Path::normalize("\\\\?\\UNC\\server\\share\\folder\\.."),
+    content="\\\\?\\UNC\\server\\share",
+  )
+  inspect(Path::normalize("\\\\?\\foo\\.."), content="\\\\?\\")
+  inspect(Path::normalize("\\\\?\\foo\\bar\\.."), content="\\\\?\\foo")
+  inspect(Path::normalize("\\\\.\\COM1\\.."), content="\\\\.\\")
+  inspect(Path::normalize("\\\\.\\COM1\\bar\\.."), content="\\\\.\\COM1")
+  inspect(Path::normalize("\\\\?\\Volume{abc}\\.."), content="\\\\?\\")
+  inspect(
+    Path::normalize("\\\\?\\Volume{abc}\\bar\\.."),
+    content="\\\\?\\Volume{abc}",
+  )
+  inspect(Path::normalize("\\\\?\\C:\\foo\\.."), content="\\\\?\\C:")
+  inspect(Path::normalize("\\\\?\\C:\\.."), content="\\\\?\\")
+  inspect(
     Path::normalize("\\\\?\\UNC\\server\\"),
     content="\\\\?\\UNC\\server\\",
   )
