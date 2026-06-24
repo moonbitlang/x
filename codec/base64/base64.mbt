@@ -63,8 +63,15 @@ pub fn Encoder::encode_to(
   url_safe? : Bool = false,
   padding? : Bool = false,
 ) -> Unit {
-  for byte in bytes {
-    let byte = byte.to_int()
+  // Index the backing Bytes directly instead of `for byte in bytes`,
+  // which desugars through BytesView::iter + Iter::next (~32% of
+  // self time on a 64 KiB encode benchmark even though the inner
+  // body is a small match).
+  let data = bytes.data()
+  let start = bytes.start_offset()
+  let len = bytes.length()
+  for idx in 0..<len {
+    let byte = data[start + idx].to_int()
     match self.i {
       0 => {
         cb(index_to_char(byte >> 2, url_safe))
@@ -136,7 +143,15 @@ pub fn Decoder::decode_to(
   cb : (Byte) -> Unit,
   url_safe? : Bool = false,
 ) -> Unit raise DecodeError {
-  for ch in input {
+  // Iterate by UTF-16 code unit instead of `for ch in input`, which
+  // goes through StringView::iter + Iter::next + a surrogate-pair
+  // decode every step (~35% of decode self time on a 64 KiB bench).
+  // base64 alphabet is pure ASCII; if we see a high surrogate the
+  // payload isn't valid base64 anyway, and `char_to_index` will
+  // raise InvalidChar.
+  let len = input.length()
+  for off in 0..<len {
+    let ch = input.unsafe_get(off).to_int().unsafe_to_char()
     match self.i % 4 {
       0 => {
         self.buffer = char_to_index(ch, url_safe) << 2
@@ -188,3 +203,21 @@ pub fn decode(
 pub suberror DecodeError {
   InvalidChar(Char)
 } derive(Debug)
+
+///|
+pub impl Show for DecodeError with fn output(
+  self : DecodeError,
+  logger : &Logger,
+) -> Unit {
+  match self {
+    InvalidChar(ch) => {
+      logger.write_string("InvalidChar(")
+      logger.write_object(ch)
+      logger.write_char(')')
+    }
+  }
+}
+
+///|
+#deprecated("Use `Debug` via `@debug.to_repr` / `@debug.render` instead", skip_current_package=true)
+pub impl Show for DecodeError
