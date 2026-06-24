@@ -117,11 +117,14 @@ fn is_drive_relative(path : String) -> Bool {
 }
 
 ///|
-fn current_dir_for_drive(device : StringView) -> String {
+fn current_dir_for_drive_with_cwd(
+  device : StringView,
+  fallback_cwd : String,
+) -> String {
   let device = device.to_owned()
   let cwd = match @env.get_env_var("=" + device) {
     Some(dir) => dir
-    None => @env.current_dir().unwrap()
+    None => fallback_cwd
   }
   if start_with_win_drive(cwd) &&
     !cwd[0:2].equal_ignore_ascii_case(device) &&
@@ -593,27 +596,53 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
 }
 
 ///|
-/// 1. if path is absolute, normalize it and remove trailing separators except regular roots.
-/// 2. if path is drive-relative, resolve it against that drive's current directory,
+/// 1. if path is fully rooted (drive root, UNC, verbatim, or device root),
+///    normalize it and remove trailing separators except regular roots.
+/// 2. if path is drive-less rooted, resolve it against the current drive or
+///    UNC share when cwd provides one, then normalize it and remove trailing
+///    separators except regular roots.
+/// 3. if path is drive-relative, resolve it against that drive's current directory,
 ///    then normalize it and remove trailing separators except regular roots.
-/// 3. if path is otherwise relative, join current working directory and path,
+/// 4. if path is otherwise relative, join current working directory and path,
 ///    then normalize it and remove trailing separators except regular roots.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 pub fn Path::resolve(path : Path) -> Path {
+  resolve_with_cwd(path, @env.current_dir().unwrap())
+}
+
+///|
+fn cwd_has_win_drive_root(cwd : String) -> Bool {
+  start_with_win_drive(cwd) && cwd.length() > 2 && is_win_sep_at(cwd, 2)
+}
+
+///|
+fn resolve_with_cwd(path : Path, cwd : String) -> Path {
   let raw_path = path.0
-  let resolved = if Path::is_absolute(path) {
-    Path::normalize(path)
-  } else if is_drive_relative(raw_path) {
-    let base = Path::normalize(current_dir_for_drive(raw_path[0:2]))
-    let tail = raw_path[2:]
-    if tail.is_empty() {
-      base
-    } else {
-      Path::join(base, tail.to_owned()) |> Path::normalize
-    }
-  } else {
-    Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
+  let parsed = WinPath::parse(raw_path)
+  let resolved = match parsed.prefix {
+    Root =>
+      if cwd_has_win_drive_root(cwd) {
+        Path::normalize(cwd[0:2].to_owned() + raw_path)
+      } else {
+        Path::normalize(path)
+      }
+    VolumeLetterRoot(_) | UNC(_) | VerbatimRoot | DeviceRoot =>
+      Path::normalize(path)
+    _ =>
+      if is_drive_relative(raw_path) {
+        let base = Path::normalize(
+          current_dir_for_drive_with_cwd(raw_path[0:2], cwd),
+        )
+        let tail = raw_path[2:]
+        if tail.is_empty() {
+          base
+        } else {
+          Path::join(base, tail.to_owned()) |> Path::normalize
+        }
+      } else {
+        Path::join(cwd, path) |> Path::normalize
+      }
   }
   trim_resolved_trailing_separators(resolved)
 }

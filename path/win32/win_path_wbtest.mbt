@@ -131,3 +131,21 @@ test "WinPath reserved-looking names are path components" {
   )
   inspect(WinPath::parse("C:\\temp\\star*name"), content="C:\\temp\\star*name")
 }
+
+///|
+test "resolve with Windows cwd anchors drive-less rooted paths" {
+  inspect(
+    resolve_with_cwd("\\foo", "C:\\Users\\alice\\project"),
+    content="C:\\foo",
+  )
+  inspect(resolve_with_cwd("/", "C:\\Users\\alice\\project"), content="C:\\")
+  inspect(
+    resolve_with_cwd("\\a\\..\\b\\c", "C:\\Users\\alice\\project"),
+    content="C:\\b\\c",
+  )
+  inspect(
+    resolve_with_cwd("\\\\server\\share\\.\\file", "C:\\Users\\alice\\project"),
+    content="\\\\server\\share\\file",
+  )
+  inspect(resolve_with_cwd("\\foo", "/home/alice/project"), content="\\foo")
+}
