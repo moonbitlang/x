@@ -356,6 +356,7 @@ test "relative node fixtures" {
     content="..\\folder2",
   )
   inspect(Path::relative(base="c:\\temp", "C:\\temp\\file"), content="file")
+  inspect(Path::relative(base="C:\\Ä", "C:\\ä"), content="")
   inspect(
     Path::relative(base="\\\\server\\share", "\\\\server\\other\\file"),
     content="..\\other\\file",
