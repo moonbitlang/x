@@ -31,22 +31,12 @@ fn is_win_sep(ch : Char) -> Bool {
 
 ///|
 fn is_win_sep_at(path : String, index : Int) -> Bool {
-  match path.get_char(index) {
-    Some(ch) => is_win_sep(ch)
-    None => false
-  }
+  path.get_char(index) is Some('\\' | '/')
 }
 
 ///|
 fn start_with_win_drive(path : String) -> Bool {
-  if path.length() < 2 || !(path.get_char(1) is Some(':')) {
-    false
-  } else {
-    match path.get_char(0) {
-      Some(ch) => is_ascii_alpha(ch)
-      _ => false
-    }
-  }
+  path is [ch, ':', ..] && is_ascii_alpha(ch)
 }
 
 ///|
@@ -59,8 +49,17 @@ fn strip_win_drive(path : String) -> StringView {
 }
 
 ///|
+fn last_win_sep(path : StringView) -> Int? {
+  match (path.rev_find("/"), path.rev_find("\\")) {
+    (None, None) => None
+    (Some(idx), None) | (None, Some(idx)) => Some(idx)
+    (Some(lidx), Some(ridx)) => Some(@cmp.maximum(lidx, ridx))
+  }
+}
+
+///|
 fn find_next_win_sep(path : String, start : Int) -> Int? {
-  for i = start; i < path.length(); i = i + 1 {
+  for i in start..<path.length() {
     if is_win_sep_at(path, i) {
       return Some(i)
     }
@@ -166,14 +165,13 @@ pub fn Path::basename(path : Path) -> StringView {
   // strip win drive
   let mut path = strip_win_drive(path.0)
   // strip all trailing separator
-  while path is [.. rest, last_char] && (last_char == '\\' || last_char == '/') {
+  while path is [.. rest, last_char] && is_win_sep(last_char) {
     path = rest
   }
   // return content after last separator
-  match (path.rev_find("/"), path.rev_find("\\")) {
-    (None, None) => path
-    (Some(idx), None) | (None, Some(idx)) => path[idx + 1:]
-    (Some(lidx), Some(ridx)) => path[@cmp.maximum(lidx, ridx) + 1:]
+  match last_win_sep(path) {
+    None => path
+    Some(idx) => path[idx + 1:]
   }
 }
 
@@ -190,36 +188,33 @@ pub fn Path::basename(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
-  let path = path.0
-  if path.is_empty() {
+  let raw = path.0
+  if raw.is_empty() {
     return "."
   }
-  let root_end = win_root_end(path)
-  if root_end >= path.length() {
-    return path
+  let root_end = win_root_end(raw)
+  if root_end >= raw.length() {
+    return raw
   }
-  let mut end = -1
-  let mut matched_sep = true
-  for i = path.length() - 1; i >= root_end; i = i - 1 {
-    if is_win_sep_at(path, i) {
-      if !matched_sep {
-        end = i
-        break
-      }
-    } else {
-      matched_sep = false
-    }
+  let mut path = raw[:]
+  // strip all trailing separator outside the root
+  while path.length() > root_end &&
+        path is [.. rest, last_char] &&
+        is_win_sep(last_char) {
+    path = rest
   }
-  if end == -1 {
-    if root_end > 0 {
-      path[0:root_end].to_owned()
-    } else {
-      "."
-    }
-  } else if end < root_end {
-    path[0:root_end].to_owned()
+  if path.length() <= root_end {
+    raw[0:root_end].to_owned()
   } else {
-    path[0:end].to_owned()
+    match last_win_sep(path) {
+      None => if root_end > 0 { raw[0:root_end].to_owned() } else { "." }
+      Some(idx) =>
+        if idx < root_end {
+          raw[0:root_end].to_owned()
+        } else {
+          raw[0:idx].to_owned()
+        }
+    }
   }
 }
 
@@ -267,13 +262,10 @@ pub fn Path::extname(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
-  let path = path.0
-  if path.is_empty() {
-    false
-  } else if is_win_sep_at(path, 0) {
-    true
-  } else {
-    start_with_win_drive(path) && path.length() > 2 && is_win_sep_at(path, 2)
+  match path.0 {
+    [sep, ..] if is_win_sep(sep) => true
+    [drive, ':', sep, ..] if is_ascii_alpha(drive) && is_win_sep(sep) => true
+    _ => false
   }
 }
 
@@ -397,7 +389,32 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
-  WinPath::parse(path.0).to_string()
+  let raw = path.0
+  let normalized = WinPath::parse(raw).to_string()
+  if needs_normalize_drive_guard(raw, normalized) {
+    ".\\" + normalized
+  } else {
+    normalized
+  }
+}
+
+///|
+fn needs_normalize_drive_guard(raw : String, normalized : String) -> Bool {
+  if Path::is_absolute(raw) ||
+    start_with_win_drive(raw) ||
+    !raw.contains_char(':') {
+    return false
+  }
+  if start_with_win_drive(normalized) {
+    return true
+  }
+  for i in 0..<raw.length() {
+    if raw.get_char(i) == Some(':') &&
+      (i == raw.length() - 1 || is_win_sep_at(raw, i + 1)) {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -418,22 +435,22 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
   if is_regular_win_root(parsed) {
     return path
   }
-  let raw = path.0
-  if raw is [.. rest, lastchar] && is_win_sep(lastchar) {
-    Path(rest.to_owned())
-  } else {
-    path
+  let mut raw = path.0[:]
+  while raw is [.. rest, last_char] && is_win_sep(last_char) && !rest.is_empty() {
+    raw = rest
   }
+  Path(raw.to_owned())
 }
 
 ///|
 /// Return the `to` relative path when `from` is the current working directory.
 /// 
-/// property: `@path.join(from,@path.relative(from,to)) == @path.normalize(to)`
+/// property: joining `from` with the returned relative path yields
+/// `@path.resolve(to)`.
 /// 
 /// edge cases: 
-///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
-///  2. when roots differ, return the resolved target path
+///  1. when `@path.resolve(from) == @path.resolve(to)`, return empty string
+///  2. when resolved paths have no common root boundary, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
@@ -451,47 +468,122 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   let resolved_from = Path::resolve(base)
   let resolved_to = Path::resolve(path)
-  let from = WinPath::parse(resolved_from.0)
-  let to = WinPath::parse(resolved_to.0)
-  if from.prefix.to_string().equal_ignore_ascii_case(to.prefix.to_string()) {
-    let mut cnt = 0
-    // remove the common path component prefix
-    for left = from.components[:], right = to.components[:] {
-      match (left, right) {
-        ([x, .. xs], [y, .. ys]) if x.equal_ignore_ascii_case(y) => {
-          cnt += 1
-          continue xs, ys
-        }
-        _ => break
+  relative_resolved_paths(resolved_from.0, resolved_to.0)
+}
+
+///|
+fn win_char_equal_ignore_ascii_case(left : Char, right : Char) -> Bool {
+  left.to_ascii_lowercase() == right.to_ascii_lowercase()
+}
+
+///|
+fn trim_leading_backslashes(path : String) -> Int {
+  let mut start = 0
+  while start < path.length() && path.get_char(start) == Some('\\') {
+    start += 1
+  }
+  start
+}
+
+///|
+fn trim_trailing_backslashes(path : String, start : Int) -> Int {
+  let mut end = path.length()
+  while end - 1 > start && path.get_char(end - 1) == Some('\\') {
+    end -= 1
+  }
+  end
+}
+
+///|
+fn write_parent_steps(
+  builder : StringBuilder,
+  from : String,
+  start : Int,
+  end : Int,
+) -> Unit {
+  for i in start..<=end {
+    if i == end || from.get_char(i) == Some('\\') {
+      if builder.is_empty() {
+        builder.write_stringview("..")
+      } else {
+        builder.write_stringview("\\..")
       }
     }
-    let components : Array[StringView] = []
-    let goto_parent_cnt = from.components.length() - cnt
-    for _ in 0..<goto_parent_cnt {
-      components.push("..")
-    }
-    let rest_path = to.components[cnt:]
-    for comp in rest_path {
-      components.push(comp)
-    }
-    if components.is_empty() {
-      ""
-    } else {
-      let path = WinPath::{
-        prefix: None,
-        trailing_separator: false,
-        components,
-      }
-      path.to_string()
-    }
-  } else {
-    resolved_to
   }
 }
 
 ///|
-/// 1. if path is absolute, return path normalized.
-/// 2. if path is relative, join current working directory and path, and then normalize it.
+fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
+  if from_orig == to_orig || from_orig.equal_ignore_ascii_case(to_orig) {
+    return ""
+  }
+  let from_start = trim_leading_backslashes(from_orig)
+  let from_end = trim_trailing_backslashes(from_orig, from_start)
+  let from_len = from_end - from_start
+  let to_start = trim_leading_backslashes(to_orig)
+  let to_end = trim_trailing_backslashes(to_orig, to_start)
+  let to_len = to_end - to_start
+  let length = @cmp.minimum(from_len, to_len)
+  let mut last_common_sep = -1
+  let mut i = 0
+  while i < length {
+    let from_char = from_orig.get_char(from_start + i).unwrap()
+    let to_char = to_orig.get_char(to_start + i).unwrap()
+    if !win_char_equal_ignore_ascii_case(from_char, to_char) {
+      break
+    } else if from_char == '\\' {
+      last_common_sep = i
+    }
+    i += 1
+  }
+  if i != length {
+    if last_common_sep == -1 {
+      return to_orig
+    }
+  } else {
+    if to_len > length {
+      if to_orig.get_char(to_start + i) == Some('\\') {
+        return to_orig[to_start + i + 1:to_end].to_owned()
+      }
+      if i == 2 {
+        return to_orig[to_start + i:to_end].to_owned()
+      }
+    }
+    if from_len > length {
+      if from_orig.get_char(from_start + i) == Some('\\') {
+        last_common_sep = i
+      } else if i == 2 {
+        last_common_sep = 3
+      }
+    }
+    if last_common_sep == -1 {
+      last_common_sep = 0
+    }
+  }
+  let builder = StringBuilder::new()
+  write_parent_steps(
+    builder,
+    from_orig,
+    from_start + last_common_sep + 1,
+    from_end,
+  )
+  let mut to_start = to_start + last_common_sep
+  if !builder.is_empty() {
+    builder.write_stringview(to_orig[to_start:to_end])
+    return builder.to_string()
+  }
+  if to_orig.get_char(to_start) == Some('\\') {
+    to_start += 1
+  }
+  to_orig[to_start:to_end].to_owned()
+}
+
+///|
+/// 1. if path is absolute, normalize it and remove trailing separators except regular roots.
+/// 2. if path is drive-relative, resolve it against that drive's current directory,
+///    then normalize it and remove trailing separators except regular roots.
+/// 3. if path is otherwise relative, join current working directory and path,
+///    then normalize it and remove trailing separators except regular roots.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 pub fn Path::resolve(path : Path) -> Path {

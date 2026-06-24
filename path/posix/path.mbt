@@ -17,11 +17,6 @@
 pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
-fn is_posix_sep_at(path : String, index : Int) -> Bool {
-  path.get_char(index) == Some('/')
-}
-
-///|
 pub impl Show for Path with fn output(path, logger) {
   logger.write_object(path.0)
 }
@@ -69,33 +64,20 @@ pub fn Path::basename(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
-  let path = path.0
+  let mut path = path.0[:]
   if path.is_empty() {
     return "."
   }
-  let has_root = is_posix_sep_at(path, 0)
-  let mut end = -1
-  let mut matched_slash = true
-  for i = path.length() - 1; i >= 1; i = i - 1 {
-    if is_posix_sep_at(path, i) {
-      if !matched_slash {
-        end = i
-        break
-      }
-    } else {
-      matched_slash = false
-    }
+  // strip all trailing separator
+  while path is [.. rest, last_char] && last_char == '/' {
+    path = rest
   }
-  if end == -1 {
-    if has_root {
-      "/"
-    } else {
-      "."
-    }
-  } else if has_root && end == 1 {
-    "//"
-  } else {
-    path[0:end].to_owned()
+  // return content before last separator
+  match path.rev_find("/") {
+    None => if path.is_empty() { "/" } else { "." }
+    Some(0) => "/"
+    Some(1) => if path is ['/', '/', ..] { "//" } else { path[:1].to_owned() }
+    Some(idx) => path[:idx].to_owned()
   }
 }
 
@@ -137,11 +119,7 @@ pub fn Path::extname(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
-  let path = path.0
-  match path {
-    ['/', ..] => true
-    _ => false
-  }
+  path.0 is ['/', ..]
 }
 
 ///|
@@ -199,21 +177,21 @@ pub fn Path::normalize(path : Path) -> Path {
 
 ///|
 fn trim_resolved_trailing_separators(path : Path) -> Path {
-  let raw = path.0
-  if raw is [.. rest, lastchar] && lastchar == '/' && !rest.is_empty() {
-    Path(rest.to_owned())
-  } else {
-    path
+  let mut raw = path.0[:]
+  while raw is [.. rest, last_char] && last_char == '/' && !rest.is_empty() {
+    raw = rest
   }
+  Path(raw.to_owned())
 }
 
 ///|
 /// Return the `to` relative path when `from` is the current working directory.
 /// 
-/// property: `@path.join(from,@path.relative(from,to)) == @path.normalize(to)`
+/// property: joining `from` with the returned relative path yields
+/// `@path.resolve(to)`.
 /// 
 /// edge cases: 
-///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
+///  1. when `@path.resolve(from) == @path.resolve(to)`, return empty string
 ///  2. when `from` and `to` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
@@ -265,8 +243,9 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-/// 1. if path is already absolute, return path normalized.
-/// 2. if path is relative, join current working directory and path, and then normalize it.
+/// 1. if path is already absolute, normalize it and remove non-root trailing separators.
+/// 2. if path is relative, join current working directory and path, normalize it,
+///    and remove non-root trailing separators.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
