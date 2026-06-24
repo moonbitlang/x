@@ -209,7 +209,7 @@ test "platform constants" {
 The package maintains several important properties:
 
 1. **Basename/Dirname relationship**: For most paths, joining dirname and basename gives the original path
-2. **Relative/Join relationship**: `join(from, relative(base=from, to))` equals `normalize(to)`
+2. **Relative/Join relationship**: joining `from` with `relative(base=from, to)` equals `resolve(to)`
 3. **Idempotent normalization**: `normalize(normalize(path))` equals `normalize(path)`
 
 ## Edge Cases
@@ -217,7 +217,7 @@ The package maintains several important properties:
 The implementation handles various edge cases consistently:
 
 - Empty paths are handled appropriately
-- Trailing slashes are preserved where semantically important
+- `normalize` preserves trailing slashes where semantically important; `resolve` removes non-root trailing slashes
 - Double leading slashes (`//`) are normalized to a single root slash during normalization
 - The functions follow Node `path.posix` behavior for this package's existing API surface
 

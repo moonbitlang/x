@@ -211,6 +211,8 @@ test "join node fixtures" {
   inspect(Path::join("C:\\a\\b", "..\\c"), content="C:\\a\\c")
   inspect(Path::join("C:\\temp", "CON"), content="C:\\temp\\CON")
   inspect(Path::join("C:\\temp", "PRN.txt"), content="C:\\temp\\PRN.txt")
+  inspect(Path::join("a", "C:"), content=".\\a\\C:")
+  inspect(Path::join("a", "C:\\b"), content=".\\a\\C:\\b")
 }
 
 ///|
@@ -277,6 +279,9 @@ test "normalize node fixtures" {
   )
   inspect(Path::normalize("C:\\temp\\CON"), content="C:\\temp\\CON")
   inspect(Path::normalize("C:\\temp\\PRN.txt"), content="C:\\temp\\PRN.txt")
+  inspect(Path::normalize("a\\C:"), content=".\\a\\C:")
+  inspect(Path::normalize("a\\C:\\b"), content=".\\a\\C:\\b")
+  inspect(Path::normalize("foo\\bar\\D:\\baz"), content=".\\foo\\bar\\D:\\baz")
 }
 
 ///|
@@ -332,6 +337,28 @@ test "relative node fixtures" {
     content="..\\folder2",
   )
   inspect(Path::relative(base="c:\\temp", "C:\\temp\\file"), content="file")
+  inspect(
+    Path::relative(base="\\\\server\\share", "\\\\server\\other\\file"),
+    content="..\\other\\file",
+  )
+  inspect(
+    Path::relative(base="\\\\server\\share\\folder", "\\\\server\\other\\file"),
+    content="..\\..\\other\\file",
+  )
+  inspect(
+    Path::relative(base="\\\\server1\\share", "\\\\server2\\share\\file"),
+    content="\\\\server2\\share\\file",
+  )
+  inspect(
+    Path::relative(
+      base="\\\\?\\UNC\\server\\share",
+      "\\\\?\\UNC\\server\\other\\file",
+    ),
+    content="..\\other\\file",
+  )
+  inspect(Path::relative(base="\\a", "\\b"), content="\\b")
+  inspect(Path::relative(base="/a/b", "/c/d"), content="\\c\\d")
+  inspect(Path::relative(base="/a/b", "/a/c"), content="..\\c")
 }
 
 ///|

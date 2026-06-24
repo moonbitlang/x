@@ -146,10 +146,11 @@ pub fn Path::normalize(path : Path) -> Path {
 ///|
 /// Return the `to` relative path when `from` is the current working directory.
 /// 
-/// property: `@path.join(from,@path.relative(from,to)) == @path.normalize(to)`
+/// property: joining `from` with the returned relative path yields
+/// `@path.resolve(to)`.
 /// 
 /// edge cases: 
-///  1. when `@path.normalize(from) == @path.normalize(to)`, return empty string
+///  1. when `@path.resolve(from) == @path.resolve(to)`, return empty string
 ///  2. on Windows, different roots return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
@@ -164,8 +165,9 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-/// 1. if path is already absolute, return path normalized.
-/// 2. if path is relative, join current working directory and path, and then normalize it.
+/// 1. if path is already absolute, normalize it and remove non-root trailing separators.
+/// 2. if path is relative, join current working directory and path, normalize it,
+///    and remove non-root trailing separators.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 

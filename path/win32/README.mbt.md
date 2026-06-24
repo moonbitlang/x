@@ -245,7 +245,7 @@ The `is_absolute` function correctly identifies all these formats.
 The package maintains several important properties:
 
 1. **Basename/Dirname relationship**: For most paths, joining dirname and basename gives the original path
-2. **Relative/Join relationship**: `join(from, relative(base=from, to))` equals `normalize(to)`
+2. **Relative/Join relationship**: joining `from` with `relative(base=from, to)` equals `resolve(to)`
 3. **Idempotent normalization**: `normalize(normalize(path))` equals `normalize(path)`
 
 ## Edge Cases
@@ -254,7 +254,7 @@ The implementation handles various Windows-specific edge cases:
 
 - Drive-relative paths (`C:folder`) are treated as relative, not absolute
 - Empty paths return appropriate default values
-- Trailing backslashes are preserved where semantically important
+- `normalize` preserves trailing separators where semantically important; `resolve` removes trailing separators except regular roots
 - All Windows path prefix types are properly recognized
 - The functions follow Node `path.win32` behavior for this package's existing API surface
 
