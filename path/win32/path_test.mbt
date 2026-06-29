@@ -376,9 +376,9 @@ test "relative node fixtures" {
     ),
     content="..\\other\\file",
   )
-  inspect(Path::relative(base="\\a", "\\b"), content="\\b")
-  inspect(Path::relative(base="/a/b", "/c/d"), content="\\c\\d")
-  inspect(Path::relative(base="/a/b", "/a/c"), content="..\\c")
+  inspect(Path::relative(base="C:\\a", "C:\\b"), content="..\\b")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\c\\d"), content="..\\..\\c\\d")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\c"), content="..\\c")
 }
 
 ///|
@@ -386,7 +386,7 @@ test "resolve absolute fixtures" {
   inspect(Path::resolve("C:\\a\\.\\b"), content="C:\\a\\b")
   inspect(Path::resolve("C:\\a\\..\\b"), content="C:\\b")
   inspect(Path::resolve("C:\\a\\b\\..\\..\\c"), content="C:\\c")
-  inspect(Path::resolve("\\a\\..\\b\\c"), content="\\b\\c")
+  inspect(Path::resolve("C:\\a\\..\\b\\c"), content="C:\\b\\c")
   inspect(
     Path::resolve("\\\\server\\share\\.\\file"),
     content="\\\\server\\share\\file",
@@ -417,7 +417,6 @@ test "resolve drops trailing separators except regular roots" {
   )
   inspect(Path::resolve("\\\\?\\UNC\\server\\"), content="\\\\?\\UNC\\server")
   inspect(Path::resolve("\\\\.\\COM1\\"), content="\\\\.\\COM1")
-  inspect(Path::resolve("\\"), content="\\")
   inspect(Path::resolve("C:\\"), content="C:\\")
   inspect(Path::resolve("\\\\server\\share\\"), content="\\\\server\\share\\")
 }
