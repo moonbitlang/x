@@ -191,10 +191,10 @@ Convert relative paths to absolute paths and normalize them:
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
-  let path : Path = "\\Users\\..\\Windows\\System32"
-  inspect(path.resolve(), content="\\Windows\\System32")
-  let path : Path = "\\a\\b\\c\\..\\..\\.."
-  inspect(path.resolve(), content="\\")
+  let path : Path = "C:\\Users\\..\\Windows\\System32"
+  inspect(path.resolve(), content="C:\\Windows\\System32")
+  let path : Path = "C:\\a\\b\\c\\..\\..\\.."
+  inspect(path.resolve(), content="C:\\")
 
   // Note: resolve() with relative paths depends on current working directory
   // and will join with the current directory before normalizing

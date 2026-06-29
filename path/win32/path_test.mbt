@@ -274,6 +274,25 @@ test "normalize node fixtures" {
     content="\\\\?\\UNC\\server\\share\\file",
   )
   inspect(
+    Path::normalize("\\\\?\\UNC\\server\\share\\.."),
+    content="\\\\?\\UNC\\server",
+  )
+  inspect(
+    Path::normalize("\\\\?\\UNC\\server\\share\\folder\\.."),
+    content="\\\\?\\UNC\\server\\share",
+  )
+  inspect(Path::normalize("\\\\?\\foo\\.."), content="\\\\?\\")
+  inspect(Path::normalize("\\\\?\\foo\\bar\\.."), content="\\\\?\\foo")
+  inspect(Path::normalize("\\\\.\\COM1\\.."), content="\\\\.\\")
+  inspect(Path::normalize("\\\\.\\COM1\\bar\\.."), content="\\\\.\\COM1")
+  inspect(Path::normalize("\\\\?\\Volume{abc}\\.."), content="\\\\?\\")
+  inspect(
+    Path::normalize("\\\\?\\Volume{abc}\\bar\\.."),
+    content="\\\\?\\Volume{abc}",
+  )
+  inspect(Path::normalize("\\\\?\\C:\\foo\\.."), content="\\\\?\\C:")
+  inspect(Path::normalize("\\\\?\\C:\\.."), content="\\\\?\\")
+  inspect(
     Path::normalize("\\\\?\\UNC\\server\\"),
     content="\\\\?\\UNC\\server\\",
   )
@@ -337,6 +356,7 @@ test "relative node fixtures" {
     content="..\\folder2",
   )
   inspect(Path::relative(base="c:\\temp", "C:\\temp\\file"), content="file")
+  inspect(Path::relative(base="C:\\Ä", "C:\\ä"), content="")
   inspect(
     Path::relative(base="\\\\server\\share", "\\\\server\\other\\file"),
     content="..\\other\\file",
@@ -356,9 +376,9 @@ test "relative node fixtures" {
     ),
     content="..\\other\\file",
   )
-  inspect(Path::relative(base="\\a", "\\b"), content="\\b")
-  inspect(Path::relative(base="/a/b", "/c/d"), content="\\c\\d")
-  inspect(Path::relative(base="/a/b", "/a/c"), content="..\\c")
+  inspect(Path::relative(base="C:\\a", "C:\\b"), content="..\\b")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\c\\d"), content="..\\..\\c\\d")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\c"), content="..\\c")
 }
 
 ///|
@@ -366,7 +386,7 @@ test "resolve absolute fixtures" {
   inspect(Path::resolve("C:\\a\\.\\b"), content="C:\\a\\b")
   inspect(Path::resolve("C:\\a\\..\\b"), content="C:\\b")
   inspect(Path::resolve("C:\\a\\b\\..\\..\\c"), content="C:\\c")
-  inspect(Path::resolve("\\a\\..\\b\\c"), content="\\b\\c")
+  inspect(Path::resolve("C:\\a\\..\\b\\c"), content="C:\\b\\c")
   inspect(
     Path::resolve("\\\\server\\share\\.\\file"),
     content="\\\\server\\share\\file",
@@ -397,7 +417,6 @@ test "resolve drops trailing separators except regular roots" {
   )
   inspect(Path::resolve("\\\\?\\UNC\\server\\"), content="\\\\?\\UNC\\server")
   inspect(Path::resolve("\\\\.\\COM1\\"), content="\\\\.\\COM1")
-  inspect(Path::resolve("\\"), content="\\")
   inspect(Path::resolve("C:\\"), content="C:\\")
   inspect(Path::resolve("\\\\server\\share\\"), content="\\\\server\\share\\")
 }

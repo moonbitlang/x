@@ -117,11 +117,14 @@ fn is_drive_relative(path : String) -> Bool {
 }
 
 ///|
-fn current_dir_for_drive(device : StringView) -> String {
+fn current_dir_for_drive_with_cwd(
+  device : StringView,
+  fallback_cwd : String,
+) -> String {
   let device = device.to_owned()
   let cwd = match @env.get_env_var("=" + device) {
     Some(dir) => dir
-    None => @env.current_dir().unwrap()
+    None => fallback_cwd
   }
   if start_with_win_drive(cwd) &&
     !cwd[0:2].equal_ignore_ascii_case(device) &&
@@ -453,6 +456,9 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 ///  2. when resolved paths have no common root boundary, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+///
+/// Known issue: Unicode case folding is incomplete. Some non-Latin paths that
+/// Node treats as equal ignoring case may produce a relative path.
 /// 
 /// ```moonbit check
 /// test {
@@ -472,8 +478,61 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-fn win_char_equal_ignore_ascii_case(left : Char, right : Char) -> Bool {
-  left.to_ascii_lowercase() == right.to_ascii_lowercase()
+fn win_char_to_common_lower(ch : Char) -> Char {
+  match ch {
+    'A'..='Z' => ch.to_ascii_lowercase()
+    'À' => 'à'
+    'Á' => 'á'
+    'Â' => 'â'
+    'Ã' => 'ã'
+    'Ä' => 'ä'
+    'Å' => 'å'
+    'Æ' => 'æ'
+    'Ç' => 'ç'
+    'È' => 'è'
+    'É' => 'é'
+    'Ê' => 'ê'
+    'Ë' => 'ë'
+    'Ì' => 'ì'
+    'Í' => 'í'
+    'Î' => 'î'
+    'Ï' => 'ï'
+    'Ð' => 'ð'
+    'Ñ' => 'ñ'
+    'Ò' => 'ò'
+    'Ó' => 'ó'
+    'Ô' => 'ô'
+    'Õ' => 'õ'
+    'Ö' => 'ö'
+    'Ø' => 'ø'
+    'Ù' => 'ù'
+    'Ú' => 'ú'
+    'Û' => 'û'
+    'Ü' => 'ü'
+    'Ý' => 'ý'
+    'Þ' => 'þ'
+    'Ÿ' => 'ÿ'
+    _ => ch
+  }
+}
+
+///|
+fn win_char_equal_ignore_case(left : Char, right : Char) -> Bool {
+  win_char_to_common_lower(left) == win_char_to_common_lower(right)
+}
+
+///|
+fn win_string_equal_ignore_case(left : String, right : String) -> Bool {
+  if left.length() != right.length() {
+    return false
+  }
+  for i in 0..<left.length() {
+    guard (left.get_char(i), right.get_char(i)) is (Some(left), Some(right)) &&
+      win_char_equal_ignore_case(left, right) else {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -514,7 +573,7 @@ fn write_parent_steps(
 
 ///|
 fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
-  if from_orig == to_orig || from_orig.equal_ignore_ascii_case(to_orig) {
+  if from_orig == to_orig || win_string_equal_ignore_case(from_orig, to_orig) {
     return ""
   }
   let from_start = trim_leading_backslashes(from_orig)
@@ -529,7 +588,7 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
   while i < length {
     let from_char = from_orig.get_char(from_start + i).unwrap()
     let to_char = to_orig.get_char(to_start + i).unwrap()
-    if !win_char_equal_ignore_ascii_case(from_char, to_char) {
+    if !win_char_equal_ignore_case(from_char, to_char) {
       break
     } else if from_char == '\\' {
       last_common_sep = i
@@ -587,19 +646,41 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 pub fn Path::resolve(path : Path) -> Path {
+  resolve_with_cwd(path, @env.current_dir().unwrap())
+}
+
+///|
+fn cwd_has_win_drive_root(cwd : String) -> Bool {
+  start_with_win_drive(cwd) && cwd.length() > 2 && is_win_sep_at(cwd, 2)
+}
+
+///|
+fn resolve_with_cwd(path : Path, cwd : String) -> Path {
   let raw_path = path.0
-  let resolved = if Path::is_absolute(path) {
-    Path::normalize(path)
-  } else if is_drive_relative(raw_path) {
-    let base = Path::normalize(current_dir_for_drive(raw_path[0:2]))
-    let tail = raw_path[2:]
-    if tail.is_empty() {
-      base
-    } else {
-      Path::join(base, tail.to_owned()) |> Path::normalize
-    }
-  } else {
-    Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
+  let parsed = WinPath::parse(raw_path)
+  let resolved = match parsed.prefix {
+    Root =>
+      if cwd_has_win_drive_root(cwd) {
+        Path::normalize(cwd[0:2].to_owned() + raw_path)
+      } else {
+        Path::normalize(path)
+      }
+    VolumeLetterRoot(_) | UNC(_) | VerbatimRoot | DeviceRoot =>
+      Path::normalize(path)
+    _ =>
+      if is_drive_relative(raw_path) {
+        let base = Path::normalize(
+          current_dir_for_drive_with_cwd(raw_path[0:2], cwd),
+        )
+        let tail = raw_path[2:]
+        if tail.is_empty() {
+          base
+        } else {
+          Path::join(base, tail.to_owned()) |> Path::normalize
+        }
+      } else {
+        Path::join(cwd, path) |> Path::normalize
+      }
   }
   trim_resolved_trailing_separators(resolved)
 }

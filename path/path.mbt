@@ -154,6 +154,9 @@ pub fn Path::normalize(path : Path) -> Path {
 ///  2. on Windows, different roots return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
+///
+/// Known issue: win32 Unicode case folding is incomplete. Some non-Latin
+/// paths that Node treats as equal ignoring case may produce a relative path.
 /// 
 /// See `@path/posix` and `@path/win32` for separator-specific examples.
 pub fn Path::relative(path : Path, base~ : Path) -> Path {

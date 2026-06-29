@@ -131,3 +131,43 @@ test "WinPath reserved-looking names are path components" {
   )
   inspect(WinPath::parse("C:\\temp\\star*name"), content="C:\\temp\\star*name")
 }
+
+///|
+test "resolve with Windows cwd anchors drive-less rooted paths" {
+  inspect(
+    resolve_with_cwd("\\foo", "C:\\Users\\alice\\project"),
+    content="C:\\foo",
+  )
+  inspect(resolve_with_cwd("/", "C:\\Users\\alice\\project"), content="C:\\")
+  inspect(resolve_with_cwd("\\", "C:\\Users\\alice\\project"), content="C:\\")
+  inspect(
+    resolve_with_cwd("\\a\\..\\b\\c", "C:\\Users\\alice\\project"),
+    content="C:\\b\\c",
+  )
+  inspect(
+    resolve_with_cwd(
+      "\\Users\\..\\Windows\\System32", "C:\\Users\\alice\\project",
+    ),
+    content="C:\\Windows\\System32",
+  )
+  inspect(
+    resolve_with_cwd("\\\\server\\share\\.\\file", "C:\\Users\\alice\\project"),
+    content="\\\\server\\share\\file",
+  )
+  inspect(resolve_with_cwd("\\foo", "/home/alice/project"), content="\\foo")
+}
+
+///|
+fn relative_with_cwd(base : Path, path : Path, cwd : String) -> Path {
+  let resolved_from = resolve_with_cwd(base, cwd)
+  let resolved_to = resolve_with_cwd(path, cwd)
+  relative_resolved_paths(resolved_from.0, resolved_to.0)
+}
+
+///|
+test "relative with Windows cwd anchors drive-less rooted paths" {
+  let cwd = "C:\\Users\\alice\\project"
+  inspect(relative_with_cwd("\\a", "\\b", cwd), content="..\\b")
+  inspect(relative_with_cwd("/a/b", "/c/d", cwd), content="..\\..\\c\\d")
+  inspect(relative_with_cwd("/a/b", "/a/c", cwd), content="..\\c")
+}
