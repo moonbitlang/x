@@ -44,7 +44,7 @@ test "new" {
 ///   assert_eq(s.length(), 3)
 /// ```
 pub fn[T] Stack::from_array(array : Array[T]) -> Stack[T] {
-  { elements: @list.from_array(array), len: array.length() }
+  { elements: @list.List(array), len: array.length() }
 }
 
 ///|
@@ -79,7 +79,7 @@ test "from_iter" {
 /// ```
 #as_free_fn
 pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
-  { elements: @list.from_array(array), len: array.length() }
+  { elements: @list.List(array), len: array.length() }
 }
 
 ///|
