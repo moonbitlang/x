@@ -668,8 +668,20 @@ pub fn Path::resolve(path : Path) -> Path {
 }
 
 ///|
-fn cwd_has_win_drive_root(cwd : String) -> Bool {
-  start_with_win_drive(cwd) && cwd.length() > 2 && is_win_sep_at(cwd, 2)
+fn cwd_device_for_drive_less_rooted_path(cwd : String) -> String? {
+  match WinPath::parse(cwd).prefix {
+    VolumeLetterRoot(_) => Some(cwd[0:2].to_owned())
+    UNC(_) => {
+      let root_end = win_root_end(cwd)
+      let root = cwd[0:root_end]
+      if root is [.. device, '\\' | '/'] {
+        Some(device.to_owned())
+      } else {
+        Some(root.to_owned())
+      }
+    }
+    _ => None
+  }
 }
 
 ///|
@@ -678,10 +690,9 @@ fn resolve_with_cwd(path : Path, cwd : String) -> Path {
   let parsed = WinPath::parse(raw_path)
   let resolved = match parsed.prefix {
     Root =>
-      if cwd_has_win_drive_root(cwd) {
-        Path::normalize(cwd[0:2].to_owned() + raw_path)
-      } else {
-        Path::normalize(path)
+      match cwd_device_for_drive_less_rooted_path(cwd) {
+        Some(device) => Path::normalize(device + raw_path)
+        None => Path::normalize(path)
       }
     VolumeLetterRoot(_) | UNC(_) | VerbatimRoot | DeviceRoot =>
       Path::normalize(path)

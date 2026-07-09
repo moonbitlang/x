@@ -155,6 +155,17 @@ test "resolve with Windows cwd anchors drive-less rooted paths" {
     content="\\\\server\\share\\file",
   )
   inspect(resolve_with_cwd("\\foo", "/home/alice/project"), content="\\foo")
+  let unc_cwd = "\\\\server\\share\\dir"
+  inspect(resolve_with_cwd("\\foo", unc_cwd), content="\\\\server\\share\\foo")
+  inspect(resolve_with_cwd("/", unc_cwd), content="\\\\server\\share\\")
+  inspect(
+    resolve_with_cwd("\\foo\\..\\bar", unc_cwd),
+    content="\\\\server\\share\\bar",
+  )
+  inspect(
+    resolve_with_cwd("\\foo", "\\\\server\\share"),
+    content="\\\\server\\share\\foo",
+  )
 }
 
 ///|
@@ -170,4 +181,8 @@ test "relative with Windows cwd anchors drive-less rooted paths" {
   inspect(relative_with_cwd("\\a", "\\b", cwd), content="..\\b")
   inspect(relative_with_cwd("/a/b", "/c/d", cwd), content="..\\..\\c\\d")
   inspect(relative_with_cwd("/a/b", "/a/c", cwd), content="..\\c")
+  inspect(
+    relative_with_cwd("\\a", "\\b", "\\\\server\\share\\dir"),
+    content="..\\b",
+  )
 }
