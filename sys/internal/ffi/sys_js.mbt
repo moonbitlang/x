@@ -55,7 +55,7 @@ extern "js" fn get_env_var_internal(key : String) -> String =
 ///|
 pub fn get_env_vars() -> Map[String, String] {
   let tmp = get_env_vars_internal()
-  let res = {}
+  let res = Map([])
   for i = 0; i < tmp.length(); i = i + 2 {
     res[tmp[i]] = tmp[i + 1]
   }

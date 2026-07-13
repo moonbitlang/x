@@ -272,61 +272,75 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///|
 fn Path::prefix(path : Path) -> StringView {
   let path = path.0
-  lexmatch path with longest {
-    (("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+") as prefix, _rest) => prefix
+  lexscan path with longest {
+    ((re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+") as prefix, after=_) =>
+      prefix
     (
       (
-        "\\\\\?UNC\\"
-        ("[^\\]+" as _hostname)
-        "\\"
-        ("[^\\]+" as _shared_folder)
-        "(\\)+"
+        re"^\\\\\?UNC\\" +
+        (re"[^\\]+" as _hostname) +
+        re"\\" +
+        (re"[^\\]+" as _shared_folder) +
+        re"(\\)+"
       ) as prefix,
-      _rest
+      after=_,
     ) => prefix
     (
-      ("\\\\" ("[^\\]+" as _hostname) "\\" ("[^\\]+" as _shared_folder) "(\\)*") as prefix,
-      _rest
+      (
+        re"^\\\\" +
+        (re"[^\\]+" as _hostname) +
+        re"\\" +
+        (re"[^\\]+" as _shared_folder) +
+        re"(\\)*"
+      ) as prefix,
+      after=_,
     ) => prefix
-    (("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]") as prefix, _rest) => prefix
-    (("\\\\\.\\" ("[^\\]+" as _device) "(\\)+") as prefix, _rest) => prefix
-    (("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
-    ("\\+" as prefix, _rest) => prefix
-    ((("[a-zA-Z]" as _letter) ":(\\)+") as prefix, _rest) => prefix
-    ((("[a-zA-Z]" as _letter) ":") as prefix, _rest) => prefix
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+" as prefix, _rest) => prefix
+    (
+      (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]") as prefix,
+      after=_,
+    ) => prefix
+    ((re"^\\\\\.\\" + (re"[^\\]+" as _device) + re"(\\)+") as prefix, after=_) =>
+      prefix
+    (
+      (re"^\\\\\?\\" + (re"[a-zA-Z]" as _letter) + re":(\\)+") as prefix,
+      after=_,
+    ) => prefix
+    (re"^\\+" as prefix, after=_) => prefix
+    (((re"^[a-zA-Z]" as _letter) + re":(\\)+") as prefix, after=_) => prefix
+    (((re"^[a-zA-Z]" as _letter) + re":") as prefix, after=_) => prefix
+    (re"^[^a-zA-Z\\][^:][^\\]+(\\)+" as prefix, after=_) => prefix
     _ => ""
   }
 }
 
 ///|
 fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
-  lexmatch rhs with longest {
-    ("\\\\\?\\" ("[^\\]+" as _symlink) "(\\)+", _rest) => None
+  lexscan rhs with longest {
+    (re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+", after=_) => None
     (
-      "\\\\\?UNC\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
+      re"^\\\\\?UNC\\" +
+      (re"[^\\]+" as _hostname) +
+      re"\\" +
+      (re"[^\\]+" as _shared_folder) +
+      re"(\\)+",
+      after=_,
     ) => None
     (
-      "\\\\"
-      ("[^\\]+" as _hostname)
-      "\\"
-      ("[^\\]+" as _shared_folder)
-      "(\\)+",
-      _rest
+      re"^\\\\" +
+      (re"[^\\]+" as _hostname) +
+      re"\\" +
+      (re"[^\\]+" as _shared_folder) +
+      re"(\\)+",
+      after=_,
     ) => None
-    ("\\\\\?\\Volume[{]" ("[^}]+" as _guid) "[}]", _rest) => None
-    ("\\\\\.\\" ("[^\\]+" as _device) "(\\)+", _rest) => None
-    ("\\\\\?\\" ("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
-    ("\\", _rest) => None
-    (("[a-zA-Z]" as _letter) ":(\\)+", _rest) => None
-    (("[a-zA-Z]" as rhs_letter) ":", rhs_rest) =>
-      lexmatch lhs with longest {
-        (("[a-zA-Z]" as lhs_letter) ":", _rest) =>
+    (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]", after=_) => None
+    (re"^\\\\\.\\" + (re"[^\\]+" as _device) + re"(\\)+", after=_) => None
+    (re"^\\\\\?\\" + (re"[a-zA-Z]" as _letter) + re":(\\)+", after=_) => None
+    (re"^\\", after=_) => None
+    ((re"^[a-zA-Z]" as _letter) + re":(\\)+", after=_) => None
+    ((re"^[a-zA-Z]" as rhs_letter) + re":", after=rhs_rest) =>
+      lexscan lhs with longest {
+        ((re"^[a-zA-Z]" as lhs_letter) + re":", after=_) =>
           if lhs_letter == rhs_letter {
             Some(rhs_rest)
           } else {
@@ -334,8 +348,8 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
           }
         _ => None
       }
-    ("[^a-zA-Z\\][^:][^\\]+(\\)+", _rest) => None
-    rhs_rest => Some(rhs_rest)
+    (re"^[^a-zA-Z\\][^:][^\\]+(\\)+", after=_) => None
+    _ => Some(rhs)
   }
 }
 

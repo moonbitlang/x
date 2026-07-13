@@ -19,63 +19,63 @@ fn lex_value(
 ) -> Token raise ParseError {
   for ;; {
     let view = ctx.input[ctx.offset:]
-    lexmatch view with longest {
+    lexscan view with longest {
       (
-        "[\t\u000B\u000C \n\r\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]",
-        rest
+        re"^[\t\u000B\u000C \n\r\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]",
+        after=rest,
       ) => {
         ctx.offset = rest.start_offset()
         continue
       }
-      ("//" "[^\n\r\u2028\u2029]*", rest) => {
+      (re"^//[^\n\r\u2028\u2029]*", after=rest) => {
         ctx.offset = rest.start_offset()
         continue
       }
-      ("/[*]" "([*][^/]?|[^*])*" "[*]/", rest) => {
+      (re"^/[*]([*][^/]?|[^*])*[*]/", after=rest) => {
         ctx.offset = rest.start_offset()
         continue
       }
-      ("/[*]" "([*][^/]?|[^*])*") => parse_error(InvalidEof)
-      ("[{]", rest) => {
+      re"^/[*]([*][^/]?|[^*])*$" => parse_error(InvalidEof)
+      (re"^[{]", after=rest) => {
         ctx.offset = rest.start_offset()
         return LBrace
       }
-      ("\[", rest) => {
+      (re"^\[", after=rest) => {
         ctx.offset = rest.start_offset()
         return LBracket
       }
-      ("\]", rest) =>
+      (re"^\]", after=rest) =>
         if allow_rbracket {
           ctx.offset = rest.start_offset()
           return RBracket
         } else {
           invalid_char(ctx)
         }
-      ("null", rest) => {
+      (re"^null", after=rest) => {
         ctx.offset = rest.start_offset()
         return Null
       }
-      ("true", rest) => {
+      (re"^true", after=rest) => {
         ctx.offset = rest.start_offset()
         return True
       }
-      ("false", rest) => {
+      (re"^false", after=rest) => {
         ctx.offset = rest.start_offset()
         return False
       }
-      ("\+?0[xX]", rest) => {
+      (re"^\+?0[xX]", after=rest) => {
         ctx.offset = rest.start_offset()
         let n = lex_hexadecimal(ctx, neg=false)
         return Number(n)
       }
-      ("-0[xX]", rest) => {
+      (re"^-0[xX]", after=rest) => {
         ctx.offset = rest.start_offset()
         let n = lex_hexadecimal(ctx, neg=true)
         return Number(n)
       }
       (
-        "[+\-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+\-]?[0-9]+)?" as lit,
-        rest
+        re"^[+\-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([eE][+\-]?[0-9]+)?" as lit,
+        after=rest,
       ) => {
         ctx.offset = rest.start_offset()
         let n = lex_number_end(
@@ -85,33 +85,33 @@ fn lex_value(
         )
         return Number(n)
       }
-      ("\+?Infinity", rest) => {
+      (re"^\+?Infinity", after=rest) => {
         ctx.offset = rest.start_offset()
         return Number(@double.infinity)
       }
-      ("-Infinity", rest) => {
+      (re"^-Infinity", after=rest) => {
         ctx.offset = rest.start_offset()
         return Number(@double.neg_infinity)
       }
-      ("[+\-]?NaN", rest) => {
+      (re"^[+\-]?NaN", after=rest) => {
         ctx.offset = rest.start_offset()
         return Number(@double.not_a_number)
       }
-      ("\"", rest) => {
+      (re"^\"", after=rest) => {
         ctx.offset = rest.start_offset()
         let s = lex_string(ctx, '"')
         return String(s)
       }
-      ("'", rest) => {
+      (re"^'", after=rest) => {
         ctx.offset = rest.start_offset()
         let s = lex_string(ctx, '\'')
         return String(s)
       }
-      (".", rest) => {
+      (re"^.", after=rest) => {
         ctx.offset = rest.start_offset()
         no_valid_token(ctx)
       }
-      "" => parse_error(InvalidEof)
+      re"^$" => parse_error(InvalidEof)
       _ => panic()
     }
   }

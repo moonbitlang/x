@@ -315,7 +315,7 @@ pub impl[T : Integral] Compare for Rational[T] with fn compare(
 ) -> Int {
   let left = self.numerator * other.denominator
   let right = other.numerator * self.denominator
-  left.compare(right)
+  Compare::compare(left, right)
 }
 
 ///|
@@ -686,11 +686,11 @@ pub impl[T : Integral] Show for Rational[T] with fn output(self, logger) {
   if self.numerator == T::from_int(0) {
     logger.write_char('0')
   } else if self.denominator == T::from_int(1) {
-    self.numerator.output(logger)
+    Show::output(self.numerator, logger)
   } else {
-    self.numerator.output(logger)
+    Show::output(self.numerator, logger)
     logger.write_char('/')
-    self.denominator.output(logger)
+    Show::output(self.denominator, logger)
   }
 }
 
