@@ -45,31 +45,27 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
 
 ///|
 fn PlainTime::parse_str(str : StringView) -> PlainTime raise Error {
-  let (hour, minute, second, nanosecond) = lexmatch str with longest {
-    (("[0-9]{2}" as hour_str) ":" ("[0-9]{2}" as minute_str)) =>
+  let (hour, minute, second, nanosecond) = lexscan str with longest {
+    (re"^[0-9]{2}" as hour_str) + re":" + (re"[0-9]{2}$" as minute_str) =>
       (@string.parse_int(hour_str), @string.parse_int(minute_str), 0, 0)
-    (
-      ("[0-9]{2}" as hour_str)
-      ":"
-      ("[0-9]{2}" as minute_str)
-      ":"
-      ("[0-9]{2}" as second_str)
-    ) =>
+    (re"^[0-9]{2}" as hour_str) +
+    re":" +
+    (re"[0-9]{2}" as minute_str) +
+    re":" +
+    (re"[0-9]{2}$" as second_str) =>
       (
         @string.parse_int(hour_str),
         @string.parse_int(minute_str),
         @string.parse_int(second_str),
         0,
       )
-    (
-      ("[0-9]{2}" as hour_str)
-      ":"
-      ("[0-9]{2}" as minute_str)
-      ":"
-      ("[0-9]{2}" as second_str)
-      "."
-      ("[0-9]{1,9}" as nanosecond_str)
-    ) =>
+    (re"^[0-9]{2}" as hour_str) +
+    re":" +
+    (re"[0-9]{2}" as minute_str) +
+    re":" +
+    (re"[0-9]{2}" as second_str) +
+    re"\." +
+    (re"[0-9]{1,9}$" as nanosecond_str) =>
       (
         @string.parse_int(hour_str),
         @string.parse_int(minute_str),

@@ -4,6 +4,4 @@ import {
   "moonbitlang/x/encoding/internal/benchmark" @bench,
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")
