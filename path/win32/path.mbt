@@ -404,7 +404,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
   let raw = path.0
-  let normalized = WinPath::parse(raw).to_string()
+  let normalized = Show::to_string(WinPath::parse(raw))
   if needs_normalize_drive_guard(raw, normalized) {
     ".\\" + normalized
   } else {
