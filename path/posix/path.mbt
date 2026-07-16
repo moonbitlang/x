@@ -172,7 +172,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// }
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
-  UnixPath::parse(path.0).to_string()
+  Show::to_string(UnixPath::parse(path.0))
 }
 
 ///|
@@ -235,7 +235,7 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
         trailing_separator: false,
         components,
       }
-      path.to_string()
+      Show::to_string(path)
     }
   } else {
     ""
