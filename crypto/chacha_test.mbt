@@ -46,6 +46,35 @@ test "chacha stream encrypt RFC8439" {
 }
 
 ///|
+test "chacha bulk SIMD matches fragmented streaming" {
+  let key = Bytes::make(32, b'\x42')
+  let nonce = Bytes::make(12, b'\x24')
+  let input = FixedArray::makei(1031, i => (i * 29 + 7).to_byte()).unsafe_reinterpret_as_bytes()
+  let bulk_output = FixedArray::make(input.length(), b'\x00')
+  let bulk_cipher = @crypto.ChaCha::chacha20(key, nonce, counter=17)
+  bulk_cipher.transform(input, bulk_output)
+  let fragmented_output = FixedArray::make(input.length(), b'\x00')
+  let fragmented_cipher = @crypto.ChaCha::chacha20(key, nonce, counter=17)
+  let chunk_sizes = [1, 63, 7, 64, 65, 19, 127, 3]
+  let mut input_offset = 0
+  let mut chunk_index = 0
+  for ; input_offset < input.length(); {
+    let chunk_length = @cmp.minimum(
+      chunk_sizes[chunk_index % chunk_sizes.length()],
+      input.length() - input_offset,
+    )
+    fragmented_cipher.transform(
+      input[input_offset:input_offset + chunk_length],
+      fragmented_output,
+      offset=input_offset,
+    )
+    input_offset += chunk_length
+    chunk_index += 1
+  }
+  assert_eq(bulk_output, fragmented_output)
+}
+
+///|
 test "chacha with error" {
   @test.assert_raise(() => {
     @crypto.ChaCha::chacha8(b"", Bytes::make(12, b'\x00'))

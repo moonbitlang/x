@@ -20,6 +20,7 @@
 #alias(SM3Context, deprecated="Use `SM3` instead")
 struct SM3 {
   reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+  schedule : FixedArray[UInt]
   mut len : UInt64
   buf : FixedArray[Byte]
   mut buf_index : Int
@@ -33,6 +34,7 @@ pub fn SM3::new() -> SM3 {
       0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600, 0xA96F30BC, 0x163138AA, 0xE38DEE4D,
       0xB0FB0E4E,
     ],
+    schedule: FixedArray::make(68, 0U),
     len: 0,
     buf: FixedArray::make(64, 0),
     buf_index: 0,
@@ -94,9 +96,11 @@ fn SM3::p_1(x : UInt) -> UInt {
 }
 
 ///|
-fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
-  let w_0 = FixedArray::make(68, 0U)
-  let w_1 = FixedArray::make(64, 0U)
+fn SM3::transform(
+  data : FixedArray[Byte],
+  reg : FixedArray[UInt],
+  w_0 : FixedArray[UInt],
+) -> Unit {
   guard reg.length() == 8
   let mut a = reg.unsafe_get(0)
   let mut b = reg.unsafe_get(1)
@@ -106,9 +110,7 @@ fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let mut f = reg.unsafe_get(5)
   let mut g = reg.unsafe_get(6)
   let mut h = reg.unsafe_get(7)
-  for index = 0; index < 16; index = index + 1 {
-    w_0[index] = bytes_u8_to_u32be(data, i=4 * index)
-  }
+  load_u32x16_be_into(data, 0, w_0)
   for index = 16; index < 68; index = index + 1 {
     w_0[index] = SM3::p_1(
         w_0[index - 16] ^ w_0[index - 9] ^ rotate_left_u(w_0[index - 3], 15),
@@ -116,13 +118,10 @@ fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
       rotate_left_u(w_0[index - 13], 7) ^
       w_0[index - 6]
   }
-  for index = 0; index < 64; index = index + 1 {
-    w_1[index] = w_0[index] ^ w_0[index + 4]
-  }
   for index = 0; index < 16; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a, 12) + e + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a, 12)
-    let tt_1 = SM3::ff_0(a, b, c) + d + ss_2 + w_1[index]
+    let tt_1 = SM3::ff_0(a, b, c) + d + ss_2 + (w_0[index] ^ w_0[index + 4])
     let tt_2 = SM3::gg_0(e, f, g) + h + ss_1 + w_0[index]
     d = c
     c = rotate_left_u(b, 9)
@@ -136,7 +135,7 @@ fn SM3::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   for index = 16; index < 64; index = index + 1 {
     let ss_1 = rotate_left_u(rotate_left_u(a, 12) + e + t[index], 7)
     let ss_2 = ss_1 ^ rotate_left_u(a, 12)
-    let tt_1 = SM3::ff_1(a, b, c) + d + ss_2 + w_1[index]
+    let tt_1 = SM3::ff_1(a, b, c) + d + ss_2 + (w_0[index] ^ w_0[index + 4])
     let tt_2 = SM3::gg_1(e, f, g) + h + ss_1 + w_0[index]
     d = c
     c = rotate_left_u(b, 9)
@@ -165,7 +164,7 @@ pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
     if self.buf_index == 64 {
       self.buf_index = 0
       self.len += 512UL
-      SM3::transform(self.buf, self.reg)
+      SM3::transform(self.buf, self.reg, self.schedule)
     }
   })
 }
@@ -195,7 +194,7 @@ pub fn[Data : ByteSource] SM3::update(self : SM3, data : Data) -> Unit {
     if self.buf_index == 64 {
       self.len += 512UL
       self.buf_index = 0
-      SM3::transform(self.buf, self.reg)
+      SM3::transform(self.buf, self.reg, self.schedule)
     }
     offset += min_len
   }
@@ -225,7 +224,7 @@ fn SM3::_finalize_into(
   data[cnt] = b'\x80'
   cnt += 1
   if cnt > 56 {
-    SM3::transform(data, reg)
+    SM3::transform(data, reg, self.schedule)
     data.fill(0)
   }
   data.unsafe_set(56, (len >> 56).to_byte())
@@ -236,7 +235,7 @@ fn SM3::_finalize_into(
   data.unsafe_set(61, (len >> 16).to_byte())
   data.unsafe_set(62, (len >> 8).to_byte())
   data.unsafe_set(63, (len >> 0).to_byte())
-  SM3::transform(data, reg)
+  SM3::transform(data, reg, self.schedule)
 
   // Write result to buffer
   arr_u32_to_u8be_into(reg.iter(), buffer, offset)

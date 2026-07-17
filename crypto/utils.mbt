@@ -65,49 +65,6 @@ test "uints_to_hex_string" {
 }
 
 ///|
-fn uint32(x : Byte) -> UInt {
-  x.to_int().reinterpret_as_uint()
-}
-
-///|
-/// convert 4 bytes a byte sequence to a UInt in little endian
-/// - `x` : A byte sequence consisting of 4 or more bytes
-/// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn u8_to_u32le(x : FixedArray[Byte], i? : Int = 0) -> UInt {
-  uint32(x[i]) |
-  (uint32(x[i + 1]) << 8) |
-  (uint32(x[i + 2]) << 16) |
-  (uint32(x[i + 3]) << 24)
-}
-
-/// convert 4 bytes of a byte sequence to a UInt in big endian 
-/// - `x` : A byte sequence consisting of 4 or more bytes
-/// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-
-// fn u8_to_u32be(x : Bytes, ~i : Int = 0) -> UInt {
-//   uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
-//     x[i + 3],
-//   )
-// }
-
-// fn arr_u8_to_u32be(x : Array[Byte], ~i : Int = 0) -> UInt {
-//   uint32(x[i]).lsl(24) | uint32(x[i + 1]).lsl(16) | uint32(x[i + 2]).lsl(8) | uint32(
-//     x[i + 3],
-//   )
-// }
-
-///|
-/// convert 4 bytes of a byte array to a UInt in big endian 
-/// - `x` : A byte sequence consisting of 4 or more bytes
-/// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn bytes_u8_to_u32be(x : FixedArray[Byte], i? : Int = 0) -> UInt {
-  (uint32(x[i]) << 24) |
-  (uint32(x[i + 1]) << 16) |
-  (uint32(x[i + 2]) << 8) |
-  uint32(x[i + 3])
-}
-
-///|
 fn arr_u32_to_u8be_into(
   x : Iter[UInt],
   buffer : FixedArray[Byte],

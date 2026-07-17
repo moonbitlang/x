@@ -31,42 +31,61 @@ pub fn[Data : ByteSource] sha1(input : Data) -> FixedArray[Byte] {
   let h = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
   let bytes_per_chunk = 512 / 8
   let chunk_count = new_length / bytes_per_chunk // `new_length` is a multiple of 512
+  let words = FixedArray::make(80, 0)
   for chunk = 0; chunk < chunk_count; chunk = chunk + 1 {
-    let words = FixedArray::make(80, 0)
-    for i = 0; i < 16; i = i + 1 {
-      let slice_start = chunk * bytes_per_chunk + i * 4
-      words[i] = (bytes[slice_start].to_int() << 24) |
-        (bytes[slice_start + 1].to_int() << 16) |
-        (bytes[slice_start + 2].to_int() << 8) |
-        bytes[slice_start + 3].to_int()
-    }
+    load_i32x16_be_into(bytes, chunk * bytes_per_chunk, words)
     for i = 16; i < 80; i = i + 1 {
       words[i] = rotate_left(
         words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16],
         1,
       )
     }
-    let v = h.copy()
-    for i = 0; i < 80; i = i + 1 {
-      let (f, k) = if i < 20 {
-        ((v[1] & v[2]) | (v[1].lnot() & v[3]), 0x5A827999)
-      } else if i < 40 {
-        (v[1] ^ (v[2] ^ v[3]), 0x6ED9EBA1)
-      } else if i < 60 {
-        ((v[1] & v[2]) | (v[1] & v[3]) | (v[2] & v[3]), 0x8F1BBCDC)
-      } else {
-        (v[1] ^ (v[2] ^ v[3]), 0xCA62C1D6)
-      }
-      let temp = rotate_left(v[0], 5) + f + v[4] + k + words[i]
-      v[4] = v[3]
-      v[3] = v[2]
-      v[2] = rotate_left(v[1], 30)
-      v[1] = v[0]
-      v[0] = temp
+    let mut a = h[0]
+    let mut b = h[1]
+    let mut c = h[2]
+    let mut d = h[3]
+    let mut e = h[4]
+    for i in 0..<20 {
+      let f = (b & c) | (b.lnot() & d)
+      let temp = rotate_left(a, 5) + f + e + 0x5A827999 + words[i]
+      e = d
+      d = c
+      c = rotate_left(b, 30)
+      b = a
+      a = temp
     }
-    for i = 0; i < 5; i = i + 1 {
-      h[i] += v[i]
+    for i in 20..<40 {
+      let f = b ^ c ^ d
+      let temp = rotate_left(a, 5) + f + e + 0x6ED9EBA1 + words[i]
+      e = d
+      d = c
+      c = rotate_left(b, 30)
+      b = a
+      a = temp
     }
+    for i in 40..<60 {
+      let f = (b & c) | (b & d) | (c & d)
+      let temp = rotate_left(a, 5) + f + e + 0x8F1BBCDC + words[i]
+      e = d
+      d = c
+      c = rotate_left(b, 30)
+      b = a
+      a = temp
+    }
+    for i in 60..<80 {
+      let f = b ^ c ^ d
+      let temp = rotate_left(a, 5) + f + e + 0xCA62C1D6 + words[i]
+      e = d
+      d = c
+      c = rotate_left(b, 30)
+      b = a
+      a = temp
+    }
+    h[0] += a
+    h[1] += b
+    h[2] += c
+    h[3] += d
+    h[4] += e
   }
   // Digest
   let result = FixedArray::make(20, b'\x00')

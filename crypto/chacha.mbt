@@ -250,6 +250,106 @@ test "chachaBlockLoop" {
 /// - chacha8: round = 4
 /// - chacha12: round = 6
 /// - chacha20: round = 10
+#cfg(any(target="wasm", target="wasm-gc"))
+fn chachaBlockBytes(
+  key : FixedArray[UInt],
+  count : UInt,
+  nonce : FixedArray[UInt],
+  round : UInt,
+  _scratch : FixedArray[UInt],
+  output : FixedArray[Byte],
+) -> Unit {
+  guard key.length() == 8
+  guard nonce.length() == 3
+  guard output.length() >= 64
+  let initial_a = @v128.i32x4_const(
+    0X61707865, 0X3320646e, 0X79622d32, 0X6b206574,
+  )
+  let initial_b = @v128.i32x4_const(key[0], key[1], key[2], key[3])
+  let initial_c = @v128.i32x4_const(key[4], key[5], key[6], key[7])
+  let initial_d = @v128.i32x4_const(count, nonce[0], nonce[1], nonce[2])
+  let mut a = initial_a
+  let mut b = initial_b
+  let mut c = initial_c
+  let mut d = initial_d
+  for _ in 0U..<round {
+    // Four column quarter-rounds in parallel.
+    a = @v128.i32x4_add(a, b)
+    let d_xor_a = @v128.v128_xor(d, a)
+    d = @v128.i8x16_shuffle(
+      d_xor_a, d_xor_a, 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13,
+    )
+    c = @v128.i32x4_add(c, d)
+    let b_xor_c = @v128.v128_xor(b, c)
+    b = @v128.v128_or_(
+      @v128.i32x4_shl(b_xor_c, 12),
+      @v128.i32x4_shr_u(b_xor_c, 20),
+    )
+    a = @v128.i32x4_add(a, b)
+    let d_xor_a = @v128.v128_xor(d, a)
+    d = @v128.i8x16_shuffle(
+      d_xor_a, d_xor_a, 3, 0, 1, 2, 7, 4, 5, 6, 11, 8, 9, 10, 15, 12, 13, 14,
+    )
+    c = @v128.i32x4_add(c, d)
+    let b_xor_c = @v128.v128_xor(b, c)
+    b = @v128.v128_or_(
+      @v128.i32x4_shl(b_xor_c, 7),
+      @v128.i32x4_shr_u(b_xor_c, 25),
+    )
+
+    // Align the rows so the same operations perform four diagonal rounds.
+    b = @v128.i8x16_shuffle(
+      b, b, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
+    )
+    c = @v128.i8x16_shuffle(
+      c, c, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
+    )
+    d = @v128.i8x16_shuffle(
+      d, d, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    )
+    a = @v128.i32x4_add(a, b)
+    let d_xor_a = @v128.v128_xor(d, a)
+    d = @v128.i8x16_shuffle(
+      d_xor_a, d_xor_a, 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13,
+    )
+    c = @v128.i32x4_add(c, d)
+    let b_xor_c = @v128.v128_xor(b, c)
+    b = @v128.v128_or_(
+      @v128.i32x4_shl(b_xor_c, 12),
+      @v128.i32x4_shr_u(b_xor_c, 20),
+    )
+    a = @v128.i32x4_add(a, b)
+    let d_xor_a = @v128.v128_xor(d, a)
+    d = @v128.i8x16_shuffle(
+      d_xor_a, d_xor_a, 3, 0, 1, 2, 7, 4, 5, 6, 11, 8, 9, 10, 15, 12, 13, 14,
+    )
+    c = @v128.i32x4_add(c, d)
+    let b_xor_c = @v128.v128_xor(b, c)
+    b = @v128.v128_or_(
+      @v128.i32x4_shl(b_xor_c, 7),
+      @v128.i32x4_shr_u(b_xor_c, 25),
+    )
+    b = @v128.i8x16_shuffle(
+      b, b, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    )
+    c = @v128.i8x16_shuffle(
+      c, c, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
+    )
+    d = @v128.i8x16_shuffle(
+      d, d, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
+    )
+  }
+  a = @v128.i32x4_add(a, initial_a)
+  b = @v128.i32x4_add(b, initial_b)
+  c = @v128.i32x4_add(c, initial_c)
+  d = @v128.i32x4_add(d, initial_d)
+  @v128.v128_store(output, 0, a)
+  @v128.v128_store(output, 16, b)
+  @v128.v128_store(output, 32, c)
+  @v128.v128_store(output, 48, d)
+}
+
+///|
 fn chachaBlock(
   key : FixedArray[UInt],
   count : UInt,
@@ -272,6 +372,22 @@ fn chachaBlock(
   state.chachaBlockLoop(round)
   for i in 0..<16 {
     state[i] += initial_state[i]
+  }
+}
+
+///|
+#cfg(not(any(target="wasm", target="wasm-gc")))
+fn chachaBlockBytes(
+  key : FixedArray[UInt],
+  count : UInt,
+  nonce : FixedArray[UInt],
+  round : UInt,
+  scratch : FixedArray[UInt],
+  output : FixedArray[Byte],
+) -> Unit {
+  chachaBlock(key, count, nonce, round, scratch)
+  for group in 0..<4 {
+    store_u32x4_le(scratch, group * 4, output, group * 16)
   }
 }
 
@@ -377,6 +493,49 @@ fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
 }
 
 ///|
+#cfg(target="js")
+#inline
+fn[Data : ByteSource] chacha_xor_into(
+  data : Data,
+  input_offset : Int,
+  target : FixedArray[Byte],
+  target_offset : Int,
+  key_stream : FixedArray[Byte],
+  key_stream_offset : Int,
+  length : Int,
+) -> Unit {
+  for i in 0..<length {
+    target.unsafe_set(
+      target_offset + i,
+      data[input_offset + i] ^ key_stream.unsafe_get(key_stream_offset + i),
+    )
+  }
+}
+
+///|
+#cfg(not(target="js"))
+#inline
+fn[Data : ByteSource] chacha_xor_into(
+  data : Data,
+  input_offset : Int,
+  target : FixedArray[Byte],
+  target_offset : Int,
+  key_stream : FixedArray[Byte],
+  key_stream_offset : Int,
+  length : Int,
+) -> Unit {
+  data.blit_to(
+    target,
+    len=length,
+    src_offset=input_offset,
+    dst_offset=target_offset,
+  )
+  xor_byte_ranges_in_place(
+    target, target_offset, key_stream, key_stream_offset, length,
+  )
+}
+
+///|
 test "stateToBytes" {
   let state = FixedArray::make(16, 0U)
   state[0] = 0x879531e0
@@ -475,20 +634,35 @@ fn[Data : ByteSource] chacha(
     return FixedArray::make(0, Byte::default())
   }
   let buffer = FixedArray::make(block.length(), Byte::default())
-  let keyStream = FixedArray::make(16, 0U)
-  for i = 0; i < block.length(); i = i + 64 {
-    chachaBlock(
+  let keyStreamWords = FixedArray::make(16, 0U)
+  let keyStream = FixedArray::make(64, b'\x00')
+  let bulkKeyStream = FixedArray::make(256, b'\x00')
+  let mut i = 0
+  for ; chacha4_enabled() && i + 256 <= block.length(); {
+    chacha4BlockBytes(
       key,
       counter + i.reinterpret_as_uint() / 64,
       nonce,
       round,
+      keyStreamWords,
+      keyStream,
+      bulkKeyStream,
+    )
+    chacha_xor_into(block, i, buffer, i, bulkKeyStream, 0, 256)
+    i += 256
+  }
+  for ; i < block.length(); {
+    chachaBlockBytes(
+      key,
+      counter + i.reinterpret_as_uint() / 64,
+      nonce,
+      round,
+      keyStreamWords,
       keyStream,
     )
-    let pad = stateToBytes(keyStream)
     let len = @cmp.minimum(block.length() - i, 64)
-    for j in 0..<len {
-      buffer[i + j] = pad[j] ^ block[i + j]
-    }
+    chacha_xor_into(block, i, buffer, i, keyStream, 0, len)
+    i += 64
   }
   buffer
 }
@@ -497,7 +671,9 @@ fn[Data : ByteSource] chacha(
 struct ChaCha {
   key : FixedArray[UInt]
   nonce : FixedArray[UInt]
-  key_stream : FixedArray[UInt]
+  key_stream_words : FixedArray[UInt]
+  key_stream : FixedArray[Byte]
+  bulk_key_stream : FixedArray[Byte]
   mut counter : UInt
   mut offset : Int
   round : UInt
@@ -533,7 +709,9 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
   {
     key: key_,
     nonce: nonce_,
-    key_stream: FixedArray::make(16, 0U),
+    key_stream_words: FixedArray::make(16, 0U),
+    key_stream: FixedArray::make(64, b'\x00'),
+    bulk_key_stream: FixedArray::make(256, b'\x00'),
     round,
     offset: 64,
     counter,
@@ -598,21 +776,77 @@ pub fn[D : ByteSource] ChaCha::transform(
   target : FixedArray[Byte],
   offset? : Int = 0,
 ) -> Unit {
-  for i in 0..<data.length() {
-    if self.offset == 64 {
-      chachaBlock(
-        self.key,
-        self.counter,
-        self.nonce,
-        self.round,
-        self.key_stream,
-      )
-      self.offset = 0
-      self.counter += 1
+  let length = data.length()
+  let mut input_offset = 0
+  if self.offset < 64 {
+    let prefix_length = @cmp.minimum(length, 64 - self.offset)
+    for i in 0..<prefix_length {
+      target[offset + i] = self.key_stream[self.offset + i] ^ data[i]
     }
-    target[offset + i] = (self.key_stream[self.offset / 4] >>
-      (self.offset % 4 * 8)).to_byte() ^
-      data[i]
-    self.offset += 1
+    self.offset += prefix_length
+    input_offset = prefix_length
+  }
+  if input_offset == length {
+    return
+  }
+  for ; chacha4_enabled() && input_offset + 256 <= length; {
+    chacha4BlockBytes(
+      self.key,
+      self.counter,
+      self.nonce,
+      self.round,
+      self.key_stream_words,
+      self.key_stream,
+      self.bulk_key_stream,
+    )
+    self.counter += 4
+    chacha_xor_into(
+      data,
+      input_offset,
+      target,
+      offset + input_offset,
+      self.bulk_key_stream,
+      0,
+      256,
+    )
+    input_offset += 256
+  }
+  for ; input_offset + 64 <= length; {
+    chachaBlockBytes(
+      self.key,
+      self.counter,
+      self.nonce,
+      self.round,
+      self.key_stream_words,
+      self.key_stream,
+    )
+    self.counter += 1
+    chacha_xor_into(
+      data,
+      input_offset,
+      target,
+      offset + input_offset,
+      self.key_stream,
+      0,
+      64,
+    )
+    input_offset += 64
+  }
+  if input_offset < length {
+    chachaBlockBytes(
+      self.key,
+      self.counter,
+      self.nonce,
+      self.round,
+      self.key_stream_words,
+      self.key_stream,
+    )
+    self.counter += 1
+    self.offset = length - input_offset
+    for i in input_offset..<length {
+      target[offset + i] = self.key_stream[i - input_offset] ^ data[i]
+    }
+  } else {
+    self.offset = 64
   }
 }
