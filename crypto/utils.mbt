@@ -69,17 +69,6 @@ fn uint32(x : Byte) -> UInt {
   x.to_int().reinterpret_as_uint()
 }
 
-///|
-/// convert 4 bytes a byte sequence to a UInt in little endian
-/// - `x` : A byte sequence consisting of 4 or more bytes
-/// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
-fn u8_to_u32le(x : FixedArray[Byte], i? : Int = 0) -> UInt {
-  uint32(x[i]) |
-  (uint32(x[i + 1]) << 8) |
-  (uint32(x[i + 2]) << 16) |
-  (uint32(x[i + 3]) << 24)
-}
-
 /// convert 4 bytes of a byte sequence to a UInt in big endian 
 /// - `x` : A byte sequence consisting of 4 or more bytes
 /// - `i` : An offset. e.g. i = 4 will convert `x[4~7]` to a UInt.
