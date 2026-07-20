@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <wchar.h>
 #include "moonbit.h"
 
 #ifdef _WIN32
@@ -12,14 +13,21 @@
 #include <unistd.h>
 #endif
 
-MOONBIT_FFI_EXPORT moonbit_bytes_t get_env_var(moonbit_bytes_t key) {
 #ifdef _WIN32
-    DWORD buf_size = GetEnvironmentVariable((LPSTR)key, NULL, 0);
+typedef moonbit_string_t moonbitlang_x_os_string_t;
+#else
+typedef moonbit_bytes_t moonbitlang_x_os_string_t;
+#endif
+
+MOONBIT_FFI_EXPORT moonbitlang_x_os_string_t
+get_env_var(moonbitlang_x_os_string_t key) {
+#ifdef _WIN32
+    DWORD buf_size = GetEnvironmentVariableW((LPCWSTR)key, NULL, 0);
     if (buf_size == 0) {
-        return moonbit_make_bytes(0, 0); // Return empty bytes to indicate None
+        return moonbit_make_string(0, 0);
     }
-    moonbit_bytes_t result = moonbit_make_bytes(buf_size - 1, 0);
-    GetEnvironmentVariable((LPSTR)key, (LPSTR)result, buf_size);
+    moonbit_string_t result = moonbit_make_string(buf_size - 1, 0);
+    GetEnvironmentVariableW((LPCWSTR)key, (LPWSTR)result, buf_size);
     return result;
 #else
     char* value = getenv((const char*)key);
@@ -33,57 +41,62 @@ MOONBIT_FFI_EXPORT moonbit_bytes_t get_env_var(moonbit_bytes_t key) {
 #endif
 }
 
-MOONBIT_FFI_EXPORT int32_t get_env_var_exists(moonbit_bytes_t key) {
+MOONBIT_FFI_EXPORT int32_t
+get_env_var_exists(moonbitlang_x_os_string_t key) {
 #ifdef _WIN32
-    DWORD buf_size = GetEnvironmentVariable((LPSTR)key, NULL, 0);
-    return buf_size != 0; // Variable exists
+    SetLastError(ERROR_SUCCESS);
+    DWORD buf_size = GetEnvironmentVariableW((LPCWSTR)key, NULL, 0);
+    return buf_size != 0 || GetLastError() != ERROR_ENVVAR_NOT_FOUND;
 #else
     char* value = getenv((const char*)key);
     return value != NULL; // Variable exists
 #endif
 }
 
-MOONBIT_FFI_EXPORT moonbit_bytes_t* get_env_vars() {
+MOONBIT_FFI_EXPORT moonbitlang_x_os_string_t* get_env_vars() {
 #ifdef _WIN32
     // Get environment block
-    LPCH env_block = GetEnvironmentStrings();
+    LPWCH env_block = GetEnvironmentStringsW();
     if (env_block == NULL) {
-        return (moonbit_bytes_t *)moonbit_make_ref_array(0, NULL);
+        return (moonbit_string_t *)moonbit_make_ref_array(0, NULL);
     }
 
     // Count variables and create array
     int count = 0;
-    LPCH env = env_block;
+    LPWCH env = env_block;
     while (*env) {
-        count++;
-        env += strlen(env) + 1;
+        WCHAR *equals = wcschr(env, L'=');
+        if (env[0] != L'=' && equals != NULL && equals != env) {
+            count++;
+        }
+        env += wcslen(env) + 1;
     }
 
-    moonbit_bytes_t* result = (moonbit_bytes_t*)moonbit_make_ref_array(count * 2, NULL);
+    moonbit_string_t* result = (moonbit_string_t*)moonbit_make_ref_array(count * 2, NULL);
     
     // Parse variables
     env = env_block;
     int i = 0;
     while (*env) {
-        char *equals = strchr(env, '=');
-        if (equals != NULL) {
+        WCHAR *equals = wcschr(env, L'=');
+        if (env[0] != L'=' && equals != NULL && equals != env) {
             size_t key_len = equals - env;
-            size_t val_len = strlen(equals + 1);
+            size_t val_len = wcslen(equals + 1);
             
-            moonbit_bytes_t key = moonbit_make_bytes(key_len, 0);
-            memcpy(key, env, key_len);
+            moonbit_string_t key = moonbit_make_string(key_len, 0);
+            memcpy(key, env, key_len * sizeof(WCHAR));
             
-            moonbit_bytes_t value = moonbit_make_bytes(val_len, 0);
-            memcpy(value, equals + 1, val_len);
+            moonbit_string_t value = moonbit_make_string(val_len, 0);
+            memcpy(value, equals + 1, val_len * sizeof(WCHAR));
 
             result[i * 2] = key;
             result[i * 2 + 1] = value;
+            i++;
         }
-        env += strlen(env) + 1;
-        i++;
+        env += wcslen(env) + 1;
     }
 
-    FreeEnvironmentStrings(env_block);
+    FreeEnvironmentStringsW(env_block);
     return result;
 #else
     // environ is a pointer to an array of environment variables
@@ -129,17 +142,18 @@ MOONBIT_FFI_EXPORT moonbit_bytes_t* get_env_vars() {
 #endif
 }
 
-MOONBIT_FFI_EXPORT void set_env_var(moonbit_bytes_t key, moonbit_bytes_t value) {
+MOONBIT_FFI_EXPORT void set_env_var(moonbitlang_x_os_string_t key,
+                                    moonbitlang_x_os_string_t value) {
 #ifdef _WIN32
-    SetEnvironmentVariable(key, value);
+    SetEnvironmentVariableW((LPCWSTR)key, (LPCWSTR)value);
 #else
     setenv((const char*)key, (const char*)value, 1);
 #endif
 }
 
-MOONBIT_FFI_EXPORT void unset_env_var(moonbit_bytes_t key) {
+MOONBIT_FFI_EXPORT void unset_env_var(moonbitlang_x_os_string_t key) {
 #ifdef _WIN32
-    SetEnvironmentVariable(key, NULL);
+    SetEnvironmentVariableW((LPCWSTR)key, NULL);
 #else
     unsetenv((const char*)key);
 #endif

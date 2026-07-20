@@ -17,8 +17,40 @@
 priv type Handler
 
 ///|
+#cfg(platform="windows")
+priv struct OsString(String)
+
+///|
+#cfg(not(platform="windows"))
+priv struct OsString(Bytes)
+
+///|
+#cfg(platform="windows")
+fn OsString::from_string(str : String) -> OsString {
+  OsString(str)
+}
+
+///|
+#cfg(not(platform="windows"))
+fn OsString::from_string(str : String) -> OsString {
+  OsString(@ffi.mbt_string_to_utf8_bytes(str, true))
+}
+
+///|
+#cfg(platform="windows")
+fn OsString::to_string(self : OsString) -> String {
+  self.0
+}
+
+///|
+#cfg(not(platform="windows"))
+fn OsString::to_string(self : OsString) -> String {
+  @ffi.utf8_bytes_to_mbt_string(self.0)
+}
+
+///|
 #borrow(path, mode)
-extern "C" fn fopen_ffi(path : Bytes, mode : Bytes) -> Handler = "moonbitlang_x_fs_fopen_ffi"
+extern "C" fn fopen_ffi(path : OsString, mode : OsString) -> Handler = "moonbitlang_x_fs_fopen_ffi"
 
 ///|
 extern "C" fn is_null(ptr : Handler) -> Int = "moonbitlang_x_fs_is_null"
@@ -63,7 +95,7 @@ fn get_error_message() -> String {
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let file = fopen_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), b"rb\x00")
+  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("rb"))
   guard is_null(file) == 0 else { raise IOError(get_error_message()) }
   guard fseek_ffi(file, 0, 2) == 0 else { raise IOError(get_error_message()) }
   let size = ftell_ffi(file)
@@ -94,7 +126,7 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let file = fopen_ffi(@ffi.mbt_string_to_utf8_bytes(path, true), b"wb\x00")
+  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("wb"))
   guard is_null(file) == 0 else { raise IOError(get_error_message()) }
   let bytes_written = fwrite_ffi(content, 1, content.length(), file)
   guard bytes_written == content.length() else {
@@ -121,79 +153,79 @@ fn write_string_to_file_internal(
 
 ///|
 #borrow(path)
-extern "C" fn stat_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_stat_ffi"
+extern "C" fn stat_ffi(path : OsString) -> Int = "moonbitlang_x_fs_stat_ffi"
 
 ///|
 fn path_exists_internal(path : String) -> Bool {
-  stat_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) != -1
+  stat_ffi(OsString::from_string(path)) != -1
 }
 
 ///|
 #borrow(path)
-extern "C" fn read_dir_ffi(path : Bytes) -> Handler = "moonbitlang_x_fs_read_dir_ffi"
+extern "C" fn read_dir_ffi(path : OsString) -> Handler = "moonbitlang_x_fs_read_dir_ffi"
 
 ///|
-fn handler_to_fixed_array(handler : Handler) -> FixedArray[Bytes] = "%identity"
+fn handler_to_fixed_array(handler : Handler) -> FixedArray[OsString] = "%identity"
 
 ///|
 fn read_dir_internal(path : String) -> Array[String] raise IOError {
-  let res = read_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
+  let res = read_dir_ffi(OsString::from_string(path))
   guard is_null(res) == 0 else { raise IOError(get_error_message()) }
   let files = Array::from_fixed_array(handler_to_fixed_array(res))
-  files.map(@ffi.utf8_bytes_to_mbt_string)
+  files.map(OsString::to_string)
 }
 
 ///|
 #borrow(path)
-extern "C" fn create_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_create_dir_ffi"
+extern "C" fn create_dir_ffi(path : OsString) -> Int = "moonbitlang_x_fs_create_dir_ffi"
 
 ///|
 fn create_dir_internal(path : String) -> Unit raise IOError {
-  guard create_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
+  guard create_dir_ffi(OsString::from_string(path)) == 0 else {
     raise IOError(get_error_message())
   }
 }
 
 ///|
 #borrow(path)
-extern "C" fn is_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_is_dir_ffi"
+extern "C" fn is_dir_ffi(path : OsString) -> Int = "moonbitlang_x_fs_is_dir_ffi"
 
 ///|
 fn is_dir_internal(path : String) -> Bool raise IOError {
-  let res = is_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
+  let res = is_dir_ffi(OsString::from_string(path))
   guard res != -1 else { raise IOError(get_error_message()) }
   res == 1
 }
 
 ///|
 #borrow(path)
-extern "C" fn is_file_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_is_file_ffi"
+extern "C" fn is_file_ffi(path : OsString) -> Int = "moonbitlang_x_fs_is_file_ffi"
 
 ///|
 fn is_file_internal(path : String) -> Bool raise IOError {
-  let res = is_file_ffi(@ffi.mbt_string_to_utf8_bytes(path, true))
+  let res = is_file_ffi(OsString::from_string(path))
   guard res != -1 else { raise IOError(get_error_message()) }
   res == 1
 }
 
 ///|
 #borrow(path)
-extern "C" fn remove_dir_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_remove_dir_ffi"
+extern "C" fn remove_dir_ffi(path : OsString) -> Int = "moonbitlang_x_fs_remove_dir_ffi"
 
 ///|
 fn remove_dir_internal(path : String) -> Unit raise IOError {
-  guard remove_dir_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
+  guard remove_dir_ffi(OsString::from_string(path)) == 0 else {
     raise IOError(get_error_message())
   }
 }
 
 ///|
 #borrow(path)
-extern "C" fn remove_file_ffi(path : Bytes) -> Int = "moonbitlang_x_fs_remove_file_ffi"
+extern "C" fn remove_file_ffi(path : OsString) -> Int = "moonbitlang_x_fs_remove_file_ffi"
 
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
-  guard remove_file_ffi(@ffi.mbt_string_to_utf8_bytes(path, true)) == 0 else {
+  guard remove_file_ffi(OsString::from_string(path)) == 0 else {
     raise IOError(get_error_message())
   }
 }

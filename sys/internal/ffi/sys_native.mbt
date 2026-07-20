@@ -16,6 +16,40 @@
 fn internal_get_cli_args() -> FixedArray[Bytes] = "$moonbit.get_cli_args"
 
 ///|
+#cfg(not(platform="windows"))
+priv struct OsString(Bytes)
+
+///|
+// Windows APIs consume and produce UTF-16, which is also MoonBit String's
+// native representation.
+#cfg(platform="windows")
+priv struct OsString(String)
+
+///|
+#cfg(not(platform="windows"))
+fn OsString::from_string(str : String) -> OsString {
+  OsString(@common_ffi.mbt_string_to_utf8_bytes(str, true))
+}
+
+///|
+#cfg(platform="windows")
+fn OsString::from_string(str : String) -> OsString {
+  OsString(str)
+}
+
+///|
+#cfg(not(platform="windows"))
+fn OsString::to_string(self : OsString) -> String {
+  @common_ffi.utf8_bytes_to_mbt_string(self.0)
+}
+
+///|
+#cfg(platform="windows")
+fn OsString::to_string(self : OsString) -> String {
+  self.0
+}
+
+///|
 pub fn get_cli_args() -> Array[String] {
   Array::from_fixed_array(
     internal_get_cli_args().map(
@@ -28,9 +62,9 @@ pub fn get_cli_args() -> Array[String] {
 
 ///|
 pub fn get_env_var(key : String) -> String? {
-  let key_bytes = @common_ffi.mbt_string_to_utf8_bytes(key, true)
-  if get_env_var_exists_ffi(key_bytes) {
-    Some(@common_ffi.utf8_bytes_to_mbt_string(get_env_var_ffi(key_bytes)))
+  let key = OsString::from_string(key)
+  if get_env_var_exists_ffi(key) {
+    Some(get_env_var_ffi(key).to_string())
   } else {
     None
   }
@@ -38,17 +72,15 @@ pub fn get_env_var(key : String) -> String? {
 
 ///|
 #borrow(_key)
-extern "C" fn get_env_var_ffi(_key : Bytes) -> Bytes = "get_env_var"
+extern "C" fn get_env_var_ffi(_key : OsString) -> OsString = "get_env_var"
 
 ///|
 #borrow(_key)
-extern "C" fn get_env_var_exists_ffi(_key : Bytes) -> Bool = "get_env_var_exists"
+extern "C" fn get_env_var_exists_ffi(_key : OsString) -> Bool = "get_env_var_exists"
 
 ///|
 pub fn get_env_vars() -> Map[String, String] {
-  let env_vars = get_env_vars_ffi().map(env => {
-    @common_ffi.utf8_bytes_to_mbt_string(env)
-  })
+  let env_vars = get_env_vars_ffi().map(OsString::to_string)
   let res = Map([])
   for i = 0; i < env_vars.length(); i = i + 2 {
     res[env_vars[i]] = env_vars[i + 1]
@@ -57,28 +89,25 @@ pub fn get_env_vars() -> Map[String, String] {
 }
 
 ///|
-extern "C" fn get_env_vars_ffi() -> FixedArray[Bytes] = "get_env_vars"
+extern "C" fn get_env_vars_ffi() -> FixedArray[OsString] = "get_env_vars"
 
 ///|
 pub fn set_env_var(key : String, value : String) -> Unit {
-  set_env_var_ffi(
-    @common_ffi.mbt_string_to_utf8_bytes(key, true),
-    @common_ffi.mbt_string_to_utf8_bytes(value, true),
-  )
+  set_env_var_ffi(OsString::from_string(key), OsString::from_string(value))
 }
 
 ///|
 #borrow(_key, _value)
-extern "C" fn set_env_var_ffi(_key : Bytes, _value : Bytes) -> Unit = "set_env_var"
+extern "C" fn set_env_var_ffi(_key : OsString, _value : OsString) -> Unit = "set_env_var"
 
 ///|
 pub fn unset_env_var(key : String) -> Unit {
-  unset_env_var_ffi(@common_ffi.mbt_string_to_utf8_bytes(key, true))
+  unset_env_var_ffi(OsString::from_string(key))
 }
 
 ///|
 #borrow(_key)
-extern "C" fn unset_env_var_ffi(_key : Bytes) -> Unit = "unset_env_var"
+extern "C" fn unset_env_var_ffi(_key : OsString) -> Unit = "unset_env_var"
 
 ///|
 pub extern "C" fn exit(code : Int) = "exit"

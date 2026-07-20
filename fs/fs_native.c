@@ -20,6 +20,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <wchar.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -31,9 +32,20 @@ extern "C" {
 
 #include "moonbit.h"
 
-MOONBIT_FFI_EXPORT FILE *moonbitlang_x_fs_fopen_ffi(moonbit_bytes_t path,
-                                                    moonbit_bytes_t mode) {
+#ifdef _WIN32
+typedef moonbit_string_t moonbitlang_x_os_string_t;
+#else
+typedef moonbit_bytes_t moonbitlang_x_os_string_t;
+#endif
+
+MOONBIT_FFI_EXPORT FILE *
+moonbitlang_x_fs_fopen_ffi(moonbitlang_x_os_string_t path,
+                           moonbitlang_x_os_string_t mode) {
+#ifdef _WIN32
+  return _wfopen((const wchar_t *)path, (const wchar_t *)mode);
+#else
   return fopen((const char *)path, (const char *)mode);
+#endif
 }
 
 MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_null(void *ptr) {
@@ -77,15 +89,21 @@ MOONBIT_FFI_EXPORT moonbit_bytes_t moonbitlang_x_fs_get_error_message(void) {
   return bytes;
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_stat_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_stat_ffi(moonbitlang_x_os_string_t path) {
+#ifdef _WIN32
+  return GetFileAttributesW((LPCWSTR)path) == INVALID_FILE_ATTRIBUTES ? -1 : 0;
+#else
   struct stat buffer;
   int status = stat((const char *)path, &buffer);
   return status;
+#endif
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_dir_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_is_dir_ffi(moonbitlang_x_os_string_t path) {
 #ifdef _WIN32
-  DWORD attrs = GetFileAttributes((const char *)path);
+  DWORD attrs = GetFileAttributesW((LPCWSTR)path);
   if (attrs == INVALID_FILE_ATTRIBUTES) {
     return -1;
   }
@@ -106,9 +124,10 @@ MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_dir_ffi(moonbit_bytes_t path) {
 #endif
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_file_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_is_file_ffi(moonbitlang_x_os_string_t path) {
 #ifdef _WIN32
-  DWORD attrs = GetFileAttributes((const char *)path);
+  DWORD attrs = GetFileAttributesW((LPCWSTR)path);
   if (attrs == INVALID_FILE_ATTRIBUTES) {
     return -1;
   }
@@ -129,42 +148,52 @@ MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_file_ffi(moonbit_bytes_t path) {
 #endif
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_remove_dir_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_remove_dir_ffi(moonbitlang_x_os_string_t path) {
 #ifdef _WIN32
-  return _rmdir((const char *)path);
+  return _wrmdir((const wchar_t *)path);
 #else
   return rmdir((const char *)path);
 #endif
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_remove_file_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_remove_file_ffi(moonbitlang_x_os_string_t path) {
+#ifdef _WIN32
+  return _wremove((const wchar_t *)path);
+#else
   return remove((const char *)path);
+#endif
 }
 
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_create_dir_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_create_dir_ffi(moonbitlang_x_os_string_t path) {
 #ifdef _WIN32
-  return _mkdir((const char *)path);
+  return _wmkdir((const wchar_t *)path);
 #else
   return mkdir((const char *)path, 0777);
 #endif
 }
 
-MOONBIT_FFI_EXPORT moonbit_bytes_t *
-moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
+MOONBIT_FFI_EXPORT moonbitlang_x_os_string_t *
+moonbitlang_x_fs_read_dir_ffi(moonbitlang_x_os_string_t path) {
 #ifdef _WIN32
-  WIN32_FIND_DATA find_data;
+  WIN32_FIND_DATAW find_data;
   HANDLE dir;
-  moonbit_bytes_t *result = NULL;
+  moonbit_string_t *result = NULL;
   int count = 0;
 
-  size_t path_len = strlen((const char *)path);
-  char *search_path = malloc(path_len + 3);
+  size_t path_len = wcslen((const wchar_t *)path);
+  WCHAR *search_path = malloc((path_len + 3) * sizeof(WCHAR));
   if (search_path == NULL) {
     return NULL;
   }
 
-  sprintf(search_path, "%s\\*", (const char *)path);
-  dir = FindFirstFile(search_path, &find_data);
+  memcpy(search_path, path, path_len * sizeof(WCHAR));
+  search_path[path_len] = L'\\';
+  search_path[path_len + 1] = L'*';
+  search_path[path_len + 2] = L'\0';
+  dir = FindFirstFileW(search_path, &find_data);
   if (dir == INVALID_HANDLE_VALUE) {
     DWORD error = GetLastError();
     fprintf(stderr, "Failed to open directory: error code %lu\n", error);
@@ -173,17 +202,17 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
   }
 
   do {
-    if (strcmp(find_data.cFileName, ".") != 0 &&
-        strcmp(find_data.cFileName, "..") != 0) {
+    if (wcscmp(find_data.cFileName, L".") != 0 &&
+        wcscmp(find_data.cFileName, L"..") != 0) {
       count++;
     }
-  } while (FindNextFile(dir, &find_data));
+  } while (FindNextFileW(dir, &find_data));
 
   FindClose(dir);
-  dir = FindFirstFile(search_path, &find_data);
+  dir = FindFirstFileW(search_path, &find_data);
   free(search_path);
 
-  result = (moonbit_bytes_t *)moonbit_make_ref_array(count, NULL);
+  result = (moonbit_string_t *)moonbit_make_ref_array(count, NULL);
   if (result == NULL) {
     FindClose(dir);
     return NULL;
@@ -191,14 +220,14 @@ moonbitlang_x_fs_read_dir_ffi(moonbit_bytes_t path) {
 
   int index = 0;
   do {
-    if (strcmp(find_data.cFileName, ".") != 0 &&
-        strcmp(find_data.cFileName, "..") != 0) {
-      size_t name_len = strlen(find_data.cFileName);
-      moonbit_bytes_t item = moonbit_make_bytes(name_len, 0);
-      memcpy(item, find_data.cFileName, name_len);
+    if (wcscmp(find_data.cFileName, L".") != 0 &&
+        wcscmp(find_data.cFileName, L"..") != 0) {
+      size_t name_len = wcslen(find_data.cFileName);
+      moonbit_string_t item = moonbit_make_string(name_len, 0);
+      memcpy(item, find_data.cFileName, name_len * sizeof(WCHAR));
       result[index++] = item;
     }
-  } while (FindNextFile(dir, &find_data));
+  } while (FindNextFileW(dir, &find_data));
 
   FindClose(dir);
   return result;
