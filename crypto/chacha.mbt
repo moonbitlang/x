@@ -247,36 +247,8 @@ test "chachaBlockLoop" {
 }
 
 ///|
-/// - chacha8: round = 4
-/// - chacha12: round = 6
-/// - chacha20: round = 10
-fn chachaBlock(
-  key : FixedArray[UInt],
-  count : UInt,
-  nonce : FixedArray[UInt],
-  round : UInt,
-  state : FixedArray[UInt],
-) -> Unit {
-  guard key.length() == 8
-  guard nonce.length() == 3
-  guard state.length() == 16
-  let initial_state = FixedArray::make(16, 0U)
-  initial_state[0] = 0X61707865U
-  initial_state[1] = 0X3320646eU
-  initial_state[2] = 0X79622d32U
-  initial_state[3] = 0X6b206574U
-  key.blit_to(initial_state, len=8, dst_offset=4)
-  initial_state[12] = count
-  nonce.blit_to(initial_state, len=3, dst_offset=13)
-  initial_state.blit_to(state, len=16)
-  state.chachaBlockLoop(round)
-  for i in 0..<16 {
-    state[i] += initial_state[i]
-  }
-}
-
-///|
-test "chachaBlock" {
+/// Verifies the serialized output of the target-specific block function.
+test "chacha block output" {
   let key = FixedArray::make(8, 0U)
   key[0] = flipWord(0x00010203U)
   key[1] = flipWord(0x04050607U)
@@ -286,119 +258,26 @@ test "chachaBlock" {
   key[5] = flipWord(0x14151617U)
   key[6] = flipWord(0x18191a1bU)
   key[7] = flipWord(0x1c1d1e1fU)
-  let keyStream = FixedArray::make(16, 0U)
-  chachaBlock(key, 1, [0, 0, 0], 4, keyStream)
-  debug_inspect(
-    Array::from_iter(keyStream.map(flipWord).iter()),
-    content=(
-      #|[
-      #|  1981443599,
-      #|  3367155801,
-      #|  4121555886,
-      #|  386561433,
-      #|  2964333518,
-      #|  2044159387,
-      #|  854489399,
-      #|  1047687817,
-      #|  1898967689,
-      #|  4077872159,
-      #|  3447861240,
-      #|  3864461272,
-      #|  1918276088,
-      #|  967291955,
-      #|  2780172371,
-      #|  3650858720,
-      #|]
-    ),
-  )
+  let key_stream = FixedArray::make(64, b'\x00')
 
-  // chachaBlock with different count and nonce
-  chachaBlock(key, 2, [1, 1, 1], 6, keyStream)
-  debug_inspect(
-    Array::from_iter(keyStream.map(flipWord).iter()),
-    content=(
-      #|[
-      #|  3045418931,
-      #|  1870601267,
-      #|  1791152559,
-      #|  1128609701,
-      #|  2412731038,
-      #|  2282963828,
-      #|  1154847987,
-      #|  1925524179,
-      #|  4130821097,
-      #|  3948066013,
-      #|  1837610591,
-      #|  4125132907,
-      #|  3665873803,
-      #|  4179097700,
-      #|  1171003195,
-      #|  102570666,
-      #|]
-    ),
-  )
-  chachaBlock(key, 2, [10, 10, 10], 6, keyStream)
-  debug_inspect(
-    Array::from_iter(keyStream.map(flipWord).iter()),
-    content=(
-      #|[
-      #|  1655341353,
-      #|  1070113534,
-      #|  1698503531,
-      #|  4049551328,
-      #|  4260831884,
-      #|  3845590894,
-      #|  3707238589,
-      #|  4243437253,
-      #|  44481274,
-      #|  2151594893,
-      #|  3326073229,
-      #|  3492192335,
-      #|  3505455555,
-      #|  2232294460,
-      #|  127722793,
-      #|  1386042532,
-      #|]
-    ),
-  )
-}
-
-///|
-fn stateToBytes(state : FixedArray[UInt]) -> FixedArray[Byte] {
-  let result = FixedArray::make(4 * state.length(), b'\x00')
-  for i = 0; i < 16; i = i + 1 {
-    let word = state[i]
-    result[i * 4 + 0] = word.to_byte()
-    result[i * 4 + 1] = (word >> 8).to_byte()
-    result[i * 4 + 2] = (word >> 16).to_byte()
-    result[i * 4 + 3] = (word >> 24).to_byte()
-  }
-  result
-}
-
-///|
-test "stateToBytes" {
-  let state = FixedArray::make(16, 0U)
-  state[0] = 0x879531e0
-  state[1] = 0xc5ecf37d
-  state[2] = 0x516461b1
-  state[3] = 0xc9a62f8a
-  state[4] = 0x44c20ef3
-  state[5] = 0x3390af7f
-  state[6] = 0xd9fc690b
-  state[7] = 0x2a5f714c
-  state[8] = 0x53372767
-  state[9] = 0xb00a5631
-  state[10] = 0x974c541a
-  state[11] = 0x359e9963
-  state[12] = 0x5c971061
-  state[13] = 0x3d631689
-  state[14] = 0x2098d9d6
-  state[15] = 0x91dbd320
-  let bytes = stateToBytes(state)
+  // ChaCha8 with counter 1 and a zero nonce.
+  chachaBlock(key, 1, [0, 0, 0], 4, key_stream)
   inspect(
-    bytes_to_hex_string(bytes),
-    content="e03195877df3ecc5b16164518a2fa6c9f30ec2447faf90330b69fcd94c715f2a6727375331560ab01a544c9763999e356110975c8916633dd6d9982020d3db91",
+    bytes_to_hex_string(key_stream),
+    content="761a6e0fc8b2b859f5a9f3ae170a7599b0b023ce79d7659b32ee79373e727289712ff289f30f641fcd822ff8e656ffd8725691f839a7b433a5b61053d99baee0",
+  )
+
+  // ChaCha12 with counter 2 and nonce words set to 1.
+  chachaBlock(key, 2, [1, 1, 1], 6, key_stream)
+  inspect(
+    bytes_to_hex_string(key_stream),
+    content="b58567b36f7f1c336ac2d1af434537a58fcf5a9e8813437444d594f372c52ad3f63753e9eb52b4dd6d87b65ff5e0886bda80cb8bf917f86445cc173b061d1aaa",
+  )
+  // ChaCha12 with counter 2 and nonce words set to 10.
+  chachaBlock(key, 2, [10, 10, 10], 6, key_stream)
+  inspect(
+    bytes_to_hex_string(key_stream),
+    content="62aa81293fc8a2fe653d1b6bf15f3fe0fdf7228ce5370f6edcf7f8bdfcedb6c502a6bafa803ebb8dc63fd98dd026a04fd0f101c3850e1c3c079ce529529d54a4",
   )
 }
 
@@ -475,20 +354,17 @@ fn[Data : ByteSource] chacha(
     return FixedArray::make(0, Byte::default())
   }
   let buffer = FixedArray::make(block.length(), Byte::default())
-  let keyStream = FixedArray::make(16, 0U)
+  let key_stream = FixedArray::make(64, b'\x00')
   for i = 0; i < block.length(); i = i + 64 {
     chachaBlock(
       key,
       counter + i.reinterpret_as_uint() / 64,
       nonce,
       round,
-      keyStream,
+      key_stream,
     )
-    let pad = stateToBytes(keyStream)
     let len = @cmp.minimum(block.length() - i, 64)
-    for j in 0..<len {
-      buffer[i + j] = pad[j] ^ block[i + j]
-    }
+    chacha_xor_into(block, i, buffer, i, key_stream, 0, len)
   }
   buffer
 }
@@ -497,7 +373,7 @@ fn[Data : ByteSource] chacha(
 struct ChaCha {
   key : FixedArray[UInt]
   nonce : FixedArray[UInt]
-  key_stream : FixedArray[UInt]
+  key_stream : FixedArray[Byte]
   mut counter : UInt
   mut offset : Int
   round : UInt
@@ -533,7 +409,7 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
   {
     key: key_,
     nonce: nonce_,
-    key_stream: FixedArray::make(16, 0U),
+    key_stream: FixedArray::make(64, b'\x00'),
     round,
     offset: 64,
     counter,
@@ -598,8 +474,38 @@ pub fn[D : ByteSource] ChaCha::transform(
   target : FixedArray[Byte],
   offset? : Int = 0,
 ) -> Unit {
-  for i in 0..<data.length() {
-    if self.offset == 64 {
+  let data_length = data.length()
+  let remaining_offset = if self.offset < 64 {
+    let length = @cmp.minimum(data_length, 64 - self.offset)
+    chacha_xor_into(
+      data,
+      0,
+      target,
+      offset,
+      self.key_stream,
+      self.offset,
+      length,
+    )
+    self.offset += length
+    length
+  } else {
+    0
+  }
+  for input_offset = remaining_offset; input_offset + 64 <= data_length; {
+    chachaBlock(self.key, self.counter, self.nonce, self.round, self.key_stream)
+    self.counter += 1
+    chacha_xor_into(
+      data,
+      input_offset,
+      target,
+      offset + input_offset,
+      self.key_stream,
+      0,
+      64,
+    )
+    continue input_offset + 64
+  } nobreak {
+    if input_offset < data_length {
       chachaBlock(
         self.key,
         self.counter,
@@ -607,12 +513,17 @@ pub fn[D : ByteSource] ChaCha::transform(
         self.round,
         self.key_stream,
       )
-      self.offset = 0
       self.counter += 1
+      self.offset = data_length - input_offset
+      chacha_xor_into(
+        data,
+        input_offset,
+        target,
+        offset + input_offset,
+        self.key_stream,
+        0,
+        self.offset,
+      )
     }
-    target[offset + i] = (self.key_stream[self.offset / 4] >>
-      (self.offset % 4 * 8)).to_byte() ^
-      data[i]
-    self.offset += 1
   }
 }
