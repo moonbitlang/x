@@ -40,9 +40,7 @@ pub fn[H : CryptoHasher] hmac(
     padded_key.blit_from_bytesview(0, key)
   }
   // calculate inner hash
-  for i = 0; i < block_size; i = i + 1 {
-    padded_key[i] = padded_key[i] ^ b'\x36'
-  }
+  xor_bytes_with_splat_in_place(padded_key, block_size, b'\x36')
   let inner_hash = FixedArray::make(hash.size(), b'\x00')
   hash
   ..reset()
@@ -50,9 +48,7 @@ pub fn[H : CryptoHasher] hmac(
   ..update(message)
   .finalize_into(inner_hash, offset=0)
   // calculate outer hash
-  for i = 0; i < block_size; i = i + 1 {
-    padded_key[i] = padded_key[i] ^ b'\x36' ^ b'\x5c'
-  }
+  xor_bytes_with_splat_in_place(padded_key, block_size, b'\x6a')
   let result = FixedArray::make(hash.size(), b'\x00')
   hash
   ..reset()
