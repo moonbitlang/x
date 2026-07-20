@@ -81,12 +81,6 @@ fn arr_u32_to_u8be_into(
 }
 
 ///|
-/// rotate a Int `x` left by `n` bit(s)
-fn rotate_left(x : Int, n : Int) -> Int {
-  (x << n) | (x.reinterpret_as_uint() >> (32 - n)).reinterpret_as_int()
-}
-
-///|
 /// rotate a UInt `x` left by `n` bit(s)
 fn rotate_left_u(x : UInt, n : Int) -> UInt {
   (x << n) | (x >> (32 - n))
