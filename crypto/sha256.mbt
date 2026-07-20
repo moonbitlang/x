@@ -49,7 +49,7 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 
 ///|
 fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
-  let w = FixedArray::make(64, 0U)
+  let w = FixedArray::make(16, 0U)
   guard reg.length() == 8
   let mut a = reg.unsafe_get(0)
   let mut b = reg.unsafe_get(1)
@@ -59,23 +59,31 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let mut f = reg.unsafe_get(5)
   let mut g = reg.unsafe_get(6)
   let mut h = reg.unsafe_get(7)
-  for index = 0; index < 16; index = index + 1 {
-    w[index] = bytes_u8_to_u32be(data, i=4 * index)
-  }
-  for index = 16; index < 64; index = index + 1 {
-    let sigma_0 = rotate_right_u(w[index - 15], 7) ^
-      rotate_right_u(w[index - 15], 18) ^
-      (w[index - 15] >> 3)
-    let sigma_1 = rotate_right_u(w[index - 2], 17) ^
-      rotate_right_u(w[index - 2], 19) ^
-      (w[index - 2] >> 10)
-    w[index] = w[index - 16] + sigma_0 + w[index - 7] + sigma_1
-  }
+  parse_be_u32_block_into(data, 0, w)
   for index = 0; index < 64; index = index + 1 {
+    let word = if index < 16 {
+      w.unsafe_get(index)
+    } else {
+      let sigma_0_source = w.unsafe_get((index + 1) & 15)
+      let sigma_0 = rotate_right_u(sigma_0_source, 7) ^
+        rotate_right_u(sigma_0_source, 18) ^
+        (sigma_0_source >> 3)
+      let sigma_1_source = w.unsafe_get((index + 14) & 15)
+      let sigma_1 = rotate_right_u(sigma_1_source, 17) ^
+        rotate_right_u(sigma_1_source, 19) ^
+        (sigma_1_source >> 10)
+      let slot = index & 15
+      let word = w.unsafe_get(slot) +
+        sigma_0 +
+        w.unsafe_get((index + 9) & 15) +
+        sigma_1
+      w.unsafe_set(slot, word)
+      word
+    }
     let big_sigma_1 = rotate_right_u(e, 6) ^
       rotate_right_u(e, 11) ^
       rotate_right_u(e, 25)
-    let t_1 = h + big_sigma_1 + SM3::gg_1(e, f, g) + sha256_t[index] + w[index]
+    let t_1 = h + big_sigma_1 + SM3::gg_1(e, f, g) + sha256_t[index] + word
     let big_sigma_0 = rotate_right_u(a, 2) ^
       rotate_right_u(a, 13) ^
       rotate_right_u(a, 22)
