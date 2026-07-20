@@ -87,8 +87,8 @@ pub fn MD5::new() -> MD5 {
 fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
   let input = FixedArray::make(16, 0U)
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
-  input[14] = self.count[0]
-  input[15] = self.count[1]
+  let count_low = self.count[0]
+  let count_high = self.count[1]
   let bytes_slice = if idx < 56 {
     let bytes_slice = FixedArray::make(56 - idx + 1, Byte::default())
     padding.blit_to(bytes_slice, len=56 - idx + 1)
@@ -99,26 +99,12 @@ fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
     bytes_slice
   }
   md5_update(self, bytes_slice)
-  let mut j = 0
-  for i = 0; i < 14; i = i + 1 {
-    input[i] = u8_to_u32le(self.buffer, i=j)
-    j += 4
-  }
+  load_u32x16_le_into(self.buffer, 0, input)
+  input[14] = count_low
+  input[15] = count_high
   md5_transform(self.state, input)
   let digest = FixedArray::make(16, Byte::default())
-  let mut j = 0
-  // u32 to u8
-  for i = 0; i < 4; i = i + 1 {
-    digest[j] = (self.state[i] & 0xff).reinterpret_as_int().to_byte()
-    digest[j + 1] = ((self.state[i] >> 8) & 0xff).reinterpret_as_int().to_byte()
-    digest[j + 2] = ((self.state[i] >> 16) & 0xff)
-      .reinterpret_as_int()
-      .to_byte()
-    digest[j + 3] = ((self.state[i] >> 24) & 0xff)
-      .reinterpret_as_int()
-      .to_byte()
-    j += 4
-  }
+  store_u32x4_le(self.state, 0, digest, 0)
   digest
 }
 
@@ -160,15 +146,19 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
     ctx.count[1] += 1
   }
   ctx.count[1] += length.reinterpret_as_uint() >> 29
-  for i = 0; i < length; i = i + 1 {
-    ctx.buffer[idx] = data[i]
-    idx += 1
+  let mut offset = 0
+  while offset < length {
+    let chunk_length = @cmp.minimum(64 - idx, length - offset)
+    data.blit_to(
+      ctx.buffer,
+      len=chunk_length,
+      src_offset=offset,
+      dst_offset=idx,
+    )
+    idx += chunk_length
+    offset += chunk_length
     if idx == 0x40 {
-      let mut j = 0
-      for k = 0; k < 16; k = k + 1 {
-        input[k] = u8_to_u32le(ctx.buffer, i=j)
-        j += 4
-      }
+      load_u32x16_le_into(ctx.buffer, 0, input)
       md5_transform(ctx.state, input)
       idx = 0
     }
