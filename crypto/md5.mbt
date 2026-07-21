@@ -28,68 +28,21 @@ struct MD5 {
 ///|
 let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
-// Native and classic Wasm keep message words byte-backed so each V128 group
-// can be copied with one store. Other targets retain predecoded UInt words,
-// avoiding repeated multi-byte reads from their byte-array representations.
-
-///|
-#cfg(any(target="native", target="wasm"))
-priv struct MD5Block(FixedArray[Byte])
-
-///|
-#cfg(not(any(target="native", target="wasm")))
-priv struct MD5Block(FixedArray[UInt])
-
-///|
-#cfg(any(target="native", target="wasm"))
-fn MD5Block::new() -> MD5Block {
-  MD5Block(FixedArray::make(64, Byte::default()))
-}
-
-///|
-#cfg(not(any(target="native", target="wasm")))
-fn MD5Block::new() -> MD5Block {
-  MD5Block(FixedArray::make(16, 0U))
-}
-
-///|
-#cfg(any(target="native", target="wasm"))
-#inline
-#alias("_[_]")
-fn MD5Block::at(self : MD5Block, index : Int) -> UInt {
-  self.0.unsafe_reinterpret_as_bytes().unsafe_read_uint32_le(index * 4)
-}
-
-///|
-#cfg(not(any(target="native", target="wasm")))
-#inline
-#alias("_[_]")
-fn MD5Block::at(self : MD5Block, index : Int) -> UInt {
-  self.0.unsafe_get(index)
-}
-
-///|
-#cfg(any(target="native", target="wasm"))
-#inline
-fn MD5Block::set_word(self : MD5Block, index : Int, value : UInt) -> Unit {
-  self.0.unsafe_write_uint32_le(index * 4, value)
-}
-
-///|
-#cfg(not(any(target="native", target="wasm")))
-#inline
-fn MD5Block::set_word(self : MD5Block, index : Int, value : UInt) -> Unit {
-  self.0.unsafe_set(index, value)
-}
-
 ///|
 #inline
-fn MD5Block::load_from(
-  self : MD5Block,
-  bytes : FixedArray[Byte],
-  byte_offset : Int,
-) -> Unit {
-  load_u32x16_le_into(bytes, byte_offset, self.0)
+fn load_md5_words(block : FixedArray[Byte], input : FixedArray[UInt]) -> Unit {
+  // Callers allocate the fixed MD5 block widths, so the unchecked accesses
+  // below stay within block[0..64) and input[0..16).
+  for word_offset in 0..<16 {
+    let offset = word_offset * 4
+    input.unsafe_set(
+      word_offset,
+      block.unsafe_get(offset).to_uint() |
+      (block.unsafe_get(offset + 1).to_uint() << 8) |
+      (block.unsafe_get(offset + 2).to_uint() << 16) |
+      (block.unsafe_get(offset + 3).to_uint() << 24),
+    )
+  }
 }
 
 ///|
@@ -149,7 +102,6 @@ pub fn MD5::new() -> MD5 {
 ///|
 /// compute MD5 digest from given context
 fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
-  let input = MD5Block::new()
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let count_low = self.count[0]
   let count_high = self.count[1]
@@ -163,12 +115,21 @@ fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
     bytes_slice
   }
   md5_update(self, bytes_slice)
-  input.load_from(self.buffer, 0)
-  input.set_word(14, count_low)
-  input.set_word(15, count_high)
+  let input = FixedArray::make(16, 0U)
+  load_md5_words(self.buffer, input)
+  input.unsafe_set(14, count_low)
+  input.unsafe_set(15, count_high)
   md5_transform(self.state, input)
   let digest = FixedArray::make(16, Byte::default())
-  store_u32x4_le(self.state, 0, digest, 0)
+  // The MD5 state and digest have fixed four-word and 16-byte widths.
+  for lane in 0..<4 {
+    let word = self.state.unsafe_get(lane)
+    let offset = lane * 4
+    digest.unsafe_set(offset, word.to_byte())
+    digest.unsafe_set(offset + 1, (word >> 8).to_byte())
+    digest.unsafe_set(offset + 2, (word >> 16).to_byte())
+    digest.unsafe_set(offset + 3, (word >> 24).to_byte())
+  }
   digest
 }
 
@@ -201,7 +162,7 @@ fn MD5::i(x : UInt, y : UInt, z : UInt) -> UInt {
 
 ///|
 fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
-  let input = MD5Block::new()
+  let input = FixedArray::make(16, 0U)
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let length = data.length()
   let mod_length = length.reinterpret_as_uint() << 3
@@ -222,7 +183,7 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
     idx += chunk_length
     offset += chunk_length
     if idx == 0x40 {
-      input.load_from(ctx.buffer, 0)
+      load_md5_words(ctx.buffer, input)
       md5_transform(ctx.state, input)
       idx = 0
     }
@@ -230,7 +191,10 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
 }
 
 ///|
-fn md5_transform(state : FixedArray[UInt], input : MD5Block) -> Unit {
+#inline
+fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
+  // load_md5_words always supplies exactly 16 words; every constant word index
+  // used by the rounds below is therefore in bounds.
   let mut a = state[0]
   let mut b = state[1]
   let mut c = state[2]
@@ -238,79 +202,143 @@ fn md5_transform(state : FixedArray[UInt], input : MD5Block) -> Unit {
 
   // Round 1
   // s[ 0..15] := { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22 }
-  a = b + rotate_left_u(a + MD5::f(b, c, d) + input[0] + 0xd76aa478, 7)
-  d = a + rotate_left_u(d + MD5::f(a, b, c) + input[1] + 0xe8c7b756, 12)
-  c = d + rotate_left_u(c + MD5::f(d, a, b) + input[2] + 0x242070db, 17)
-  b = c + rotate_left_u(b + MD5::f(c, d, a) + input[3] + 0xc1bdceee, 22)
-  a = b + rotate_left_u(a + MD5::f(b, c, d) + input[4] + 0xf57c0faf, 7)
-  d = a + rotate_left_u(d + MD5::f(a, b, c) + input[5] + 0x4787c62a, 12)
-  c = d + rotate_left_u(c + MD5::f(d, a, b) + input[6] + 0xa8304613, 17)
-  b = c + rotate_left_u(b + MD5::f(c, d, a) + input[7] + 0xfd469501, 22)
-  a = b + rotate_left_u(a + MD5::f(b, c, d) + input[8] + 0x698098d8, 7)
-  d = a + rotate_left_u(d + MD5::f(a, b, c) + input[9] + 0x8b44f7af, 12)
-  c = d + rotate_left_u(c + MD5::f(d, a, b) + input[10] + 0xffff5bb1, 17)
-  b = c + rotate_left_u(b + MD5::f(c, d, a) + input[11] + 0x895cd7be, 22)
-  a = b + rotate_left_u(a + MD5::f(b, c, d) + input[12] + 0x6b901122, 7)
-  d = a + rotate_left_u(d + MD5::f(a, b, c) + input[13] + 0xfd987193, 12)
-  c = d + rotate_left_u(c + MD5::f(d, a, b) + input[14] + 0xa679438e, 17)
-  b = c + rotate_left_u(b + MD5::f(c, d, a) + input[15] + 0x49b40821, 22)
+  a = b +
+    rotate_left_u(a + MD5::f(b, c, d) + input.unsafe_get(0) + 0xd76aa478, 7)
+  d = a +
+    rotate_left_u(d + MD5::f(a, b, c) + input.unsafe_get(1) + 0xe8c7b756, 12)
+  c = d +
+    rotate_left_u(c + MD5::f(d, a, b) + input.unsafe_get(2) + 0x242070db, 17)
+  b = c +
+    rotate_left_u(b + MD5::f(c, d, a) + input.unsafe_get(3) + 0xc1bdceee, 22)
+  a = b +
+    rotate_left_u(a + MD5::f(b, c, d) + input.unsafe_get(4) + 0xf57c0faf, 7)
+  d = a +
+    rotate_left_u(d + MD5::f(a, b, c) + input.unsafe_get(5) + 0x4787c62a, 12)
+  c = d +
+    rotate_left_u(c + MD5::f(d, a, b) + input.unsafe_get(6) + 0xa8304613, 17)
+  b = c +
+    rotate_left_u(b + MD5::f(c, d, a) + input.unsafe_get(7) + 0xfd469501, 22)
+  a = b +
+    rotate_left_u(a + MD5::f(b, c, d) + input.unsafe_get(8) + 0x698098d8, 7)
+  d = a +
+    rotate_left_u(d + MD5::f(a, b, c) + input.unsafe_get(9) + 0x8b44f7af, 12)
+  c = d +
+    rotate_left_u(c + MD5::f(d, a, b) + input.unsafe_get(10) + 0xffff5bb1, 17)
+  b = c +
+    rotate_left_u(b + MD5::f(c, d, a) + input.unsafe_get(11) + 0x895cd7be, 22)
+  a = b +
+    rotate_left_u(a + MD5::f(b, c, d) + input.unsafe_get(12) + 0x6b901122, 7)
+  d = a +
+    rotate_left_u(d + MD5::f(a, b, c) + input.unsafe_get(13) + 0xfd987193, 12)
+  c = d +
+    rotate_left_u(c + MD5::f(d, a, b) + input.unsafe_get(14) + 0xa679438e, 17)
+  b = c +
+    rotate_left_u(b + MD5::f(c, d, a) + input.unsafe_get(15) + 0x49b40821, 22)
 
   // Round 2
   // s[16..31] := { 5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20 }
-  a = b + rotate_left_u(a + MD5::g(b, c, d) + input[1] + 0xf61e2562, 5)
-  d = a + rotate_left_u(d + MD5::g(a, b, c) + input[6] + 0xc040b340, 9)
-  c = d + rotate_left_u(c + MD5::g(d, a, b) + input[11] + 0x265e5a51, 14)
-  b = c + rotate_left_u(b + MD5::g(c, d, a) + input[0] + 0xe9b6c7aa, 20)
-  a = b + rotate_left_u(a + MD5::g(b, c, d) + input[5] + 0xd62f105d, 5)
-  d = a + rotate_left_u(d + MD5::g(a, b, c) + input[10] + 0x02441453, 9)
-  c = d + rotate_left_u(c + MD5::g(d, a, b) + input[15] + 0xd8a1e681, 14)
-  b = c + rotate_left_u(b + MD5::g(c, d, a) + input[4] + 0xe7d3fbc8, 20)
-  a = b + rotate_left_u(a + MD5::g(b, c, d) + input[9] + 0x21e1cde6, 5)
-  d = a + rotate_left_u(d + MD5::g(a, b, c) + input[14] + 0xc33707d6, 9)
-  c = d + rotate_left_u(c + MD5::g(d, a, b) + input[3] + 0xf4d50d87, 14)
-  b = c + rotate_left_u(b + MD5::g(c, d, a) + input[8] + 0x455a14ed, 20)
-  a = b + rotate_left_u(a + MD5::g(b, c, d) + input[13] + 0xa9e3e905, 5)
-  d = a + rotate_left_u(d + MD5::g(a, b, c) + input[2] + 0xfcefa3f8, 9)
-  c = d + rotate_left_u(c + MD5::g(d, a, b) + input[7] + 0x676f02d9, 14)
-  b = c + rotate_left_u(b + MD5::g(c, d, a) + input[12] + 0x8d2a4c8a, 20)
+  a = b +
+    rotate_left_u(a + MD5::g(b, c, d) + input.unsafe_get(1) + 0xf61e2562, 5)
+  d = a +
+    rotate_left_u(d + MD5::g(a, b, c) + input.unsafe_get(6) + 0xc040b340, 9)
+  c = d +
+    rotate_left_u(c + MD5::g(d, a, b) + input.unsafe_get(11) + 0x265e5a51, 14)
+  b = c +
+    rotate_left_u(b + MD5::g(c, d, a) + input.unsafe_get(0) + 0xe9b6c7aa, 20)
+  a = b +
+    rotate_left_u(a + MD5::g(b, c, d) + input.unsafe_get(5) + 0xd62f105d, 5)
+  d = a +
+    rotate_left_u(d + MD5::g(a, b, c) + input.unsafe_get(10) + 0x02441453, 9)
+  c = d +
+    rotate_left_u(c + MD5::g(d, a, b) + input.unsafe_get(15) + 0xd8a1e681, 14)
+  b = c +
+    rotate_left_u(b + MD5::g(c, d, a) + input.unsafe_get(4) + 0xe7d3fbc8, 20)
+  a = b +
+    rotate_left_u(a + MD5::g(b, c, d) + input.unsafe_get(9) + 0x21e1cde6, 5)
+  d = a +
+    rotate_left_u(d + MD5::g(a, b, c) + input.unsafe_get(14) + 0xc33707d6, 9)
+  c = d +
+    rotate_left_u(c + MD5::g(d, a, b) + input.unsafe_get(3) + 0xf4d50d87, 14)
+  b = c +
+    rotate_left_u(b + MD5::g(c, d, a) + input.unsafe_get(8) + 0x455a14ed, 20)
+  a = b +
+    rotate_left_u(a + MD5::g(b, c, d) + input.unsafe_get(13) + 0xa9e3e905, 5)
+  d = a +
+    rotate_left_u(d + MD5::g(a, b, c) + input.unsafe_get(2) + 0xfcefa3f8, 9)
+  c = d +
+    rotate_left_u(c + MD5::g(d, a, b) + input.unsafe_get(7) + 0x676f02d9, 14)
+  b = c +
+    rotate_left_u(b + MD5::g(c, d, a) + input.unsafe_get(12) + 0x8d2a4c8a, 20)
 
   // Round 3
   // s[32..47] := { 4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23 }
-  a = b + rotate_left_u(a + MD5::h(b, c, d) + input[5] + 0xfffa3942, 4)
-  d = a + rotate_left_u(d + MD5::h(a, b, c) + input[8] + 0x8771f681, 11)
-  c = d + rotate_left_u(c + MD5::h(d, a, b) + input[11] + 0x6d9d6122, 16)
-  b = c + rotate_left_u(b + MD5::h(c, d, a) + input[14] + 0xfde5380c, 23)
-  a = b + rotate_left_u(a + MD5::h(b, c, d) + input[1] + 0xa4beea44, 4)
-  d = a + rotate_left_u(d + MD5::h(a, b, c) + input[4] + 0x4bdecfa9, 11)
-  c = d + rotate_left_u(c + MD5::h(d, a, b) + input[7] + 0xf6bb4b60, 16)
-  b = c + rotate_left_u(b + MD5::h(c, d, a) + input[10] + 0xbebfbc70, 23)
-  a = b + rotate_left_u(a + MD5::h(b, c, d) + input[13] + 0x289b7ec6, 4)
-  d = a + rotate_left_u(d + MD5::h(a, b, c) + input[0] + 0xeaa127fa, 11)
-  c = d + rotate_left_u(c + MD5::h(d, a, b) + input[3] + 0xd4ef3085, 16)
-  b = c + rotate_left_u(b + MD5::h(c, d, a) + input[6] + 0x04881d05, 23)
-  a = b + rotate_left_u(a + MD5::h(b, c, d) + input[9] + 0xd9d4d039, 4)
-  d = a + rotate_left_u(d + MD5::h(a, b, c) + input[12] + 0xe6db99e5, 11)
-  c = d + rotate_left_u(c + MD5::h(d, a, b) + input[15] + 0x1fa27cf8, 16)
-  b = c + rotate_left_u(b + MD5::h(c, d, a) + input[2] + 0xc4ac5665, 23)
+  a = b +
+    rotate_left_u(a + MD5::h(b, c, d) + input.unsafe_get(5) + 0xfffa3942, 4)
+  d = a +
+    rotate_left_u(d + MD5::h(a, b, c) + input.unsafe_get(8) + 0x8771f681, 11)
+  c = d +
+    rotate_left_u(c + MD5::h(d, a, b) + input.unsafe_get(11) + 0x6d9d6122, 16)
+  b = c +
+    rotate_left_u(b + MD5::h(c, d, a) + input.unsafe_get(14) + 0xfde5380c, 23)
+  a = b +
+    rotate_left_u(a + MD5::h(b, c, d) + input.unsafe_get(1) + 0xa4beea44, 4)
+  d = a +
+    rotate_left_u(d + MD5::h(a, b, c) + input.unsafe_get(4) + 0x4bdecfa9, 11)
+  c = d +
+    rotate_left_u(c + MD5::h(d, a, b) + input.unsafe_get(7) + 0xf6bb4b60, 16)
+  b = c +
+    rotate_left_u(b + MD5::h(c, d, a) + input.unsafe_get(10) + 0xbebfbc70, 23)
+  a = b +
+    rotate_left_u(a + MD5::h(b, c, d) + input.unsafe_get(13) + 0x289b7ec6, 4)
+  d = a +
+    rotate_left_u(d + MD5::h(a, b, c) + input.unsafe_get(0) + 0xeaa127fa, 11)
+  c = d +
+    rotate_left_u(c + MD5::h(d, a, b) + input.unsafe_get(3) + 0xd4ef3085, 16)
+  b = c +
+    rotate_left_u(b + MD5::h(c, d, a) + input.unsafe_get(6) + 0x04881d05, 23)
+  a = b +
+    rotate_left_u(a + MD5::h(b, c, d) + input.unsafe_get(9) + 0xd9d4d039, 4)
+  d = a +
+    rotate_left_u(d + MD5::h(a, b, c) + input.unsafe_get(12) + 0xe6db99e5, 11)
+  c = d +
+    rotate_left_u(c + MD5::h(d, a, b) + input.unsafe_get(15) + 0x1fa27cf8, 16)
+  b = c +
+    rotate_left_u(b + MD5::h(c, d, a) + input.unsafe_get(2) + 0xc4ac5665, 23)
 
   // Round 4
   // s[48..63] := { 6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21 }
-  a = b + rotate_left_u(a + MD5::i(b, c, d) + input[0] + 0xf4292244, 6)
-  d = a + rotate_left_u(d + MD5::i(a, b, c) + input[7] + 0x432aff97, 10)
-  c = d + rotate_left_u(c + MD5::i(d, a, b) + input[14] + 0xab9423a7, 15)
-  b = c + rotate_left_u(b + MD5::i(c, d, a) + input[5] + 0xfc93a039, 21)
-  a = b + rotate_left_u(a + MD5::i(b, c, d) + input[12] + 0x655b59c3, 6)
-  d = a + rotate_left_u(d + MD5::i(a, b, c) + input[3] + 0x8f0ccc92, 10)
-  c = d + rotate_left_u(c + MD5::i(d, a, b) + input[10] + 0xffeff47d, 15)
-  b = c + rotate_left_u(b + MD5::i(c, d, a) + input[1] + 0x85845dd1, 21)
-  a = b + rotate_left_u(a + MD5::i(b, c, d) + input[8] + 0x6fa87e4f, 6)
-  d = a + rotate_left_u(d + MD5::i(a, b, c) + input[15] + 0xfe2ce6e0, 10)
-  c = d + rotate_left_u(c + MD5::i(d, a, b) + input[6] + 0xa3014314, 15)
-  b = c + rotate_left_u(b + MD5::i(c, d, a) + input[13] + 0x4e0811a1, 21)
-  a = b + rotate_left_u(a + MD5::i(b, c, d) + input[4] + 0xf7537e82, 6)
-  d = a + rotate_left_u(d + MD5::i(a, b, c) + input[11] + 0xbd3af235, 10)
-  c = d + rotate_left_u(c + MD5::i(d, a, b) + input[2] + 0x2ad7d2bb, 15)
-  b = c + rotate_left_u(b + MD5::i(c, d, a) + input[9] + 0xeb86d391, 21)
+  a = b +
+    rotate_left_u(a + MD5::i(b, c, d) + input.unsafe_get(0) + 0xf4292244, 6)
+  d = a +
+    rotate_left_u(d + MD5::i(a, b, c) + input.unsafe_get(7) + 0x432aff97, 10)
+  c = d +
+    rotate_left_u(c + MD5::i(d, a, b) + input.unsafe_get(14) + 0xab9423a7, 15)
+  b = c +
+    rotate_left_u(b + MD5::i(c, d, a) + input.unsafe_get(5) + 0xfc93a039, 21)
+  a = b +
+    rotate_left_u(a + MD5::i(b, c, d) + input.unsafe_get(12) + 0x655b59c3, 6)
+  d = a +
+    rotate_left_u(d + MD5::i(a, b, c) + input.unsafe_get(3) + 0x8f0ccc92, 10)
+  c = d +
+    rotate_left_u(c + MD5::i(d, a, b) + input.unsafe_get(10) + 0xffeff47d, 15)
+  b = c +
+    rotate_left_u(b + MD5::i(c, d, a) + input.unsafe_get(1) + 0x85845dd1, 21)
+  a = b +
+    rotate_left_u(a + MD5::i(b, c, d) + input.unsafe_get(8) + 0x6fa87e4f, 6)
+  d = a +
+    rotate_left_u(d + MD5::i(a, b, c) + input.unsafe_get(15) + 0xfe2ce6e0, 10)
+  c = d +
+    rotate_left_u(c + MD5::i(d, a, b) + input.unsafe_get(6) + 0xa3014314, 15)
+  b = c +
+    rotate_left_u(b + MD5::i(c, d, a) + input.unsafe_get(13) + 0x4e0811a1, 21)
+  a = b +
+    rotate_left_u(a + MD5::i(b, c, d) + input.unsafe_get(4) + 0xf7537e82, 6)
+  d = a +
+    rotate_left_u(d + MD5::i(a, b, c) + input.unsafe_get(11) + 0xbd3af235, 10)
+  c = d +
+    rotate_left_u(c + MD5::i(d, a, b) + input.unsafe_get(2) + 0x2ad7d2bb, 15)
+  b = c +
+    rotate_left_u(b + MD5::i(c, d, a) + input.unsafe_get(9) + 0xeb86d391, 21)
   state[0] += a
   state[1] += b
   state[2] += c
