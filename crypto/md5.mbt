@@ -28,6 +28,70 @@ struct MD5 {
 ///|
 let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
+// Native and classic Wasm keep message words byte-backed so each V128 group
+// can be copied with one store. Other targets retain predecoded UInt words,
+// avoiding repeated multi-byte reads from their byte-array representations.
+
+///|
+#cfg(any(target="native", target="wasm"))
+priv struct MD5Block(FixedArray[Byte])
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+priv struct MD5Block(FixedArray[UInt])
+
+///|
+#cfg(any(target="native", target="wasm"))
+fn MD5Block::new() -> MD5Block {
+  MD5Block(FixedArray::make(64, Byte::default()))
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+fn MD5Block::new() -> MD5Block {
+  MD5Block(FixedArray::make(16, 0U))
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+#inline
+#alias("_[_]")
+fn MD5Block::at(self : MD5Block, index : Int) -> UInt {
+  self.0.unsafe_reinterpret_as_bytes().unsafe_read_uint32_le(index * 4)
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+#inline
+#alias("_[_]")
+fn MD5Block::at(self : MD5Block, index : Int) -> UInt {
+  self.0.unsafe_get(index)
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+#inline
+fn MD5Block::set_word(self : MD5Block, index : Int, value : UInt) -> Unit {
+  self.0.unsafe_write_uint32_le(index * 4, value)
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+#inline
+fn MD5Block::set_word(self : MD5Block, index : Int, value : UInt) -> Unit {
+  self.0.unsafe_set(index, value)
+}
+
+///|
+#inline
+fn MD5Block::load_from(
+  self : MD5Block,
+  bytes : FixedArray[Byte],
+  byte_offset : Int,
+) -> Unit {
+  load_u32x16_le_into(bytes, byte_offset, self.0)
+}
+
 ///|
 pub impl CryptoHasher for MD5 with fn size(_self : MD5) -> Int {
   16
@@ -85,7 +149,7 @@ pub fn MD5::new() -> MD5 {
 ///|
 /// compute MD5 digest from given context
 fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
-  let input = FixedArray::make(16, 0U)
+  let input = MD5Block::new()
   let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let count_low = self.count[0]
   let count_high = self.count[1]
@@ -99,9 +163,9 @@ fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
     bytes_slice
   }
   md5_update(self, bytes_slice)
-  load_u32x16_le_into(self.buffer, 0, input)
-  input[14] = count_low
-  input[15] = count_high
+  input.load_from(self.buffer, 0)
+  input.set_word(14, count_low)
+  input.set_word(15, count_high)
   md5_transform(self.state, input)
   let digest = FixedArray::make(16, Byte::default())
   store_u32x4_le(self.state, 0, digest, 0)
@@ -137,7 +201,7 @@ fn MD5::i(x : UInt, y : UInt, z : UInt) -> UInt {
 
 ///|
 fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
-  let input = FixedArray::make(16, 0U)
+  let input = MD5Block::new()
   let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
   let length = data.length()
   let mod_length = length.reinterpret_as_uint() << 3
@@ -158,7 +222,7 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
     idx += chunk_length
     offset += chunk_length
     if idx == 0x40 {
-      load_u32x16_le_into(ctx.buffer, 0, input)
+      input.load_from(ctx.buffer, 0)
       md5_transform(ctx.state, input)
       idx = 0
     }
@@ -166,7 +230,7 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
 }
 
 ///|
-fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
+fn md5_transform(state : FixedArray[UInt], input : MD5Block) -> Unit {
   let mut a = state[0]
   let mut b = state[1]
   let mut c = state[2]

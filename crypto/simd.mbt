@@ -18,15 +18,11 @@
 fn load_u32x16_le_into(
   bytes : FixedArray[Byte],
   byte_offset : Int,
-  words : FixedArray[UInt],
+  words : FixedArray[Byte],
 ) -> Unit {
   for group in 0..<4 {
-    let value = @v128.v128_load(bytes, byte_offset + group * 16)
-    let word_offset = group * 4
-    words.unsafe_set(word_offset, @v128.i32x4_extract_lane(value, 0))
-    words.unsafe_set(word_offset + 1, @v128.i32x4_extract_lane(value, 1))
-    words.unsafe_set(word_offset + 2, @v128.i32x4_extract_lane(value, 2))
-    words.unsafe_set(word_offset + 3, @v128.i32x4_extract_lane(value, 3))
+    @v128.v128_load(bytes, byte_offset + group * 16)
+    |> value => { @v128.v128_store(words, group * 16, value) }
   }
 }
 
