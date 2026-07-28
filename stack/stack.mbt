@@ -105,10 +105,7 @@ pub impl[T : Show] Show for Stack[T] with fn output(self, logger : &Logger) -> U
 ///|
 pub impl[T : Debug] Debug for Stack[T] with fn to_repr(self : Stack[T]) -> Repr {
   Repr::ctor("Stack", [
-    (
-      None,
-      Repr::array(self.elements.iter().map(fn(t) { to_repr(t) }).collect()),
-    ),
+    (None, Repr::array(self.elements.iter().map(fn(t) { Repr(t) }).collect())),
   ])
 }
 

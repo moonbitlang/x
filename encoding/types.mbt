@@ -70,7 +70,7 @@ priv enum Decode {
 
 ///|
 fn Decode::_use_decode_debug(self : Decode) -> Repr {
-  to_repr(self)
+  Repr(self)
 }
 
 // helper constructor
