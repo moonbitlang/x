@@ -54,7 +54,7 @@ let utf_8_len : ReadOnlyArray[Int] = [
 /// inspect(decoder.consume(inputs[2]), content="🐰")
 /// assert_true(decoder.finish().is_empty())
 pub fn decoder(encoding : Encoding) -> Decoder {
-  let i = FixedArray::default()
+  let i = Default::default()
   let i_pos = 0
   let t = FixedArray::make(4, Byte::default())
   let t_len = 0
@@ -109,7 +109,7 @@ pub fn Decoder::decode(
     self.i_cont(input)
   }
   if self.i_rem() == 0 {
-    return String::default()
+    return Default::default()
   }
 
   // TODO: Estimate size_hint based on input and encoding more accurately
@@ -275,7 +275,7 @@ pub fn Decoder::decode_lossy(
     self.i_cont(input)
   }
   if self.i_rem() == 0 {
-    return String::default()
+    return Default::default()
   }
 
   // drive decoder to decode
@@ -416,7 +416,7 @@ fn Decoder::t_need(self : Decoder, need : Int) -> Unit {
 
 ///|
 fn Decoder::eoi(self : Decoder) -> Unit {
-  self.i = FixedArray::default()
+  self.i = Default::default()
 }
 
 ///|
