@@ -80,4 +80,3 @@ pub(open) trait CryptoHasher {
   fn update(Self, BytesView) -> Unit
   fn finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
 }
-

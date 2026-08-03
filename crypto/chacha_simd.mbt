@@ -22,9 +22,9 @@ fn chachaBlock(
   round : UInt,
   output : FixedArray[Byte],
 ) -> Unit {
-  guard key.length() == 8
-  guard nonce.length() == 3
-  guard output.length() == 64
+  guard! key.length() == 8
+  guard! nonce.length() == 3
+  guard! output.length() == 64
   let state = FixedArray::make(16, 0U)
   state[0] = 0X61707865U
   state[1] = 0X3320646eU
@@ -66,8 +66,8 @@ fn chachaBlock(
   round : UInt,
   output : FixedArray[Byte],
 ) -> Unit {
-  guard key.length() == 8
-  guard nonce.length() == 3
+  guard! key.length() == 8
+  guard! nonce.length() == 3
   let initial_a = @v128.i32x4_const(
     0X61707865, 0X3320646e, 0X79622d32, 0X6b206574,
   )

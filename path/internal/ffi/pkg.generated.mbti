@@ -11,4 +11,3 @@ pub fn is_windows() -> Bool
 // Type aliases
 
 // Traits
-

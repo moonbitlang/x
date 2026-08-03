@@ -52,4 +52,3 @@ pub impl[T : @debug.Debug] @debug.Debug for Stack[T]
 // Type aliases
 
 // Traits
-

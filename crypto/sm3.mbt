@@ -99,7 +99,7 @@ fn SM3::transform(
   reg : FixedArray[UInt],
   schedule : FixedArray[UInt],
 ) -> Unit {
-  guard reg.length() == 8
+  guard! reg.length() == 8
   let mut a = reg.unsafe_get(0)
   let mut b = reg.unsafe_get(1)
   let mut c = reg.unsafe_get(2)

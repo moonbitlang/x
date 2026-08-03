@@ -17,4 +17,3 @@ pub fn bench_decoding_streaming(@encoding.Encoding, Bytes) -> Unit
 // Type aliases
 
 // Traits
-
