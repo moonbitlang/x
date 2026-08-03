@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/x/sys",
+  "moonbitlang/core/env",
 } for "test"
 
 options(

@@ -4,14 +4,19 @@ package "moonbitlang/x/sys"
 // Values
 pub fn exit(Int) -> Unit
 
+#deprecated
 pub fn get_cli_args() -> Array[String]
 
+#deprecated
 pub fn get_env_var(String) -> String?
 
+#deprecated
 pub fn get_env_vars() -> Map[String, String]
 
+#deprecated
 pub fn set_env_var(String, String) -> Unit
 
+#deprecated
 pub fn unset_env_var(String) -> Unit
 
 // Errors

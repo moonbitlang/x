@@ -19,33 +19,67 @@
 /// the other arguments passed to the program (C-style `argv` list). This list
 /// of arguments does not contain the runtime used to run the program, nor any
 /// arguments meant to be consumed by the runtime.
+///
+/// Use `@env.args()` from `moonbitlang/core/env` instead. On the JavaScript
+/// backend, `@env.args()` returns `process.argv` unchanged, while this function
+/// omits `process.argv[0]`, the JavaScript runtime executable. The program name
+/// and user arguments therefore shift by one index after migration.
+#cfg(not(target="js"))
+#deprecated("Use `@env.args()` from `moonbitlang/core/env` instead. On the JavaScript backend, `@env.args()` returns `process.argv` unchanged, while this function omits `process.argv[0]`, the JavaScript runtime executable.")
 pub fn get_cli_args() -> Array[String] {
-  @ffi.get_cli_args()
+  @env.args()
+}
+
+///|
+/// Gets the command line arguments passed to the program.
+///
+/// This function returns `argv[0]` as the name of the program, and the rest are
+/// the other arguments passed to the program (C-style `argv` list). This list
+/// of arguments does not contain the runtime used to run the program, nor any
+/// arguments meant to be consumed by the runtime.
+///
+/// Use `@env.args()` from `moonbitlang/core/env` instead. On the JavaScript
+/// backend, `@env.args()` returns `process.argv` unchanged, while this function
+/// omits `process.argv[0]`, the JavaScript runtime executable. The program name
+/// and user arguments therefore shift by one index after migration.
+#cfg(target="js")
+#deprecated("Use `@env.args()` from `moonbitlang/core/env` instead. On the JavaScript backend, `@env.args()` returns `process.argv` unchanged, while this function omits `process.argv[0]`, the JavaScript runtime executable.")
+pub fn get_cli_args() -> Array[String] {
+  let args = @env.args()
+  if args.is_empty() {
+    []
+  } else {
+    args[1:].to_owned()
+  }
 }
 
 ///|
 /// Gets the environment variables of the current process.
+#deprecated("Use `@env.get_env_vars()` from `moonbitlang/core/env` instead.")
 pub fn get_env_vars() -> Map[String, String] {
-  @ffi.get_env_vars()
+  @env.get_env_vars()
 }
 
 ///|
 /// Gets the environment variable of specific key of the current process.
 /// If the environment variable is not set or exists, returns `None`.
+#deprecated("Use `@env.get_env_var()` from `moonbitlang/core/env` instead.")
 pub fn get_env_var(key : String) -> String? {
-  @ffi.get_env_var(key)
+  @env.get_env_var(key)
 }
 
 ///|
 /// Sets an environment variable.
+#deprecated("Use `@env.set_env_var()` from `moonbitlang/core/env` instead.")
 pub fn set_env_var(key : String, value : String) -> Unit {
-  @ffi.set_env_var(key, value)
+  @env.set_env_var(key, value)
 }
 
 ///|
 /// Unsets an environment variable.
+#deprecated("Use `@env.unset_env_var()` from `moonbitlang/core/env` instead.")
 pub fn unset_env_var(key : String) -> Unit {
-  @ffi.unset_env_var(key)
+  @env.unset_env_var(key)
 }
 
 ///|
