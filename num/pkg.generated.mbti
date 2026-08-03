@@ -21,4 +21,3 @@ pub trait Num {
   fn abs(Self) -> Self
   fn signum(Self) -> Self
 }
-

@@ -50,7 +50,7 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 ///|
 fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let w = FixedArray::make(16, 0U)
-  guard reg.length() == 8
+  guard! reg.length() == 8
   let mut a = reg.unsafe_get(0)
   let mut b = reg.unsafe_get(1)
   let mut c = reg.unsafe_get(2)

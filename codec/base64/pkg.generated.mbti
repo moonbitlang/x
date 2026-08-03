@@ -27,4 +27,3 @@ pub fn Encoder::new() -> Self
 // Type aliases
 
 // Traits
-

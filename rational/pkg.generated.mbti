@@ -58,4 +58,3 @@ trait Integral : Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quic
 pub impl Integral for Int
 pub impl Integral for Int64
 pub impl Integral for @bigint.BigInt
-

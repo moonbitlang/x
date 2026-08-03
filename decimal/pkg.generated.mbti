@@ -61,4 +61,3 @@ pub impl @quickcheck.Arbitrary for Decimal
 // Type aliases
 
 // Traits
-
