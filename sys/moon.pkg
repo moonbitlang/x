@@ -1,3 +1,4 @@
 import {
+  "moonbitlang/core/env",
   "moonbitlang/x/sys/internal/ffi",
 }

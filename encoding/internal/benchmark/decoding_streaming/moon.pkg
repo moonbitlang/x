@@ -1,6 +1,6 @@
 import {
+  "moonbitlang/core/env",
   "moonbitlang/x/encoding",
-  "moonbitlang/x/sys",
   "moonbitlang/x/encoding/internal/benchmark" @bench,
 }
 

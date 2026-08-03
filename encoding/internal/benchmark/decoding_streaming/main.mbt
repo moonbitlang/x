@@ -14,7 +14,7 @@
 
 ///|
 fn main {
-  let seed = @encoding.encode(UTF8, @sys.get_cli_args()[2])
+  let seed = @encoding.encode(UTF8, @env.args()[2])
   @bench.bench_decoding_streaming(UTF8, seed)
   @bench.bench_decoding_streaming(UTF16LE, seed)
   @bench.bench_decoding_streaming(UTF16BE, seed)

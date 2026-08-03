@@ -14,7 +14,7 @@
 
 ///|
 fn __ci_is_windows() -> Bool {
-  let env = @sys.get_env_vars()
+  let env = @env.get_env_vars()
   match env.get("OS_PLATFORM") {
     Some("windows-latest") => true
     None => false
