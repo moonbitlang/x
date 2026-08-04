@@ -184,6 +184,59 @@ pub impl[T : Integral] Mul for Rational[T] with fn mul(self, other) {
 /// ```
 ///
 pub impl[T : Integral] Div for Rational[T] with fn div(self, other) {
+  if other.numerator == T::from_int(0) {
+    abort("division by zero")
+  }
+  if other.numerator.signum() < 0 {
+    new_unchecked(
+      self.numerator * -other.denominator,
+      self.denominator * -other.numerator,
+    )
+  } else {
+    new_unchecked(
+      self.numerator * other.denominator,
+      self.denominator * other.numerator,
+    )
+  }
+}
+
+///|
+/// Divides one rational number by another, raising an error when the divisor
+/// is zero.
+///
+/// Parameters:
+///
+/// * `self` : The dividend rational number.
+/// * `other` : The divisor rational number.
+///
+/// Returns the quotient of the division as a rational number.
+///
+/// Raises `RationalError("division by zero")` if `other` is zero.
+///
+/// Example:
+///
+/// ```moonbit check
+/// test {
+///   let a = @rational.new(1L, 2L)
+///   let b = @rational.new(2L, 3L)
+///   match (a, b) {
+///     (Some(x), Some(y)) => {
+///       let result = x.div_checked(y)
+///       inspect(result, content="3/4")
+///     }
+///     _ => ()
+///   }
+/// }
+/// ```
+///
+#as_free_fn
+pub fn[T : Integral] Rational::div_checked(
+  self : Rational[T],
+  other : Rational[T],
+) -> Rational[T] raise RationalError {
+  if other.numerator == T::from_int(0) {
+    raise RationalError("division by zero")
+  }
   if other.numerator.signum() < 0 {
     new_unchecked(
       self.numerator * -other.denominator,
@@ -221,6 +274,45 @@ pub impl[T : Integral] Div for Rational[T] with fn div(self, other) {
 ///
 #as_free_fn
 pub fn[T : Integral] Rational::reciprocal(self : Rational[T]) -> Rational[T] {
+  if self.numerator == T::from_int(0) {
+    abort("reciprocal of zero")
+  }
+  if self.numerator.signum() < 0 {
+    new_unchecked(-self.denominator, -self.numerator)
+  } else {
+    new_unchecked(self.denominator, self.numerator)
+  }
+}
+
+///|
+/// Returns the multiplicative inverse of a rational number, raising an error
+/// when the rational number is zero.
+///
+/// Parameters:
+///
+/// * `self` : The rational number to find the reciprocal of.
+///
+/// Returns a new rational number that is the reciprocal of the input.
+///
+/// Raises `RationalError("reciprocal of zero")` if `self` is zero.
+///
+/// Example:
+///
+/// ```moonbit check
+/// test {
+///   let half = @rational.new(1L, 2L).unwrap()
+///   let two = half.reciprocal_checked()
+///   inspect(two, content="2")
+/// }
+/// ```
+///
+#as_free_fn
+pub fn[T : Integral] Rational::reciprocal_checked(
+  self : Rational[T],
+) -> Rational[T] raise RationalError {
+  if self.numerator == T::from_int(0) {
+    raise RationalError("reciprocal of zero")
+  }
   if self.numerator.signum() < 0 {
     new_unchecked(-self.denominator, -self.numerator)
   } else {

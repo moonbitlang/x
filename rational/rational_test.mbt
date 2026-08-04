@@ -56,6 +56,40 @@ test "division" {
 }
 
 ///|
+test "panic division by zero" {
+  let a = @rational.new(1L, 2L).unwrap()
+  let b = @rational.new(0L, 1L).unwrap()
+  let _ = a / b
+}
+
+///|
+test "panic reciprocal of zero" {
+  let a = @rational.new(0L, 1L).unwrap()
+  let _ = a.reciprocal()
+}
+
+///|
+test "div_checked" {
+  let a = @rational.new(1L, 2L).unwrap()
+  let b = @rational.new(3L, 4L).unwrap()
+  let result = a.div_checked(b)
+  inspect(result, content="2/3")
+  let zero = @rational.new(0L, 1L).unwrap()
+  let result = @test.expect_error(() => a.div_checked(zero))
+  @debug.assert_eq(result, RationalError("division by zero"))
+}
+
+///|
+test "reciprocal_checked" {
+  let a = @rational.new(1L, 2L).unwrap()
+  let result = a.reciprocal_checked()
+  inspect(result, content="2")
+  let zero = @rational.new(0L, 1L).unwrap()
+  let result = @test.expect_error(() => zero.reciprocal_checked())
+  @debug.assert_eq(result, RationalError("reciprocal of zero"))
+}
+
+///|
 test "from_double overflow" {
   let result = @test.expect_error(() => @rational.from_double(10.0e200))
   @debug.assert_eq(result, RationalError("Rational::from_double: overflow"))
