@@ -2,15 +2,44 @@
 
 ## [Unreleased]
 
-### Added
-
-- Added `AGENTS.md` with repository guidance for agent contributions (#283)
-
 ### Fixed
 
 - Fixed `@rational` comparison overflowing silently by cross-multiplying with
   `BigInt`, and made `@rational.new` return `None` when the reduced form does
   not fit the target integer type
+
+## [0.4.48]
+
+### Changed
+
+- Updated MoonBit toolchain support to 20260803
+
+### Deprecated
+
+- Deprecated `@sys.get_cli_args`, `@sys.get_env_vars`, `@sys.get_env_var`,
+  `@sys.set_env_var`, and `@sys.unset_env_var` in favor of the `@env` package
+
+## [0.4.47]
+
+### Added
+
+- Added `AGENTS.md` with repository guidance for agent contributions (#283)
+
+### Changed
+
+- Improved `@crypto` performance with SIMD-accelerated MD5, SHA-1, SHA-256,
+  SM3, ChaCha, and HMAC
+
+### Fixed
+
+- Fixed `@path` win32 handling of verbatim prefixes, rooted paths, and UNC cwd
+- Fixed `@fs` and `@sys` native FFI to use wide (Unicode) Windows APIs
+
+## [0.4.46]
+
+### Changed
+
+- Aligned `@path` posix and win32 behavior with the Node.js `path` module
 
 ## [0.4.45]
 
