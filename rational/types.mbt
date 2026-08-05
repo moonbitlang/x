@@ -28,6 +28,8 @@ trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quick
   fn from_int(Int) -> Self
   fn signum(self : Self) -> Int
   fn abs(self : Self) -> Self
+  fn to_bigint(self : Self) -> BigInt
+  fn from_bigint(BigInt) -> Self?
 }
 
 ///|
@@ -46,6 +48,21 @@ pub impl Integral for Int64 with fn signum(self : Int64) -> Int {
 }
 
 ///|
+pub impl Integral for Int64 with fn to_bigint(self : Int64) -> BigInt {
+  BigInt::from_int64(self)
+}
+
+///|
+pub impl Integral for Int64 with fn from_bigint(b : BigInt) -> Int64? {
+  if b.compare_int64(@int64.MIN_VALUE) >= 0 &&
+    b.compare_int64(@int64.MAX_VALUE) <= 0 {
+    Some(b.to_int64())
+  } else {
+    None
+  }
+}
+
+///|
 pub impl Integral for Int with fn from_int(i : Int) -> Int {
   i
 }
@@ -58,6 +75,20 @@ pub impl Integral for Int with fn abs(self : Int) -> Int {
 ///|
 pub impl Integral for Int with fn signum(self : Int) -> Int {
   self.compare(0)
+}
+
+///|
+pub impl Integral for Int with fn to_bigint(self : Int) -> BigInt {
+  BigInt::from_int(self)
+}
+
+///|
+pub impl Integral for Int with fn from_bigint(b : BigInt) -> Int? {
+  if b.compare_int(@int.MIN_VALUE) >= 0 && b.compare_int(@int.MAX_VALUE) <= 0 {
+    Some(b.to_int())
+  } else {
+    None
+  }
 }
 
 ///|
@@ -77,6 +108,16 @@ pub impl Integral for BigInt with fn abs(self : BigInt) -> BigInt {
 ///|
 pub impl Integral for BigInt with fn signum(self : BigInt) -> Int {
   self.compare(0N)
+}
+
+///|
+pub impl Integral for BigInt with fn to_bigint(self : BigInt) -> BigInt {
+  self
+}
+
+///|
+pub impl Integral for BigInt with fn from_bigint(b : BigInt) -> BigInt? {
+  Some(b)
 }
 
 ///|
