@@ -33,9 +33,11 @@ fn[T : Integral] gcd(a : T, b : T) -> T {
 /// * `numerator` : The numerator of the rational number.
 /// * `denominator` : The denominator of the rational number.
 ///
-/// Returns `Some(rational)` if the denominator is non-zero, where the rational
-/// number is automatically reduced to its simplest form with a positive
-/// denominator. Returns `None` if the denominator is zero.
+/// Returns `Some(rational)` if the denominator is non-zero and the reduced form
+/// fits in `T`, where the rational number is automatically reduced to its
+/// simplest form with a positive denominator. Returns `None` if the denominator
+/// is zero, or if the reduced form cannot be represented in `T` (e.g. its
+/// denominator is `2^63` for `Rational[Int64]`).
 ///
 /// Example:
 ///
@@ -71,17 +73,16 @@ pub fn[T : Integral] new(numerator : T, denominator : T) -> Rational[T]? {
   if denominator.signum() == 0 {
     None
   } else {
-    let sign = T::from_int(
-      if numerator.signum() == denominator.signum() {
-        1
-      } else {
-        -1
-      },
-    )
-    let numerator = numerator.abs()
-    let denominator = denominator.abs()
-    let gcd = gcd(numerator, denominator)
-    Some({ numerator: sign * numerator / gcd, denominator: denominator / gcd })
+    let bn = numerator.to_bigint()
+    let bd = denominator.to_bigint()
+    let g = gcd(bn, bd)
+    let bn = bn / g
+    let bd = bd / g
+    let (bn, bd) = if bd < 0N { (-bn, -bd) } else { (bn, bd) }
+    match (T::from_bigint(bn), T::from_bigint(bd)) {
+      (Some(n), Some(d)) => Some({ numerator: n, denominator: d })
+      _ => None
+    }
   }
 }
 
@@ -405,8 +406,8 @@ pub impl[T : Integral] Compare for Rational[T] with fn compare(
   self : Rational[T],
   other : Rational[T],
 ) -> Int {
-  let left = self.numerator * other.denominator
-  let right = other.numerator * self.denominator
+  let left = self.numerator.to_bigint() * other.denominator.to_bigint()
+  let right = other.numerator.to_bigint() * self.denominator.to_bigint()
   Compare::compare(left, right)
 }
 
@@ -1156,6 +1157,12 @@ test "eq and compare" {
   let b = new_unchecked(1L, 2L)
   assert_eq(a.compare(b), 0)
   assert_true(a == b)
+}
+
+///|
+test "compare no overflow" {
+  let p = new_unchecked(-3L, -9223372036854775808L)
+  assert_true(p.compare(-p) > 0)
 }
 
 ///|
