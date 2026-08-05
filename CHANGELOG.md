@@ -6,6 +6,12 @@
 
 - Added `AGENTS.md` with repository guidance for agent contributions (#283)
 
+### Fixed
+
+- Fixed `@rational` comparison overflowing silently by cross-multiplying with
+  `BigInt`, and made `@rational.new` return `None` when the reduced form does
+  not fit the target integer type
+
 ## [0.4.45]
 
 ### Added
