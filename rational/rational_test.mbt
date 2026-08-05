@@ -205,7 +205,7 @@ test "rational equality" {
 }
 
 ///|
-test "compare no overflow" {
+test "compare no overflow (int64 max denom)" {
   let max = 9223372036854775807L
   let a = @rational.new(1L, max).unwrap()
   let b = @rational.new(2L, max).unwrap()
