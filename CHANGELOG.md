@@ -10,6 +10,11 @@
   values, and made `@rational.new` return `None` when the reduced form does not
   fit the target integer type (#291)
 
+### Changed
+
+- Improved `@rational` comparison to avoid `BigInt` allocation, keeping
+  cross-multiplication in fixed-width arithmetic when safe
+
 ## [0.4.48]
 
 ### Changed
