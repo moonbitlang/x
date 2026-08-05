@@ -6,9 +6,9 @@
 
 ### Fixed
 
-- Fixed `@rational` comparison overflowing silently by cross-multiplying with
-  `BigInt`, and made `@rational.new` return `None` when the reduced form does
-  not fit the target integer type (#291)
+- Fixed `@rational` comparison overflowing silently for fixed-width integer
+  values, and made `@rational.new` return `None` when the reduced form does not
+  fit the target integer type (#291)
 
 ## [0.4.48]
 
