@@ -209,9 +209,73 @@ test "compare no overflow (int64 max denom)" {
   let max = 9223372036854775807L
   let a = @rational.new(1L, max).unwrap()
   let b = @rational.new(2L, max).unwrap()
-  assert_eq(a.compare(b), -1)
+  @test.assert_eq(a.compare(b), -1)
 
   let x = @rational.new(-43L, 3689348814741910693L).unwrap()
   let y = @rational.new(5L, -43L).unwrap()
   assert_true(x.compare(y) > 0)
+}
+
+///|
+test "compare fixed-width boundary values" {
+  let int_max = @int.MAX_VALUE
+  let a = @rational.new(1, int_max).unwrap()
+  let b = @rational.new(2, int_max).unwrap()
+  @test.assert_eq(a.compare(b), -1)
+
+  let int64_max = @int64.MAX_VALUE
+  let large_negative = @rational.new(@int64.MIN_VALUE, 1L).unwrap()
+  let half_large_negative = @rational.new(-int64_max, 2L).unwrap()
+  @test.assert_eq(large_negative.compare(half_large_negative), -1)
+  @test.assert_eq(half_large_negative.compare(large_negative), 1)
+
+  let positive = @rational.new(int64_max - 1L, int64_max).unwrap()
+  let negative = @rational.new(-1L, int64_max).unwrap()
+  @test.assert_eq(positive.compare(negative), 1)
+}
+
+///|
+test "int64 comparison matches bigint" {
+  let numerators : Array[Int64] = [
+    @int64.MIN_VALUE,
+    @int64.MIN_VALUE + 1L,
+    -7540113804746346429L,
+    -43L,
+    -1L,
+    0L,
+    1L,
+    43L,
+    7540113804746346429L,
+    @int64.MAX_VALUE,
+  ]
+  let denominators : Array[Int64] = [
+    1L,
+    2L,
+    3L,
+    43L,
+    2880067194370816120L,
+    @int64.MAX_VALUE,
+  ]
+  for numerator1 in numerators {
+    for denominator1 in denominators {
+      let rational1 = @rational.new(numerator1, denominator1).unwrap()
+      let big_rational1 = @rational.new(
+        BigInt::from_int64(numerator1),
+        BigInt::from_int64(denominator1),
+      ).unwrap()
+      for numerator2 in numerators {
+        for denominator2 in denominators {
+          let rational2 = @rational.new(numerator2, denominator2).unwrap()
+          let big_rational2 = @rational.new(
+            BigInt::from_int64(numerator2),
+            BigInt::from_int64(denominator2),
+          ).unwrap()
+          @test.assert_eq(
+            rational1.compare(rational2).compare(0),
+            big_rational1.compare(big_rational2).compare(0),
+          )
+        }
+      }
+    }
+  }
 }

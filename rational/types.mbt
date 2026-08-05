@@ -30,6 +30,7 @@ trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quick
   fn abs(self : Self) -> Self
   fn to_bigint(self : Self) -> BigInt
   fn from_bigint(BigInt) -> Self?
+  fn compare_fraction(Self, Self, Self, Self) -> Int
 }
 
 ///|
