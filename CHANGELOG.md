@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.49]
+
 ### Fixed
 
 - Fixed `@rational` comparison overflowing silently by cross-multiplying with
