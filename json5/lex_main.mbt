@@ -19,7 +19,7 @@ fn lex_value(
 ) -> Token raise ParseError {
   for ;; {
     let view = ctx.input[ctx.offset:]
-    lexscan view with longest {
+    lexmatch view with longest {
       (
         re"^[\t\u000B\u000C \n\r\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]",
         after=rest,
@@ -31,11 +31,11 @@ fn lex_value(
         ctx.offset = rest.start_offset()
         continue
       }
-      (re"^/[*]([*][^/]?|[^*])*[*]/", after=rest) => {
+      (re"^/[*]([^*]|[*]+[^*/])*[*]+/", after=rest) => {
         ctx.offset = rest.start_offset()
         continue
       }
-      re"^/[*]([*][^/]?|[^*])*$" => parse_error(InvalidEof)
+      re"^/[*]([^*]|[*]+[^*/])*[*]*$" => parse_error(InvalidEof)
       (re"^[{]", after=rest) => {
         ctx.offset = rest.start_offset()
         return LBrace
@@ -112,7 +112,6 @@ fn lex_value(
         no_valid_token(ctx)
       }
       re"^$" => parse_error(InvalidEof)
-      _ => panic()
     }
   }
 }

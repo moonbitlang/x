@@ -45,7 +45,7 @@ pub fn PlainTime::from_string(str : String) -> PlainTime raise Error {
 
 ///|
 fn PlainTime::parse_str(str : StringView) -> PlainTime raise Error {
-  let (hour, minute, second, nanosecond) = lexscan str with longest {
+  let (hour, minute, second, nanosecond) = lexmatch str with longest {
     (re"^[0-9]{2}" as hour_str) + re":" + (re"[0-9]{2}$" as minute_str) =>
       (@string.parse_int(hour_str), @string.parse_int(minute_str), 0, 0)
     (re"^[0-9]{2}" as hour_str) +

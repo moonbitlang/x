@@ -275,7 +275,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///|
 fn Path::prefix(path : Path) -> StringView {
   let path = path.0
-  lexscan path with longest {
+  lexmatch path with longest {
     ((re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+") as prefix, after=_) =>
       prefix
     (
@@ -302,12 +302,6 @@ fn Path::prefix(path : Path) -> StringView {
       (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]") as prefix,
       after=_,
     ) => prefix
-    ((re"^\\\\\.\\" + (re"[^\\]+" as _device) + re"(\\)+") as prefix, after=_) =>
-      prefix
-    (
-      (re"^\\\\\?\\" + (re"[a-zA-Z]" as _letter) + re":(\\)+") as prefix,
-      after=_,
-    ) => prefix
     (re"^\\+" as prefix, after=_) => prefix
     (((re"^[a-zA-Z]" as _letter) + re":(\\)+") as prefix, after=_) => prefix
     (((re"^[a-zA-Z]" as _letter) + re":") as prefix, after=_) => prefix
@@ -318,7 +312,7 @@ fn Path::prefix(path : Path) -> StringView {
 
 ///|
 fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
-  lexscan rhs with longest {
+  lexmatch rhs with longest {
     (re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+", after=_) => None
     (
       re"^\\\\\?UNC\\" +
@@ -337,12 +331,10 @@ fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
       after=_,
     ) => None
     (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]", after=_) => None
-    (re"^\\\\\.\\" + (re"[^\\]+" as _device) + re"(\\)+", after=_) => None
-    (re"^\\\\\?\\" + (re"[a-zA-Z]" as _letter) + re":(\\)+", after=_) => None
     (re"^\\", after=_) => None
     ((re"^[a-zA-Z]" as _letter) + re":(\\)+", after=_) => None
     ((re"^[a-zA-Z]" as rhs_letter) + re":", after=rhs_rest) =>
-      lexscan lhs with longest {
+      lexmatch lhs with longest {
         ((re"^[a-zA-Z]" as lhs_letter) + re":", after=_) =>
           if lhs_letter == rhs_letter {
             Some(rhs_rest)

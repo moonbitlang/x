@@ -77,7 +77,7 @@ pub fn PlainDate::from_string(str : String) -> PlainDate raise Error {
 
 ///|
 fn PlainDate::parse_str(str : StringView) -> PlainDate raise Error {
-  lexscan str with longest {
+  lexmatch str with longest {
     (re"^-?[0-9]{4}" as year_str) +
     re"-" +
     (re"[0-9]{2}" as month_str) +
