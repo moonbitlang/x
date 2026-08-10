@@ -359,6 +359,15 @@ test "parses multi-line comments" {
   let json = test_parse("{/*comment\n** */}")
   @debug.assert_eq(json, Json::object(Map([])))
 }
+
+///|
+test "parses multi-line comments at value positions" {
+  @test.assert_eq(
+    test_parse("{a:/*c*/1}"),
+    Json::object(Map([("a", Json::number(1.0))])),
+  )
+  @test.assert_eq(test_parse("[/*c*/1]"), Json::array([Json::number(1.0)]))
+}
 //endregion
 
 //region whitespace

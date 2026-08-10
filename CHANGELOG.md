@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed compiler warnings in `@json5`, `@path`, and `@time`. 
+
+### Changed
+
+- Improved `@rational` comparison to avoid `BigInt` allocation, keeping
+  cross-multiplication in fixed-width arithmetic when safe
+
 ## [0.4.49]
 
 ### Fixed
@@ -9,11 +18,6 @@
 - Fixed `@rational` comparison overflowing silently for fixed-width integer
   values, and made `@rational.new` return `None` when the reduced form does not
   fit the target integer type (#291)
-
-### Changed
-
-- Improved `@rational` comparison to avoid `BigInt` allocation, keeping
-  cross-multiplication in fixed-width arithmetic when safe
 
 ## [0.4.48]
 
