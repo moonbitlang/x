@@ -4,7 +4,8 @@
 
 ### Fixed
 
-- Fixed compiler warnings in `@json5`, `@path`, and `@time`. 
+- Fixed compiler warnings in `@json5`, `@path`, and `@time` with MoonBit
+  0.1.20260807 (#295)
 
 ### Changed
 
