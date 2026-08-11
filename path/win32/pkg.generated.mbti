@@ -22,6 +22,7 @@ pub fn Path::join(Self, Self) -> Self
 pub fn Path::normalize(Self) -> Self
 pub fn Path::relative(Self, base~ : Self) -> Self
 pub fn Path::resolve(Self) -> Self
+pub fn Path::root(Self) -> StringView
 pub impl Show for Path
 
 // Type aliases

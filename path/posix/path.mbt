@@ -185,14 +185,14 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 }
 
 ///|
-/// Return the `to` relative path when `from` is the current working directory.
+/// Returns the relative path from `base` to `path`.
 /// 
-/// property: joining `from` with the returned relative path yields
-/// `@path.resolve(to)`.
+/// property: joining `base` with the returned relative path yields
+/// `@path.resolve(path)`.
 /// 
 /// edge cases: 
-///  1. when `@path.resolve(from) == @path.resolve(to)`, return empty string
-///  2. when `from` and `to` have different prefixes, return empty string
+///  1. when `@path.resolve(base) == @path.resolve(path)`, return empty string
+///  2. when `base` and `path` have different prefixes, return empty string
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 

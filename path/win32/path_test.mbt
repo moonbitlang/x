@@ -135,6 +135,37 @@ test "extname node dotfile fixtures" {
 }
 
 ///|
+test "root node fixtures" {
+  inspect(Path::root(""), content="")
+  inspect(Path::root("a"), content="")
+  inspect(Path::root("a\\b"), content="")
+  inspect(Path::root("\\"), content="\\")
+  inspect(Path::root("\\\\"), content="\\")
+  inspect(Path::root("\\foo\\bar"), content="\\")
+  inspect(Path::root("\\\\server"), content="\\")
+  inspect(Path::root("\\\\server\\share"), content="\\\\server\\share")
+  inspect(Path::root("\\\\server\\share\\"), content="\\\\server\\share\\")
+  inspect(Path::root("\\\\server\\share\\file"), content="\\\\server\\share\\")
+  inspect(Path::root("//server/share"), content="//server/share")
+  inspect(Path::root("C:"), content="C:")
+  inspect(Path::root("C:foo"), content="C:")
+  inspect(Path::root("C:\\"), content="C:\\")
+  inspect(Path::root("C:\\foo"), content="C:\\")
+  inspect(Path::root("C:/foo"), content="C:/")
+  inspect(Path::root("\\\\?\\C:\\"), content="\\\\?\\C:\\")
+  inspect(Path::root("\\\\?\\C:\\foo"), content="\\\\?\\C:\\")
+  inspect(Path::root("\\\\?\\foo\\bar"), content="\\\\?\\foo\\")
+  inspect(Path::root("\\\\?\\foo"), content="\\\\?\\foo")
+  inspect(Path::root("\\\\?\\UNC\\server\\share\\file"), content="\\\\?\\UNC\\")
+  inspect(Path::root("\\\\?\\UNC\\server\\share"), content="\\\\?\\UNC\\")
+  inspect(
+    Path::root("\\\\?\\Volume{abc}\\file"),
+    content="\\\\?\\Volume{abc}\\",
+  )
+  inspect(Path::root("\\\\.\\COM1"), content="\\\\.\\COM1")
+}
+
+///|
 test "is_absolute node fixtures" {
   json_inspect(Path::is_absolute(""), content=false)
   json_inspect(Path::is_absolute(" "), content=false)
@@ -422,14 +453,6 @@ test "resolve drops trailing separators except regular roots" {
 }
 
 ///|
-fn test_is_ascii_alpha(ch : Char) -> Bool {
-  match ch {
-    'a'..='z' | 'A'..='Z' => true
-    _ => false
-  }
-}
-
-///|
 fn test_is_win_sep_at(path : String, index : Int) -> Bool {
   match path.get_char(index) {
     Some('\\' | '/') => true
@@ -443,7 +466,7 @@ fn test_has_win_drive(path : String) -> Bool {
     false
   } else {
     match path.get_char(0) {
-      Some(ch) => test_is_ascii_alpha(ch)
+      Some(ch) => ch.is_ascii_alphabetic()
       _ => false
     }
   }

@@ -211,7 +211,7 @@ fn has_win_drive_view(path : StringView, start : Int) -> Bool {
     false
   } else {
     match path.get_char(start) {
-      Some(ch) => is_ascii_alpha(ch)
+      Some(ch) => ch.is_ascii_alphabetic()
       _ => false
     }
   }
