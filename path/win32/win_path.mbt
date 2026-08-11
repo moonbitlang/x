@@ -16,10 +16,15 @@
 /// [Microsoft Naming a Volume](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-volume)
 /// [Microsoft Naming Files, Paths, and Namespaces](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
 /// [Microsoft Maximum Path Length Limitation](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
+/// [Microsoft GetFullPathNameW](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamew)
+/// [The Old New Thing: What are these environment variables like =C:?](https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14313)
 priv struct WinPath {
   prefix : WinPrefix
   trailing_separator : Bool
   components : Array[StringView]
+  /// Index of the root's end in the original path string (before any
+  /// normalization), following Node `path.win32.parse().root`.
+  root_end : Int
 } derive(ToJson, Hash, Eq)
 
 ///|
@@ -73,7 +78,10 @@ priv enum WinPrefix {
   ///
   /// Example: `C:main.mbt`
   ///
-  /// 
+  /// A drive-relative path is resolved against the current directory of
+  /// drive `<L>`, following `GetFullPathNameW`. The per-drive current
+  /// directory is read from the `=<L>:` environment variable.
+  ///
   /// Warning: this letter is case-insensitive.
   VolumeLetter(Char)
   None
@@ -128,7 +136,7 @@ impl Show for WinPrefix with fn output(self, logger) {
 
 ///|
 fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
-  let { prefix, trailing_separator, components } = self
+  let { prefix, trailing_separator, components, .. } = self
   let mut prefix_ends_with_sep = false
   match prefix {
     Root => {
@@ -171,7 +179,6 @@ fn WinPath::output(self : WinPath, logger : &Logger) -> Unit {
           } else {
             logger.write_char('.')
           }
-        VerbatimRoot | DeviceRoot => ()
         _ => ()
       }
     [x, .. xs] => {
@@ -198,40 +205,29 @@ impl Show for WinPath with fn output(self, logger) {
 }
 
 ///|
-fn is_win_sep_at_view(path : StringView, index : Int) -> Bool {
-  match path.get_char(index) {
-    Some(ch) => is_win_sep(ch)
-    _ => false
-  }
+fn is_win_sep_at(path : StringView, index : Int) -> Bool {
+  path.get_char(index) is Some(ch) && is_win_sep(ch)
 }
 
 ///|
-fn has_win_drive_view(path : StringView, start : Int) -> Bool {
-  if start + 1 >= path.length() || path.get_char(start + 1) != Some(':') {
-    false
-  } else {
-    match path.get_char(start) {
-      Some(ch) => ch.is_ascii_alphabetic()
-      _ => false
-    }
-  }
+fn start_with_win_drive(path : StringView) -> Bool {
+  path is [ch, ':', ..] && ch.is_ascii_alphabetic()
 }
 
 ///|
-fn skip_win_separators_view(path : StringView, start : Int) -> Int {
+fn skip_win_separators(path : StringView, start : Int) -> Int {
   let mut index = start
-  while index < path.length() && is_win_sep_at_view(path, index) {
+  while index < path.length() && is_win_sep_at(path, index) {
     index += 1
   }
   index
 }
 
 ///|
-fn find_next_win_sep_view(path : StringView, start : Int) -> Int? {
-  for i = start; i < path.length(); i = i + 1 {
-    if is_win_sep_at_view(path, i) {
-      return Some(i)
-    }
+fn find_next_win_sep(path : StringView, start : Int) -> Int? {
+  for i in start..<path.length() {
+    guard is_win_sep_at(path, i) else { continue }
+    return Some(i)
   }
   None
 }
@@ -266,26 +262,13 @@ fn parse_windows_components(
   allow_above_root~ : Bool,
 ) -> Array[StringView] {
   let components : Array[StringView] = []
-  let mut component_start = start
-  let mut index = start
-  while index <= path.length() {
-    if index == path.length() || is_win_sep_at_view(path, index) {
-      if component_start < index {
-        push_windows_component(
-          components,
-          path[component_start:index],
-          allow_above_root~,
-        )
-      }
-      if index == path.length() {
-        break
-      }
-      index = skip_win_separators_view(path, index)
-      component_start = index
-    } else {
-      index += 1
-    }
-  }
+  path[start:]
+  .replace_all(old="/", new="\\")
+  .split("\\")
+  .filter(fn(component) { !component.is_empty() })
+  .each(fn(component) {
+    push_windows_component(components, component, allow_above_root~)
+  })
   components
 }
 
@@ -295,14 +278,15 @@ fn parse_verbatim_prefixed_path(
   trailing_separator : Bool,
 ) -> WinPath? {
   guard path.length() >= 4 && path.get_char(2) == Some('?') else { return None }
-  guard is_win_sep_at_view(path, 3) else { return None }
+  guard is_win_sep_at(path, 3) else { return None }
   let marker_end = 4
   let components = parse_windows_components(
     path,
     marker_end,
     allow_above_root=false,
   )
-  Some({ prefix: VerbatimRoot, trailing_separator, components })
+  let root_end = component_root_end(path, marker_end)
+  Some({ prefix: VerbatimRoot, trailing_separator, components, root_end })
 }
 
 ///|
@@ -311,33 +295,42 @@ fn parse_device_prefixed_path(
   trailing_separator : Bool,
 ) -> WinPath? {
   guard path.length() >= 4 && path.get_char(2) == Some('.') else { return None }
-  guard is_win_sep_at_view(path, 3) else { return None }
+  guard is_win_sep_at(path, 3) else { return None }
   let part_start = 4
   let components = parse_windows_components(
     path,
     part_start,
     allow_above_root=false,
   )
-  Some({ prefix: DeviceRoot, trailing_separator, components })
+  let root_end = component_root_end(path, part_start)
+  Some({ prefix: DeviceRoot, trailing_separator, components, root_end })
+}
+
+///|
+fn component_root_end(path : StringView, start : Int) -> Int {
+  match find_next_win_sep(path, start) {
+    None => path.length()
+    Some(index) => index + 1
+  }
 }
 
 ///|
 fn parse_unc_path(path : StringView, trailing_separator : Bool) -> WinPath? {
-  guard path.length() <= 2 || !is_win_sep_at_view(path, 2) else { return None }
+  guard path.length() <= 2 || !is_win_sep_at(path, 2) else { return None }
   let hostname_start = 2
   guard hostname_start < path.length() else { return None }
-  match find_next_win_sep_view(path, hostname_start) {
+  match find_next_win_sep(path, hostname_start) {
     Some(hostname_end) => {
-      let share_start = skip_win_separators_view(path, hostname_end)
+      let share_start = skip_win_separators(path, hostname_end)
       guard share_start < path.length() else { return None }
-      let share_end = match find_next_win_sep_view(path, share_start) {
+      let share_end = match find_next_win_sep(path, share_start) {
         Some(index) => index
         _ => path.length()
       }
-      let component_start = if share_end < path.length() {
-        skip_win_separators_view(path, share_end)
-      } else {
-        path.length()
+      let root_end = share_end + (if share_end < path.length() { 1 } else { 0 })
+      let component_start = {
+        guard share_end < path.length() else { path.length() }
+        skip_win_separators(path, share_end)
       }
       let components = parse_windows_components(
         path,
@@ -351,6 +344,7 @@ fn parse_unc_path(path : StringView, trailing_separator : Bool) -> WinPath? {
         ),
         trailing_separator,
         components,
+        root_end,
       })
     }
     _ => None
@@ -360,48 +354,56 @@ fn parse_unc_path(path : StringView, trailing_separator : Bool) -> WinPath? {
 ///|
 fn WinPath::parse(path : StringView) -> WinPath {
   let trailing_separator = path.length() > 0 &&
-    is_win_sep_at_view(path, path.length() - 1)
-  if path.length() >= 2 &&
-    is_win_sep_at_view(path, 0) &&
-    is_win_sep_at_view(path, 1) {
-    match parse_verbatim_prefixed_path(path, trailing_separator) {
-      Some(parsed) => return parsed
-      _ => ()
-    }
-    match parse_device_prefixed_path(path, trailing_separator) {
-      Some(parsed) => return parsed
-      _ => ()
-    }
-    match parse_unc_path(path, trailing_separator) {
-      Some(parsed) => return parsed
-      _ => ()
-    }
+    is_win_sep_at(path, path.length() - 1)
+  guard path.length() >= 2 && is_win_sep_at(path, 0) && is_win_sep_at(path, 1) else {
+    return parse_drive_root_relative(path, trailing_separator)
   }
-  if has_win_drive_view(path, 0) {
+  match () {
+    _ if parse_verbatim_prefixed_path(path, trailing_separator) is Some(parsed) =>
+      parsed
+    _ if parse_device_prefixed_path(path, trailing_separator) is Some(parsed) =>
+      parsed
+    _ if parse_unc_path(path, trailing_separator) is Some(parsed) => parsed
+    _ => parse_drive_root_relative(path, trailing_separator)
+  }
+}
+
+///|
+fn parse_drive_root_relative(
+  path : StringView,
+  trailing_separator : Bool,
+) -> WinPath {
+  if start_with_win_drive(path) {
     let letter = path[0:1].get_char(0).unwrap()
-    if path.length() > 2 && is_win_sep_at_view(path, 2) {
-      let components = parse_windows_components(
-        path,
-        skip_win_separators_view(path, 2),
-        allow_above_root=false,
-      )
+    guard path.length() > 2 && is_win_sep_at(path, 2) else {
+      let components = parse_windows_components(path, 2, allow_above_root=true)
       return {
-        prefix: VolumeLetterRoot(letter),
+        prefix: VolumeLetter(letter),
         trailing_separator,
         components,
+        root_end: 2,
       }
     }
-    let components = parse_windows_components(path, 2, allow_above_root=true)
-    return { prefix: VolumeLetter(letter), trailing_separator, components }
-  }
-  if path.length() > 0 && is_win_sep_at_view(path, 0) {
     let components = parse_windows_components(
       path,
-      skip_win_separators_view(path, 0),
+      skip_win_separators(path, 2),
       allow_above_root=false,
     )
-    return { prefix: Root, trailing_separator, components }
+    return {
+      prefix: VolumeLetterRoot(letter),
+      trailing_separator,
+      components,
+      root_end: 3,
+    }
   }
-  let components = parse_windows_components(path, 0, allow_above_root=true)
-  { prefix: None, trailing_separator, components }
+  guard path.length() > 0 && is_win_sep_at(path, 0) else {
+    let components = parse_windows_components(path, 0, allow_above_root=true)
+    return { prefix: None, trailing_separator, components, root_end: 0 }
+  }
+  let components = parse_windows_components(
+    path,
+    skip_win_separators(path, 0),
+    allow_above_root=false,
+  )
+  { prefix: Root, trailing_separator, components, root_end: 1 }
 }
