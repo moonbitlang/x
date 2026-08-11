@@ -413,6 +413,16 @@ test "relative node fixtures" {
 }
 
 ///|
+test "relative unicode case folding" {
+  inspect(Path::relative(base="C:\\Α", "C:\\α"), content="")
+  inspect(Path::relative(base="C:\\А", "C:\\а"), content="")
+  inspect(Path::relative(base="C:\\Š", "C:\\š"), content="")
+  inspect(Path::relative(base="C:\\K", "C:\\k"), content="")
+  inspect(Path::relative(base="C:\\𐐀", "C:\\𐐨"), content="")
+  inspect(Path::relative(base="C:\\Α", "C:\\Β"), content="..\\Β")
+}
+
+///|
 test "resolve absolute fixtures" {
   inspect(Path::resolve("C:\\a\\.\\b"), content="C:\\a\\b")
   inspect(Path::resolve("C:\\a\\..\\b"), content="C:\\b")
