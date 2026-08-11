@@ -313,9 +313,6 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 ///  2. when the resolved paths have no common root boundary, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-///
-/// Known issue: Unicode case folding is incomplete. Some non-Latin paths that
-/// Node treats as equal ignoring case may produce a relative path.
 /// 
 /// ```moonbit check
 /// test {
@@ -335,97 +332,42 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-fn win_char_to_common_lower(ch : Char) -> Char {
-  match ch {
-    'A'..='Z' => ch.to_ascii_lowercase()
-    'À' => 'à'
-    'Á' => 'á'
-    'Â' => 'â'
-    'Ã' => 'ã'
-    'Ä' => 'ä'
-    'Å' => 'å'
-    'Æ' => 'æ'
-    'Ç' => 'ç'
-    'È' => 'è'
-    'É' => 'é'
-    'Ê' => 'ê'
-    'Ë' => 'ë'
-    'Ì' => 'ì'
-    'Í' => 'í'
-    'Î' => 'î'
-    'Ï' => 'ï'
-    'Ð' => 'ð'
-    'Ñ' => 'ñ'
-    'Ò' => 'ò'
-    'Ó' => 'ó'
-    'Ô' => 'ô'
-    'Õ' => 'õ'
-    'Ö' => 'ö'
-    'Ø' => 'ø'
-    'Ù' => 'ù'
-    'Ú' => 'ú'
-    'Û' => 'û'
-    'Ü' => 'ü'
-    'Ý' => 'ý'
-    'Þ' => 'þ'
-    'Ÿ' => 'ÿ'
-    _ => ch
-  }
-}
-
-///|
 fn win_char_equal_ignore_case(left : Char, right : Char) -> Bool {
   win_char_to_common_lower(left) == win_char_to_common_lower(right)
 }
 
 ///|
-fn win_string_equal_ignore_case(left : String, right : String) -> Bool {
-  if left.length() != right.length() {
-    return false
+fn win_string_equal_ignore_case(left : StringView, right : StringView) -> Bool {
+  let mut li = 0
+  let mut ri = 0
+  while left.get_char(li) is Some(l) && right.get_char(ri) is Some(r) {
+    guard win_char_equal_ignore_case(l, r) else { return false }
+    li += l.utf16_len()
+    ri += r.utf16_len()
   }
-  for i in 0..<left.length() {
-    guard (left.get_char(i), right.get_char(i)) is (Some(left), Some(right)) &&
-      win_char_equal_ignore_case(left, right) else {
-      return false
-    }
-  }
-  true
+  left.get_char(li) is None && right.get_char(ri) is None
 }
 
 ///|
-fn trim_leading_backslashes(path : String) -> Int {
+fn split_win_parts(path : StringView) -> Array[StringView] {
+  let parts : Array[StringView] = []
   let mut start = 0
-  while start < path.length() && path.get_char(start) == Some('\\') {
-    start += 1
-  }
-  start
-}
-
-///|
-fn trim_trailing_backslashes(path : String, start : Int) -> Int {
-  let mut end = path.length()
-  while end - 1 > start && path.get_char(end - 1) == Some('\\') {
-    end -= 1
-  }
-  end
-}
-
-///|
-fn write_parent_steps(
-  builder : StringBuilder,
-  from : String,
-  start : Int,
-  end : Int,
-) -> Unit {
-  for i in start..<=end {
-    if i == end || from.get_char(i) == Some('\\') {
-      if builder.is_empty() {
-        builder.write_stringview("..")
-      } else {
-        builder.write_stringview("\\..")
+  let mut i = 0
+  while path.get_char(i) is Some(ch) {
+    if is_win_sep(ch) {
+      if start < i {
+        parts.push(path[start:i])
       }
+      i = skip_win_separators(path, i)
+      start = i
+    } else {
+      i += ch.utf16_len()
     }
   }
+  if start < i {
+    parts.push(path[start:i])
+  }
+  parts
 }
 
 ///|
@@ -433,62 +375,35 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
   if from_orig == to_orig || win_string_equal_ignore_case(from_orig, to_orig) {
     return ""
   }
-  let from_start = trim_leading_backslashes(from_orig)
-  let from_end = trim_trailing_backslashes(from_orig, from_start)
-  let from_len = from_end - from_start
-  let to_start = trim_leading_backslashes(to_orig)
-  let to_end = trim_trailing_backslashes(to_orig, to_start)
-  let to_len = to_end - to_start
-  let length = @cmp.minimum(from_len, to_len)
-  let mut last_common_sep = -1
-  let mut i = 0
-  while i < length {
-    let from_char = from_orig.get_char(from_start + i).unwrap()
-    let to_char = to_orig.get_char(to_start + i).unwrap()
-    if !win_char_equal_ignore_case(from_char, to_char) {
-      break
-    } else if from_char == '\\' {
-      last_common_sep = i
-    }
-    i += 1
+  let from_parts = split_win_parts(from_orig)
+  let to_parts = split_win_parts(to_orig)
+  if from_parts.is_empty() ||
+    to_parts.is_empty() ||
+    !win_string_equal_ignore_case(from_parts[0], to_parts[0]) {
+    return to_orig
   }
-  guard i == length || last_common_sep != -1 else { return to_orig }
-  if i == length {
-    if to_len > length {
-      if to_orig.get_char(to_start + i) == Some('\\') {
-        return to_orig[to_start + i + 1:to_end].to_owned()
+  let mut common = 0
+  let limit = @cmp.minimum(from_parts.length(), to_parts.length())
+  while common < limit &&
+        win_string_equal_ignore_case(from_parts[common], to_parts[common]) {
+    common += 1
+  }
+  let components : Array[StringView] = [
+    ..(Array::make(from_parts.length() - common, "..") : Array[StringView]),
+    ..to_parts[common:],
+  ]
+  if components.is_empty() {
+    ""
+  } else {
+    let builder = StringBuilder::new()
+    for i in 0..<components.length() {
+      if i > 0 {
+        builder.write_char('\\')
       }
-      if i == 2 {
-        return to_orig[to_start + i:to_end].to_owned()
-      }
+      builder.write_stringview(components[i])
     }
-    if from_len > length {
-      if from_orig.get_char(from_start + i) == Some('\\') {
-        last_common_sep = i
-      } else if i == 2 {
-        last_common_sep = 3
-      }
-    }
-    if last_common_sep == -1 {
-      last_common_sep = 0
-    }
+    builder.to_string()
   }
-  let builder = StringBuilder::new()
-  write_parent_steps(
-    builder,
-    from_orig,
-    from_start + last_common_sep + 1,
-    from_end,
-  )
-  let mut to_start = to_start + last_common_sep
-  if !builder.is_empty() {
-    builder.write_stringview(to_orig[to_start:to_end])
-    return builder.to_string()
-  }
-  if to_orig.get_char(to_start) == Some('\\') {
-    to_start += 1
-  }
-  to_orig[to_start:to_end].to_owned()
 }
 
 ///|
