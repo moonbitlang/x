@@ -106,26 +106,12 @@ fn parse_unix_components(
   allow_above_root~ : Bool,
 ) -> Array[StringView] {
   let components : Array[StringView] = []
-  let mut component_start = start
-  let mut index = start
-  while index <= path.length() {
-    if index == path.length() || is_unix_sep_at(path, index) {
-      if component_start < index {
-        push_unix_component(
-          components,
-          path[component_start:index],
-          allow_above_root~,
-        )
-      }
-      if index == path.length() {
-        break
-      }
-      index = skip_unix_separators(path, index)
-      component_start = index
-    } else {
-      index += 1
-    }
-  }
+  path[start:]
+  .split("/")
+  .filter(fn(component) { !component.is_empty() })
+  .each(fn(component) {
+    push_unix_component(components, component, allow_above_root~)
+  })
   components
 }
 

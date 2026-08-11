@@ -22,25 +22,6 @@ fn is_win_sep(ch : Char) -> Bool {
 }
 
 ///|
-fn is_win_sep_at(path : String, index : Int) -> Bool {
-  path.get_char(index) is Some('\\' | '/')
-}
-
-///|
-fn start_with_win_drive(path : String) -> Bool {
-  path is [ch, ':', ..] && ch.is_ascii_alphabetic()
-}
-
-///|
-fn strip_win_drive(path : String) -> StringView {
-  if path is [ch, ':', .. rest] && ch.is_ascii_alphabetic() {
-    return rest
-  } else {
-    return path
-  }
-}
-
-///|
 fn last_win_sep(path : StringView) -> Int? {
   match (path.rev_find("/"), path.rev_find("\\")) {
     (None, None) => None
@@ -50,85 +31,41 @@ fn last_win_sep(path : StringView) -> Int? {
 }
 
 ///|
-fn find_next_win_sep(path : String, start : Int) -> Int? {
-  for i in start..<path.length() {
-    if is_win_sep_at(path, i) {
-      return Some(i)
-    }
-  }
-  None
-}
-
-///|
-fn skip_win_separators(path : String, start : Int) -> Int {
-  let mut index = start
-  while index < path.length() && is_win_sep_at(path, index) {
-    index += 1
-  }
-  index
-}
-
-///|
-fn win_root_end(path : String) -> Int {
-  if path.is_empty() {
-    return 0
-  }
-  if start_with_win_drive(path) {
-    if path.length() > 2 && is_win_sep_at(path, 2) {
-      return 3
-    }
-    return 2
-  }
-  if !is_win_sep_at(path, 0) {
-    return 0
-  }
-  if path.length() == 1 || !is_win_sep_at(path, 1) {
-    return 1
-  }
-  if path.length() > 2 && is_win_sep_at(path, 2) {
-    return 1
-  }
-  let server_start = 2
-  guard server_start < path.length() else { return 1 }
-  match find_next_win_sep(path, server_start) {
-    None => 1
-    Some(server_end) => {
-      let share_start = skip_win_separators(path, server_end)
-      guard share_start < path.length() else { return 1 }
-      match find_next_win_sep(path, share_start) {
-        None => path.length()
-        Some(share_end) => share_end + 1
-      }
-    }
-  }
-}
-
-///|
 fn is_drive_relative(path : String) -> Bool {
   start_with_win_drive(path) && (path.length() == 2 || !is_win_sep_at(path, 2))
 }
 
 ///|
+/// Resolves the current directory of a drive-relative path, following
+/// `GetFullPathNameW`: a drive-relative path such as `C:main.mbt` is relative
+/// to the current directory of drive `C`, not to the process current
+/// directory.
+///
+/// Windows stores the per-drive current directory in a hidden environment
+/// variable named `=<L>:` (e.g. `=C:`), which a process inherits and updates
+/// as the drive's current directory changes. When the variable is absent
+/// (e.g. set by another process, or constructed by `SetCurrentDirectory`
+/// semantics without one), `fallback_cwd` is used instead.
+///
+/// See [The Old New Thing: What are these environment variables like
+/// =C:?](https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14313)
 fn current_dir_for_drive_with_cwd(
   device : StringView,
   fallback_cwd : String,
 ) -> String {
   let device = device.to_owned()
-  let cwd = match @env.get_env_var("=" + device) {
-    Some(dir) => dir
-    None => fallback_cwd
-  }
+  let cwd = @env.get_env_var("=\{device}").unwrap_or(fallback_cwd)
   if start_with_win_drive(cwd) &&
     !cwd[0:2].equal_ignore_ascii_case(device) &&
     cwd.length() > 2 &&
     is_win_sep_at(cwd, 2) {
-    device + "\\"
+    "\\\{device}"
   } else if !start_with_win_drive(cwd) &&
     cwd.length() > 0 &&
     is_win_sep_at(cwd, 0) {
-    device + cwd
+    "\{device}\{cwd}"
   } else if !start_with_win_drive(cwd) {
-    device + "\\" + cwd
+    "\{device}\\\{cwd}"
   } else {
     cwd
   }
@@ -158,11 +95,12 @@ pub impl Show for Path with fn to_string(path) {
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
   // strip win drive
-  let mut path = strip_win_drive(path.0)
-  // strip all trailing separator
-  while path is [.. rest, last_char] && is_win_sep(last_char) {
-    path = rest
+  let mut path = path.0[:]
+  if start_with_win_drive(path) {
+    path = path[2:]
   }
+  // strip all trailing separator
+  let path = path.trim_end(chars="/\\")
   // return content after last separator
   match last_win_sep(path) {
     None => path
@@ -184,13 +122,9 @@ pub fn Path::basename(path : Path) -> StringView {
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
   let raw = path.0
-  if raw.is_empty() {
-    return "."
-  }
-  let root_end = win_root_end(raw)
-  if root_end >= raw.length() {
-    return raw
-  }
+  guard !raw.is_empty() else { "." }
+  let root_end = WinPath::parse(raw).root_end
+  guard root_end < raw.length() else { raw }
   let mut path = raw[:]
   // strip all trailing separator outside the root
   while path.length() > root_end &&
@@ -230,8 +164,7 @@ pub fn Path::extname(path : Path) -> StringView {
     return ""
   }
   match basename.rev_find(".") {
-    None => ""
-    Some(0) => ""
+    None | Some(0) => ""
     Some(idx) => basename[idx:]
   }
 }
@@ -250,10 +183,8 @@ pub fn Path::extname(path : Path) -> StringView {
 /// }
 /// ```
 pub fn Path::is_absolute(path : Path) -> Bool {
-  match path.0 {
-    [sep, ..] if is_win_sep(sep) => true
-    [drive, ':', sep, ..] if drive.is_ascii_alphabetic() && is_win_sep(sep) =>
-      true
+  match WinPath::parse(path.0).prefix {
+    Root | VerbatimRoot | DeviceRoot | UNC(_) | VolumeLetterRoot(_) => true
     _ => false
   }
 }
@@ -278,7 +209,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 /// }
 /// ```
 pub fn Path::root(path : Path) -> StringView {
-  path.0[:win_root_end(path.0)]
+  path.0[:WinPath::parse(path.0).root_end]
 }
 
 ///|
@@ -296,20 +227,10 @@ pub fn Path::root(path : Path) -> StringView {
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
-  if lhs.is_empty() && rhs.is_empty() {
-    return "."
-  }
-  if lhs.is_empty() {
-    return Path::normalize(rhs)
-  }
-  if rhs.is_empty() {
-    return Path::normalize(lhs)
-  }
-  let builder = StringBuilder::new()
-  builder.write_stringview(lhs)
-  builder.write_char('\\')
-  builder.write_stringview(rhs)
-  Path::normalize(builder.to_string())
+  guard !lhs.is_empty() || !rhs.is_empty() else { "." }
+  guard !lhs.is_empty() else { Path::normalize(rhs) }
+  guard !rhs.is_empty() else { Path::normalize(lhs) }
+  Path::normalize(lhs + "\\" + rhs)
 }
 
 ///|
@@ -332,51 +253,48 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// ```
 pub fn Path::normalize(path : Path) -> Path {
   let raw = path.0
-  let normalized = Show::to_string(WinPath::parse(raw))
-  if needs_normalize_drive_guard(raw, normalized) {
-    ".\\" + normalized
+  let parsed = WinPath::parse(raw)
+  let normalized = Show::to_string(parsed)
+  if needs_normalize_drive_guard(raw, normalized, parsed) {
+    ".\\\{normalized}"
   } else {
     normalized
   }
 }
 
 ///|
-fn needs_normalize_drive_guard(raw : String, normalized : String) -> Bool {
-  if Path::is_absolute(raw) ||
-    start_with_win_drive(raw) ||
-    !raw.contains_char(':') {
-    return false
-  }
+fn needs_normalize_drive_guard(
+  raw : String,
+  normalized : String,
+  parsed : WinPath,
+) -> Bool {
+  guard parsed.prefix is None && raw.contains_char(':') else { return false }
   if start_with_win_drive(normalized) {
     return true
   }
   for i in 0..<raw.length() {
-    if raw.get_char(i) == Some(':') &&
-      (i == raw.length() - 1 || is_win_sep_at(raw, i + 1)) {
-      return true
+    guard raw.get_char(i) == Some(':') &&
+      (i == raw.length() - 1 || is_win_sep_at(raw, i + 1)) else {
+      continue
     }
+    return true
   }
   false
 }
 
 ///|
 fn is_regular_win_root(path : WinPath) -> Bool {
-  if path.components.is_empty() {
-    match path.prefix {
-      Root | VolumeLetterRoot(_) | UNC(_) => true
-      _ => false
-    }
-  } else {
-    false
+  guard path.components.is_empty() else { false }
+  match path.prefix {
+    Root | VolumeLetterRoot(_) | UNC(_) => true
+    _ => false
   }
 }
 
 ///|
 fn trim_resolved_trailing_separators(path : Path) -> Path {
   let parsed = WinPath::parse(path.0)
-  if is_regular_win_root(parsed) {
-    return path
-  }
+  guard !is_regular_win_root(parsed) else { path }
   let mut raw = path.0[:]
   while raw is [.. rest, last_char] && is_win_sep(last_char) && !rest.is_empty() {
     raw = rest
@@ -534,11 +452,8 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
     }
     i += 1
   }
-  if i != length {
-    if last_common_sep == -1 {
-      return to_orig
-    }
-  } else {
+  guard i == length || last_common_sep != -1 else { return to_orig }
+  if i == length {
     if to_len > length {
       if to_orig.get_char(to_start + i) == Some('\\') {
         return to_orig[to_start + i + 1:to_end].to_owned()
@@ -582,7 +497,8 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
 /// 2. if path is drive-less rooted, resolve it against the current drive or
 ///    UNC share when cwd provides one, then normalize it and remove trailing
 ///    separators except regular roots.
-/// 3. if path is drive-relative, resolve it against that drive's current directory,
+/// 3. if path is drive-relative, resolve it against that drive's current directory
+///    (read from the `=<L>:` environment variable, following `GetFullPathNameW`),
 ///    then normalize it and remove trailing separators except regular roots.
 /// 4. if path is otherwise relative, join current working directory and path,
 ///    then normalize it and remove trailing separators except regular roots.
@@ -596,15 +512,7 @@ pub fn Path::resolve(path : Path) -> Path {
 fn cwd_device_for_drive_less_rooted_path(cwd : String) -> String? {
   match WinPath::parse(cwd).prefix {
     VolumeLetterRoot(_) => Some(cwd[0:2].to_owned())
-    UNC(_) => {
-      let root_end = win_root_end(cwd)
-      let root = cwd[0:root_end]
-      if root is [.. device, '\\' | '/'] {
-        Some(device.to_owned())
-      } else {
-        Some(root.to_owned())
-      }
-    }
+    UNC(hostname~, shared_folder~) => Some("\\\\\{hostname}\\\{shared_folder}")
     _ => None
   }
 }
@@ -616,7 +524,7 @@ fn resolve_with_cwd(path : Path, cwd : String) -> Path {
   let resolved = match parsed.prefix {
     Root =>
       match cwd_device_for_drive_less_rooted_path(cwd) {
-        Some(device) => Path::normalize(device + raw_path)
+        Some(device) => Path::normalize("\{device}\{raw_path}")
         None => Path::normalize(path)
       }
     VolumeLetterRoot(_) | UNC(_) | VerbatimRoot | DeviceRoot =>
@@ -630,10 +538,10 @@ fn resolve_with_cwd(path : Path, cwd : String) -> Path {
         if tail.is_empty() {
           base
         } else {
-          Path::join(base, tail.to_owned()) |> Path::normalize
+          Path::join(base, tail.to_owned())
         }
       } else {
-        Path::join(cwd, path) |> Path::normalize
+        Path::join(cwd, path)
       }
   }
   trim_resolved_trailing_separators(resolved)

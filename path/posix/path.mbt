@@ -39,15 +39,12 @@ pub impl Show for Path with fn to_string(path) {
 /// }
 /// ```
 pub fn Path::basename(path : Path) -> StringView {
-  let mut path = path.0[:]
   // strip all trailing separator
-  while path is [.. rest, last_char] && last_char == '/' {
-    path = rest
-  }
+  let path = path.0[:].trim_end(chars="/")
   // return content after last separator
-  match path.rev_find("/") {
+  match path.rev_split_once("/") {
     None => path
-    Some(idx) => path[idx + 1:]
+    Some((_, name)) => name
   }
 }
 
@@ -65,9 +62,7 @@ pub fn Path::basename(path : Path) -> StringView {
 /// ```
 pub fn Path::dirname(path : Path) -> Path {
   let mut path = path.0[:]
-  if path.is_empty() {
-    return "."
-  }
+  guard !path.is_empty() else { "." }
   // strip all trailing separator
   while path is [.. rest, last_char] && last_char == '/' {
     path = rest
@@ -99,8 +94,7 @@ pub fn Path::extname(path : Path) -> StringView {
     return ""
   }
   match basename.rev_find(".") {
-    None => ""
-    Some(0) => ""
+    None | Some(0) => ""
     Some(idx) => basename[idx:]
   }
 }
@@ -139,20 +133,10 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   let lhs = lhs.0
   let rhs = rhs.0
-  if lhs.is_empty() && rhs.is_empty() {
-    return "."
-  }
-  if lhs.is_empty() {
-    return Path::normalize(rhs)
-  }
-  if rhs.is_empty() {
-    return Path::normalize(lhs)
-  }
-  let builder = StringBuilder::new()
-  builder.write_stringview(lhs)
-  builder.write_char('/')
-  builder.write_stringview(rhs)
-  Path::normalize(builder.to_string())
+  guard !lhs.is_empty() || !rhs.is_empty() else { "." }
+  guard !lhs.is_empty() else { Path::normalize(rhs) }
+  guard !rhs.is_empty() else { Path::normalize(lhs) }
+  Path::normalize(lhs + "/" + rhs)
 }
 
 ///|
@@ -206,40 +190,22 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 pub fn Path::relative(path : Path, base~ : Path) -> Path {
   let from = UnixPath::parse(Path::resolve(base).0)
   let to = UnixPath::parse(Path::resolve(path).0)
-  if from.prefix == to.prefix {
-    let mut cnt = 0
-    // remove the common path component prefix
-    for left = from.components[:], right = to.components[:] {
-      match (left, right) {
-        ([x, .. xs], [y, .. ys]) if x == y => {
-          cnt += 1
-          continue xs, ys
-        }
-        _ => break
-      }
-    }
-    let components : Array[StringView] = []
-    let goto_parent_cnt = from.components.length() - cnt
-    for _ in 0..<goto_parent_cnt {
-      components.push("..")
-    }
-    let rest_path = to.components[cnt:]
-    for comp in rest_path {
-      components.push(comp)
-    }
-    if components.is_empty() {
-      ""
-    } else {
-      let path = UnixPath::{
-        prefix: None,
-        trailing_separator: false,
-        components,
-      }
-      Show::to_string(path)
-    }
-  } else {
-    ""
+  guard from.prefix == to.prefix else { "" }
+  let mut common = 0
+  let limit = @cmp.minimum(from.components.length(), to.components.length())
+  while common < limit && from.components[common] == to.components[common] {
+    common += 1
   }
+  let components : Array[StringView] = [
+    ..(Array::make(from.components.length() - common, "..") : Array[StringView]),
+    ..to.components[common:],
+  ]
+  guard !components.is_empty() else { "" }
+  Show::to_string(UnixPath::{
+    prefix: None,
+    trailing_separator: false,
+    components,
+  })
 }
 
 ///|
@@ -250,9 +216,8 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 /// 
 pub fn Path::resolve(path : Path) -> Path {
-  let resolved = if Path::is_absolute(path) {
-    Path::normalize(path)
-  } else {
+  let resolved = {
+    guard !Path::is_absolute(path) else { Path::normalize(path) }
     Path::join(@env.current_dir().unwrap(), path) |> Path::normalize
   }
   trim_resolved_trailing_separators(resolved)
