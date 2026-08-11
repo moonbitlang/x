@@ -16,10 +16,8 @@
 #cfg(target="js")
 pub extern "js" fn is_windows() -> Bool =
   #|function () {
-  #|  let process = require("process");
-  #|  return process.platform === "win32"; 
+  #|  return typeof process !== "undefined" && process.platform === "win32";
   #|};
-  #|
 
 ///|
 #cfg(any(target="wasm", target="wasm-gc"))
