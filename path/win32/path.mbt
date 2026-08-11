@@ -17,14 +17,6 @@
 pub(all) struct Path(String) derive(Eq, Debug)
 
 ///|
-fn is_ascii_alpha(ch : Char) -> Bool {
-  match ch {
-    'a'..='z' | 'A'..='Z' => true
-    _ => false
-  }
-}
-
-///|
 fn is_win_sep(ch : Char) -> Bool {
   ch == '\\' || ch == '/'
 }
@@ -36,12 +28,12 @@ fn is_win_sep_at(path : String, index : Int) -> Bool {
 
 ///|
 fn start_with_win_drive(path : String) -> Bool {
-  path is [ch, ':', ..] && is_ascii_alpha(ch)
+  path is [ch, ':', ..] && ch.is_ascii_alphabetic()
 }
 
 ///|
 fn strip_win_drive(path : String) -> StringView {
-  if path is [ch, ':', .. rest] && is_ascii_alpha(ch) {
+  if path is [ch, ':', .. rest] && ch.is_ascii_alphabetic() {
     return rest
   } else {
     return path
@@ -222,13 +214,6 @@ pub fn Path::dirname(path : Path) -> Path {
 }
 
 ///|
-test {
-  let path : Path = "\\\\\\"
-  inspect(path.prefix(), content="\\\\\\")
-  // inspect(path.0.view)
-}
-
-///|
 /// Returns the extension of the last path component.
 ///
 /// This follows Node `path.win32.extname` dotfile rules.
@@ -267,85 +252,33 @@ pub fn Path::extname(path : Path) -> StringView {
 pub fn Path::is_absolute(path : Path) -> Bool {
   match path.0 {
     [sep, ..] if is_win_sep(sep) => true
-    [drive, ':', sep, ..] if is_ascii_alpha(drive) && is_win_sep(sep) => true
+    [drive, ':', sep, ..] if drive.is_ascii_alphabetic() && is_win_sep(sep) =>
+      true
     _ => false
   }
 }
 
 ///|
-fn Path::prefix(path : Path) -> StringView {
-  let path = path.0
-  lexmatch path with longest {
-    ((re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+") as prefix, after=_) =>
-      prefix
-    (
-      (
-        re"^\\\\\?UNC\\" +
-        (re"[^\\]+" as _hostname) +
-        re"\\" +
-        (re"[^\\]+" as _shared_folder) +
-        re"(\\)+"
-      ) as prefix,
-      after=_,
-    ) => prefix
-    (
-      (
-        re"^\\\\" +
-        (re"[^\\]+" as _hostname) +
-        re"\\" +
-        (re"[^\\]+" as _shared_folder) +
-        re"(\\)*"
-      ) as prefix,
-      after=_,
-    ) => prefix
-    (
-      (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]") as prefix,
-      after=_,
-    ) => prefix
-    (re"^\\+" as prefix, after=_) => prefix
-    (((re"^[a-zA-Z]" as _letter) + re":(\\)+") as prefix, after=_) => prefix
-    (((re"^[a-zA-Z]" as _letter) + re":") as prefix, after=_) => prefix
-    (re"^[^a-zA-Z\\][^:][^\\]+(\\)+" as prefix, after=_) => prefix
-    _ => ""
-  }
-}
-
-///|
-fn join_rest(lhs : StringView, rhs : StringView) -> StringView? {
-  lexmatch rhs with longest {
-    (re"^\\\\\?\\" + (re"[^\\]+" as _symlink) + re"(\\)+", after=_) => None
-    (
-      re"^\\\\\?UNC\\" +
-      (re"[^\\]+" as _hostname) +
-      re"\\" +
-      (re"[^\\]+" as _shared_folder) +
-      re"(\\)+",
-      after=_,
-    ) => None
-    (
-      re"^\\\\" +
-      (re"[^\\]+" as _hostname) +
-      re"\\" +
-      (re"[^\\]+" as _shared_folder) +
-      re"(\\)+",
-      after=_,
-    ) => None
-    (re"^\\\\\?\\Volume[{]" + (re"[^}]+" as _guid) + re"[}]", after=_) => None
-    (re"^\\", after=_) => None
-    ((re"^[a-zA-Z]" as _letter) + re":(\\)+", after=_) => None
-    ((re"^[a-zA-Z]" as rhs_letter) + re":", after=rhs_rest) =>
-      lexmatch lhs with longest {
-        ((re"^[a-zA-Z]" as lhs_letter) + re":", after=_) =>
-          if lhs_letter == rhs_letter {
-            Some(rhs_rest)
-          } else {
-            None
-          }
-        _ => None
-      }
-    (re"^[^a-zA-Z\\][^:][^\\]+(\\)+", after=_) => None
-    _ => Some(rhs)
-  }
+/// Returns the root of the given path, following Node `path.win32.parse().root`.
+///
+/// The root keeps the input's separator spelling and includes the trailing
+/// separator for rooted paths (e.g. `C:\`, `\\server\share\`, `\\?\C:\`).
+/// A path without a root returns an empty string.
+///
+/// edge cases:
+///   1. when path is empty or relative, return `""`
+///   2. bare `\\` and UNC host without share return `\`, following Node
+/// 
+/// ```moonbit check
+/// test {
+///   let path : Path = "C:\\foo\\bar"
+///   inspect(path.root(), content="C:\\")
+///   let path : Path = "\\\\server\\share\\file"
+///   inspect(path.root(), content="\\\\server\\share\\")
+/// }
+/// ```
+pub fn Path::root(path : Path) -> StringView {
+  path.0[:win_root_end(path.0)]
 }
 
 ///|
@@ -452,14 +385,14 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 }
 
 ///|
-/// Return the `to` relative path when `from` is the current working directory.
+/// Returns the relative path from `base` to `path`.
 /// 
-/// property: joining `from` with the returned relative path yields
-/// `@path.resolve(to)`.
+/// property: joining `base` with the returned relative path yields
+/// `@path.resolve(path)`.
 /// 
 /// edge cases: 
-///  1. when `@path.resolve(from) == @path.resolve(to)`, return empty string
-///  2. when resolved paths have no common root boundary, return the resolved target path
+///  1. when `@path.resolve(base) == @path.resolve(path)`, return empty string
+///  2. when the resolved paths have no common root boundary, return the resolved target path
 /// 
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 ///
@@ -708,8 +641,8 @@ fn resolve_with_cwd(path : Path, cwd : String) -> Path {
 
 ///|
 /// OS platform specific path delimiter for environment variables. e.g., PATH
-pub let delimiter : Char = if true { ';' } else { ':' }
+pub let delimiter : Char = ';'
 
 ///|
 /// OS platform specific path component separator.
-pub let sep : Char = if true { '\\' } else { '/' }
+pub let sep : Char = '\\'
