@@ -509,3 +509,296 @@ test "constants and separators" {
   inspect(delimiter, content=";")
   inspect(sep, content="\\")
 }
+
+///|
+test "basename extreme" {
+  inspect(Path::basename("a\\/"), content="a")
+  inspect(Path::basename("a/\\"), content="a")
+  inspect(Path::basename("a\\\\/"), content="a")
+  inspect(Path::basename("a///"), content="a")
+  inspect(Path::basename("\\\\?\\C:\\"), content="C:")
+  inspect(Path::basename("\\\\?\\C:"), content="C:")
+  inspect(Path::basename("\\\\?\\"), content="?")
+  inspect(Path::basename("\\\\.\\"), content=".")
+  inspect(Path::basename("\\\\.\\COM1"), content="COM1")
+  inspect(Path::basename("C:a\\/b"), content="b")
+  inspect(Path::basename("C:\\a\\//b"), content="b")
+  inspect(Path::basename("//server\\share/"), content="share")
+  inspect(Path::basename("\\\\server//share"), content="share")
+  inspect(Path::basename(" \\\\a\\b "), content="b ")
+  inspect(Path::basename("C:\\\\"), content="")
+  inspect(Path::basename("C:\\\\\\"), content="")
+  inspect(Path::basename("C:\\a\\b."), content="b.")
+  inspect(Path::basename("C:\\a\\b.."), content="b..")
+  inspect(Path::basename("C:\\a\\.."), content="..")
+  inspect(Path::basename("C:\\a\\."), content=".")
+  inspect(Path::basename("C:\\目录\\文件.txt"), content="文件.txt")
+  inspect(Path::basename("C:\\a\\😀.txt"), content="😀.txt")
+  inspect(Path::basename("a\tb"), content="a\tb")
+  inspect(Path::basename("a b\\c d"), content="c d")
+  inspect(Path::basename("C:\\a\\b\\c.."), content="c..")
+  inspect(Path::basename("C:a\\b\\.."), content="..")
+  inspect(Path::basename("a\\b\\..\\"), content="..")
+}
+
+///|
+test "dirname extreme" {
+  inspect(Path::dirname("a\\/"), content=".")
+  inspect(Path::dirname("a/\\"), content=".")
+  inspect(Path::dirname("a\\\\/"), content=".")
+  inspect(Path::dirname("a///"), content=".")
+  inspect(Path::dirname("\\\\?\\C:\\"), content="\\\\?\\C:\\")
+  inspect(Path::dirname("\\\\?\\C:"), content="\\\\?\\C:")
+  inspect(Path::dirname("\\\\?\\C:\\.."), content="\\\\?\\C:\\")
+  inspect(
+    Path::dirname("\\\\?\\C:\\temp\\..\\file"),
+    content="\\\\?\\C:\\temp\\..",
+  )
+  inspect(Path::dirname("\\\\?\\UNC\\server\\.."), content="\\\\?\\UNC\\server")
+  inspect(
+    Path::dirname("\\\\?\\UNC\\server\\share\\.."),
+    content="\\\\?\\UNC\\server\\share",
+  )
+  // Node treats a bare `\\?\`/`\\.\` prefix as a UNC path with hostname
+  // `?`/`.`; keep the full prefix instead.
+  inspect(Path::dirname("\\\\?\\"), content="\\\\?\\")
+  inspect(Path::dirname("\\\\.\\"), content="\\\\.\\")
+  inspect(Path::dirname("\\\\.\\COM1"), content="\\\\.\\COM1")
+  inspect(Path::dirname("C:a\\/b"), content="C:a\\")
+  inspect(Path::dirname("C:\\a\\//b"), content="C:\\a\\/")
+  inspect(Path::dirname("//server\\share/"), content="//server\\share/")
+  inspect(Path::dirname("\\\\server//share"), content="\\\\server//share")
+  inspect(Path::dirname(" \\\\a\\b "), content=" \\\\a")
+  inspect(Path::dirname("C:\\\\"), content="C:\\")
+  inspect(Path::dirname("C:\\\\\\"), content="C:\\")
+  inspect(Path::dirname("C:\\a\\b."), content="C:\\a")
+  inspect(Path::dirname("C:\\a\\b.."), content="C:\\a")
+  inspect(Path::dirname("C:\\a\\.."), content="C:\\a")
+  inspect(Path::dirname("C:\\a\\."), content="C:\\a")
+  inspect(Path::dirname("C:\\目录\\文件.txt"), content="C:\\目录")
+  inspect(Path::dirname("C:\\a\\😀.txt"), content="C:\\a")
+  inspect(Path::dirname("a\tb"), content=".")
+  inspect(Path::dirname("a b\\c d"), content="a b")
+  inspect(Path::dirname("///"), content="/")
+  inspect(Path::dirname("////"), content="/")
+  inspect(Path::dirname("\\\\\\"), content="\\")
+  inspect(Path::dirname("\\\\server"), content="\\")
+  inspect(Path::dirname("\\\\server\\"), content="\\")
+  inspect(Path::dirname("\\\\server\\share\\.."), content="\\\\server\\share\\")
+  inspect(Path::dirname("C:\\a\\b\\c\\..\\"), content="C:\\a\\b\\c")
+  inspect(Path::dirname("C:\\a\\b\\c.."), content="C:\\a\\b")
+  inspect(Path::dirname("C:a\\b\\.."), content="C:a\\b")
+  inspect(
+    Path::dirname("\\\\server\\share\\folder\\..\\"),
+    content="\\\\server\\share\\folder",
+  )
+}
+
+///|
+test "extname extreme" {
+  inspect(Path::extname("a\\/"), content="")
+  inspect(Path::extname("C:\\a\\b.."), content=".")
+  inspect(Path::extname("C:\\a\\b."), content=".")
+  inspect(Path::extname("C:\\a\\.."), content="")
+  inspect(Path::extname("C:\\a\\."), content="")
+  inspect(Path::extname("C:\\a\\.hidden"), content="")
+  inspect(Path::extname("C:\\a\\..hidden"), content=".hidden")
+  inspect(Path::extname(".."), content="")
+  inspect(Path::extname("..."), content=".")
+  inspect(Path::extname("C:\\目录\\文件.txt"), content=".txt")
+  inspect(Path::extname("C:\\a\\😀.txt"), content=".txt")
+  inspect(Path::extname("C:\\a\\b.tar.gz"), content=".gz")
+  inspect(Path::extname("a b\\c d.txt"), content=".txt")
+  inspect(Path::extname("C:\\a\\b.txt\\"), content=".txt")
+  inspect(Path::extname("\\\\?\\C:\\a\\b.c"), content=".c")
+  inspect(Path::extname("C:\\a\\.\\b.c"), content=".c")
+  inspect(Path::extname("C:\\a\\..\\b."), content=".")
+  inspect(Path::extname("a.b\\c"), content="")
+  inspect(Path::extname("C:\\a\\b\\"), content="")
+  inspect(Path::extname("C:\\a\\b\\c.txt\\\\"), content=".txt")
+}
+
+///|
+test "root extreme" {
+  // Node returns `\` for bare `\\?\`/`\\.\` prefixes (it parses them as a
+  // UNC host); keep the full prefix instead.
+  inspect(Path::root("\\\\?\\"), content="\\\\?\\")
+  inspect(Path::root("\\\\.\\"), content="\\\\.\\")
+  inspect(Path::root("\\\\?\\C:"), content="\\\\?\\C:")
+  inspect(Path::root("\\\\?\\C:\\"), content="\\\\?\\C:\\")
+  inspect(Path::root("\\\\.\\COM1"), content="\\\\.\\COM1")
+  inspect(Path::root("///"), content="/")
+  inspect(Path::root("////"), content="/")
+  inspect(Path::root("\\\\\\"), content="\\")
+  inspect(Path::root("C:\\\\"), content="C:\\")
+  inspect(Path::root("C:\\\\\\"), content="C:\\")
+  inspect(Path::root("\\\\server"), content="\\")
+  inspect(Path::root("\\\\server\\"), content="\\")
+  inspect(Path::root("\\\\server\\share"), content="\\\\server\\share")
+  inspect(Path::root("\\\\server\\share\\"), content="\\\\server\\share\\")
+  inspect(Path::root("c:/temp"), content="c:/")
+  inspect(Path::root("\\\\?\\UNC"), content="\\\\?\\UNC")
+  inspect(Path::root("\\\\?\\UNC\\server"), content="\\\\?\\UNC\\")
+  inspect(Path::root("\\\\?\\UNC\\server\\share\\file"), content="\\\\?\\UNC\\")
+}
+
+///|
+test "is_absolute extreme" {
+  json_inspect(Path::is_absolute("\\\\?\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\.\\"), content=true)
+  json_inspect(Path::is_absolute("///"), content=true)
+  json_inspect(Path::is_absolute("////"), content=true)
+  json_inspect(Path::is_absolute("\\\\\\"), content=true)
+  json_inspect(Path::is_absolute("C:\\\\"), content=true)
+  json_inspect(Path::is_absolute("C:\\\\\\"), content=true)
+  json_inspect(Path::is_absolute("c:/temp"), content=true)
+  json_inspect(Path::is_absolute(" \\\\a"), content=false)
+  json_inspect(Path::is_absolute("a\\\\"), content=false)
+  json_inspect(Path::is_absolute("\\\\?\\C:"), content=true)
+  json_inspect(Path::is_absolute("\\\\?\\C:\\"), content=true)
+  json_inspect(Path::is_absolute("\\\\server"), content=true)
+  json_inspect(Path::is_absolute("\\\\server\\"), content=true)
+}
+
+///|
+test "normalize extreme" {
+  inspect(Path::normalize("a\\..\\..\\.."), content="..\\..")
+  inspect(Path::normalize("..\\..\\a"), content="..\\..\\a")
+  inspect(Path::normalize("C:\\a\\..\\..\\b"), content="C:\\b")
+  inspect(Path::normalize("C:.."), content="C:..")
+  inspect(Path::normalize("C:."), content="C:.")
+  inspect(Path::normalize("C:..\\..\\a"), content="C:..\\..\\a")
+  inspect(Path::normalize("C:\\..\\.."), content="C:\\")
+  inspect(Path::normalize("\\..\\.."), content="\\")
+  inspect(Path::normalize(".\\.."), content="..")
+  inspect(Path::normalize("..\\."), content="..")
+  inspect(Path::normalize("a\\\\..\\b"), content="b")
+  inspect(Path::normalize("..\\a\\.."), content="..")
+  inspect(Path::normalize("C:\\a\\\\.."), content="C:\\")
+  inspect(Path::normalize("C:\\a\\..\\.."), content="C:\\")
+  inspect(
+    Path::normalize("\\\\server\\share\\..\\..\\.."),
+    content="\\\\server\\share\\",
+  )
+  inspect(Path::normalize("\\\\server\\..\\.."), content="\\\\server\\..\\")
+  inspect(
+    Path::normalize("\\\\?\\C:\\temp\\..\\file"),
+    content="\\\\?\\C:\\file",
+  )
+  inspect(
+    Path::normalize("\\\\?\\UNC\\server\\share\\..\\.."),
+    content="\\\\?\\UNC",
+  )
+  inspect(Path::normalize("\\\\?\\UNC\\server\\.."), content="\\\\?\\UNC")
+  inspect(Path::normalize("\\\\?\\..\\a"), content="\\\\?\\a")
+  inspect(Path::normalize("\\\\.\\..\\a"), content="\\\\.\\a")
+  inspect(Path::normalize("\\\\.\\COM1\\..\\..\\a"), content="\\\\.\\a")
+  // Node normalizes bare `\\?\`/`\\.\` prefixes into `\?\`/`\`; keep the
+  // full prefix instead.
+  inspect(Path::normalize("\\\\?\\"), content="\\\\?\\")
+  inspect(Path::normalize("\\\\.\\"), content="\\\\.\\")
+  inspect(Path::normalize("//"), content="\\")
+  inspect(Path::normalize("///"), content="\\")
+  inspect(Path::normalize("////"), content="\\")
+  inspect(Path::normalize("\\\\\\"), content="\\")
+  inspect(Path::normalize("C:\\\\"), content="C:\\")
+  inspect(Path::normalize("C:\\\\\\"), content="C:\\")
+  inspect(Path::normalize("C::\\foo"), content="C::\\foo")
+  inspect(Path::normalize("a:b"), content="a:b")
+  inspect(Path::normalize("a::b"), content="a::b")
+  inspect(Path::normalize("C::"), content="C::")
+  inspect(Path::normalize("\\\\server\\share\\"), content="\\\\server\\share\\")
+  inspect(Path::normalize("\\\\?\\C:"), content="\\\\?\\C:")
+  inspect(Path::normalize("C:a\\..\\.."), content="C:..")
+  inspect(Path::normalize("C:a\\..\\b"), content="C:b")
+  inspect(Path::normalize("\\\\?\\C:\\.."), content="\\\\?\\")
+  inspect(Path::normalize("..."), content="...")
+  inspect(Path::normalize("...."), content="....")
+  inspect(Path::normalize("C:\\...\\a"), content="C:\\...\\a")
+  inspect(Path::normalize("C:\\a\\...\\b"), content="C:\\a\\...\\b")
+  inspect(Path::normalize("C:\\a\\b\\c\\..\\"), content="C:\\a\\b\\")
+  inspect(
+    Path::normalize("\\\\server\\share\\folder\\..\\"),
+    content="\\\\server\\share\\",
+  )
+  inspect(Path::normalize("C:\\a\\"), content="C:\\a\\")
+  inspect(Path::normalize("C:\\\\a\\\\"), content="C:\\a\\")
+  inspect(Path::normalize("a\\b\\..\\"), content="a\\")
+  inspect(Path::normalize("C:\\a\\b\\c.."), content="C:\\a\\b\\c..")
+  inspect(Path::normalize("C:a\\b\\.."), content="C:a")
+}
+
+///|
+test "join extreme" {
+  inspect(
+    Path::join("\\\\?\\C:\\temp", "file"),
+    content="\\\\?\\C:\\temp\\file",
+  )
+  inspect(
+    Path::join("\\\\?\\C:\\temp", "\\file"),
+    content="\\\\?\\C:\\temp\\file",
+  )
+  inspect(
+    Path::join("\\\\server\\share", "\\file"),
+    content="\\\\server\\share\\file",
+  )
+  inspect(Path::join("C:", ""), content="C:.")
+  inspect(Path::join("C:", "a"), content="C:\\a")
+  inspect(Path::join("C:\\", ""), content="C:\\")
+  inspect(Path::join("\\\\server\\share", ""), content="\\\\server\\share\\")
+  inspect(Path::join("C:temp", "C:sub"), content="C:temp\\C:sub")
+  inspect(Path::join("\\\\?\\C:\\temp", ""), content="\\\\?\\C:\\temp")
+  inspect(Path::join("C:\\a", ".."), content="C:\\")
+  inspect(Path::join("..", "b"), content="..\\b")
+  inspect(Path::join("C:", "C:"), content="C:\\C:")
+  inspect(Path::join("\\\\?\\", "a"), content="\\\\?\\a")
+  inspect(
+    Path::join("\\\\server\\share", "..\\..\\a"),
+    content="\\\\server\\share\\a",
+  )
+  inspect(
+    Path::join("\\\\?\\C:\\temp\\", "\\file"),
+    content="\\\\?\\C:\\temp\\file",
+  )
+  inspect(Path::join("a", "C:"), content=".\\a\\C:")
+  inspect(Path::join("", "C:"), content="C:.")
+}
+
+///|
+test "relative extreme" {
+  inspect(Path::relative(base="C:\\Foo", "C:\\foo\\bar"), content="bar")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\b\\c\\.."), content="")
+  inspect(Path::relative(base="C:/a/b", "C:\\a\\b"), content="")
+  inspect(Path::relative(base="C:\\a", "c:\\b\\c"), content="..\\b\\c")
+  inspect(Path::relative(base="C:\\A\\B", "c:\\a\\B\\c"), content="c")
+  inspect(
+    Path::relative(base="\\\\server\\share", "\\\\server\\share"),
+    content="",
+  )
+  inspect(Path::relative(base="C:\\a\\..\\b", "C:\\b\\c"), content="c")
+  inspect(
+    Path::relative(base="\\\\server\\share\\a", "\\\\server\\share\\b"),
+    content="..\\b",
+  )
+  inspect(Path::relative(base="C:\\", "C:\\"), content="")
+  inspect(Path::relative(base="C:\\a", "C:\\a"), content="")
+  inspect(
+    Path::relative(base="\\\\server\\share\\", "\\\\server\\share\\a"),
+    content="a",
+  )
+  inspect(Path::relative(base="C:\\a\\b\\c", "C:\\a\\b\\c"), content="")
+  inspect(Path::relative(base="C:\\ä", "C:\\Ä\\x"), content="x")
+  inspect(Path::relative(base="\\\\?\\C:\\a", "\\\\?\\C:\\a\\b"), content="b")
+  inspect(Path::relative(base="\\\\?\\C:\\a", "C:\\a\\b"), content="C:\\a\\b")
+  inspect(Path::relative(base="C:\\ABC", "C:\\AB"), content="..\\AB")
+  inspect(Path::relative(base="C:\\AB", "C:\\ABC"), content="..\\ABC")
+  inspect(Path::relative(base="C:\\a\\bX", "C:\\a\\b"), content="..\\b")
+  inspect(Path::relative(base="C:\\a\\b", "C:\\a\\bX"), content="..\\bX")
+  inspect(Path::relative(base="c:\\a\\B", "C:\\a\\b\\x"), content="x")
+  inspect(Path::relative(base="C:\\a", "c:\\a\\b"), content="b")
+  inspect(
+    Path::relative(base="\\\\server\\share", "\\\\server\\share\\a"),
+    content="a",
+  )
+  inspect(Path::relative(base="C:\\ab", "c:\\a"), content="..\\a")
+}
