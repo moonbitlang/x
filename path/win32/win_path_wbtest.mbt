@@ -186,3 +186,49 @@ test "relative with Windows cwd anchors drive-less rooted paths" {
     content="..\\b",
   )
 }
+
+///|
+test "relative with Windows cwd extreme" {
+  let cwd = "C:\\Users\\alice\\project"
+  inspect(relative_with_cwd("C:\\a\\b", "C:\\a\\c", cwd), content="..\\c")
+  inspect(relative_with_cwd("C:\\a\\b\\c", "C:\\a\\b", cwd), content="..")
+  inspect(relative_with_cwd("C:\\ABC", "C:\\AB", cwd), content="..\\AB")
+  inspect(relative_with_cwd("C:\\AB", "C:\\ABC", cwd), content="..\\ABC")
+  inspect(relative_with_cwd("C:\\a\\bX", "C:\\a\\b", cwd), content="..\\b")
+  inspect(relative_with_cwd("C:\\a\\b", "C:\\a\\bX", cwd), content="..\\bX")
+  inspect(relative_with_cwd("c:\\a\\B", "C:\\a\\b\\x", cwd), content="x")
+  inspect(relative_with_cwd("C:\\a", "c:\\a\\b", cwd), content="b")
+  inspect(
+    relative_with_cwd("\\\\server\\share", "\\\\server\\share\\a", cwd),
+    content="a",
+  )
+  inspect(relative_with_cwd("C:\\a\\b", "C:\\a\\b", cwd), content="")
+}
+
+///|
+test "WinPath parse extreme" {
+  // bare verbatim/device prefixes keep the full prefix, unlike Node which
+  // parses them as a UNC host
+  inspect(WinPath::parse("\\\\?\\"), content="\\\\?\\")
+  inspect(WinPath::parse("\\\\.\\"), content="\\\\.\\")
+  inspect(WinPath::parse("\\\\?\\UNC\\server\\.."), content="\\\\?\\UNC")
+  inspect(WinPath::parse("\\\\.\\COM1\\..\\..\\a"), content="\\\\.\\a")
+  inspect(WinPath::parse("C:a\\b\\.."), content="C:a")
+  inspect(WinPath::parse("C:..\\..\\a"), content="C:..\\..\\a")
+  inspect(WinPath::parse("a\\b\\..\\"), content="a\\")
+  inspect(WinPath::parse("..\\..\\a"), content="..\\..\\a")
+  inspect(WinPath::parse("\\\\\\a"), content="\\a")
+  inspect(WinPath::parse("////a"), content="\\a")
+  inspect(WinPath::parse("C:\\\\a\\\\"), content="C:\\a\\")
+  inspect(
+    WinPath::parse("\\\\?\\C:\\temp\\..\\file"),
+    content="\\\\?\\C:\\file",
+  )
+  inspect(
+    WinPath::parse("\\\\server\\share\\folder\\..\\.."),
+    content="\\\\server\\share\\",
+  )
+  inspect(WinPath::parse("\\\\server\\..\\.."), content="\\\\server\\..\\")
+  inspect(WinPath::parse("a::b"), content="a::b")
+  inspect(WinPath::parse("C:\\a\\b.."), content="C:\\a\\b..")
+}
