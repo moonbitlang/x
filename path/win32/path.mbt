@@ -392,18 +392,15 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
     ..(Array::make(from_parts.length() - common, "..") : Array[StringView]),
     ..to_parts[common:],
   ]
-  if components.is_empty() {
-    ""
-  } else {
-    let builder = StringBuilder::new()
-    for i in 0..<components.length() {
-      if i > 0 {
-        builder.write_char('\\')
-      }
-      builder.write_stringview(components[i])
+  guard !components.is_empty() else { "" }
+  let builder = StringBuilder::new()
+  for i in 0..<components.length() {
+    if i > 0 {
+      builder.write_char('\\')
     }
-    builder.to_string()
+    builder.write_stringview(components[i])
   }
+  builder.to_string()
 }
 
 ///|
