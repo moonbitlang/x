@@ -31,7 +31,7 @@ pub impl Show for Path with fn to_string(path) {
 ///
 /// This follows Node `path.posix.basename`: trailing separators are ignored and
 /// repeated separators are not normalized before scanning.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "usr/local/"
@@ -53,7 +53,7 @@ pub fn Path::basename(path : Path) -> StringView {
 ///
 /// This follows Node `path.posix.dirname`: it ignores trailing separators while
 /// preserving repeated separators that participate in the directory portion.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "usr/local/"
@@ -81,7 +81,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///
 /// This follows Node `path.posix.extname` dotfile rules: a leading dot by
 /// itself does not start an extension.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "archive.tar.gz"
@@ -101,9 +101,9 @@ pub fn Path::extname(path : Path) -> StringView {
 
 ///|
 /// Returns whether the given path is absolute.
-/// 
+///
 /// edge cases: when path is empty, return false
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path1 : Path = "/usr/local/bin"
@@ -120,7 +120,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 /// Concatenates two path strings with `/`, then normalizes the result.
 ///
 /// Unlike `resolve`, an absolute right-hand path does not override `lhs`.
-/// 
+///
 /// ```mbt check
 /// test {
 ///   assert_eq(Path::join("/usr/local", "bin"), "/usr/local/bin")
@@ -142,13 +142,13 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///|
 /// 1. resolve `.` by directly removing it
 /// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
-/// 3. remove redundant slashes 
+/// 3. remove redundant slashes
 /// 4. preserve trailing slash
-/// 
+///
 /// edge cases:
 ///   1. when path is empty, return `.`
 ///   2. leading `//` is normalized to `/`, following Node `path.posix`.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "/usr//local/../bin/"
@@ -170,16 +170,16 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 
 ///|
 /// Returns the relative path from `base` to `path`.
-/// 
+///
 /// property: joining `base` with the returned relative path yields
 /// `@path.resolve(path)`.
-/// 
-/// edge cases: 
+///
+/// edge cases:
 ///  1. when `@path.resolve(base) == @path.resolve(path)`, return empty string
 ///  2. when `base` and `path` have different prefixes, return empty string
-/// 
+///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let base : Path = "/usr/local/bin"
@@ -214,7 +214,7 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///    and remove non-root trailing separators.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-/// 
+///
 pub fn Path::resolve(path : Path) -> Path {
   let resolved = {
     guard !Path::is_absolute(path) else { Path::normalize(path) }

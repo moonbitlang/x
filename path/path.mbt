@@ -39,7 +39,7 @@ pub impl Show for Path with fn to_string(path) {
 /// Returns the last path component of the given path.
 ///
 /// Trailing separators are ignored, following Node `path.basename`.
-/// 
+///
 /// ```mbt check
 /// test {
 ///   let path : Path = "usr/local/bin"
@@ -56,7 +56,7 @@ pub fn Path::basename(path : Path) -> StringView {
 
 ///|
 /// Returns the directory portion of the path, following Node `path.dirname`.
-/// 
+///
 /// ```mbt check
 /// test {
 ///   let path : Path = "usr/local/bin"
@@ -74,7 +74,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///|
 /// Returns the extension of the last path component, following Node
 /// `path.extname` dotfile rules.
-/// 
+///
 /// ```mbt check
 /// test {
 ///   let path : Path = "archive.tar.gz"
@@ -91,9 +91,9 @@ pub fn Path::extname(path : Path) -> StringView {
 
 ///|
 /// Returns whether the given path is absolute.
-/// 
+///
 /// edge cases: when path is empty, return false
-/// 
+///
 /// ```mbt check
 /// test {
 ///   let path1 : Path = "/usr/local/bin"
@@ -115,7 +115,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///
 /// Absolute right-hand paths do not override `lhs`. When both inputs are empty,
 /// the result is `"."`.
-/// 
+///
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   if is_windows {
     @win32.Path::join(lhs.0, rhs.0).0
@@ -129,11 +129,11 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
 /// 3. remove redundant slashes or backslashes
 /// 4. preserve trailing slash or backslash
-/// 
+///
 /// edge cases:
 ///   1. when path is empty, return `.`
 ///   2. POSIX leading `//` is normalized to `/`, following Node behavior.
-/// 
+///
 /// See `@path/posix` and `@path/win32` for separator-specific examples.
 pub fn Path::normalize(path : Path) -> Path {
   if is_windows {
@@ -145,14 +145,14 @@ pub fn Path::normalize(path : Path) -> Path {
 
 ///|
 /// Returns the relative path from `base` to `path`.
-/// 
+///
 /// property: joining `base` with the returned relative path yields
 /// `@path.resolve(path)`.
-/// 
-/// edge cases: 
+///
+/// edge cases:
 ///  1. when `@path.resolve(base) == @path.resolve(path)`, return empty string
 ///  2. on Windows, different roots return the resolved target path
-/// 
+///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
 ///
 /// See `@path/posix` and `@path/win32` for separator-specific examples.
@@ -170,7 +170,7 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///    and remove non-root trailing separators.
 ///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-/// 
+///
 pub fn Path::resolve(path : Path) -> Path {
   if is_windows {
     @win32.Path::resolve(path.0).to_string()
