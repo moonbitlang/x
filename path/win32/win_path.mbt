@@ -28,29 +28,28 @@ priv struct WinPath {
 } derive(ToJson, Hash, Eq)
 
 ///|
-/// 
 /// #### Verbatim Prefix
-/// 
+///
 /// refer to [Microsoft Win32 File Namespaces](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#win32-file-namespaces)
 /// > For file I/O,
 /// > the "\\?\" prefix to a path string tells the Windows APIs to disable all string parsing and to send the string that follows it straight to the file system.
-/// 
-/// #### Windows Encoding 
-/// 
+///
+/// #### Windows Encoding
+///
 /// refer to [Microsoft Path Unicode Normalization](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
-/// 
-/// > There is no need to perform any Unicode normalization on path and file name strings for use by the Windows file I/O API functions 
+///
+/// > There is no need to perform any Unicode normalization on path and file name strings for use by the Windows file I/O API functions
 /// > because the file system treats path and file names as an opaque sequence of WCHARs.
-/// > Any normalization that your application requires should be performed with this in mind, 
+/// > Any normalization that your application requires should be performed with this in mind,
 /// > external of any calls to related Windows file I/O API functions.
-/// 
+///
 /// #### Relative Paths Cannot use Verbatim Prefix
-/// 
+///
 /// refer to [Microsoft Verbatim restriction](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
-/// 
-/// > Because you cannot use the "\\?\" prefix with a relative path, 
+///
+/// > Because you cannot use the "\\?\" prefix with a relative path,
 /// > relative paths are always limited to a total of MAX_PATH characters.
-/// 
+///
 priv enum WinPrefix {
   /// Syntax: `\`
   ///
@@ -87,8 +86,8 @@ priv enum WinPrefix {
   None
 } derive(ToJson, Hash, Eq)
 
-/// In order to make code more clean,
-/// so we have to define many string constants to avoid escape sequences.
+// In order to make code more clean,
+// so we have to define many string constants to avoid escape sequences.
 
 ///|
 const VerbatimPrefix : String =

@@ -86,7 +86,7 @@ pub impl Show for Path with fn to_string(path) {
 ///
 /// This follows Node `path.win32.basename`: both `/` and `\` are separators,
 /// trailing separators are ignored, and root-only paths return an empty name.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "usr\\local\\"
@@ -113,7 +113,7 @@ pub fn Path::basename(path : Path) -> StringView {
 ///
 /// This follows Node `path.win32.dirname`: both separators are recognized and
 /// the returned directory preserves the original separator spelling.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "usr\\local\\"
@@ -151,7 +151,7 @@ pub fn Path::dirname(path : Path) -> Path {
 /// Returns the extension of the last path component.
 ///
 /// This follows Node `path.win32.extname` dotfile rules.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "archive.tar.gz"
@@ -171,9 +171,9 @@ pub fn Path::extname(path : Path) -> StringView {
 
 ///|
 /// Returns whether the given path is absolute.
-/// 
+///
 /// edge cases: when path is empty, return false
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path1 : Path = "C:\\Program Files\\App"
@@ -199,7 +199,7 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 /// edge cases:
 ///   1. when path is empty or relative, return `""`
 ///   2. bare `\\` and UNC host without share return `\`, following Node
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "C:\\foo\\bar"
@@ -216,7 +216,7 @@ pub fn Path::root(path : Path) -> StringView {
 /// Concatenates two path strings with `\`, then normalizes the result.
 ///
 /// Absolute right-hand paths and different-drive paths do not override `lhs`.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path1 : Path = "C::\\Program Files"
@@ -236,12 +236,12 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///|
 /// 1. resolve `.` by directly removing it
 /// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
-/// 3. remove redundant backslashes 
+/// 3. remove redundant backslashes
 /// 4. preserve trailing slash or backslash
-/// 
+///
 /// edge cases:
 ///   1. when path is empty, return `.`
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "C:\\usr\\\\local\\..\\bin\\"
@@ -304,16 +304,16 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 
 ///|
 /// Returns the relative path from `base` to `path`.
-/// 
+///
 /// property: joining `base` with the returned relative path yields
 /// `@path.resolve(path)`.
-/// 
-/// edge cases: 
+///
+/// edge cases:
 ///  1. when `@path.resolve(base) == @path.resolve(path)`, return empty string
 ///  2. when the resolved paths have no common root boundary, return the resolved target path
-/// 
+///
 /// Warning: cwd is already resolve symbolic link and normalized, but path doesn't.
-/// 
+///
 /// ```moonbit check
 /// test {
 ///   let path : Path = "C:\\Users\\Alice\\Documents\\Project"
