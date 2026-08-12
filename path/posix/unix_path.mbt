@@ -18,7 +18,6 @@ priv enum UnixPrefix {
   ///
   /// A pathname consisting of a single <slash> shall resolve to the root directory of the process.
   Root
-  SlashSlash
   None
 } derive(ToJson, Hash, Eq)
 
@@ -42,7 +41,6 @@ impl Show for UnixPath with fn output(self : UnixPath, logger : &Logger) -> Unit
   let { prefix, trailing_separator, components } = self
   match prefix {
     Root => logger.write_char('/')
-    SlashSlash => logger.write_char('/')
     None => ()
   }
   match components {
