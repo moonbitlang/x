@@ -2,7 +2,7 @@
 package "moonbitlang/x/unicode"
 
 // Values
-pub fn fold_lower(Char) -> Char
+pub fn to_lowercase(Char) -> Char
 
 // Errors
 
