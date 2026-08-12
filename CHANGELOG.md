@@ -5,12 +5,12 @@
 ### Added
 
 - Added `@unicode` package with per-character Unicode simple case folding to
-  lowercase, following Node.js `toLowerCase`
+  lowercase, following Node.js `toLowerCase` (#296)
 
 ### Fixed
 
 - Fixed `@path` win32 relative path comparisons to use full Unicode case
-  folding
+  folding (#296)
 - Fixed compiler warnings in `@json5`, `@path`, and `@time` with MoonBit
   0.1.20260807 (#295)
 
