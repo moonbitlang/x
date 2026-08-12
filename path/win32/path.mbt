@@ -59,7 +59,7 @@ fn current_dir_for_drive_with_cwd(
     !cwd[0:2].equal_ignore_ascii_case(device) &&
     cwd.length() > 2 &&
     is_win_sep_at(cwd, 2) {
-    "\\\{device}"
+    "\{device}\\"
   } else if !start_with_win_drive(cwd) &&
     cwd.length() > 0 &&
     is_win_sep_at(cwd, 0) {

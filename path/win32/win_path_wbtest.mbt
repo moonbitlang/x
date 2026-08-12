@@ -169,6 +169,13 @@ test "resolve with Windows cwd anchors drive-less rooted paths" {
 }
 
 ///|
+test "resolve drive-relative against cwd on another drive" {
+  inspect(resolve_with_cwd("C:", "D:\\a\\x\\x"), content="C:\\")
+  inspect(resolve_with_cwd("C:a", "D:\\a\\x\\x"), content="C:\\a")
+  inspect(resolve_with_cwd("C:a\\..\\b", "D:\\a\\x\\x"), content="C:\\b")
+}
+
+///|
 fn relative_with_cwd(base : Path, path : Path, cwd : String) -> Path {
   let resolved_from = resolve_with_cwd(base, cwd)
   let resolved_to = resolve_with_cwd(path, cwd)
