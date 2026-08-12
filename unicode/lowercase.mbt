@@ -12,17 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Generated Unicode simple case folding table. Do not edit by hand.
-
 ///|
-/// Unicode simple case folding (lowercase direction), following Node
-let fold : (Char, Int) -> Char = (c, delta) => {
-  Int::to_char(c.to_int() + delta).unwrap()
-}
-
-///|
-/// `toLowerCase`. Generated; do not edit by hand.
-fn win_char_to_common_lower(ch : Char) -> Char {
+/// Unicode simple case folding (lowercase direction), following Node.js
+/// `toLowerCase`.
+pub fn fold_lower(ch : Char) -> Char {
   match ch {
     'Ā'
     | 'Ă'
@@ -572,7 +565,7 @@ fn win_char_to_common_lower(ch : Char) -> Char {
     | 'Ꟗ'
     | 'Ꟙ'
     | 'Ꟛ'
-    | 'Ꟶ' => fold(ch, 0x1)
+    | 'Ꟶ' => ch.shift_char(0x1)
     'A'..='Z'
     | 'À'..='Ö'
     | 'Ø'..='Þ'
@@ -582,9 +575,9 @@ fn win_char_to_common_lower(ch : Char) -> Char {
     | 'Ａ'..='Ｚ'
     | '\u{10d50}'..='\u{10d65}'
     | '\u{118a0}'..='\u{118bf}'
-    | '\u{16e40}'..='\u{16e5f}' => fold(ch, 0x20)
-    'Ա'..='Ֆ' | 'Ⰰ'..='Ⱟ' => fold(ch, 0x30)
-    'Ꭰ'..='Ꮿ' => fold(ch, 0x97d0)
+    | '\u{16e40}'..='\u{16e5f}' => ch.shift_char(0x20)
+    'Ա'..='Ֆ' | 'Ⰰ'..='Ⱟ' => ch.shift_char(0x30)
+    'Ꭰ'..='Ꮿ' => ch.shift_char(0x97d0)
     'Ἀ'..='Ἇ'
     | 'Ἐ'..='Ἕ'
     | 'Ἠ'..='Ἧ'
@@ -600,39 +593,39 @@ fn win_char_to_common_lower(ch : Char) -> Char {
     | 'ᾨ'..='ᾯ'
     | 'Ᾰ'..='Ᾱ'
     | 'Ῐ'..='Ῑ'
-    | 'Ῠ'..='Ῡ' => fold(ch, -8)
-    '\u{10400}'..='\u{10427}' | '\u{104b0}'..='\u{104d3}' => fold(ch, 0x28)
-    'Ό' | '\u{10c80}'..='\u{10cb2}' => fold(ch, 0x40)
-    'Ა'..='Ჺ' | 'Ჽ'..='Ჿ' => fold(ch, -3008)
-    'Ⴀ'..='Ⴥ' | 'Ⴧ' | 'Ⴭ' => fold(ch, 0x1c60)
+    | 'Ῠ'..='Ῡ' => ch.shift_char(-8)
+    '\u{10400}'..='\u{10427}' | '\u{104b0}'..='\u{104d3}' => ch.shift_char(0x28)
+    'Ό' | '\u{10c80}'..='\u{10cb2}' => ch.shift_char(0x40)
+    'Ა'..='Ჺ' | 'Ჽ'..='Ჿ' => ch.shift_char(-3008)
+    'Ⴀ'..='Ⴥ' | 'Ⴧ' | 'Ⴭ' => ch.shift_char(0x1c60)
     '\u{10570}'..='\u{1057a}'
     | '\u{1057c}'..='\u{1058a}'
     | '\u{1058c}'..='\u{10592}'
-    | '\u{10594}'..='\u{10595}' => fold(ch, 0x27)
-    '\u{1e900}'..='\u{1e921}' => fold(ch, 0x22)
-    'Ⓐ'..='Ⓩ' => fold(ch, 0x1a)
-    '\u{16ea0}'..='\u{16eb8}' => fold(ch, 0x1b)
-    'Ѐ'..='Џ' => fold(ch, 0x50)
-    'Ⅰ'..='Ⅿ' => fold(ch, 0x10)
-    'Ϗ' | 'Ᏸ'..='Ᏽ' => fold(ch, 0x8)
-    'Ǆ' | 'Ǉ' | 'Ǌ' | 'Ǳ' => fold(ch, 0x2)
-    'Ƞ' | 'Ͻ'..='Ͽ' => fold(ch, -130)
-    'Ὲ'..='Ή' => fold(ch, -86)
-    'Ɖ'..='Ɗ' | 'Ɠ' => fold(ch, 0xcd)
-    'Ʀ' | 'Ʃ' | 'Ʈ' => fold(ch, 0xda)
-    'Έ'..='Ί' => fold(ch, 0x25)
-    'ᾼ' | 'ῌ' | 'ῼ' => fold(ch, -9)
-    'Ɩ' | 'Ɯ' => fold(ch, 0xd3)
-    'Ʊ'..='Ʋ' => fold(ch, 0xd9)
-    'Ύ'..='Ώ' => fold(ch, 0x3f)
-    'Ϲ' | 'Ῥ' => fold(ch, -7)
-    'Ὰ'..='Ά' => fold(ch, -74)
-    'Ὶ'..='Ί' => fold(ch, -100)
-    'Ὺ'..='Ύ' => fold(ch, -112)
-    'Ὸ'..='Ό' => fold(ch, -128)
-    'Ὼ'..='Ώ' => fold(ch, -126)
-    'Ȿ'..='Ɀ' => fold(ch, -10815)
-    'Ɦ' | 'Ɪ' => fold(ch, -42308)
+    | '\u{10594}'..='\u{10595}' => ch.shift_char(0x27)
+    '\u{1e900}'..='\u{1e921}' => ch.shift_char(0x22)
+    'Ⓐ'..='Ⓩ' => ch.shift_char(0x1a)
+    '\u{16ea0}'..='\u{16eb8}' => ch.shift_char(0x1b)
+    'Ѐ'..='Џ' => ch.shift_char(0x50)
+    'Ⅰ'..='Ⅿ' => ch.shift_char(0x10)
+    'Ϗ' | 'Ᏸ'..='Ᏽ' => ch.shift_char(0x8)
+    'Ǆ' | 'Ǉ' | 'Ǌ' | 'Ǳ' => ch.shift_char(0x2)
+    'Ƞ' | 'Ͻ'..='Ͽ' => ch.shift_char(-130)
+    'Ὲ'..='Ή' => ch.shift_char(-86)
+    'Ɖ'..='Ɗ' | 'Ɠ' => ch.shift_char(0xcd)
+    'Ʀ' | 'Ʃ' | 'Ʈ' => ch.shift_char(0xda)
+    'Έ'..='Ί' => ch.shift_char(0x25)
+    'ᾼ' | 'ῌ' | 'ῼ' => ch.shift_char(-9)
+    'Ɩ' | 'Ɯ' => ch.shift_char(0xd3)
+    'Ʊ'..='Ʋ' => ch.shift_char(0xd9)
+    'Ύ'..='Ώ' => ch.shift_char(0x3f)
+    'Ϲ' | 'Ῥ' => ch.shift_char(-7)
+    'Ὰ'..='Ά' => ch.shift_char(-74)
+    'Ὶ'..='Ί' => ch.shift_char(-100)
+    'Ὺ'..='Ύ' => ch.shift_char(-112)
+    'Ὸ'..='Ό' => ch.shift_char(-128)
+    'Ὼ'..='Ώ' => ch.shift_char(-126)
+    'Ȿ'..='Ɀ' => ch.shift_char(-10815)
+    'Ɦ' | 'Ɪ' => ch.shift_char(-42308)
     'Ÿ' => 'ÿ'
     'Ɓ' => 'ɓ'
     'Ɔ' => 'ɔ'

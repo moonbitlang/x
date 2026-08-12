@@ -332,8 +332,8 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 }
 
 ///|
-fn win_char_equal_ignore_case(left : Char, right : Char) -> Bool {
-  win_char_to_common_lower(left) == win_char_to_common_lower(right)
+fn Char::to_lowercase(ch : Char) -> Char {
+  @unicode.fold_lower(ch)
 }
 
 ///|
@@ -341,7 +341,7 @@ fn win_string_equal_ignore_case(left : StringView, right : StringView) -> Bool {
   let mut li = 0
   let mut ri = 0
   while left.get_char(li) is Some(l) && right.get_char(ri) is Some(r) {
-    guard win_char_equal_ignore_case(l, r) else { return false }
+    guard l.to_lowercase() == r.to_lowercase() else { return false }
     li += l.utf16_len()
     ri += r.utf16_len()
   }
