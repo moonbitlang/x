@@ -4,6 +4,8 @@ package "moonbitlang/x/unicode"
 // Values
 pub fn to_lowercase(Char) -> Char
 
+pub fn utf16_pair_to_char(Int, Int) -> Char?
+
 // Errors
 
 // Types and methods
