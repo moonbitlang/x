@@ -87,14 +87,8 @@ pub fn encode_to(
   encoding~ : Encoding,
 ) -> Unit {
   match encoding {
-    UTF8 =>
-      for char in src {
-        write_utf8_char(buffer, char)
-      }
-    UTF16BE =>
-      for char in src {
-        write_utf16be_char(buffer, char)
-      }
+    UTF8 => buffer.write_string_utf8(src)
+    UTF16BE => buffer.write_string_utf16be(src)
     UTF16 | UTF16LE => buffer.write_string_utf16le(src)
   }
 }
@@ -146,38 +140,7 @@ pub fn to_utf16be_bytes(value : Char) -> Bytes {
 ///|
 /// Write a char into buffer as UTF8.
 pub fn write_utf8_char(buf : @buffer.Buffer, value : Char) -> Unit {
-  let code = value.to_uint()
-  match code {
-    _..<0x80 => {
-      let b0 = ((code & 0x7F) | 0x00).to_byte()
-      buf.write_byte(b0)
-    }
-    _..<0x0800 => {
-      let b0 = (((code >> 6) & 0x1F) | 0xC0).to_byte()
-      let b1 = ((code & 0x3F) | 0x80).to_byte()
-      buf.write_byte(b0)
-      buf.write_byte(b1)
-    }
-    _..<0x010000 => {
-      let b0 = (((code >> 12) & 0x0F) | 0xE0).to_byte()
-      let b1 = (((code >> 6) & 0x3F) | 0x80).to_byte()
-      let b2 = ((code & 0x3F) | 0x80).to_byte()
-      buf.write_byte(b0)
-      buf.write_byte(b1)
-      buf.write_byte(b2)
-    }
-    _..<0x110000 => {
-      let b0 = (((code >> 18) & 0x07) | 0xF0).to_byte()
-      let b1 = (((code >> 12) & 0x3F) | 0x80).to_byte()
-      let b2 = (((code >> 6) & 0x3F) | 0x80).to_byte()
-      let b3 = ((code & 0x3F) | 0x80).to_byte()
-      buf.write_byte(b0)
-      buf.write_byte(b1)
-      buf.write_byte(b2)
-      buf.write_byte(b3)
-    }
-    _ => abort("Char out of range")
-  }
+  buf.write_char_utf8(value)
 }
 
 ///|
@@ -190,51 +153,11 @@ pub fn write_utf16_char(buf : @buffer.Buffer, value : Char) -> Unit {
 ///|
 /// Write a char into buffer as UTF16LE.
 pub fn write_utf16le_char(buf : @buffer.Buffer, value : Char) -> Unit {
-  let code = value.to_uint()
-  if code < 0x10000 {
-    let b0 = (code & 0xFF).to_byte()
-    let b1 = (code >> 8).to_byte()
-    buf.write_byte(b0)
-    buf.write_byte(b1)
-  } else if code < 0x110000 {
-    let hi = code - 0x10000
-    let lo = (hi >> 10) | 0xD800
-    let hi = (hi & 0x3FF) | 0xDC00
-    let b0 = (lo & 0xFF).to_byte()
-    let b1 = (lo >> 8).to_byte()
-    let b2 = (hi & 0xFF).to_byte()
-    let b3 = (hi >> 8).to_byte()
-    buf.write_byte(b0)
-    buf.write_byte(b1)
-    buf.write_byte(b2)
-    buf.write_byte(b3)
-  } else {
-    abort("Char out of range")
-  }
+  buf.write_char_utf16le(value)
 }
 
 ///|
 /// Write a char into buffer as UTF16BE.
 pub fn write_utf16be_char(buf : @buffer.Buffer, value : Char) -> Unit {
-  let code = value.to_uint()
-  if code < 0x10000 {
-    let b0 = (code >> 8).to_byte()
-    let b1 = (code & 0xFF).to_byte()
-    buf.write_byte(b0)
-    buf.write_byte(b1)
-  } else if code < 0x110000 {
-    let hi = code - 0x10000
-    let lo = (hi >> 10) | 0xD800
-    let hi = (hi & 0x3FF) | 0xDC00
-    let b0 = (lo >> 8).to_byte()
-    let b1 = (lo & 0xFF).to_byte()
-    let b2 = (hi >> 8).to_byte()
-    let b3 = (hi & 0xFF).to_byte()
-    buf.write_byte(b0)
-    buf.write_byte(b1)
-    buf.write_byte(b2)
-    buf.write_byte(b3)
-  } else {
-    abort("Char out of range")
-  }
+  buf.write_char_utf16be(value)
 }
