@@ -213,19 +213,14 @@ let lowercase_map : @hashmap.HashMap[Char, Char] = {
     [],
     capacity=LOWERCASE_ENTRY_COUNT * 2,
   )
-  for ch in shift_one {
-    map[ch] = ch.shift_char(0x1)
-  }
-  for item in shift_ranges {
+  shift_one.each(e => map[e] = e.shift_char(0x1))
+  explicit_maps.each(e => map[e.0] = e.1)
+  shift_ranges.each(item => {
     let (start, end, delta) = item
     for code in start.to_int().until(end.to_int(), inclusive=true) {
-      let ch = Int::to_char(code).unwrap()
+      let ch = code.to_char().unwrap()
       map[ch] = ch.shift_char(delta)
     }
-  }
-  for item in explicit_maps {
-    let (upper, lower) = item
-    map[upper] = lower
-  }
+  })
   map
 }

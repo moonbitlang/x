@@ -13,14 +13,18 @@
 // limitations under the License.
 
 ///|
-fn Char::shift_char(c : Char, delta : Int) -> Char {
-  Int::to_char(c.to_int() + delta).unwrap()
+test "from_utf16_pair combines a valid surrogate pair" {
+  debug_inspect(utf16_pair_to_char(0xD83D, 0xDE00), content="Some('😀')")
+  debug_inspect(utf16_pair_to_char(0xD800, 0xDC00), content="Some('\u{10000}')")
+  debug_inspect(
+    utf16_pair_to_char(0xDBFF, 0xDFFF),
+    content="Some('\\u{10ffff}')",
+  )
 }
 
 ///|
-/// Combine a UTF-16 leading surrogate `hi` and trailing surrogate `lo` into
-/// a char, or `None` if the code units are not a valid surrogate pair.
-pub fn utf16_pair_to_char(hi : Int, lo : Int) -> Char? {
-  guard hi.is_leading_surrogate() && lo.is_trailing_surrogate() else { None }
-  Some(Int::unsafe_to_char((hi << 10) + lo - 0x35fdc00))
+test "from_utf16_pair rejects invalid pairs" {
+  debug_inspect(utf16_pair_to_char(0x0041, 0xDE00), content="None")
+  debug_inspect(utf16_pair_to_char(0xD83D, 0x0041), content="None")
+  debug_inspect(utf16_pair_to_char(0xD83D, 0xD83D), content="None")
 }
