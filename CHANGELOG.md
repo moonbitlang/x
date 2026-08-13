@@ -7,7 +7,7 @@
 - Added `@unicode` package with per-character Unicode simple case folding to
   lowercase, following Node.js `toLowerCase` (#296)
 - Added `@unicode.utf16_pair_to_char` to combine a UTF-16 surrogate pair
-  into a char
+  into a char (#297)
 
 ### Fixed
 
