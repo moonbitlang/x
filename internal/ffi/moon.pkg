@@ -1,3 +1,7 @@
+import {
+  "moonbitlang/x/unicode",
+}
+
 options(
   targets: {
     "byte_array_wasm.mbt": [ "wasm", "wasm-gc" ],

@@ -19,11 +19,10 @@ pub fn mbt_string_to_utf8_bytes(str : String, is_filename : Bool) -> Bytes {
   let mut i = 0
   while i < len {
     let mut c = str.code_unit_at(i).to_int()
-    if 0xD800 <= c && c <= 0xDBFF {
-      c -= 0xD800
+    if c.is_leading_surrogate() {
       i = i + 1
-      let l = str.code_unit_at(i).to_int() - 0xDC00
-      c = (c << 10) + l + 0x10000
+      let l = str.code_unit_at(i).to_int()
+      c = @unicode.utf16_pair_to_char(c, l).unwrap().to_int()
     }
 
     // stdout accepts UTF-8, so convert the stream to UTF-8 first

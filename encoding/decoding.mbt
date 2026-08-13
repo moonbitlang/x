@@ -651,21 +651,20 @@ fn r_utf_16_lo(
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let lo = (b0 << 8) | b1
-  if lo < 0xDC00 || lo > 0xDFFF {
-    // NOTE(jinser): only hi malformed, skip lo if lo is illegal
-    //
-    // For example, b"\xD8\x00\x00\x48" (BE)
-    // Since \xD8\x00 is *legal* hi, here will try to parse lo next,
-    // however the whole \xD8\x00\x00\x48 is *illegal* so the result will be a `Malformed[b"\xD8\x00\x00\x48"]`
-    //
-    // But \x00\x48 itself is a *legal* UTF16 code point with a value of `H`,
-    // the ideal result should be: `[Malformed(b"\xD8\x00"), Uchar('H')]`
-    //
-    // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
-    // �H
-    Malformed([bytes[offset0], bytes[offset1]])
-  } else {
-    Uchar(Int::unsafe_to_char(((hi & 0x3FF) << 10) | ((lo & 0x3FF) + 0x10000)))
+  // NOTE(jinser): only hi malformed, skip lo if lo is illegal
+  //
+  // For example, b"\xD8\x00\x00\x48" (BE)
+  // Since \xD8\x00 is *legal* hi, here will try to parse lo next,
+  // however the whole \xD8\x00\x00\x48 is *illegal* so the result will be a `Malformed[b"\xD8\x00\x00\x48"]`
+  //
+  // But \x00\x48 itself is a *legal* UTF16 code point with a value of `H`,
+  // the ideal result should be: `[Malformed(b"\xD8\x00"), Uchar('H')]`
+  //
+  // > printf '\xD8\x00\x00\x48' | uconv --from-code UTF16BE --to-code UTF8 --from-callback substitute
+  // �H
+  match @unicode.utf16_pair_to_char(hi, lo) {
+    Some(ch) => Uchar(ch)
+    _ => Malformed([bytes[offset0], bytes[offset1]])
   }
 }
 
@@ -678,12 +677,12 @@ fn r_utf_16(
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
   let u = (b0 << 8) | b1
-  if u < 0xD800 || u > 0xDFFF {
-    UTF16Uchar(Int::unsafe_to_char(u))
-  } else if u > 0xDBFF {
+  if u.is_leading_surrogate() {
+    Hi(u)
+  } else if u.is_trailing_surrogate() {
     UTF16Malformed(slice(bytes, @cmp.minimum(offset0, offset1), 2))
   } else {
-    Hi(u)
+    UTF16Uchar(Int::unsafe_to_char(u))
   }
 }
 
