@@ -26,15 +26,25 @@ pub fn Duration::add_hours(Self, Int64) -> Self raise
 pub fn Duration::add_minutes(Self, Int64) -> Self raise
 pub fn Duration::add_nanoseconds(Self, Int64) -> Self raise
 pub fn Duration::add_seconds(Self, Int64) -> Self raise
+pub fn Duration::compare(Self, Self) -> Int
+pub fn Duration::equal(Self, Self) -> Bool
+pub fn Duration::from_str(StringView) -> Self raise
 #deprecated
 pub fn Duration::from_string(String) -> Self raise
 pub fn Duration::is_neg(Self) -> Bool
 pub fn Duration::is_zero(Self) -> Bool
 pub fn Duration::nanoseconds(Self) -> Int
+pub fn Duration::not_equal(Self, Self) -> Bool
 pub fn Duration::of(hours? : Int64, minutes? : Int64, seconds? : Int64, nanoseconds? : Int64) -> Self raise
 pub fn Duration::op_add(Self, Self) -> Self raise
+pub fn Duration::op_ge(Self, Self) -> Bool
+pub fn Duration::op_gt(Self, Self) -> Bool
+pub fn Duration::op_le(Self, Self) -> Bool
+pub fn Duration::op_lt(Self, Self) -> Bool
+pub fn Duration::output(Self, &Logger) -> Unit
 pub fn Duration::seconds(Self) -> Int64
 pub fn Duration::to_nanoseconds(Self) -> Int64
+pub fn Duration::to_repr(Self) -> @debug.Repr
 pub fn Duration::to_string(Self) -> String
 pub fn Duration::with_nanoseconds(Self, Int) -> Self raise
 pub fn Duration::with_seconds(Self, Int64) -> Self
@@ -48,16 +58,25 @@ pub fn Period::add_months(Self, Int) -> Self raise
 pub fn Period::add_period(Self, Self) -> Self raise
 pub fn Period::add_weeks(Self, Int) -> Self raise
 pub fn Period::add_years(Self, Int) -> Self raise
+pub fn Period::compare(Self, Self) -> Int
 pub fn Period::days(Self) -> Int
+pub fn Period::equal(Self, Self) -> Bool
 pub fn Period::from_string(String) -> Self raise
 pub fn Period::is_neg(Self) -> Bool
 pub fn Period::is_zero(Self) -> Bool
 pub fn Period::months(Self) -> Int
 pub fn Period::multiply(Self, Int) -> Self raise
 pub fn Period::negated(Self) -> Self raise
+pub fn Period::not_equal(Self, Self) -> Bool
 pub fn Period::of(years? : Int, months? : Int, days? : Int) -> Self
 pub fn Period::op_add(Self, Self) -> Self raise
+pub fn Period::op_ge(Self, Self) -> Bool
+pub fn Period::op_gt(Self, Self) -> Bool
+pub fn Period::op_le(Self, Self) -> Bool
+pub fn Period::op_lt(Self, Self) -> Bool
 pub fn Period::op_sub(Self, Self) -> Self raise
+pub fn Period::output(Self, &Logger) -> Unit
+pub fn Period::to_repr(Self) -> @debug.Repr
 pub fn Period::to_string(Self) -> String
 pub fn Period::to_total_months(Self) -> Int64
 pub fn Period::with_days(Self, Int) -> Self
@@ -73,12 +92,15 @@ pub fn PlainDate::add_months(Self, Int64) -> Self raise
 pub fn PlainDate::add_period(Self, Period) -> Self raise
 pub fn PlainDate::add_weeks(Self, Int64) -> Self raise
 pub fn PlainDate::add_years(Self, Int64) -> Self raise
+pub fn PlainDate::compare(Self, Self) -> Int
 pub fn PlainDate::day(Self) -> Int
 pub fn PlainDate::days_in_month(Self) -> Int
 pub fn PlainDate::days_in_week(Self) -> Int
 pub fn PlainDate::days_in_year(Self) -> Int
+pub fn PlainDate::equal(Self, Self) -> Bool
 pub fn PlainDate::era(Self) -> String
 pub fn PlainDate::era_year(Self) -> Int
+pub fn PlainDate::from_str(StringView) -> Self raise
 #deprecated
 pub fn PlainDate::from_string(String) -> Self raise
 pub fn PlainDate::from_unix_day(Int64) -> Self raise
@@ -86,8 +108,15 @@ pub fn PlainDate::from_year_ord(Int, Int) -> Self raise
 pub fn PlainDate::in_leap_year(Self) -> Bool
 pub fn PlainDate::month(Self) -> Int
 pub fn PlainDate::months_in_year(Self) -> Int
+pub fn PlainDate::not_equal(Self, Self) -> Bool
 pub fn PlainDate::of(Int, Int, Int) -> Self raise
+pub fn PlainDate::op_ge(Self, Self) -> Bool
+pub fn PlainDate::op_gt(Self, Self) -> Bool
+pub fn PlainDate::op_le(Self, Self) -> Bool
+pub fn PlainDate::op_lt(Self, Self) -> Bool
 pub fn PlainDate::ordinal(Self) -> Int
+pub fn PlainDate::output(Self, &Logger) -> Unit
+pub fn PlainDate::to_repr(Self) -> @debug.Repr
 pub fn PlainDate::to_string(Self) -> String
 pub fn PlainDate::to_unix_day(Self) -> Int64
 pub fn PlainDate::until(Self, Self) -> Period raise
@@ -113,12 +142,15 @@ pub fn PlainDateTime::add_period(Self, Period) -> Self raise
 pub fn PlainDateTime::add_seconds(Self, Int64) -> Self raise
 pub fn PlainDateTime::add_weeks(Self, Int64) -> Self raise
 pub fn PlainDateTime::add_years(Self, Int64) -> Self raise
+pub fn PlainDateTime::compare(Self, Self) -> Int
 pub fn PlainDateTime::day(Self) -> Int
 pub fn PlainDateTime::days_in_month(Self) -> Int
 pub fn PlainDateTime::days_in_week(Self) -> Int
 pub fn PlainDateTime::days_in_year(Self) -> Int
+pub fn PlainDateTime::equal(Self, Self) -> Bool
 pub fn PlainDateTime::era(Self) -> String
 pub fn PlainDateTime::era_year(Self) -> Int
+pub fn PlainDateTime::from_str(StringView) -> Self raise
 #deprecated
 pub fn PlainDateTime::from_string(String) -> Self raise
 pub fn PlainDateTime::from_unix_second(Int64, Int, ZoneOffset) -> Self raise
@@ -128,11 +160,18 @@ pub fn PlainDateTime::minute(Self) -> Int
 pub fn PlainDateTime::month(Self) -> Int
 pub fn PlainDateTime::months_in_year(Self) -> Int
 pub fn PlainDateTime::nanosecond(Self) -> Int
+pub fn PlainDateTime::not_equal(Self, Self) -> Bool
 pub fn PlainDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int) -> Self raise
+pub fn PlainDateTime::op_ge(Self, Self) -> Bool
+pub fn PlainDateTime::op_gt(Self, Self) -> Bool
+pub fn PlainDateTime::op_le(Self, Self) -> Bool
+pub fn PlainDateTime::op_lt(Self, Self) -> Bool
 pub fn PlainDateTime::ordinal(Self) -> Int
+pub fn PlainDateTime::output(Self, &Logger) -> Unit
 pub fn PlainDateTime::second(Self) -> Int
 pub fn PlainDateTime::to_plain_date(Self) -> PlainDate
 pub fn PlainDateTime::to_plain_time(Self) -> PlainTime
+pub fn PlainDateTime::to_repr(Self) -> @debug.Repr
 pub fn PlainDateTime::to_string(Self) -> String
 pub fn PlainDateTime::to_unix_second(Self) -> Int64
 pub fn PlainDateTime::weekday(Self) -> Weekday
@@ -155,17 +194,27 @@ pub fn PlainTime::add_minutes(Self, Int64) -> Self raise
 pub fn PlainTime::add_nanoseconds(Self, Int64) -> Self raise
 pub fn PlainTime::add_seconds(Self, Int64) -> Self raise
 pub fn PlainTime::at_date(Self, PlainDate) -> PlainDateTime
+pub fn PlainTime::compare(Self, Self) -> Int
+pub fn PlainTime::equal(Self, Self) -> Bool
 pub fn PlainTime::from_nanosecond_of_day(Int64) -> Self raise
 pub fn PlainTime::from_second_of_day(Int) -> Self raise
+pub fn PlainTime::from_str(StringView) -> Self raise
 #deprecated
 pub fn PlainTime::from_string(String) -> Self raise
 pub fn PlainTime::hour(Self) -> Int
 pub fn PlainTime::minute(Self) -> Int
 pub fn PlainTime::nanosecond(Self) -> Int
 pub fn PlainTime::nanosecond_of_day(Self) -> Int64
+pub fn PlainTime::not_equal(Self, Self) -> Bool
 pub fn PlainTime::of(Int, Int, Int, Int) -> Self raise
+pub fn PlainTime::op_ge(Self, Self) -> Bool
+pub fn PlainTime::op_gt(Self, Self) -> Bool
+pub fn PlainTime::op_le(Self, Self) -> Bool
+pub fn PlainTime::op_lt(Self, Self) -> Bool
+pub fn PlainTime::output(Self, &Logger) -> Unit
 pub fn PlainTime::second(Self) -> Int
 pub fn PlainTime::second_of_day(Self) -> Int
+pub fn PlainTime::to_repr(Self) -> @debug.Repr
 pub fn PlainTime::to_string(Self) -> String
 pub fn PlainTime::until(Self, Self) -> Duration raise
 pub fn PlainTime::with_hour(Self, Int) -> Self raise
@@ -184,21 +233,39 @@ pub(all) enum Weekday {
   Saturday
   Sunday
 } derive(Eq, @debug.Debug)
+pub fn Weekday::equal(Self, Self) -> Bool
+pub fn Weekday::not_equal(Self, Self) -> Bool
+pub fn Weekday::output(Self, &Logger) -> Unit
+pub fn Weekday::to_repr(Self) -> @debug.Repr
+pub fn Weekday::to_string(Self) -> String
 pub impl Show for Weekday
 
 type Zone derive(Eq, @debug.Debug)
+pub fn Zone::equal(Self, Self) -> Bool
 pub fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 pub fn Zone::is_fixed(Self) -> Bool
+pub fn Zone::not_equal(Self, Self) -> Bool
+pub fn Zone::output(Self, &Logger) -> Unit
+pub fn Zone::to_repr(Self) -> @debug.Repr
 pub fn Zone::to_string(Self) -> String
 pub impl Show for Zone
 
 type ZoneOffset derive(@debug.Debug)
 pub fn ZoneOffset::abbreviation(Self) -> String
+pub fn ZoneOffset::compare(Self, Self) -> Int
+pub fn ZoneOffset::equal(Self, Self) -> Bool
 pub fn ZoneOffset::from_seconds(Int, abbrev? : String, dst? : Bool) -> Self raise
 pub fn ZoneOffset::id(Self) -> String
 pub fn ZoneOffset::is_dst(Self) -> Bool
+pub fn ZoneOffset::not_equal(Self, Self) -> Bool
 pub fn ZoneOffset::of(hours? : Int, minutes? : Int, seconds? : Int, abbrev? : String, dst? : Bool) -> Self raise
+pub fn ZoneOffset::op_ge(Self, Self) -> Bool
+pub fn ZoneOffset::op_gt(Self, Self) -> Bool
+pub fn ZoneOffset::op_le(Self, Self) -> Bool
+pub fn ZoneOffset::op_lt(Self, Self) -> Bool
+pub fn ZoneOffset::output(Self, &Logger) -> Unit
 pub fn ZoneOffset::seconds(Self) -> Int
+pub fn ZoneOffset::to_repr(Self) -> @debug.Repr
 pub fn ZoneOffset::to_string(Self) -> String
 pub impl Compare for ZoneOffset
 pub impl Eq for ZoneOffset
@@ -230,10 +297,12 @@ pub fn ZonedDateTime::nanosecond(Self) -> Int
 pub fn ZonedDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> Self raise
 pub fn ZonedDateTime::offset(Self) -> ZoneOffset
 pub fn ZonedDateTime::ordinal(Self) -> Int
+pub fn ZonedDateTime::output(Self, &Logger) -> Unit
 pub fn ZonedDateTime::second(Self) -> Int
 pub fn ZonedDateTime::to_plain_date(Self) -> PlainDate
 pub fn ZonedDateTime::to_plain_date_time(Self) -> PlainDateTime
 pub fn ZonedDateTime::to_plain_time(Self) -> PlainTime
+pub fn ZonedDateTime::to_repr(Self) -> @debug.Repr
 pub fn ZonedDateTime::to_string(Self) -> String
 pub fn ZonedDateTime::to_unix_second(Self) -> Int64
 pub fn ZonedDateTime::weekday(Self) -> Weekday

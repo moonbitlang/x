@@ -463,3 +463,12 @@ pub let delimiter : Char = ';'
 ///|
 /// OS platform specific path component separator.
 pub let sep : Char = '\\'
+
+///|
+pub extend Path with Eq::{not_equal, equal}
+
+///|
+pub extend Path with Debug::{to_repr}
+
+///|
+pub extend Path with Show::{to_string, output}

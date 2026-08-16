@@ -552,3 +552,9 @@ test "equal" {
   inspect(of([2, 4, 6]).equal(of([2, 4, 6])), content="true")
   inspect(of([2, 4, 6]).equal(of([2, 4, 7])), content="false")
 }
+
+///|
+pub extend Stack with Show::{to_string, output}
+
+///|
+pub extend Stack with Debug::{to_repr}

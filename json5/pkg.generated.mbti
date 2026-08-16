@@ -12,6 +12,8 @@ pub fn parse(String) -> Json raise ParseError
 pub(all) suberror ParseError {
   ParseError(ParseErrorData)
 }
+pub fn ParseError::output(Self, &Logger) -> Unit
+pub fn ParseError::to_repr(Self) -> @debug.Repr
 pub fn ParseError::to_string(Self) -> String
 pub impl Show for ParseError
 pub impl @debug.Debug for ParseError
@@ -24,11 +26,17 @@ pub(all) enum ParseErrorData {
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
 } derive(Eq, @debug.Debug)
+pub fn ParseErrorData::equal(Self, Self) -> Bool
+pub fn ParseErrorData::not_equal(Self, Self) -> Bool
+pub fn ParseErrorData::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Position {
   line : Int
   column : Int
 } derive(Eq, @debug.Debug)
+pub fn Position::equal(Self, Self) -> Bool
+pub fn Position::not_equal(Self, Self) -> Bool
+pub fn Position::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

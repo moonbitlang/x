@@ -108,3 +108,12 @@ fn malformed_pair(
   bs.write_bytes(Bytes::from_array(bs1[0:length]))
   Malformed(slice(bs.to_bytes().to_fixedarray(), 0, bs.length()))
 }
+
+///|
+pub extend MalformedError with Debug::{to_repr}
+
+///|
+pub extend TruncatedError with Debug::{to_repr}
+
+///|
+pub extend Encoding with Debug::{to_repr}

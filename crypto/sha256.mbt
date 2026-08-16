@@ -304,3 +304,6 @@ test "sha256 reentry" {
     content="887f2749b07e559d140605a4b9de9af5721e2accad06fade91301f0410ad5cdf",
   )
 }
+
+///|
+pub extend SHA256 with CryptoHasher::{reset, finalize_into, size, block_size}

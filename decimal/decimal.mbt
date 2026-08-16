@@ -785,3 +785,45 @@ pub impl @quickcheck.Arbitrary for Decimal with fn arbitrary(size, rs) {
   let scale = rs.next_int() % (max_scale + 1)
   new_unchecked(coeff, scale)
 }
+
+///|
+pub extend Decimal with Debug::{to_repr}
+
+///|
+pub extend Decimal with Default::{default}
+
+///|
+pub extend Decimal with Eq::{not_equal, equal}
+
+///|
+pub extend Decimal with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend Decimal with Add::{add}
+
+///|
+pub extend Decimal with Sub::{sub}
+
+///|
+pub extend Decimal with Mul::{mul}
+
+///|
+pub extend Decimal with Div::{div}
+
+///|
+pub extend Decimal with Neg::{neg}
+
+///|
+pub extend Decimal with Show::{output}
+
+///|
+pub extend Decimal with ToJson::{to_json}
+
+///|
+pub extend Decimal with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Decimal with Hash::{hash, hash_combine}
+
+///|
+pub extend Decimal with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}

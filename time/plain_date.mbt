@@ -582,3 +582,18 @@ fn validate_ordinal(year : Int, ordinal : Int) -> Bool {
   ordinal <= max_ordinal &&
   ordinal <= calc_days_in_year(year)
 }
+
+///|
+pub extend PlainDate with Debug::{to_repr}
+
+///|
+pub extend PlainDate with @moonbitlang/core/string.FromStr::{from_str}
+
+///|
+pub extend PlainDate with Show::{output}
+
+///|
+pub extend PlainDate with Eq::{not_equal, equal}
+
+///|
+pub extend PlainDate with Compare::{op_lt, op_le, op_ge, compare, op_gt}

@@ -412,3 +412,9 @@ fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
   let offset = zone.lookup_offset(datetime.to_unix_second())
   { datetime, zone, offset }
 }
+
+///|
+pub extend ZonedDateTime with Debug::{to_repr}
+
+///|
+pub extend ZonedDateTime with Show::{output}

@@ -253,3 +253,15 @@ pub impl Show for UUID with fn output(self : UUID, logger : &Logger) -> Unit {
 pub impl Debug for UUID with fn to_repr(self : UUID) -> Repr {
   Repr::ctor("UUID", [(None, Repr::string(self.to_string()))])
 }
+
+///|
+pub extend UUID with Eq::{not_equal, equal}
+
+///|
+pub extend UUID with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend UUID with Show::{output}
+
+///|
+pub extend UUID with Debug::{to_repr}

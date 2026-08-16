@@ -61,3 +61,21 @@ pub impl Show for ParseError with fn output(self : ParseError, logger : &Logger)
 pub impl Debug for ParseError with fn to_repr(self : ParseError) -> Repr {
   Repr::literal(self.to_string())
 }
+
+///|
+pub extend Position with Eq::{not_equal, equal}
+
+///|
+pub extend Position with Debug::{to_repr}
+
+///|
+pub extend ParseErrorData with Eq::{not_equal, equal}
+
+///|
+pub extend ParseErrorData with Debug::{to_repr}
+
+///|
+pub extend ParseError with Show::{output}
+
+///|
+pub extend ParseError with Debug::{to_repr}

@@ -102,3 +102,12 @@ test "show" {
     ),
   )
 }
+
+///|
+pub extend Weekday with Eq::{not_equal, equal}
+
+///|
+pub extend Weekday with Debug::{to_repr}
+
+///|
+pub extend Weekday with Show::{to_string, output}

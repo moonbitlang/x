@@ -167,3 +167,15 @@ fn validate_offset(h : Int, m : Int, s : Int) -> Unit raise Error {
   }
   ()
 }
+
+///|
+pub extend ZoneOffset with Debug::{to_repr}
+
+///|
+pub extend ZoneOffset with Show::{output}
+
+///|
+pub extend ZoneOffset with Eq::{not_equal, equal}
+
+///|
+pub extend ZoneOffset with Compare::{op_lt, op_le, op_ge, compare, op_gt}
