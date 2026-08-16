@@ -188,3 +188,6 @@ pub fn decode(
 pub suberror DecodeError {
   InvalidChar(Char)
 } derive(Debug)
+
+///|
+pub extend DecodeError with Debug::{to_repr}

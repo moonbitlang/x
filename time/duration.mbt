@@ -302,3 +302,18 @@ pub fn Duration::with_nanoseconds(
 pub fn Duration::to_nanoseconds(self : Duration) -> Int64 {
   self.secs * nanoseconds_per_second + self.nanos.to_int64()
 }
+
+///|
+pub extend Duration with Eq::{not_equal, equal}
+
+///|
+pub extend Duration with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend Duration with Debug::{to_repr}
+
+///|
+pub extend Duration with @moonbitlang/core/string.FromStr::{from_str}
+
+///|
+pub extend Duration with Show::{output}

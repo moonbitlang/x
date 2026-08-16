@@ -367,3 +367,6 @@ test {
   let res2 = bytes_to_hex_string(ctx.md5_compute())
   assert_eq(res1, res2)
 }
+
+///|
+pub extend MD5 with CryptoHasher::{reset, finalize_into, size, block_size}

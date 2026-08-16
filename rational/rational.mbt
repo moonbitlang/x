@@ -802,3 +802,36 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with fn arbitrary(
 pub fn[T : Integral] Rational::is_integer(self : Rational[T]) -> Bool {
   self.denominator == T::from_int(1)
 }
+
+///|
+pub extend Rational with Add::{add}
+
+///|
+pub extend Rational with Sub::{sub}
+
+///|
+pub extend Rational with Mul::{mul}
+
+///|
+pub extend Rational with Div::{div}
+
+///|
+pub extend Rational with Neg::{neg}
+
+///|
+pub extend RationalError with Debug::{to_repr}
+
+///|
+pub extend RationalError with ToJson::{to_json}
+
+///|
+pub extend RationalError with Eq::{not_equal, equal}
+
+///|
+pub extend Rational with Show::{to_string, output}
+
+///|
+pub extend Rational with Debug::{to_repr}
+
+///|
+pub extend Rational with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}

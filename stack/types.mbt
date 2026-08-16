@@ -17,3 +17,6 @@ struct Stack[T] {
   mut elements : @list.List[T]
   mut len : Int
 } derive(Default)
+
+///|
+pub extend Stack with Default::{default}

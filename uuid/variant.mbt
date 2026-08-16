@@ -153,3 +153,9 @@ test "show" {
     ),
   )
 }
+
+///|
+pub extend Variant with Debug::{to_repr}
+
+///|
+pub extend Version with Debug::{to_repr}

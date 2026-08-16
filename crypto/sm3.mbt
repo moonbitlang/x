@@ -379,3 +379,6 @@ test "sm3 reentry" {
     content="fd959b2560dadd0c0839144be6090cb665915156179c1fa6dc00292da7a2b9c2",
   )
 }
+
+///|
+pub extend SM3 with CryptoHasher::{reset, finalize_into, size, block_size}

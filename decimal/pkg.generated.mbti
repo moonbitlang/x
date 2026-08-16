@@ -26,22 +26,42 @@ pub struct Decimal {
   scale : Int
 } derive(@debug.Debug)
 pub fn Decimal::abs(Self) -> Self
+pub fn Decimal::add(Self, Self) -> Self
+pub fn Decimal::arbitrary(Int, @splitmix.RandomState) -> Self
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
+pub fn Decimal::compare(Self, Self) -> Int
+pub fn Decimal::default() -> Self
+pub fn Decimal::div(Self, Self) -> Self
+pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
 pub fn Decimal::from_double(Double, Int) -> Self?
 pub fn Decimal::from_int(Int) -> Self
+pub fn Decimal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn Decimal::from_string(String) -> Self?
+pub fn Decimal::hash(Self) -> Int
+pub fn Decimal::hash_combine(Self, Hasher) -> Unit
 pub fn Decimal::is_negative(Self) -> Bool
 pub fn Decimal::is_positive(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
+pub fn Decimal::mul(Self, Self) -> Self
+pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::new(@bigint.BigInt, Int) -> Self?
+pub fn Decimal::not_equal(Self, Self) -> Bool
+pub fn Decimal::op_ge(Self, Self) -> Bool
+pub fn Decimal::op_gt(Self, Self) -> Bool
+pub fn Decimal::op_le(Self, Self) -> Bool
+pub fn Decimal::op_lt(Self, Self) -> Bool
+pub fn Decimal::output(Self, &Logger) -> Unit
 pub fn Decimal::round(Self, Int) -> Self?
 pub fn Decimal::scale(Self) -> Int
 pub fn Decimal::scale_to(Self, Int) -> Self?
 pub fn Decimal::signum(Self) -> Int
+pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::to_bigint(Self) -> @bigint.BigInt
 pub fn Decimal::to_double(Self) -> Double
 pub fn Decimal::to_int(Self) -> Int?
+pub fn Decimal::to_json(Self) -> Json
+pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::truncate(Self, Int) -> Self?
 pub impl Add for Decimal

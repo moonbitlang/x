@@ -437,3 +437,18 @@ fn PlainDateTime::overflowing_add(
   date = date.add_days(total_days)
   { date, time }
 }
+
+///|
+pub extend PlainDateTime with Eq::{not_equal, equal}
+
+///|
+pub extend PlainDateTime with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend PlainDateTime with Debug::{to_repr}
+
+///|
+pub extend PlainDateTime with @moonbitlang/core/string.FromStr::{from_str}
+
+///|
+pub extend PlainDateTime with Show::{output}

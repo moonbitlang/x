@@ -166,3 +166,6 @@ pub fn remove_dir(path : String) -> Unit raise IOError {
 pub fn remove_file(path : String) -> Unit raise IOError {
   remove_file_internal(path)
 }
+
+///|
+pub extend IOError with Debug::{to_repr}

@@ -355,3 +355,12 @@ test "Zone::from_tzif2" {
   inspect(got.offset(), content="-07:00")
   inspect(got.offset().is_dst(), content="true")
 }
+
+///|
+pub extend Zone with Eq::{not_equal, equal}
+
+///|
+pub extend Zone with Debug::{to_repr}
+
+///|
+pub extend Zone with Show::{output}
