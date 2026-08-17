@@ -554,7 +554,9 @@ test "equal" {
 }
 
 ///|
+#deprecated
 pub extend Stack with Show::{to_string, output}
 
 ///|
+#deprecated
 pub extend Stack with Debug::{to_repr}

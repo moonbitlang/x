@@ -425,16 +425,21 @@ fn validate_nano(n : Int) -> Bool {
 }
 
 ///|
+#deprecated
 pub extend PlainTime with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend PlainTime with Compare::{op_lt, op_le, op_ge, compare, op_gt}
 
 ///|
+#deprecated
 pub extend PlainTime with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend PlainTime with @moonbitlang/core/string.FromStr::{from_str}
 
 ///|
+#deprecated
 pub extend PlainTime with Show::{output}

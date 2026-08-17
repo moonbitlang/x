@@ -804,34 +804,45 @@ pub fn[T : Integral] Rational::is_integer(self : Rational[T]) -> Bool {
 }
 
 ///|
+#deprecated
 pub extend Rational with Add::{add}
 
 ///|
+#deprecated
 pub extend Rational with Sub::{sub}
 
 ///|
+#deprecated
 pub extend Rational with Mul::{mul}
 
 ///|
+#deprecated
 pub extend Rational with Div::{div}
 
 ///|
+#deprecated
 pub extend Rational with Neg::{neg}
 
 ///|
+#deprecated
 pub extend RationalError with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend RationalError with ToJson::{to_json}
 
 ///|
+#deprecated
 pub extend RationalError with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Rational with Show::{to_string, output}
 
 ///|
+#deprecated
 pub extend Rational with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Rational with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}

@@ -104,10 +104,13 @@ test "show" {
 }
 
 ///|
+#deprecated
 pub extend Weekday with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Weekday with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Weekday with Show::{to_string, output}

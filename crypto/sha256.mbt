@@ -306,4 +306,5 @@ test "sha256 reentry" {
 }
 
 ///|
+#deprecated
 pub extend SHA256 with CryptoHasher::{reset, finalize_into, size, block_size}

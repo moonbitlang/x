@@ -155,7 +155,9 @@ test "show" {
 }
 
 ///|
+#deprecated
 pub extend Variant with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Version with Debug::{to_repr}

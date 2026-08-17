@@ -232,10 +232,13 @@ pub let delimiter : Char = ':'
 pub let sep : Char = '/'
 
 ///|
+#deprecated
 pub extend Path with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Path with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Path with Show::{to_string, output}

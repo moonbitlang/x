@@ -190,4 +190,5 @@ pub suberror DecodeError {
 } derive(Debug)
 
 ///|
+#deprecated
 pub extend DecodeError with Debug::{to_repr}

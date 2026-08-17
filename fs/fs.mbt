@@ -168,4 +168,5 @@ pub fn remove_file(path : String) -> Unit raise IOError {
 }
 
 ///|
+#deprecated
 pub extend IOError with Debug::{to_repr}
