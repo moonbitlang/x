@@ -169,13 +169,17 @@ fn validate_offset(h : Int, m : Int, s : Int) -> Unit raise Error {
 }
 
 ///|
+#deprecated
 pub extend ZoneOffset with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend ZoneOffset with Show::{output}
 
 ///|
+#deprecated
 pub extend ZoneOffset with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend ZoneOffset with Compare::{op_lt, op_le, op_ge, compare, op_gt}

@@ -131,4 +131,5 @@ pub type Rational32 = Rational[Int]
 pub type BigRational = Rational[BigInt]
 
 ///|
+#deprecated
 pub extend Rational with Eq::{not_equal, equal}

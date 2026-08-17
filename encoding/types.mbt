@@ -110,10 +110,13 @@ fn malformed_pair(
 }
 
 ///|
+#deprecated
 pub extend MalformedError with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend TruncatedError with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Encoding with Debug::{to_repr}

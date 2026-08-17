@@ -63,19 +63,25 @@ pub impl Debug for ParseError with fn to_repr(self : ParseError) -> Repr {
 }
 
 ///|
+#deprecated
 pub extend Position with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Position with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend ParseErrorData with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend ParseErrorData with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend ParseError with Show::{output}
 
 ///|
+#deprecated
 pub extend ParseError with Debug::{to_repr}

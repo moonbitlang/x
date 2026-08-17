@@ -369,4 +369,5 @@ test {
 }
 
 ///|
+#deprecated
 pub extend MD5 with CryptoHasher::{reset, finalize_into, size, block_size}

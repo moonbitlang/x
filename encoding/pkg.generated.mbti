@@ -37,11 +37,13 @@ pub fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 pub suberror MalformedError {
   MalformedError(Bytes)
 } derive(@debug.Debug)
+#deprecated
 pub fn MalformedError::to_repr(Self) -> @debug.Repr
 
 pub suberror TruncatedError {
   TruncatedError(Bytes)
 } derive(@debug.Debug)
+#deprecated
 pub fn TruncatedError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
@@ -61,6 +63,7 @@ pub(all) enum Encoding {
   UTF16LE
   UTF16BE
 } derive(@debug.Debug)
+#deprecated
 pub fn Encoding::to_repr(Self) -> @debug.Repr
 
 // Type aliases

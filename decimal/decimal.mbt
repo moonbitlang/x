@@ -787,43 +787,57 @@ pub impl @quickcheck.Arbitrary for Decimal with fn arbitrary(size, rs) {
 }
 
 ///|
+#deprecated
 pub extend Decimal with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Decimal with Default::{default}
 
 ///|
+#deprecated
 pub extend Decimal with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Decimal with Compare::{op_lt, op_le, op_ge, compare, op_gt}
 
 ///|
+#deprecated
 pub extend Decimal with Add::{add}
 
 ///|
+#deprecated
 pub extend Decimal with Sub::{sub}
 
 ///|
+#deprecated
 pub extend Decimal with Mul::{mul}
 
 ///|
+#deprecated
 pub extend Decimal with Div::{div}
 
 ///|
+#deprecated
 pub extend Decimal with Neg::{neg}
 
 ///|
+#deprecated
 pub extend Decimal with Show::{output}
 
 ///|
+#deprecated
 pub extend Decimal with ToJson::{to_json}
 
 ///|
+#deprecated
 pub extend Decimal with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
+#deprecated
 pub extend Decimal with Hash::{hash, hash_combine}
 
 ///|
+#deprecated
 pub extend Decimal with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}

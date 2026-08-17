@@ -439,16 +439,21 @@ fn PlainDateTime::overflowing_add(
 }
 
 ///|
+#deprecated
 pub extend PlainDateTime with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend PlainDateTime with Compare::{op_lt, op_le, op_ge, compare, op_gt}
 
 ///|
+#deprecated
 pub extend PlainDateTime with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend PlainDateTime with @moonbitlang/core/string.FromStr::{from_str}
 
 ///|
+#deprecated
 pub extend PlainDateTime with Show::{output}

@@ -414,7 +414,9 @@ fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
 }
 
 ///|
+#deprecated
 pub extend ZonedDateTime with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend ZonedDateTime with Show::{output}

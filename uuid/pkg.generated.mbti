@@ -15,16 +15,25 @@ pub fn from_hex(String) -> UUID raise
 // Types and methods
 type UUID derive(Compare, Eq)
 pub fn UUID::as_version(Self, Version) -> Self
+#deprecated
 pub fn UUID::compare(Self, Self) -> Int
+#deprecated
 pub fn UUID::equal(Self, Self) -> Bool
 pub fn UUID::hash(Self) -> Int
+#deprecated
 pub fn UUID::not_equal(Self, Self) -> Bool
+#deprecated
 pub fn UUID::op_ge(Self, Self) -> Bool
+#deprecated
 pub fn UUID::op_gt(Self, Self) -> Bool
+#deprecated
 pub fn UUID::op_le(Self, Self) -> Bool
+#deprecated
 pub fn UUID::op_lt(Self, Self) -> Bool
+#deprecated
 pub fn UUID::output(Self, &Logger) -> Unit
 pub fn UUID::to_bytes(Self) -> Bytes
+#deprecated
 pub fn UUID::to_repr(Self) -> @debug.Repr
 pub fn UUID::to_string(Self) -> String
 pub fn UUID::variant(Self) -> Variant
@@ -38,6 +47,7 @@ pub(all) enum Variant {
   ReservedMicrosoft
   ReservedFuture
 } derive(@debug.Debug)
+#deprecated
 pub fn Variant::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Version {
@@ -48,6 +58,7 @@ pub(all) enum Version {
   V5
   Unknown(Int)
 } derive(@debug.Debug)
+#deprecated
 pub fn Version::to_repr(Self) -> @debug.Repr
 
 // Type aliases

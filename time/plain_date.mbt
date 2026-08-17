@@ -584,16 +584,21 @@ fn validate_ordinal(year : Int, ordinal : Int) -> Bool {
 }
 
 ///|
+#deprecated
 pub extend PlainDate with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend PlainDate with @moonbitlang/core/string.FromStr::{from_str}
 
 ///|
+#deprecated
 pub extend PlainDate with Show::{output}
 
 ///|
+#deprecated
 pub extend PlainDate with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend PlainDate with Compare::{op_lt, op_le, op_ge, compare, op_gt}

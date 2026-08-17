@@ -248,13 +248,17 @@ pub fn Period::to_total_months(self : Period) -> Int64 {
 }
 
 ///|
+#deprecated
 pub extend Period with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend Period with Compare::{op_lt, op_le, op_ge, compare, op_gt}
 
 ///|
+#deprecated
 pub extend Period with Debug::{to_repr}
 
 ///|
+#deprecated
 pub extend Period with Show::{output}

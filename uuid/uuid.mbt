@@ -255,13 +255,17 @@ pub impl Debug for UUID with fn to_repr(self : UUID) -> Repr {
 }
 
 ///|
+#deprecated
 pub extend UUID with Eq::{not_equal, equal}
 
 ///|
+#deprecated
 pub extend UUID with Compare::{op_lt, op_le, op_ge, compare, op_gt}
 
 ///|
+#deprecated
 pub extend UUID with Show::{output}
 
 ///|
+#deprecated
 pub extend UUID with Debug::{to_repr}

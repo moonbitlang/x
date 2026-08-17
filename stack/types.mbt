@@ -19,4 +19,5 @@ struct Stack[T] {
 } derive(Default)
 
 ///|
+#deprecated
 pub extend Stack with Default::{default}

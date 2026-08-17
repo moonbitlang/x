@@ -381,4 +381,5 @@ test "sm3 reentry" {
 }
 
 ///|
+#deprecated
 pub extend SM3 with CryptoHasher::{reset, finalize_into, size, block_size}
