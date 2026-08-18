@@ -5,7 +5,7 @@
 ### Fixed
 
 - Fixed deprecation warnings from trait method extension calls in
-  `@rational`, `@time`, `@path`, `@uuid`, and `@decimal`
+  `@rational`, `@time`, `@path`, `@uuid`, and `@decimal` (#302)
 
 ## [0.4.50]
 
