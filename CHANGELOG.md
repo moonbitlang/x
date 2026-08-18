@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed deprecation warnings from trait method extension calls in
+  `@rational`, `@time`, `@path`, `@uuid`, and `@decimal`
+
 ## [0.4.50]
 
 ### Added
