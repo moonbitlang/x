@@ -209,11 +209,11 @@ test "compare no overflow (int64 max denom)" {
   let max = 9223372036854775807L
   let a = @rational.new(1L, max).unwrap()
   let b = @rational.new(2L, max).unwrap()
-  @test.assert_eq(a.compare(b), -1)
+  @test.assert_eq(Compare::compare(a, b), -1)
 
   let x = @rational.new(-43L, 3689348814741910693L).unwrap()
   let y = @rational.new(5L, -43L).unwrap()
-  assert_true(x.compare(y) > 0)
+  assert_true(Compare::compare(x, y) > 0)
 }
 
 ///|
@@ -221,17 +221,17 @@ test "compare fixed-width boundary values" {
   let int_max = @int.MAX_VALUE
   let a = @rational.new(1, int_max).unwrap()
   let b = @rational.new(2, int_max).unwrap()
-  @test.assert_eq(a.compare(b), -1)
+  @test.assert_eq(Compare::compare(a, b), -1)
 
   let int64_max = @int64.MAX_VALUE
   let large_negative = @rational.new(@int64.MIN_VALUE, 1L).unwrap()
   let half_large_negative = @rational.new(-int64_max, 2L).unwrap()
-  @test.assert_eq(large_negative.compare(half_large_negative), -1)
-  @test.assert_eq(half_large_negative.compare(large_negative), 1)
+  @test.assert_eq(Compare::compare(large_negative, half_large_negative), -1)
+  @test.assert_eq(Compare::compare(half_large_negative, large_negative), 1)
 
   let positive = @rational.new(int64_max - 1L, int64_max).unwrap()
   let negative = @rational.new(-1L, int64_max).unwrap()
-  @test.assert_eq(positive.compare(negative), 1)
+  @test.assert_eq(Compare::compare(positive, negative), 1)
 }
 
 ///|
@@ -271,8 +271,8 @@ test "int64 comparison matches bigint" {
             BigInt::from_int64(denominator2),
           ).unwrap()
           @test.assert_eq(
-            rational1.compare(rational2).compare(0),
-            big_rational1.compare(big_rational2).compare(0),
+            Compare::compare(Compare::compare(rational1, rational2), 0),
+            Compare::compare(Compare::compare(big_rational1, big_rational2), 0),
           )
         }
       }

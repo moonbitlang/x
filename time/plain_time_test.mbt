@@ -26,21 +26,44 @@ test "of" {
 
 ///|
 test "from_str" {
-  inspect(@time.PlainTime::from_str("00:00"), content="00:00:00")
-  inspect(@time.PlainTime::from_str("23:59"), content="23:59:00")
-  inspect(@time.PlainTime::from_str("24:00"), content="24:00:00")
-  inspect(@time.PlainTime::from_str("23:59:59"), content="23:59:59")
-  inspect(@time.PlainTime::from_str("01:00:00.123"), content="01:00:00.123")
   inspect(
-    @time.PlainTime::from_str("01:00:00.0000123"),
+    (@string.FromStr::from_str("00:00") : @time.PlainTime),
+    content="00:00:00",
+  )
+  inspect(
+    (@string.FromStr::from_str("23:59") : @time.PlainTime),
+    content="23:59:00",
+  )
+  inspect(
+    (@string.FromStr::from_str("24:00") : @time.PlainTime),
+    content="24:00:00",
+  )
+  inspect(
+    (@string.FromStr::from_str("23:59:59") : @time.PlainTime),
+    content="23:59:59",
+  )
+  inspect(
+    (@string.FromStr::from_str("01:00:00.123") : @time.PlainTime),
+    content="01:00:00.123",
+  )
+  inspect(
+    (@string.FromStr::from_str("01:00:00.0000123") : @time.PlainTime),
     content="01:00:00.0000123",
   )
-  @test.assert_raise(() => @time.PlainTime::from_str("1:00"))
-  @test.assert_raise(() => @time.PlainTime::from_str("10:0"))
-  @test.assert_raise(() => @time.PlainTime::from_str("100000"))
-  @test.assert_raise(() => @time.PlainTime::from_str("123:00:00"))
-  @test.assert_raise(() => @time.PlainTime::from_str("10:00:00.123zzz"))
-  @test.assert_raise(() => @time.PlainTime::from_str("z1:00:00"))
+  @test.assert_raise(() => (@string.FromStr::from_str("1:00") : @time.PlainTime))
+  @test.assert_raise(() => (@string.FromStr::from_str("10:0") : @time.PlainTime))
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("100000") : @time.PlainTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("123:00:00") : @time.PlainTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("10:00:00.123zzz") : @time.PlainTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("z1:00:00") : @time.PlainTime)
+  })
 }
 
 ///|

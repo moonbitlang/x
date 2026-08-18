@@ -14,18 +14,25 @@
 
 ///|
 test "from_str" {
-  inspect(@time.Duration::from_str("PT0S"), content="PT0S")
+  inspect((@string.FromStr::from_str("PT0S") : @time.Duration), content="PT0S")
   inspect(
-    @time.Duration::from_str("PT1H2M3.456789S"),
+    (@string.FromStr::from_str("PT1H2M3.456789S") : @time.Duration),
     content="PT1H2M3.456789S",
   )
   inspect(
-    @time.Duration::from_str("PT-1H-2M-3.456789S"),
+    (@string.FromStr::from_str("PT-1H-2M-3.456789S") : @time.Duration),
     content="PT-1H-2M-3.456789S",
   )
-  inspect(@time.Duration::from_str("PT0.45S"), content="PT0.45S")
-  @test.assert_raise(() => @time.Duration::from_str("PT0.000.45S"))
-  @test.assert_raise(() => @time.Duration::from_str("P1Y2M3DT4H5M6S"))
+  inspect(
+    (@string.FromStr::from_str("PT0.45S") : @time.Duration),
+    content="PT0.45S",
+  )
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("PT0.000.45S") : @time.Duration)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("P1Y2M3DT4H5M6S") : @time.Duration)
+  })
 }
 
 ///|

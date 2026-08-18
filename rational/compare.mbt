@@ -172,13 +172,13 @@ pub impl Integral for BigInt with fn compare_fraction(
 /// test {
 ///   let a = @rational.new(1L, 2L).unwrap() // 1/2
 ///   let b = @rational.new(2L, 3L).unwrap() // 2/3
-///   inspect(a.compare(b), content="-1") // 1/2 < 2/3
+///   inspect(Compare::compare(a, b), content="-1") // 1/2 < 2/3
 ///   let c = @rational.new(3L, 4L).unwrap() // 3/4
 ///   let d = @rational.new(3L, 4L).unwrap() // 3/4
-///   inspect(c.compare(d), content="0") // 3/4 == 3/4
+///   inspect(Compare::compare(c, d), content="0") // 3/4 == 3/4
 ///   let e = @rational.new(5L, 6L).unwrap() // 5/6
 ///   let f = @rational.new(1L, 2L).unwrap() // 1/2
-///   inspect(e.compare(f), content="1") // 5/6 > 1/2
+///   inspect(Compare::compare(e, f), content="1") // 5/6 > 1/2
 /// }
 /// ```
 ///

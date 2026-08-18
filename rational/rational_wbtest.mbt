@@ -280,17 +280,17 @@ test "fract" {
 test "to_string" {
   // 1/2 -> "1/2"
   let a = new_unchecked(1L, 2L)
-  let b = a.to_string()
+  let b = Show::to_string(a)
   assert_eq(b, "1/2")
 
   // 4/4 -> "1"
   let a = new_unchecked(4L, 4L)
-  let b = a.to_string()
+  let b = Show::to_string(a)
   assert_eq(b, "1")
 
   // 0/1 -> "0"
   let a = new_unchecked(0L, 1L)
-  let b = a.to_string()
+  let b = Show::to_string(a)
   assert_eq(b, "0")
 }
 
@@ -318,26 +318,26 @@ test "eq and compare" {
   // 1/2 < 2/3
   let a = new_unchecked(1L, 2L)
   let b = new_unchecked(2L, 3L)
-  assert_eq(a.compare(b), -1)
+  assert_eq(Compare::compare(a, b), -1)
   assert_true(a != b)
 
   // -1/2 > -2/3
   let a = new_unchecked(-1L, 2L)
   let b = new_unchecked(-2L, 3L)
-  assert_eq(a.compare(b), 1)
+  assert_eq(Compare::compare(a, b), 1)
   assert_true(a != b)
 
   // 1/2 == 1/2
   let a = new_unchecked(1L, 2L)
   let b = new_unchecked(1L, 2L)
-  assert_eq(a.compare(b), 0)
+  assert_eq(Compare::compare(a, b), 0)
   assert_true(a == b)
 }
 
 ///|
 test "compare no overflow" {
   let p = new_unchecked(-3L, -9223372036854775808L)
-  assert_true(p.compare(-p) > 0)
+  assert_true(Compare::compare(p, -p) > 0)
 }
 
 ///|

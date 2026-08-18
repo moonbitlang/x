@@ -35,8 +35,8 @@ test "ops" {
   let u1x = @uuid.from_hex(hex)
   let u2 = @uuid.from_hex("8e325b13-2bf1-d7f6-d2b0-c85a371c1878")
   inspect(u1 == u1x, content="true")
-  inspect(u1.compare(u2), content="1")
-  inspect(u2.compare(u1), content="-1")
-  inspect(u1.compare(u1x), content="0")
+  inspect(Compare::compare(u1, u2), content="1")
+  inspect(Compare::compare(u2, u1), content="-1")
+  inspect(Compare::compare(u1, u1x), content="0")
   assert_eq(u1, u1x)
 }

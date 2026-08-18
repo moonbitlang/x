@@ -120,7 +120,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
   if is_windows {
     @win32.Path::join(lhs.0, rhs.0).0
   } else {
-    @posix.Path::join(lhs.0, rhs.0).to_string()
+    Show::to_string(@posix.Path::join(lhs.0, rhs.0))
   }
 }
 
@@ -137,9 +137,9 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 /// See `@path/posix` and `@path/win32` for separator-specific examples.
 pub fn Path::normalize(path : Path) -> Path {
   if is_windows {
-    @win32.Path::normalize(path.0).to_string()
+    Show::to_string(@win32.Path::normalize(path.0))
   } else {
-    @posix.Path::normalize(path.0).to_string()
+    Show::to_string(@posix.Path::normalize(path.0))
   }
 }
 
@@ -173,9 +173,9 @@ pub fn Path::relative(path : Path, base~ : Path) -> Path {
 ///
 pub fn Path::resolve(path : Path) -> Path {
   if is_windows {
-    @win32.Path::resolve(path.0).to_string()
+    Show::to_string(@win32.Path::resolve(path.0))
   } else {
-    @posix.Path::resolve(path.0).to_string()
+    Show::to_string(@posix.Path::resolve(path.0))
   }
 }
 
