@@ -119,7 +119,7 @@ pub impl Show for PlainDate with fn output(self : PlainDate, logger : &Logger) {
 
 ///|
 pub impl Eq for PlainDate with fn equal(self : PlainDate, other : PlainDate) -> Bool {
-  self.compare(other) == 0
+  Compare::compare(self, other) == 0
 }
 
 ///|

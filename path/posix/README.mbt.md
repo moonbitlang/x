@@ -108,7 +108,7 @@ test "path joining" {
   inspect(path.join("/absolute"), content="relative/absolute")
   let path : Path = "/"
   let path = path.join("folder").join("file.txt")
-  inspect(path.to_string(), content="/folder/file.txt")
+  inspect(Show::to_string(path), content="/folder/file.txt")
 }
 ```
 

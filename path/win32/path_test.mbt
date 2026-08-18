@@ -504,13 +504,13 @@ fn test_current_dir_for_drive(drive : String) -> Path {
 ///|
 test "resolve drive-relative paths from current directory" {
   let c_cwd = test_current_dir_for_drive("C:")
-  inspect(Path::resolve("C:"), content=c_cwd.to_string())
-  inspect(Path::resolve("C:."), content=c_cwd.to_string())
-  inspect(Path::resolve("C:a"), content=c_cwd.join("a").to_string())
-  inspect(Path::resolve("C:a\\..\\b"), content=c_cwd.join("b").to_string())
+  inspect(Path::resolve("C:"), content=Show::to_string(c_cwd))
+  inspect(Path::resolve("C:."), content=Show::to_string(c_cwd))
+  inspect(Path::resolve("C:a"), content=Show::to_string(c_cwd.join("a")))
+  inspect(Path::resolve("C:a\\..\\b"), content=Show::to_string(c_cwd.join("b")))
   inspect(
     Path::resolve("D:a"),
-    content=test_current_dir_for_drive("D:").join("a").to_string(),
+    content=Show::to_string(test_current_dir_for_drive("D:").join("a")),
   )
 }
 

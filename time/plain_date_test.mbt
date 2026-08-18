@@ -43,15 +43,35 @@ test "from_year_ord" {
 
 ///|
 test "from_str" {
-  inspect(@time.PlainDate::from_str("9999-01-01"), content="9999-01-01")
-  inspect(@time.PlainDate::from_str("0000-01-01"), content="0000-01-01")
-  inspect(@time.PlainDate::from_str("0001-01-01"), content="0001-01-01")
-  inspect(@time.PlainDate::from_str("-9999-01-01"), content="-9999-01-01")
-  @test.assert_raise(() => @time.PlainDate::from_str("10000-01-01"))
-  @test.assert_raise(() => @time.PlainDate::from_str("-10000-01-01"))
-  @test.assert_raise(() => @time.PlainDate::from_str("-01-01"))
-  @test.assert_raise(() => @time.PlainDate::from_str("12-31"))
-  @test.assert_raise(() => @time.PlainDate::from_str("-01"))
+  inspect(
+    (@string.FromStr::from_str("9999-01-01") : @time.PlainDate),
+    content="9999-01-01",
+  )
+  inspect(
+    (@string.FromStr::from_str("0000-01-01") : @time.PlainDate),
+    content="0000-01-01",
+  )
+  inspect(
+    (@string.FromStr::from_str("0001-01-01") : @time.PlainDate),
+    content="0001-01-01",
+  )
+  inspect(
+    (@string.FromStr::from_str("-9999-01-01") : @time.PlainDate),
+    content="-9999-01-01",
+  )
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("10000-01-01") : @time.PlainDate)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("-10000-01-01") : @time.PlainDate)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("-01-01") : @time.PlainDate)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("12-31") : @time.PlainDate)
+  })
+  @test.assert_raise(() => (@string.FromStr::from_str("-01") : @time.PlainDate))
 }
 
 ///|

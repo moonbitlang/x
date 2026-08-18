@@ -283,7 +283,7 @@ test "decimal_properties" {
   inspect(abs_d2.to_string(), content="67.89")
 
   // Test neg
-  let neg_d1 = d1.neg()
+  let neg_d1 = Neg::neg(d1)
   inspect(neg_d1.to_string(), content="-123.45")
 }
 
@@ -409,7 +409,7 @@ test "decimal_json_serialization" {
   }
 
   // Test to_json
-  let json = d.to_json()
+  let json = ToJson::to_json(d)
   debug_inspect(
     json,
     content=(

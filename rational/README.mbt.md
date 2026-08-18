@@ -38,7 +38,7 @@ test {
   assert_eq(a <= b, false)
   assert_eq(a > b, true)
   assert_eq(a >= b, true)
-  assert_eq(a.compare(b), 1)
+  assert_eq(Compare::compare(a, b), 1)
 }
 ```
 
@@ -52,7 +52,7 @@ test {
   let a = @rational.new(1L, 2L).unwrap()
   assert_eq(a.floor(), 0)
   assert_eq(a.ceil(), 1)
-  assert_eq(a.fract().to_string(), "1/2")
+  assert_eq(Show::to_string(a.fract()), "1/2")
   assert_eq(a.trunc(), 0)
   assert_eq(a.is_integer(), false)
 }
@@ -67,7 +67,7 @@ The `Rational` type supports the following double operations:
 test {
   let a = @rational.new(1L, 2L).unwrap()
   assert_eq(a.to_double(), 0.5)
-  assert_eq(@rational.from_double(0.5).to_string(), "1/2")
+  assert_eq(Show::to_string(@rational.from_double(0.5)), "1/2")
 }
 ```
 
@@ -79,6 +79,6 @@ The `Rational` type supports the following string operations:
 ///|
 test {
   let a = @rational.new(1L, 2L).unwrap()
-  assert_eq(a.to_string(), "1/2")
+  assert_eq(Show::to_string(a), "1/2")
 }
 ```

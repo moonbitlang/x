@@ -78,26 +78,38 @@ test "from_unix_second" {
 ///|
 test "from_str" {
   inspect(
-    @time.PlainDateTime::from_str("0000-01-01T00:00:00"),
+    (@string.FromStr::from_str("0000-01-01T00:00:00") : @time.PlainDateTime),
     content="0000-01-01T00:00:00",
   )
   inspect(
-    @time.PlainDateTime::from_str("9999-12-31T23:59:59"),
+    (@string.FromStr::from_str("9999-12-31T23:59:59") : @time.PlainDateTime),
     content="9999-12-31T23:59:59",
   )
   inspect(
-    @time.PlainDateTime::from_str("-9999-12-31T23:59:59"),
+    (@string.FromStr::from_str("-9999-12-31T23:59:59") : @time.PlainDateTime),
     content="-9999-12-31T23:59:59",
   )
   inspect(
-    @time.PlainDateTime::from_str("2000-01-01T00:00:00.12345"),
+    (
+      @string.FromStr::from_str("2000-01-01T00:00:00.12345") :
+      @time.PlainDateTime),
     content="2000-01-01T00:00:00.12345",
   )
-  @test.assert_raise(() => @time.PlainDateTime::from_str("9999-12-31T23:59:60"))
-  @test.assert_raise(() => @time.PlainDateTime::from_str("10000-12-31T23:59:60"))
-  @test.assert_raise(() => @time.PlainDateTime::from_str("2000-01-01 00:00:00"))
-  @test.assert_raise(() => @time.PlainDateTime::from_str("2000-01-01"))
-  @test.assert_raise(() => @time.PlainDateTime::from_str("00:00:00"))
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("9999-12-31T23:59:60") : @time.PlainDateTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("10000-12-31T23:59:60") : @time.PlainDateTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("2000-01-01 00:00:00") : @time.PlainDateTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("2000-01-01") : @time.PlainDateTime)
+  })
+  @test.assert_raise(() => {
+    (@string.FromStr::from_str("00:00:00") : @time.PlainDateTime)
+  })
 }
 
 ///|

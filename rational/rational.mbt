@@ -339,10 +339,10 @@ pub fn[T : Integral] Rational::reciprocal_checked(
 /// test {
 ///   let positive = @rational.new(3L, 4L).unwrap()
 ///   let negative = -positive
-///   inspect(negative.to_string(), content="-3/4")
+///   inspect(Show::to_string(negative), content="-3/4")
 ///   let negative_original = @rational.new(-5L, 2L).unwrap()
 ///   let positive_result = -negative_original
-///   inspect(positive_result.to_string(), content="5/2")
+///   inspect(Show::to_string(positive_result), content="5/2")
 /// }
 /// ```
 ///
@@ -755,7 +755,7 @@ pub impl[T : Integral] Show for Rational[T] with fn output(self, logger) {
 
 ///|
 pub impl[T : Integral] Debug for Rational[T] with fn to_repr(self) {
-  Repr::literal(self.to_string())
+  Repr::literal(Show::to_string(self))
 }
 
 ///|
