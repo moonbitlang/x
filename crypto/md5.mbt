@@ -20,13 +20,11 @@
 ///|
 #alias(MD5Context, deprecated="Use `MD5` instead")
 struct MD5 {
-  mut state : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
-  mut count : FixedArray[UInt]
-  mut buffer : FixedArray[Byte]
+  reg : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
+  mut len : UInt64
+  buf : FixedArray[Byte]
+  mut buf_index : Int
 }
-
-///|
-let padding : FixedArray[Byte] = FixedArray::make(64, Byte::default())
 
 ///|
 #inline
@@ -57,9 +55,13 @@ pub impl CryptoHasher for MD5 with fn block_size(_self : MD5) -> Int {
 
 ///|
 pub impl CryptoHasher for MD5 with fn reset(self : MD5) -> Unit {
-  self.state = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]
-  self.count = [0, 0]
-  self.buffer = FixedArray::make(64, Byte::default())
+  self.reg[0] = 0x67452301
+  self.reg[1] = 0xefcdab89
+  self.reg[2] = 0x98badcfe
+  self.reg[3] = 0x10325476
+  self.len = 0
+  self.buf.fill(0)
+  self.buf_index = 0
 }
 
 ///|
@@ -85,45 +87,49 @@ pub impl CryptoHasher for MD5 with fn finalize_into(
   buffer : FixedArray[Byte],
   offset~ : Int,
 ) -> Unit {
-  self.md5_compute().blit_to(buffer, len=16, src_offset=offset)
+  self.md5_compute().blit_to(buffer, len=16, src_offset=0, dst_offset=offset)
 }
 
 ///|
 /// Instantiate a MD5 context
 pub fn MD5::new() -> MD5 {
-  padding[0] = b'\x80'
   {
-    state: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476],
-    count: [0, 0],
-    buffer: FixedArray::make(64, Byte::default()),
+    reg: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476],
+    len: 0,
+    buf: FixedArray::make(64, Byte::default()),
+    buf_index: 0,
   }
 }
 
 ///|
 /// compute MD5 digest from given context
 fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
-  let idx = ((self.count[0] >> 3) & 0x3f).reinterpret_as_int()
-  let count_low = self.count[0]
-  let count_high = self.count[1]
-  let bytes_slice = if idx < 56 {
-    let bytes_slice = FixedArray::make(56 - idx + 1, Byte::default())
-    padding.blit_to(bytes_slice, len=56 - idx + 1)
-    bytes_slice
-  } else {
-    let bytes_slice = FixedArray::make(120 - idx + 1, Byte::default())
-    padding.blit_to(bytes_slice, len=120 - idx + 1)
-    bytes_slice
+  let data = FixedArray::make(64, Byte::default())
+  let mut cnt = self.buf_index
+  let len = self.len + 8 * cnt.to_uint64()
+  // Build the padded final block(s) on a copy so that `finalize` stays
+  // idempotent and the context remains usable afterwards.
+  self.buf.blit_to(data, len=cnt)
+  let reg = self.reg.copy()
+  data[cnt] = b'\x80'
+  cnt += 1
+  if cnt > 56 {
+    let input = FixedArray::make(16, 0U)
+    load_md5_words(data, input)
+    md5_transform(reg, input)
+    data.fill(0)
   }
-  md5_update(self, bytes_slice)
+  // little-endian 64-bit bit length at bytes 56..64
+  for i in 0..<8 {
+    data.unsafe_set(56 + i, (len >> (8 * i)).to_byte())
+  }
   let input = FixedArray::make(16, 0U)
-  load_md5_words(self.buffer, input)
-  input.unsafe_set(14, count_low)
-  input.unsafe_set(15, count_high)
-  md5_transform(self.state, input)
+  load_md5_words(data, input)
+  md5_transform(reg, input)
   let digest = FixedArray::make(16, Byte::default())
   // The MD5 state and digest have fixed four-word and 16-byte widths.
   for lane in 0..<4 {
-    let word = self.state.unsafe_get(lane)
+    let word = reg.unsafe_get(lane)
     let offset = lane * 4
     digest.unsafe_set(offset, word.to_byte())
     digest.unsafe_set(offset + 1, (word >> 8).to_byte())
@@ -163,29 +169,23 @@ fn MD5::i(x : UInt, y : UInt, z : UInt) -> UInt {
 ///|
 fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
   let input = FixedArray::make(16, 0U)
-  let mut idx = ((ctx.count[0] >> 3) & 0x3f).reinterpret_as_int()
-  let length = data.length()
-  let mod_length = length.reinterpret_as_uint() << 3
-  ctx.count[0] += mod_length
-  if ctx.count[0] < mod_length {
-    ctx.count[1] += 1
-  }
-  ctx.count[1] += length.reinterpret_as_uint() >> 29
+  let data_len = data.length()
   let mut offset = 0
-  while offset < length {
-    let chunk_length = @cmp.minimum(64 - idx, length - offset)
+  while offset < data_len {
+    let chunk_length = @cmp.minimum(64 - ctx.buf_index, data_len - offset)
     data.blit_to(
-      ctx.buffer,
+      ctx.buf,
       len=chunk_length,
       src_offset=offset,
-      dst_offset=idx,
+      dst_offset=ctx.buf_index,
     )
-    idx += chunk_length
+    ctx.buf_index += chunk_length
     offset += chunk_length
-    if idx == 0x40 {
-      load_md5_words(ctx.buffer, input)
-      md5_transform(ctx.state, input)
-      idx = 0
+    if ctx.buf_index == 64 {
+      ctx.len += 512UL
+      ctx.buf_index = 0
+      load_md5_words(ctx.buf, input)
+      md5_transform(ctx.reg, input)
     }
   }
 }

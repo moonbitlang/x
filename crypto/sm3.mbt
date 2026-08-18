@@ -108,7 +108,7 @@ fn SM3::transform(
   let mut f = reg.unsafe_get(5)
   let mut g = reg.unsafe_get(6)
   let mut h = reg.unsafe_get(7)
-  parse_be_u32_block_into(data, 0, schedule)
+  parse_be_u32x16_into(data, 0, schedule)
   for index = 16; index < 68; index = index + 1 {
     schedule[index] = SM3::p_1(
         schedule[index - 16] ^
@@ -205,11 +205,7 @@ pub fn[Data : ByteSource] SM3::update(self : SM3, data : Data) -> Unit {
     let schedule = FixedArray::make(68, 0U)
     let mut offset = 0
     while offset < data_len {
-      let min_len = if 64 - self.buf_index >= data_len - offset {
-        data_len - offset
-      } else {
-        64 - self.buf_index
-      }
+      let min_len = @cmp.minimum(64 - self.buf_index, data_len - offset)
       data.blit_to(
         self.buf,
         len=min_len,

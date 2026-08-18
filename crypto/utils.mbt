@@ -21,16 +21,16 @@ let hex_digits : FixedArray[String] = [
 ///|
 /// print a sequence of byte in hex representation
 pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
-  let mut ret = ""
-  for i = input.length() - 1; i >= 0; i = i - 1 {
+  let length = input.length()
+  let buffer = StringBuilder::new(size_hint=length * 2)
+  for i in 0..<length {
     let byte = input[i]
     let high = (byte.to_uint() >> 4) & 0xf
     let low = byte.to_int() & 0xf
-    let high_char = hex_digits[high.reinterpret_as_int()]
-    let low_char = hex_digits[low]
-    ret = high_char + low_char + ret
+    buffer.write_string(hex_digits[high.reinterpret_as_int()])
+    buffer.write_string(hex_digits[low])
   }
-  ret
+  buffer.to_string()
 }
 
 ///|
@@ -78,6 +78,48 @@ fn arr_u32_to_u8be_into(
     buffer[idx + 3] = d.to_byte()
     idx += 4
   })
+}
+
+///|
+fn arr_u32_to_u8le_into(
+  x : Iter[UInt],
+  buffer : FixedArray[Byte],
+  offset : Int,
+) -> Unit {
+  let mut idx = offset
+  x.each(fn(d) {
+    buffer[idx + 0] = d.to_byte()
+    buffer[idx + 1] = (d >> 8).to_byte()
+    buffer[idx + 2] = (d >> 16).to_byte()
+    buffer[idx + 3] = (d >> 24).to_byte()
+    idx += 4
+  })
+}
+
+///|
+fn arr_u64_to_u8be_into(
+  x : Iter[UInt64],
+  buffer : FixedArray[Byte],
+  offset : Int,
+) -> Unit {
+  let mut idx = offset
+  x.each(fn(d) {
+    buffer[idx + 0] = (d >> 56).to_byte()
+    buffer[idx + 1] = (d >> 48).to_byte()
+    buffer[idx + 2] = (d >> 40).to_byte()
+    buffer[idx + 3] = (d >> 32).to_byte()
+    buffer[idx + 4] = (d >> 24).to_byte()
+    buffer[idx + 5] = (d >> 16).to_byte()
+    buffer[idx + 6] = (d >> 8).to_byte()
+    buffer[idx + 7] = d.to_byte()
+    idx += 8
+  })
+}
+
+///|
+/// rotate a UInt64 `x` right by `n` bit(s)
+fn rotate_right_u64(x : UInt64, n : Int) -> UInt64 {
+  (x >> n) | (x << (64 - n))
 }
 
 ///|

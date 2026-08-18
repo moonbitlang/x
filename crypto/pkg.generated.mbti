@@ -2,6 +2,14 @@
 package "moonbitlang/x/crypto"
 
 // Values
+pub fn aes_cbc_decrypt(BytesView, BytesView, BytesView) -> Bytes raise CryptoError
+
+pub fn aes_cbc_encrypt(BytesView, BytesView, BytesView) -> Bytes raise CryptoError
+
+pub fn aes_ecb_decrypt(BytesView, BytesView) -> Bytes raise CryptoError
+
+pub fn aes_ecb_encrypt(BytesView, BytesView) -> Bytes raise CryptoError
+
 pub fn[D : ByteSource] bytes_to_hex_string(D) -> String
 
 #deprecated
@@ -15,7 +23,15 @@ pub fn[Data : ByteSource] chacha8(FixedArray[UInt], UInt, Data, nonce? : UInt) -
 
 pub fn[H : CryptoHasher] hmac(H, BytesView, BytesView) -> FixedArray[Byte]
 
+pub fn[Data : ByteSource] md4(Data) -> FixedArray[Byte]
+
+pub fn md4_from_iter(Iter[Byte]) -> FixedArray[Byte]
+
 pub fn[Data : ByteSource] md5(Data) -> FixedArray[Byte]
+
+pub fn[Data : ByteSource] ripemd160(Data) -> FixedArray[Byte]
+
+pub fn ripemd160_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
 pub fn[Data : ByteSource] sha1(Data) -> FixedArray[Byte]
 
@@ -27,6 +43,14 @@ pub fn[Data : ByteSource] sha256(Data) -> FixedArray[Byte]
 
 pub fn sha256_from_iter(Iter[Byte]) -> FixedArray[Byte]
 
+pub fn[Data : ByteSource] sha384(Data) -> FixedArray[Byte]
+
+pub fn sha384_from_iter(Iter[Byte]) -> FixedArray[Byte]
+
+pub fn[Data : ByteSource] sha512(Data) -> FixedArray[Byte]
+
+pub fn sha512_from_iter(Iter[Byte]) -> FixedArray[Byte]
+
 pub fn[Data : ByteSource] sm3(Data) -> FixedArray[Byte]
 
 pub fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
@@ -34,6 +58,14 @@ pub fn sm3_from_iter(Iter[Byte]) -> FixedArray[Byte]
 pub fn uints_to_hex_string(Iter[UInt]) -> String
 
 // Errors
+pub suberror ChaChaError {
+  CounterExhausted
+  InvalidOutputRange
+}
+
+pub suberror CryptoError {
+  InvalidCrypto(msg~ : String)
+}
 
 // Types and methods
 type ChaCha
@@ -41,6 +73,18 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(K, N, counter? : UInt) -
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha20(K, N, counter? : UInt) -> Self raise
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(K, N, counter? : UInt) -> Self raise
 pub fn[D : ByteSource] ChaCha::transform(Self, D, FixedArray[Byte], offset? : Int) -> Unit
+pub fn[D : ByteSource] ChaCha::transform_checked(Self, D, FixedArray[Byte], offset? : Int) -> Unit raise ChaChaError
+
+type MD4
+pub fn MD4::block_size(Self) -> Int
+pub fn MD4::finalize(Self) -> FixedArray[Byte]
+pub fn MD4::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+pub fn MD4::new() -> Self
+pub fn MD4::reset(Self) -> Unit
+pub fn MD4::size(Self) -> Int
+pub fn[Data : ByteSource] MD4::update(Self, Data) -> Unit
+pub fn MD4::update_from_iter(Self, Iter[Byte]) -> Unit
+pub impl CryptoHasher for MD4
 
 #alias(MD5Context, deprecated)
 type MD5
@@ -57,6 +101,28 @@ pub fn MD5::size(Self) -> Int
 pub fn[Data : ByteSource] MD5::update(Self, Data) -> Unit
 pub impl CryptoHasher for MD5
 
+type RIPEMD160
+pub fn RIPEMD160::block_size(Self) -> Int
+pub fn RIPEMD160::finalize(Self) -> FixedArray[Byte]
+pub fn RIPEMD160::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+pub fn RIPEMD160::new() -> Self
+pub fn RIPEMD160::reset(Self) -> Unit
+pub fn RIPEMD160::size(Self) -> Int
+pub fn[Data : ByteSource] RIPEMD160::update(Self, Data) -> Unit
+pub fn RIPEMD160::update_from_iter(Self, Iter[Byte]) -> Unit
+pub impl CryptoHasher for RIPEMD160
+
+type SHA224
+pub fn SHA224::block_size(Self) -> Int
+pub fn SHA224::finalize(Self) -> FixedArray[Byte]
+pub fn SHA224::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+pub fn SHA224::new() -> Self
+pub fn SHA224::reset(Self) -> Unit
+pub fn SHA224::size(Self) -> Int
+pub fn[Data : ByteSource] SHA224::update(Self, Data) -> Unit
+pub fn SHA224::update_from_iter(Self, Iter[Byte]) -> Unit
+pub impl CryptoHasher for SHA224
+
 #alias(Sha256Context, deprecated)
 type SHA256
 #deprecated
@@ -64,6 +130,7 @@ pub fn SHA256::block_size(Self) -> Int
 pub fn SHA256::finalize(Self) -> FixedArray[Byte]
 #deprecated
 pub fn SHA256::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+#label_migration(reg, fill=false, msg="The `reg` parameter is deprecated: constructing a SHA-256 hasher with a custom initial state is no longer supported. If you were passing the SHA-224 initial state, use `SHA224::new()` instead.")
 pub fn SHA256::new(reg? : FixedArray[UInt]) -> Self
 #deprecated
 pub fn SHA256::reset(Self) -> Unit
@@ -72,6 +139,17 @@ pub fn SHA256::size(Self) -> Int
 pub fn[Data : ByteSource] SHA256::update(Self, Data) -> Unit
 pub fn SHA256::update_from_iter(Self, Iter[Byte]) -> Unit
 pub impl CryptoHasher for SHA256
+
+type SHA512
+pub fn SHA512::block_size(Self) -> Int
+pub fn SHA512::finalize(Self) -> FixedArray[Byte]
+pub fn SHA512::finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+pub fn SHA512::new() -> Self
+pub fn SHA512::reset(Self) -> Unit
+pub fn SHA512::size(Self) -> Int
+pub fn[Data : ByteSource] SHA512::update(Self, Data) -> Unit
+pub fn SHA512::update_from_iter(Self, Iter[Byte]) -> Unit
+pub impl CryptoHasher for SHA512
 
 #alias(SM3Context, deprecated)
 type SM3

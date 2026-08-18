@@ -56,6 +56,64 @@ test "chacha with error" {
 }
 
 ///|
+test "chacha rejects counter exhaustion before writing output" {
+  let cipher = @crypto.ChaCha::chacha20(
+    Bytes::make(32, b'\x00'),
+    Bytes::make(12, b'\x00'),
+    counter=0xffffffff,
+  )
+  let output = FixedArray::make(65, b'\xaa')
+  let error = @test.expect_error(() => {
+    cipher.transform_checked(FixedArray::make(65, b'\x00'), output)
+  })
+  inspect(error is @crypto.ChaChaError::CounterExhausted, content="true")
+  inspect(output[0], content="b'\\xAA'")
+  inspect(output[64], content="b'\\xAA'")
+  let last_block = @crypto.ChaCha::chacha20(
+    Bytes::make(32, b'\x00'),
+    Bytes::make(12, b'\x00'),
+    counter=0xffffffff,
+  )
+  last_block.transform_checked(
+    FixedArray::make(1, b'\x00'),
+    FixedArray::make(1, b'\x00'),
+  )
+  last_block.transform_checked(
+    FixedArray::make(63, b'\x00'),
+    FixedArray::make(63, b'\x00'),
+  )
+  @test.assert_raise(() => {
+    last_block.transform_checked(
+      FixedArray::make(1, b'\x00'),
+      FixedArray::make(1, b'\x00'),
+    )
+  })
+}
+
+///|
+test "chacha rejects a short target before advancing state" {
+  let key = Bytes::make(32, b'\x00')
+  let nonce = Bytes::make(12, b'\x00')
+  let cipher = ChaCha::chacha20(key, nonce)
+  let target = FixedArray::make(64, b'\xaa')
+  let error = @test.expect_error(() => {
+    cipher.transform_checked(FixedArray::make(65, b'\x00'), target)
+  })
+  @test.assert_eq(error is @crypto.ChaChaError::InvalidOutputRange, true)
+  @test.assert_eq(target[0], b'\xaa')
+  @test.assert_eq(target[63], b'\xaa')
+
+  let output = FixedArray::make(64, b'\x00')
+  cipher.transform_checked(FixedArray::make(64, b'\x00'), output)
+  let expected = FixedArray::make(64, b'\x00')
+  ChaCha::chacha20(key, nonce).transform_checked(
+    FixedArray::make(64, b'\x00'),
+    expected,
+  )
+  @test.assert_eq(bytes_to_hex_string(output), bytes_to_hex_string(expected))
+}
+
+///|
 test (bench : @bench.T) {
   let key = Bytes::make(32, b'\x00')
   let nonce = Bytes::make(12, b'\x00')

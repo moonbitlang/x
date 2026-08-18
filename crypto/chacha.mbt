@@ -295,7 +295,7 @@ pub fn[Data : ByteSource] chacha8(
   block : Data,
   nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
-  if key.length() != 8 {
+  guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key.map(flipWord), counter, block, 4, [nonce, nonce, nonce])
@@ -315,7 +315,7 @@ pub fn[Data : ByteSource] chacha12(
   block : Data,
   nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
-  if key.length() != 8 {
+  guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key.map(flipWord), counter, block, 6, [nonce, nonce, nonce])
@@ -335,7 +335,7 @@ pub fn[Data : ByteSource] chacha20(
   block : Data,
   nonce? : UInt = 0,
 ) -> FixedArray[Byte] raise Error {
-  if key.length() != 8 {
+  guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
   }
   chacha(key.map(flipWord), counter, block, 10, [nonce, nonce, nonce])
@@ -350,12 +350,16 @@ fn[Data : ByteSource] chacha(
   round : UInt,
   nonce : FixedArray[UInt],
 ) -> FixedArray[Byte] {
-  if block.length() == 0 {
-    return FixedArray::make(0, Byte::default())
+  let block_length = block.length()
+  guard block_length > 0 else { FixedArray::make(0, Byte::default()) }
+  let block_count = (block_length - 1) / 64 + 1
+  let available_blocks = 0x100000000UL - counter.to_uint64()
+  guard block_count.to_uint64() <= available_blocks else {
+    abort("ChaCha counter exhausted")
   }
-  let buffer = FixedArray::make(block.length(), Byte::default())
+  let buffer = FixedArray::make(block_length, Byte::default())
   let key_stream = FixedArray::make(64, b'\x00')
-  for i = 0; i < block.length(); i = i + 64 {
+  for i = 0; i < block_length; i = i + 64 {
     chachaBlock(
       key,
       counter + i.reinterpret_as_uint() / 64,
@@ -363,10 +367,17 @@ fn[Data : ByteSource] chacha(
       round,
       key_stream,
     )
-    let len = @cmp.minimum(block.length() - i, 64)
+    let len = @cmp.minimum(block_length - i, 64)
     chacha_xor_into(block, i, buffer, i, key_stream, 0, len)
   }
   buffer
+}
+
+///|
+/// Errors raised by ChaCha operations.
+pub suberror ChaChaError {
+  CounterExhausted
+  InvalidOutputRange
 }
 
 ///|
@@ -375,6 +386,7 @@ struct ChaCha {
   nonce : FixedArray[UInt]
   key_stream : FixedArray[Byte]
   mut counter : UInt
+  mut exhausted : Bool
   mut offset : Int
   round : UInt
 }
@@ -386,10 +398,10 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
   round : UInt,
   counter : UInt,
 ) -> ChaCha raise Error {
-  if key.length() != 32 {
+  guard key.length() == 32 else {
     fail("Invalid key length -- key must be 256 bits")
   }
-  if nonce.length() != 12 {
+  guard nonce.length() == 12 else {
     fail("Invalid nonce length -- nonce must be 96 bits")
   }
   let key_ = FixedArray::make(8, 0U)
@@ -413,6 +425,7 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
     round,
     offset: 64,
     counter,
+    exhausted: false,
   }
 }
 
@@ -462,19 +475,45 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha20(
 }
 
 ///|
-/// Transforms the given data using the ChaCha encryption algorithm.
-/// - [data] is the data to be transformed.
-/// - [target] is the output buffer to store the transformed data.
-/// - [offset] is the offset in the target buffer where the transformed data will be written
-/// 
-/// If the length of [data] is less then the length of [target] minus [offset], it will panic.
-pub fn[D : ByteSource] ChaCha::transform(
+fn ChaCha::can_transform(self : ChaCha, data_length : Int) -> Bool {
+  let buffered_bytes = if self.offset < 64 { 64 - self.offset } else { 0 }
+  guard data_length > buffered_bytes else { true }
+  guard !self.exhausted else { false }
+  let remaining_bytes = data_length - buffered_bytes
+  let required_blocks = (remaining_bytes - 1) / 64 + 1
+  let available_blocks = 0x100000000UL - self.counter.to_uint64()
+  required_blocks.to_uint64() <= available_blocks
+}
+
+///|
+fn target_has_capacity(
+  target : FixedArray[Byte],
+  offset : Int,
+  data_length : Int,
+) -> Bool {
+  guard offset >= 0 && offset <= target.length() else { false }
+  data_length <= target.length() - offset
+}
+
+///|
+fn ChaCha::generate_block(self : ChaCha) -> Unit {
+  guard! !self.exhausted
+  chachaBlock(self.key, self.counter, self.nonce, self.round, self.key_stream)
+  if self.counter == 0xffffffff {
+    self.exhausted = true
+  } else {
+    self.counter += 1
+  }
+}
+
+///|
+fn[D : ByteSource] ChaCha::transform_unchecked(
   self : Self,
   data : D,
   target : FixedArray[Byte],
-  offset? : Int = 0,
+  offset : Int,
+  data_length : Int,
 ) -> Unit {
-  let data_length = data.length()
   let remaining_offset = if self.offset < 64 {
     let length = @cmp.minimum(data_length, 64 - self.offset)
     chacha_xor_into(
@@ -492,8 +531,7 @@ pub fn[D : ByteSource] ChaCha::transform(
     0
   }
   for input_offset = remaining_offset; input_offset + 64 <= data_length; {
-    chachaBlock(self.key, self.counter, self.nonce, self.round, self.key_stream)
-    self.counter += 1
+    self.generate_block()
     chacha_xor_into(
       data,
       input_offset,
@@ -506,14 +544,7 @@ pub fn[D : ByteSource] ChaCha::transform(
     continue input_offset + 64
   } nobreak {
     if input_offset < data_length {
-      chachaBlock(
-        self.key,
-        self.counter,
-        self.nonce,
-        self.round,
-        self.key_stream,
-      )
-      self.counter += 1
+      self.generate_block()
       self.offset = data_length - input_offset
       chacha_xor_into(
         data,
@@ -526,4 +557,46 @@ pub fn[D : ByteSource] ChaCha::transform(
       )
     }
   }
+}
+
+///|
+/// Transforms `data` with ChaCha and writes it into `target` at `offset`.
+///
+/// Aborts if `target` does not have room for the output or if the 32-bit block
+/// counter would be exhausted. Use `transform_checked` when the caller needs
+/// to handle these conditions.
+pub fn[D : ByteSource] ChaCha::transform(
+  self : Self,
+  data : D,
+  target : FixedArray[Byte],
+  offset? : Int = 0,
+) -> Unit {
+  let data_length = data.length()
+  guard target_has_capacity(target, offset, data_length) else {
+    abort("invalid ChaCha target range")
+  }
+  guard self.can_transform(data_length) else {
+    abort("ChaCha counter exhausted")
+  }
+  self.transform_unchecked(data, target, offset, data_length)
+}
+
+///|
+/// Transforms `data` with ChaCha and writes it into `target` at `offset`.
+///
+/// Raises `ChaChaError::InvalidOutputRange` or
+/// `ChaChaError::CounterExhausted` before writing any output if the target
+/// range is invalid or the operation would exhaust the 32-bit block counter.
+pub fn[D : ByteSource] ChaCha::transform_checked(
+  self : Self,
+  data : D,
+  target : FixedArray[Byte],
+  offset? : Int = 0,
+) -> Unit raise ChaChaError {
+  let data_length = data.length()
+  guard target_has_capacity(target, offset, data_length) else {
+    raise InvalidOutputRange
+  }
+  guard self.can_transform(data_length) else { raise CounterExhausted }
+  self.transform_unchecked(data, target, offset, data_length)
 }

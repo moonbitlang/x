@@ -35,7 +35,7 @@ pub fn[Data : ByteSource] sha1(input : Data) -> FixedArray[Byte] {
   let chunk_count = new_length / bytes_per_chunk // `new_length` is a multiple of 512
   let words = FixedArray::make(80, 0U)
   for chunk = 0; chunk < chunk_count; chunk = chunk + 1 {
-    parse_be_u32_block_into(bytes, chunk * bytes_per_chunk, words)
+    parse_be_u32x16_into(bytes, chunk * bytes_per_chunk, words)
     for i = 16; i < 80; i = i + 1 {
       words[i] = rotate_left_u(
         words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16],

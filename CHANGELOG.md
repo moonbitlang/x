@@ -2,10 +2,26 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added MD4, RIPEMD-160, SHA-384 and SHA-512 hashing (with streaming
+  contexts) and an AES-128/192/256 block cipher with ECB/CBC modes to
+  `@crypto`, ported from `mbtexcel` (#298)
+- Added `SHA224` with a streaming context implementing `CryptoHasher`, so
+  SHA-224 no longer requires the deprecated `reg` parameter of `SHA256::new`
+  (#298)
+
 ### Fixed
 
 - Fixed deprecation warnings from trait method extension calls in
   `@rational`, `@time`, `@path`, `@uuid`, and `@decimal` (#302)
+- Hardened `@crypto` AES, ChaCha, and SHA-512 handling for side-channel,
+  counter-exhaustion, and message-length edge cases. (#298)
+
+### Deprecated
+
+- Deprecated the `reg` parameter of `SHA256::new`; to compute SHA-224, use
+  `SHA224::new()` instead (#298)
 
 ## [0.4.50]
 
