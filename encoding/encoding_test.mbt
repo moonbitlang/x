@@ -31,10 +31,10 @@ test "debug encoding" {
 }
 
 ///|
-test "encode_to/UTF8" {
+test "write_string_utf8" {
   let src = "你好👀"
   let buf = Buffer(size_hint=10)
-  @encoding.encode_to(src, buf, encoding=UTF8)
+  buf.write_string_utf8(src)
   inspect(
     buf.to_bytes(),
     content=(
@@ -56,10 +56,10 @@ test "encoding String to UTF16 (alias of UTF16LE)" {
 }
 
 ///|
-test "encode_to/UTF16" {
+test "write_string_utf16le" {
   let src = "LISP programmers know the value of everything"
   let buf = Buffer(size_hint=10)
-  @encoding.encode_to(src, buf, encoding=UTF16)
+  buf.write_string_utf16le(src)
   inspect(
     buf.to_bytes(),
     content=(
@@ -81,19 +81,6 @@ test "encoding String to UTF16LE" {
 }
 
 ///|
-test "encode_to/UTF16LE" {
-  let src = "and the cost of nothing"
-  let buf = Buffer(size_hint=10)
-  @encoding.encode_to(src, buf, encoding=UTF16LE)
-  inspect(
-    buf.to_bytes(),
-    content=(
-      #|b"a\x00n\x00d\x00 \x00t\x00h\x00e\x00 \x00c\x00o\x00s\x00t\x00 \x00o\x00f\x00 \x00n\x00o\x00t\x00h\x00i\x00n\x00g\x00"
-    ),
-  )
-}
-
-///|
 test "encoding String to UTF16BE" {
   let src = "λf.(λx.f(x x))(λx.f(x x))"
   let bytes = @encoding.encode(UTF16BE, src)
@@ -106,10 +93,10 @@ test "encoding String to UTF16BE" {
 }
 
 ///|
-test "encode_to/UTF16BE" {
+test "write_string_utf16be" {
   let src = "λf.(λx.f(x x))(λx.f(x x))"
   let buf = Buffer(size_hint=10)
-  @encoding.encode_to(src, buf, encoding=UTF16BE)
+  buf.write_string_utf16be(src)
   inspect(
     buf.to_bytes(),
     content=(
@@ -142,34 +129,6 @@ test "to_utf8_bytes" {
     @encoding.to_utf8_bytes('😦'),
     content=(
       #|b"\xf0\x9f\x98\xa6"
-    ),
-  )
-}
-
-///|
-test "to_utf16_bytes (alias for to_utf16le_bytes)" {
-  inspect(
-    @encoding.to_utf16_bytes('A'),
-    content=(
-      #|b"A\x00"
-    ),
-  )
-  inspect(
-    @encoding.to_utf16_bytes('α'),
-    content=(
-      #|b"\xb1\x03"
-    ),
-  )
-  inspect(
-    @encoding.to_utf16_bytes('啊'),
-    content=(
-      #|b"JU"
-    ),
-  )
-  inspect(
-    @encoding.to_utf16_bytes('😦'),
-    content=(
-      #|b"=\xd8&\xde"
     ),
   )
 }
@@ -231,12 +190,12 @@ test "to_utf16be_bytes" {
 }
 
 ///|
-test "write_utf8_char" {
+test "write_char_utf8" {
   let buf = Buffer(size_hint=10)
-  @encoding.write_utf8_char(buf, 'A')
-  @encoding.write_utf8_char(buf, 'α')
-  @encoding.write_utf8_char(buf, '啊')
-  @encoding.write_utf8_char(buf, '😦')
+  buf.write_char_utf8('A')
+  buf.write_char_utf8('α')
+  buf.write_char_utf8('啊')
+  buf.write_char_utf8('😦')
   inspect(
     buf.to_bytes(),
     content=(
@@ -246,12 +205,12 @@ test "write_utf8_char" {
 }
 
 ///|
-test "write_utf16_char (alias for write_utf16le_char)" {
+test "write_char_utf16le" {
   let buf = Buffer(size_hint=10)
-  @encoding.write_utf16_char(buf, 'A')
-  @encoding.write_utf16_char(buf, 'α')
-  @encoding.write_utf16_char(buf, '啊')
-  @encoding.write_utf16_char(buf, '😦')
+  buf.write_char_utf16le('A')
+  buf.write_char_utf16le('α')
+  buf.write_char_utf16le('啊')
+  buf.write_char_utf16le('😦')
   inspect(
     buf.to_bytes(),
     content=(
@@ -261,27 +220,12 @@ test "write_utf16_char (alias for write_utf16le_char)" {
 }
 
 ///|
-test "write_utf16le_char" {
+test "write_char_utf16be" {
   let buf = Buffer(size_hint=10)
-  @encoding.write_utf16le_char(buf, 'A')
-  @encoding.write_utf16le_char(buf, 'α')
-  @encoding.write_utf16le_char(buf, '啊')
-  @encoding.write_utf16le_char(buf, '😦')
-  inspect(
-    buf.to_bytes(),
-    content=(
-      #|b"A\x00\xb1\x03JU=\xd8&\xde"
-    ),
-  )
-}
-
-///|
-test "write_utf16be_char" {
-  let buf = Buffer(size_hint=10)
-  @encoding.write_utf16be_char(buf, 'A')
-  @encoding.write_utf16be_char(buf, 'α')
-  @encoding.write_utf16be_char(buf, '啊')
-  @encoding.write_utf16be_char(buf, '😦')
+  buf.write_char_utf16be('A')
+  buf.write_char_utf16be('α')
+  buf.write_char_utf16be('啊')
+  buf.write_char_utf16be('😦')
   inspect(
     buf.to_bytes(),
     content=(

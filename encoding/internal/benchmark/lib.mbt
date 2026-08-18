@@ -39,17 +39,17 @@ fn random_bytes(
 
 ///|
 fn random_utf8(rand : @random.Rand, n : Int) -> Bytes {
-  random_bytes(rand, n, @encoding.write_utf8_char)
+  random_bytes(rand, n, @buffer.Buffer::write_char_utf8)
 }
 
 ///|
 fn random_utf16le(rand : @random.Rand, n : Int) -> Bytes {
-  random_bytes(rand, n, @encoding.write_utf16le_char)
+  random_bytes(rand, n, @buffer.Buffer::write_char_utf16le)
 }
 
 ///|
 fn random_utf16be(rand : @random.Rand, n : Int) -> Bytes {
-  random_bytes(rand, n, @encoding.write_utf16be_char)
+  random_bytes(rand, n, @buffer.Buffer::write_char_utf16be)
 }
 
 ///|
