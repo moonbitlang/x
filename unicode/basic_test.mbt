@@ -28,3 +28,24 @@ test "from_utf16_pair rejects invalid pairs" {
   debug_inspect(utf16_pair_to_char(0xD83D, 0x0041), content="None")
   debug_inspect(utf16_pair_to_char(0xD83D, 0xD83D), content="None")
 }
+
+///|
+test "char_to_utf16_pair splits astral chars and rejects BMP chars" {
+  debug_inspect(char_to_utf16_pair('😀'), content="Some((55357, 56832))")
+  debug_inspect(char_to_utf16_pair('\u{10000}'), content="Some((55296, 56320))")
+  debug_inspect(
+    char_to_utf16_pair('\u{10ffff}'),
+    content="Some((56319, 57343))",
+  )
+  debug_inspect(char_to_utf16_pair('A'), content="None")
+}
+
+///|
+test "char_to_utf16_pair is the inverse of utf16_pair_to_char" {
+  for ch in ['😀', '\u{10000}', '\u{10ffff}', '啊', 'A'] {
+    if ch.to_int() > 0xFFFF {
+      let (hi, lo) = char_to_utf16_pair(ch).unwrap()
+      debug_inspect(utf16_pair_to_char(hi, lo) == Some(ch), content="true")
+    }
+  }
+}

@@ -13,19 +13,22 @@
 // limitations under the License.
 
 ///|
-pub fn mbt_string_to_utf8_bytes(str : String, is_filename : Bool) -> Bytes {
+/// Encode a string into UTF-8 bytes.
+///
+/// The trailing portion of a truncated surrogate pair at the end of the
+/// string is ignored.
+pub fn to_utf8_bytes(s : String) -> Bytes {
   let res : Array[Byte] = []
-  let len = str.length()
+  let len = s.length()
   let mut i = 0
   while i < len {
-    let mut c = str.code_unit_at(i).to_int()
+    let mut c = s.code_unit_at(i).to_int()
     if c.is_leading_surrogate() {
       i = i + 1
-      let l = str.code_unit_at(i).to_int()
-      c = @unicode.utf16_pair_to_char(c, l).unwrap().to_int()
+      let l = s.code_unit_at(i).to_int()
+      c = utf16_pair_to_char(c, l).unwrap().to_int()
     }
 
-    // stdout accepts UTF-8, so convert the stream to UTF-8 first
     if c < 0x80 {
       res.push(c.to_byte())
     } else if c < 0x800 {
@@ -43,14 +46,15 @@ pub fn mbt_string_to_utf8_bytes(str : String, is_filename : Bool) -> Bytes {
     }
     i = i + 1
   }
-  if is_filename {
-    res.push((0).to_byte())
-  }
   Bytes::from_array(res)
 }
 
 ///|
-pub fn utf8_bytes_to_mbt_string(bytes : Bytes) -> String {
+/// Decode UTF-8 bytes into a string.
+///
+/// NOTE: an incomplete or malformed sequence at the end of the input is
+/// silently truncated.
+pub fn to_utf8_string(bytes : Bytes) -> String {
   let res : Array[Char] = []
   let len = bytes.length()
   let mut i = 0
@@ -83,10 +87,14 @@ pub fn utf8_bytes_to_mbt_string(bytes : Bytes) -> String {
         ((bytes[i + 1].to_int() & 0x3F) << 12) |
         ((bytes[i + 2].to_int() & 0x3F) << 6) |
         (bytes[i + 3].to_int() & 0x3F)
-      c -= 0x10000
-      res.push(Int::unsafe_to_char((c >> 10) + 0xD800))
-      res.push(Int::unsafe_to_char((c & 0x3FF) + 0xDC00))
-      i += 4
+      match char_to_utf16_pair(Int::unsafe_to_char(c)) {
+        Some((hi, lo)) => {
+          res.push(Int::unsafe_to_char(hi))
+          res.push(Int::unsafe_to_char(lo))
+          i += 4
+        }
+        None => break
+      }
     }
   }
   String::from_array(res)

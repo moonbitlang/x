@@ -10,6 +10,18 @@
 - Added `SHA224` with a streaming context implementing `CryptoHasher`, so
   SHA-224 no longer requires the deprecated `reg` parameter of `SHA256::new`
   (#298)
+- Added `@unicode.to_utf8_bytes` and `@unicode.to_utf8_string` for UTF-8
+  conversion, and `@unicode.char_to_utf16_pair` to split a supplementary char
+  into a UTF-16 surrogate pair (#304)
+- Added `@unicode.CharClass`, a compact character range set with constant-time
+  BMP lookup backed by a bitset, and the JSON5 character classification tables
+  (`non_ascii_whitespace`, `non_ascii_id_start`, `non_ascii_id_continue`)
+  (#304)
+
+### Changed
+
+- Moved the UTF-8 conversion helpers out of the internal FFI layer into
+  `@unicode`; `@fs` now uses them directly (#304)
 
 ### Fixed
 
