@@ -15,7 +15,9 @@
 // This is a generated file. Do not edit.
 
 ///|
-let non_ascii_whitespace : CharClass = CharClass::of([
+/// Non-ASCII characters classified as whitespace by the JSON5 spec
+/// (Unicode `White_Space` minus the ASCII whitespace characters).
+pub let non_ascii_whitespace : CharClass = CharClass::of([
   ('\u00A0', '\u00A0'),
   ('\u1680', '\u1680'),
   ('\u2000', '\u200A'),
@@ -27,7 +29,9 @@ let non_ascii_whitespace : CharClass = CharClass::of([
 ])
 
 ///|
-let non_ascii_id_start : CharClass = CharClass::of([
+/// Non-ASCII characters that can start an identifier, following the JSON5
+/// spec (Unicode `ID_Start`).
+pub let non_ascii_id_start : CharClass = CharClass::of([
   ('\u00AA', '\u00AA'),
   ('\u00B5', '\u00B5'),
   ('\u00BA', '\u00BA'),
@@ -617,7 +621,9 @@ let non_ascii_id_start : CharClass = CharClass::of([
 ])
 
 ///|
-let non_ascii_id_continue : CharClass = CharClass::of([
+/// Non-ASCII characters that can appear in an identifier, following the
+/// JSON5 spec (Unicode `ID_Continue`).
+pub let non_ascii_id_continue : CharClass = CharClass::of([
   ('\u00AA', '\u00AA'),
   ('\u00B5', '\u00B5'),
   ('\u00BA', '\u00BA'),

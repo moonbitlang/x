@@ -30,7 +30,7 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
       let c = lex_hex_digits(ctx, 4)
       let c = Int::unsafe_to_char(c)
       if c is ('$' | '_' | 'a'..='z' | 'A'..='Z' | '0'..='9') ||
-        (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
+        (c > '\u{7f}' && @unicode.non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder::new()
         buffer.write_char(c)
         let s = lex_ident(ctx, ctx.offset, buffer~)
@@ -43,7 +43,7 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
     }
     Some(c) => {
       if c is ('a'..='z' | 'A'..='Z') ||
-        (c > '\u{7f}' && non_ascii_id_start.contains(c)) {
+        (c > '\u{7f}' && @unicode.non_ascii_id_start.contains(c)) {
         let s = lex_ident(ctx, ctx.offset - 1)
         return String(s)
       }
@@ -74,7 +74,7 @@ fn lex_ident(
         let c = lex_hex_digits(ctx, 4)
         let c = Int::unsafe_to_char(c)
         if c is ('$' | '_' | 'a'..='z' | 'A'..='Z' | '0'..='9') ||
-          (c > '\u{7f}' && non_ascii_id_continue.contains(c)) {
+          (c > '\u{7f}' && @unicode.non_ascii_id_continue.contains(c)) {
           buffer.write_char(c)
           start = ctx.offset
           continue
@@ -87,7 +87,7 @@ fn lex_ident(
       Some('$' | '_') => continue
       Some(c) => {
         if c is ('a'..='z' | 'A'..='Z' | '0'..='9') ||
-          (c > '\u{7f}' && non_ascii_id_continue.contains(c)) {
+          (c > '\u{7f}' && @unicode.non_ascii_id_continue.contains(c)) {
           continue
         }
         ctx.offset -= 1

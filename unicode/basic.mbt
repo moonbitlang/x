@@ -24,3 +24,16 @@ pub fn utf16_pair_to_char(hi : Int, lo : Int) -> Char? {
   guard hi.is_leading_surrogate() && lo.is_trailing_surrogate() else { None }
   Some(Int::unsafe_to_char((hi << 10) + lo - 0x35fdc00))
 }
+
+///|
+/// Split a supplementary (astral) char into its UTF-16 leading and trailing
+/// surrogate code units, or `None` if the char fits in a single code unit.
+pub fn char_to_utf16_pair(ch : Char) -> (Int, Int)? {
+  let c = ch.to_int()
+  if c > 0xFFFF {
+    let v = c - 0x10000
+    Some((0xD800 + (v >> 10), 0xDC00 + (v & 0x3FF)))
+  } else {
+    None
+  }
+}

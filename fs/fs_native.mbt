@@ -33,7 +33,7 @@ fn OsString::from_string(str : String) -> OsString {
 ///|
 #cfg(not(platform="windows"))
 fn OsString::from_string(str : String) -> OsString {
-  OsString(@ffi.mbt_string_to_utf8_bytes(str, true))
+  OsString(@unicode.to_utf8_bytes(str) + Bytes::make(1, (0).to_byte()))
 }
 
 ///|
@@ -45,7 +45,7 @@ fn OsString::to_string(self : OsString) -> String {
 ///|
 #cfg(not(platform="windows"))
 fn OsString::to_string(self : OsString) -> String {
-  @ffi.utf8_bytes_to_mbt_string(self.0)
+  @unicode.to_utf8_string(self.0)
 }
 
 ///|
@@ -90,7 +90,7 @@ extern "C" fn fclose_ffi(file : Handler) -> Int = "moonbitlang_x_fs_fclose_ffi"
 
 ///|
 fn get_error_message() -> String {
-  @ffi.utf8_bytes_to_mbt_string(get_error_message_ffi())
+  @unicode.to_utf8_string(get_error_message_ffi())
 }
 
 ///|
@@ -118,7 +118,7 @@ fn read_file_to_string_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  @ffi.utf8_bytes_to_mbt_string(read_file_to_bytes_internal(path))
+  @unicode.to_utf8_string(read_file_to_bytes_internal(path))
 }
 
 ///|
@@ -147,7 +147,7 @@ fn write_string_to_file_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  let bytes = @ffi.mbt_string_to_utf8_bytes(content, false)
+  let bytes = @unicode.to_utf8_bytes(content)
   write_bytes_to_file_internal(path, bytes)
 }
 
