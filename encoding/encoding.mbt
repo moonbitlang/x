@@ -50,8 +50,8 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
   }
   let new_buf = Buffer(size_hint=src.length() * 4)
   let write = match encoding {
-    UTF8 => write_utf8_char
-    UTF16BE => write_utf16be_char
+    UTF8 => Buffer::write_char_utf8
+    UTF16BE => Buffer::write_char_utf16be
     _ => abort("unreachable")
   }
   for char in src {
@@ -77,10 +77,11 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 /// test {
 ///   let buf = Buffer()
 ///   let text = "Hello, world"
-///   @encoding.encode_to(text, buf, encoding=UTF16)
+///   buf.write_string_utf16le(text)
 ///   inspect(buf.to_string(), content="Hello, world")
 /// }
 /// ```
+#deprecated("Use `buffer.write_string_utf8/utf16le/utf16be` instead")
 pub fn encode_to(
   src : String,
   buffer : @buffer.Buffer,
@@ -100,7 +101,7 @@ pub fn encode_to(
 /// due to the intermediate creation of new buffers.
 pub fn to_utf8_bytes(value : Char) -> Bytes {
   let buf = Buffer(size_hint=4)
-  write_utf8_char(buf, value)
+  buf.write_char_utf8(value)
   buf.to_bytes()
 }
 
@@ -111,6 +112,7 @@ pub fn to_utf8_bytes(value : Char) -> Bytes {
 ///
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
+#deprecated("Use `to_utf16le_bytes` instead")
 pub fn to_utf16_bytes(value : Char) -> Bytes {
   to_utf16le_bytes(value)
 }
@@ -122,7 +124,7 @@ pub fn to_utf16_bytes(value : Char) -> Bytes {
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16le_bytes(value : Char) -> Bytes {
   let buf = Buffer(size_hint=4)
-  write_utf16le_char(buf, value)
+  buf.write_char_utf16le(value)
   buf.to_bytes()
 }
 
@@ -133,12 +135,13 @@ pub fn to_utf16le_bytes(value : Char) -> Bytes {
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16be_bytes(value : Char) -> Bytes {
   let buf = Buffer(size_hint=4)
-  write_utf16be_char(buf, value)
+  buf.write_char_utf16be(value)
   buf.to_bytes()
 }
 
 ///|
 /// Write a char into buffer as UTF8.
+#deprecated("Use `buf.write_char_utf8(value)` instead")
 pub fn write_utf8_char(buf : @buffer.Buffer, value : Char) -> Unit {
   buf.write_char_utf8(value)
 }
@@ -146,18 +149,21 @@ pub fn write_utf8_char(buf : @buffer.Buffer, value : Char) -> Unit {
 ///|
 /// Write a char into buffer as UTF16LE.
 /// Alias for `write_utf16le_char`
+#deprecated("Use `buf.write_char_utf16le(value)` instead")
 pub fn write_utf16_char(buf : @buffer.Buffer, value : Char) -> Unit {
-  write_utf16le_char(buf, value)
+  buf.write_char_utf16le(value)
 }
 
 ///|
 /// Write a char into buffer as UTF16LE.
+#deprecated("Use `buf.write_char_utf16le(value)` instead")
 pub fn write_utf16le_char(buf : @buffer.Buffer, value : Char) -> Unit {
   buf.write_char_utf16le(value)
 }
 
 ///|
 /// Write a char into buffer as UTF16BE.
+#deprecated("Use `buf.write_char_utf16be(value)` instead")
 pub fn write_utf16be_char(buf : @buffer.Buffer, value : Char) -> Unit {
   buf.write_char_utf16be(value)
 }

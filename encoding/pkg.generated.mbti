@@ -15,8 +15,10 @@ pub fn decoder(Encoding) -> Decoder
 
 pub fn encode(Encoding, String) -> Bytes
 
+#deprecated
 pub fn encode_to(String, @buffer.Buffer, encoding~ : Encoding) -> Unit
 
+#deprecated
 pub fn to_utf16_bytes(Char) -> Bytes
 
 pub fn to_utf16be_bytes(Char) -> Bytes
@@ -25,12 +27,16 @@ pub fn to_utf16le_bytes(Char) -> Bytes
 
 pub fn to_utf8_bytes(Char) -> Bytes
 
+#deprecated
 pub fn write_utf16_char(@buffer.Buffer, Char) -> Unit
 
+#deprecated
 pub fn write_utf16be_char(@buffer.Buffer, Char) -> Unit
 
+#deprecated
 pub fn write_utf16le_char(@buffer.Buffer, Char) -> Unit
 
+#deprecated
 pub fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 
 // Errors

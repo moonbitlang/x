@@ -22,6 +22,11 @@
 
 - Deprecated the `reg` parameter of `SHA256::new`; to compute SHA-224, use
   `SHA224::new()` instead (#298)
+- Deprecated `@encoding.encode_to` and `@encoding.to_utf16_bytes` in favor of
+  `Buffer::write_string_utf8/utf16le/utf16be` and `@encoding.to_utf16le_bytes`,
+  and deprecated `@encoding.write_utf8_char`, `write_utf16_char`,
+  `write_utf16le_char`, and `write_utf16be_char` in favor of the corresponding
+  `Buffer::write_char_utf8/utf16le/utf16be` methods (#304)
 
 ## [0.4.50]
 
