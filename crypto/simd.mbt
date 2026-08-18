@@ -15,7 +15,7 @@
 ///|
 #cfg(any(target="native", target="wasm"))
 #inline
-fn parse_be_u32_block_into(
+fn parse_be_u32x16_into(
   bytes : FixedArray[Byte],
   byte_offset : Int,
   words : FixedArray[UInt],
@@ -36,7 +36,7 @@ fn parse_be_u32_block_into(
 ///|
 #cfg(not(any(target="native", target="wasm")))
 #inline
-fn parse_be_u32_block_into(
+fn parse_be_u32x16_into(
   bytes : FixedArray[Byte],
   byte_offset : Int,
   words : FixedArray[UInt],
@@ -49,6 +49,87 @@ fn parse_be_u32_block_into(
       (bytes.unsafe_get(offset + 1).to_uint() << 16) |
       (bytes.unsafe_get(offset + 2).to_uint() << 8) |
       bytes.unsafe_get(offset + 3).to_uint(),
+    )
+  }
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+#inline
+fn parse_le_u32x16_into(
+  bytes : FixedArray[Byte],
+  byte_offset : Int,
+  words : FixedArray[UInt],
+) -> Unit {
+  for group in 0..<4 {
+    let value = @v128.v128_load(bytes, byte_offset + group * 16)
+    let word_offset = group * 4
+    words.unsafe_set(word_offset, @v128.i32x4_extract_lane(value, 0))
+    words.unsafe_set(word_offset + 1, @v128.i32x4_extract_lane(value, 1))
+    words.unsafe_set(word_offset + 2, @v128.i32x4_extract_lane(value, 2))
+    words.unsafe_set(word_offset + 3, @v128.i32x4_extract_lane(value, 3))
+  }
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+#inline
+fn parse_le_u32x16_into(
+  bytes : FixedArray[Byte],
+  byte_offset : Int,
+  words : FixedArray[UInt],
+) -> Unit {
+  for word_offset in 0..<16 {
+    let offset = byte_offset + word_offset * 4
+    words.unsafe_set(
+      word_offset,
+      bytes.unsafe_get(offset).to_uint() |
+      (bytes.unsafe_get(offset + 1).to_uint() << 8) |
+      (bytes.unsafe_get(offset + 2).to_uint() << 16) |
+      (bytes.unsafe_get(offset + 3).to_uint() << 24),
+    )
+  }
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+#inline
+fn parse_be_u64x16_into(
+  bytes : FixedArray[Byte],
+  byte_offset : Int,
+  words : FixedArray[UInt64],
+) -> Unit {
+  for group in 0..<8 {
+    let value = @v128.v128_load(bytes, byte_offset + group * 16)
+    let value = @v128.i8x16_shuffle(
+      value, value, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8,
+    )
+    let word_offset = group * 2
+    words.unsafe_set(word_offset, @v128.i64x2_extract_lane(value, 0))
+    words.unsafe_set(word_offset + 1, @v128.i64x2_extract_lane(value, 1))
+  }
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+#inline
+fn parse_be_u64x16_into(
+  bytes : FixedArray[Byte],
+  byte_offset : Int,
+  words : FixedArray[UInt64],
+) -> Unit {
+  for word_offset in 0..<16 {
+    let offset = byte_offset + word_offset * 8
+    words.unsafe_set(
+      word_offset,
+      (bytes.unsafe_get(offset).to_uint64() << 56) |
+      (bytes.unsafe_get(offset + 1).to_uint64() << 48) |
+      (bytes.unsafe_get(offset + 2).to_uint64() << 40) |
+      (bytes.unsafe_get(offset + 3).to_uint64() << 32) |
+      (bytes.unsafe_get(offset + 4).to_uint64() << 24) |
+      (bytes.unsafe_get(offset + 5).to_uint64() << 16) |
+      (bytes.unsafe_get(offset + 6).to_uint64() << 8) |
+      bytes.unsafe_get(offset + 7).to_uint64(),
     )
   }
 }

@@ -45,6 +45,36 @@ test "bench MD5 64 KiB" (it : @bench.T) {
 }
 
 ///|
+test "bench MD4 64 KiB" (it : @bench.T) {
+  let input = crypto_bench_input()
+  it.bench(fn() { it.keep(@crypto.md4(input)) })
+}
+
+///|
+test "bench RIPEMD-160 64 KiB" (it : @bench.T) {
+  let input = crypto_bench_input()
+  it.bench(fn() { it.keep(@crypto.ripemd160(input)) })
+}
+
+///|
+test "bench SHA-512 64 KiB" (it : @bench.T) {
+  let input = crypto_bench_input()
+  it.bench(fn() { it.keep(@crypto.sha512(input)) })
+}
+
+///|
+test "bench AES-128 ECB 64 KiB" (it : @bench.T) {
+  let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+  let input = crypto_bench_input()
+  it.bench(fn() {
+    let out = @crypto.aes_ecb_encrypt(key, input.unsafe_reinterpret_as_bytes()) catch {
+      _ => Default::default()
+    }
+    it.keep(out)
+  })
+}
+
+///|
 test "bench ChaCha20 64 KiB" (it : @bench.T) {
   let key = FixedArray::make(32, b'\x00')
   let nonce = FixedArray::make(12, b'\x00')

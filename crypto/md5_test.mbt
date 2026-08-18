@@ -48,6 +48,34 @@ test "md5_rfc1321" { // testsuites in RFC1321
 }
 
 ///|
+test "md5 finalize_into writes at offset" {
+  let ctx = MD5::new()
+  ctx.update(b"abc".to_fixedarray())
+  let buf = FixedArray::make(32, b'\x00')
+  buf.fill(0xaa)
+  CryptoHasher::finalize_into(ctx, buf, offset=8)
+  inspect(
+    bytes_to_hex_string(buf),
+    content="aaaaaaaaaaaaaaaa900150983cd24fb0d6963f7d28e17f72aaaaaaaaaaaaaaaa",
+  )
+}
+
+///|
+test "md5 finalize is idempotent and reentrant" {
+  let ctx = MD5::new()
+  ctx.update(b"abc".to_fixedarray())
+  let first = bytes_to_hex_string(ctx.finalize())
+  let second = bytes_to_hex_string(ctx.finalize())
+  inspect(first, content="900150983cd24fb0d6963f7d28e17f72")
+  @test.assert_eq(first, second)
+  ctx.update(b"def".to_fixedarray())
+  inspect(
+    bytes_to_hex_string(ctx.finalize()),
+    content="e80b5017098950fc58aad83c8c14978e",
+  )
+}
+
+///|
 test "md5_additional" { // Additional testsuites
   let hash = md5test(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",

@@ -22,14 +22,19 @@ struct SHA256 {
 }
 
 ///|
-/// Instantiate a Sha256 context
-/// `reg` is the initial hash value. Defaults to Sha256's.
+/// Instantiate a SHA-256 context with the standard initial hash value.
+#label_migration(reg, fill=false, msg="The `reg` parameter is deprecated: constructing a SHA-256 hasher with a custom initial state is no longer supported. If you were passing the SHA-224 initial state, use `SHA224::new()` instead.")
 pub fn SHA256::new(
   reg? : FixedArray[UInt] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
     0x5be0cd19,
   ],
 ) -> SHA256 {
+  SHA256::new_with_initial_state(reg)
+}
+
+///|
+fn SHA256::new_with_initial_state(reg : FixedArray[UInt]) -> SHA256 {
   { reg, len: 0, buf: FixedArray::make(64, Byte::default()), buf_index: 0 }
 }
 
@@ -47,10 +52,27 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
   0xc67178f2,
 ]
 
+// Ch(x,y,z) = (x & y) ^ (~x & z)
+// Maj(x,y,z) = (x & y) ^ (x & z) ^ (y & z)
+
 ///|
-fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
-  let w = FixedArray::make(16, 0U)
+fn sha256_ch(x : UInt, y : UInt, z : UInt) -> UInt {
+  ((y ^ z) & x) ^ z
+}
+
+///|
+fn sha256_maj(x : UInt, y : UInt, z : UInt) -> UInt {
+  (x & y) | (x & z) | (y & z)
+}
+
+///|
+fn SHA256::transform(
+  data : FixedArray[Byte],
+  reg : FixedArray[UInt],
+  w : FixedArray[UInt],
+) -> Unit {
   guard! reg.length() == 8
+  guard! w.length() == 16
   let mut a = reg.unsafe_get(0)
   let mut b = reg.unsafe_get(1)
   let mut c = reg.unsafe_get(2)
@@ -59,7 +81,7 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
   let mut f = reg.unsafe_get(5)
   let mut g = reg.unsafe_get(6)
   let mut h = reg.unsafe_get(7)
-  parse_be_u32_block_into(data, 0, w)
+  parse_be_u32x16_into(data, 0, w)
   for index = 0; index < 64; index = index + 1 {
     let word = if index < 16 {
       w.unsafe_get(index)
@@ -83,11 +105,11 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
     let big_sigma_1 = rotate_right_u(e, 6) ^
       rotate_right_u(e, 11) ^
       rotate_right_u(e, 25)
-    let t_1 = h + big_sigma_1 + SM3::gg_1(e, f, g) + sha256_t[index] + word
+    let t_1 = h + big_sigma_1 + sha256_ch(e, f, g) + sha256_t[index] + word
     let big_sigma_0 = rotate_right_u(a, 2) ^
       rotate_right_u(a, 13) ^
       rotate_right_u(a, 22)
-    let t_2 = big_sigma_0 + SM3::ff_1(a, b, c)
+    let t_2 = big_sigma_0 + sha256_maj(a, b, c)
     h = g
     g = f
     f = e
@@ -109,13 +131,14 @@ fn SHA256::transform(data : FixedArray[Byte], reg : FixedArray[UInt]) -> Unit {
 
 ///|
 pub fn SHA256::update_from_iter(self : SHA256, data : Iter[Byte]) -> Unit {
+  let w = FixedArray::make(16, 0U)
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
     if self.buf_index == 64 {
       self.buf_index = 0
       self.len += 512UL
-      SHA256::transform(self.buf, self.reg)
+      SHA256::transform(self.buf, self.reg, w)
     }
   })
 }
@@ -128,13 +151,11 @@ pub impl CryptoHasher for SHA256 with fn update(self : SHA256, data : BytesView)
 ///|
 /// update the state of given context from new `data` 
 pub fn[Data : ByteSource] SHA256::update(self : SHA256, data : Data) -> Unit {
+  let w = FixedArray::make(16, 0U)
+  let data_len = data.length()
   let mut offset = 0
-  while offset < data.length() {
-    let min_len = if 64 - self.buf_index >= data.length() - offset {
-      data.length() - offset
-    } else {
-      64 - self.buf_index
-    }
+  while offset < data_len {
+    let min_len = @cmp.minimum(64 - self.buf_index, data_len - offset)
     data.blit_to(
       self.buf,
       len=min_len,
@@ -145,7 +166,7 @@ pub fn[Data : ByteSource] SHA256::update(self : SHA256, data : Data) -> Unit {
     if self.buf_index == 64 {
       self.len += 512UL
       self.buf_index = 0
-      SHA256::transform(self.buf, self.reg)
+      SHA256::transform(self.buf, self.reg, w)
     }
     offset += min_len
   }
@@ -168,6 +189,7 @@ fn SHA256::_finalize_into(
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(64, Byte::default())
+  let w = FixedArray::make(16, 0U)
   let mut cnt = self.buf_index
   let len = self.len + 8 * cnt.to_uint64()
   self.buf.blit_to(data, len=cnt)
@@ -177,7 +199,7 @@ fn SHA256::_finalize_into(
   data[cnt] = b'\x80'
   cnt += 1
   if cnt > 56 {
-    SHA256::transform(data, reg)
+    SHA256::transform(data, reg, w)
     data.fill(0)
   }
   data.unsafe_set(56, (len >> 56).to_byte())
@@ -188,7 +210,7 @@ fn SHA256::_finalize_into(
   data.unsafe_set(61, (len >> 16).to_byte())
   data.unsafe_set(62, (len >> 8).to_byte())
   data.unsafe_set(63, (len >> 0).to_byte())
-  SHA256::transform(data, reg)
+  SHA256::transform(data, reg, w)
 
   // Write result to buffer
   arr_u32_to_u8be_into(reg.iter().take(size), buffer, offset)
