@@ -2,13 +2,31 @@
 package "moonbitlang/x/unicode"
 
 // Values
+pub fn char_to_utf16_pair(Char) -> (Int, Int)?
+
+pub let non_ascii_id_continue : CharClass
+
+pub let non_ascii_id_start : CharClass
+
+pub let non_ascii_whitespace : CharClass
+
 pub fn to_lowercase(Char) -> Char
+
+pub fn to_utf8_bytes(String) -> Bytes
+
+pub fn to_utf8_string(Bytes) -> String
 
 pub fn utf16_pair_to_char(Int, Int) -> Char?
 
 // Errors
 
 // Types and methods
+pub struct CharClass {
+  bmp : FixedArray[Int]
+  astral : FixedArray[Int]
+}
+pub fn CharClass::contains(Self, Char) -> Bool
+pub fn CharClass::of(Array[(Char, Char)]) -> Self
 
 // Type aliases
 
