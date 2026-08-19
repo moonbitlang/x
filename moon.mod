@@ -1,6 +1,6 @@
 name = "moonbitlang/x"
 
-version = "0.4.50"
+version = "0.5.0"
 
 readme = "README.md"
 

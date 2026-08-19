@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.0]
+
 ### Added
 
 - Added MD4, RIPEMD-160, SHA-384 and SHA-512 hashing (with streaming
