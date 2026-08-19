@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added non-deprecated `Path::to_string` method access to `@path`.
+- Added non-deprecated `Path::to_string` method access to `@path` (#306).
 
 ## [0.5.0]
 
