@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/debug"
+
+// Values
+pub let debug_object : DebugObject?
+
+// Errors
+
+// Types and methods
+type DebugObject
+pub fn DebugObject::write_object_begin(Self) -> Unit
+pub fn DebugObject::write_object_end(Self) -> Unit
+pub fn[T : @moonbitlang/core/debug.Debug] DebugObject::write_object_field(Self, String, T) -> Unit
+
+// Type aliases
+
+// Traits
+
