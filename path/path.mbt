@@ -196,5 +196,8 @@ pub extend Path with Eq::{not_equal, equal}
 pub extend Path with Debug::{to_repr}
 
 ///|
+pub extend Path with Show::{to_string}
+
+///|
 #deprecated
-pub extend Path with Show::{to_string, output}
+pub extend Path with Show::{output}

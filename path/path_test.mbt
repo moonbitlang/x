@@ -19,6 +19,12 @@ test "debug" {
 }
 
 ///|
+test "Path::to_string" {
+  let path : @path.Path = "a/b"
+  inspect(path.to_string(), content="a/b")
+}
+
+///|
 test "node-compatible top-level dispatch smoke" {
   if sep == '/' {
     inspect(Path::join("a", "/b"), content="a/b")
