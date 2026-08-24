@@ -14,7 +14,7 @@
 
 ///|
 fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut start = ctx.offset
   fn flush(end : Int) {
     if start > 0 && end > start {

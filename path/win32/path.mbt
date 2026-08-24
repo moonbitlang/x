@@ -390,7 +390,7 @@ fn relative_resolved_paths(from_orig : String, to_orig : String) -> Path {
     ..to_parts[common:],
   ]
   guard !components.is_empty() else { "" }
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for i in 0..<components.length() {
     if i > 0 {
       builder.write_char('\\')

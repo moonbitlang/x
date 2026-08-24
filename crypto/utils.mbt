@@ -22,7 +22,7 @@ let hex_digits : FixedArray[String] = [
 /// print a sequence of byte in hex representation
 pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
   let length = input.length()
-  let buffer = StringBuilder::new(size_hint=length * 2)
+  let buffer = StringBuilder(size_hint=length * 2)
   for i in 0..<length {
     let byte = input[i]
     let high = (byte.to_uint() >> 4) & 0xf
@@ -39,7 +39,7 @@ const HEX_DIGITS = "0123456789abcdef"
 ///|
 /// convert a sequence of `UInt` to hex representation
 pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   let rems : FixedArray[Int] = FixedArray::make(8, 0)
   for x in input {
     let mut value = x

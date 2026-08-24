@@ -85,7 +85,7 @@ pub impl @string.FromStr for PlainTime with fn from_str(str) {
 ///|
 /// Returns a string representing the time.
 pub fn PlainTime::to_string(self : PlainTime) -> String {
-  let buf = StringBuilder::new(size_hint=8)
+  let buf = StringBuilder(size_hint=8)
   buf.write_string(add_prefix_zero(self.hour.to_string(), 2))
   buf.write_char(':')
   buf.write_string(add_prefix_zero(self.minute.to_string(), 2))

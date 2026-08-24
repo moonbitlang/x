@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated internal `StringBuilder` usages to the constructor syntax `StringBuilder()`.
+
 ## [0.5.1]
 
 ### Added

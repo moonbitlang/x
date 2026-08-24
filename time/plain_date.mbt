@@ -100,7 +100,7 @@ pub impl @string.FromStr for PlainDate with fn from_str(str) {
 ///|
 /// Returns a string representing the date.
 pub fn PlainDate::to_string(self : PlainDate) -> String {
-  let buf = StringBuilder::new(size_hint=11)
+  let buf = StringBuilder(size_hint=11)
   if self.year < 0 {
     buf.write_char('-')
   }

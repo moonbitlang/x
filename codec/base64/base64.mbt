@@ -106,7 +106,7 @@ pub fn Encoder::encode_to(
 ///|
 /// Encode binary to ascii text following  defined in RFC 4648
 pub fn encode(bytes : BytesView, url_safe? : Bool = false) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let encoder = Encoder::new()
   encoder.encode_to(
     bytes,
