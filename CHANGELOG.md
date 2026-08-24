@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Migrated internal `StringBuilder` usages to the constructor syntax `StringBuilder()`.
+- Migrated internal `StringBuilder` usages to the constructor syntax `StringBuilder()` (#307).
 
 ## [0.5.1]
 
