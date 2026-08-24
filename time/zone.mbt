@@ -137,7 +137,7 @@ fn to_int_be(b : FixedArray[Byte], start : Int) -> Int {
 ///|
 /// Helper function to convert a null-terminated ASCII string to a MoonBit String.
 fn ascii_to_string(b : FixedArray[Byte], start : Int) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut start = start
   while b[start] != 0 {
     result.write_char(Int::unsafe_to_char(b[start].to_int()))

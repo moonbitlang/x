@@ -14,7 +14,7 @@
 
 ///|
 fn add_prefix_zero(s : String, len : Int) -> String {
-  let buf = StringBuilder::new(size_hint=len)
+  let buf = StringBuilder(size_hint=len)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
   }
@@ -72,7 +72,7 @@ test "remove_suffix_zero && format_nanos" {
 
 ///|
 fn add_suffix_zero(s : StringView, len : Int) -> String {
-  let buf = StringBuilder::new(size_hint=len)
+  let buf = StringBuilder(size_hint=len)
   buf.write_stringview(s)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')

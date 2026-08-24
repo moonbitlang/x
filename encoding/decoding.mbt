@@ -113,7 +113,7 @@ pub fn Decoder::decode(
   }
 
   // TODO: Estimate size_hint based on input and encoding more accurately
-  let builder = StringBuilder::new(size_hint=input.length())
+  let builder = StringBuilder(size_hint=input.length())
 
   // drive decoder to decode
   for state = self.decode_() {
@@ -159,7 +159,7 @@ pub fn Decoder::decode(
 /// ```moonbit check
 /// test {
 ///   let decoder = decoder(UTF8)
-///   let buf = StringBuilder::new()
+///   let buf = StringBuilder()
 ///   decoder.decode_to(b"Hello", buf)
 ///   inspect(buf.to_string(), content="Hello")
 /// }
