@@ -30,7 +30,7 @@ pub fn PlainDate::of(
   if !validate_ymd(year, month, day) {
     fail(invalid_date_err)
   }
-  { year, month, day }
+  { year, month, day, }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn PlainDate::from_year_ord(
     day -= calc_days_in_month(year, month)
     month += 1
   }
-  { year, month, day }
+  { year, month, day, }
 }
 
 ///|
@@ -450,7 +450,7 @@ fn create_from_valid(year : Int, month : Int, day : Int) -> PlainDate {
   if d > max_day {
     d = max_day
   }
-  { year, month, day: d }
+  { year, month, day: d, }
 }
 
 ///|

@@ -95,7 +95,7 @@ pub fn UUID::version(self : UUID) -> Version? {
 ///|
 /// Converts this UUID to RFC-4122 with the given version number.
 pub fn UUID::as_version(self : UUID, version : Version) -> UUID {
-  let { hi, lo } = self
+  let { hi, lo, } = self
   // Set the variant to RFC 4122.
   let lo = (lo & (0xc000L << 48).lnot()) | (0x8000L << 48)
   let hi = (
@@ -103,7 +103,7 @@ pub fn UUID::as_version(self : UUID, version : Version) -> UUID {
       hi & 0xf000L.lnot()
     ) |
     (version.to_int64() << 12)
-  { hi, lo }
+  { hi, lo, }
 }
 
 ///|

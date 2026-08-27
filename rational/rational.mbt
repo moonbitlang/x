@@ -83,7 +83,7 @@ pub fn[T : Integral] new(numerator : T, denominator : T) -> Rational[T]? {
       (-bn, -bd)
     }
     match (T::from_bigint(bn), T::from_bigint(bd)) {
-      (Some(n), Some(d)) => Some({ numerator: n, denominator: d })
+      (Some(n), Some(d)) => Some({ numerator: n, denominator: d, })
       _ => None
     }
   }
@@ -93,7 +93,7 @@ pub fn[T : Integral] new(numerator : T, denominator : T) -> Rational[T]? {
 /// Creates a rational number without enforcing invariants.
 fn[T : Integral] new_unchecked(numerator : T, denominator : T) -> Rational[T] {
   let gcd = gcd(numerator.abs(), denominator)
-  { numerator: numerator / gcd, denominator: denominator / gcd }
+  { numerator: numerator / gcd, denominator: denominator / gcd, }
 }
 
 ///|

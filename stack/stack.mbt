@@ -25,7 +25,7 @@
 /// ```
 #as_free_fn
 pub fn[T] Stack::new() -> Stack[T] {
-  { elements: @list.List::new(), len: 0 }
+  { elements: @list.List::new(), len: 0, }
 }
 
 ///|
@@ -44,7 +44,7 @@ test "new" {
 ///   assert_eq(s.length(), 3)
 /// ```
 pub fn[T] Stack::from_array(array : Array[T]) -> Stack[T] {
-  { elements: List(array), len: array.length() }
+  { elements: List(array), len: array.length(), }
 }
 
 ///|
@@ -58,7 +58,7 @@ test "from_array" {
 pub fn[T] Stack::from_iter(iter : Iter[T]) -> Stack[T] {
   let mut len = 0
   let elements = @list.from_iter(iter.tap(_ => len += 1))
-  { elements, len }
+  { elements, len, }
 }
 
 ///|
@@ -79,7 +79,7 @@ test "from_iter" {
 /// ```
 #as_free_fn
 pub fn[T] Stack::of(array : FixedArray[T]) -> Stack[T] {
-  { elements: List(array), len: array.length() }
+  { elements: List(array), len: array.length(), }
 }
 
 ///|
@@ -127,7 +127,7 @@ test "to_string" {
 ///   assert_eq(s1.length(), 3)
 /// ```
 pub fn[T] Stack::from_stack(other : Stack[T]) -> Stack[T] {
-  { ..other }
+  { ..other, }
 }
 
 ///|

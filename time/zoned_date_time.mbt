@@ -101,7 +101,7 @@ pub fn ZonedDateTime::from_unix_second(
 ) -> ZonedDateTime raise Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)
-  { datetime, zone, offset }
+  { datetime, zone, offset, }
 }
 
 ///|
@@ -410,7 +410,7 @@ pub fn ZonedDateTime::with_nanosecond(
 ///|
 fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
   let offset = zone.lookup_offset(datetime.to_unix_second())
-  { datetime, zone, offset }
+  { datetime, zone, offset, }
 }
 
 ///|

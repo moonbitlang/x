@@ -51,7 +51,7 @@ struct Encoder {
 
 ///|
 pub fn Encoder::new() -> Encoder {
-  { i: 0, buffer: 0 }
+  { i: 0, buffer: 0, }
 }
 
 ///|
@@ -125,7 +125,7 @@ struct Decoder {
 
 ///|
 pub fn Decoder::new() -> Decoder {
-  { i: 0, buffer: 0 }
+  { i: 0, buffer: 0, }
 }
 
 ///|

@@ -16,7 +16,7 @@
 #deprecated("use `@stack.from_iter(list.iter())` instead")
 #coverage.skip
 pub fn[T] Stack::from_list(list : @list.List[T]) -> Stack[T] {
-  { elements: @list.from_iter(list.iter()), len: list.length() }
+  { elements: @list.from_iter(list.iter()), len: list.length(), }
 }
 
 ///|

@@ -35,7 +35,7 @@ pub fn Duration::of(
   )
   let nanos = (nanoseconds % nanoseconds_per_second).to_int()
   secs += nanoseconds / nanoseconds_per_second
-  { secs, nanos }
+  { secs, nanos, }
 }
 
 ///|
@@ -43,13 +43,13 @@ fn create(secs : Int64, nanos : Int) -> Duration raise Error {
   if nanos < min_nanosecond || nanos > max_nanosecond {
     fail(invalid_duration_err)
   }
-  { secs, nanos }
+  { secs, nanos, }
 }
 
 ///|
 /// Returns a zero length duration.
 pub fn Duration::zero() -> Duration {
-  { secs: 0L, nanos: 0 }
+  { secs: 0L, nanos: 0, }
 }
 
 ///|
@@ -282,7 +282,7 @@ pub fn Duration::with_seconds(self : Duration, seconds : Int64) -> Duration {
   if seconds == self.secs {
     return self
   }
-  { secs: seconds, nanos: self.nanos }
+  { secs: seconds, nanos: self.nanos, }
 }
 
 ///|

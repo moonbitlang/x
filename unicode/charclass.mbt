@@ -40,7 +40,7 @@ pub fn CharClass::of(array : Array[(Char, Char)]) -> CharClass {
       astral.push(hi)
     }
   }
-  { bmp, astral: FixedArray::from_array(astral) }
+  { bmp, astral: FixedArray::from_array(astral), }
 }
 
 ///|

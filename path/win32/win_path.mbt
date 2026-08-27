@@ -285,7 +285,7 @@ fn parse_verbatim_prefixed_path(
     allow_above_root=false,
   )
   let root_end = component_root_end(path, marker_end)
-  Some({ prefix: VerbatimRoot, trailing_separator, components, root_end })
+  Some({ prefix: VerbatimRoot, trailing_separator, components, root_end, })
 }
 
 ///|
@@ -302,7 +302,7 @@ fn parse_device_prefixed_path(
     allow_above_root=false,
   )
   let root_end = component_root_end(path, part_start)
-  Some({ prefix: DeviceRoot, trailing_separator, components, root_end })
+  Some({ prefix: DeviceRoot, trailing_separator, components, root_end, })
 }
 
 ///|
@@ -397,12 +397,12 @@ fn parse_drive_root_relative(
   }
   guard path.length() > 0 && is_win_sep_at(path, 0) else {
     let components = parse_windows_components(path, 0, allow_above_root=true)
-    return { prefix: None, trailing_separator, components, root_end: 0 }
+    return { prefix: None, trailing_separator, components, root_end: 0, }
   }
   let components = parse_windows_components(
     path,
     skip_win_separators(path, 0),
     allow_above_root=false,
   )
-  { prefix: Root, trailing_separator, components, root_end: 1 }
+  { prefix: Root, trailing_separator, components, root_end: 1, }
 }

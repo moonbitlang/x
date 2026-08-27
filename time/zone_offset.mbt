@@ -71,7 +71,7 @@ pub fn ZoneOffset::from_seconds(
   if seconds < min_offset_seconds || seconds > max_offset_seconds {
     fail(invalid_offset_err)
   }
-  { id: create_id(seconds), abbrev, seconds, dst }
+  { id: create_id(seconds), abbrev, seconds, dst, }
 }
 
 ///|

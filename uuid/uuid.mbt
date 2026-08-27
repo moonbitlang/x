@@ -69,7 +69,7 @@ pub fn from_bytes(bytes : Bytes) -> UUID raise Error {
   } nobreak {
     rv
   }
-  { hi, lo }
+  { hi, lo, }
 }
 
 ///|
@@ -167,7 +167,7 @@ pub fn from_hex(hex : String) -> UUID raise Error {
     (lo, i)
   }
   if i == hex.length() {
-    { hi, lo }
+    { hi, lo, }
   } else {
     fail("badly formed hexadecimal UUID string")
   }
