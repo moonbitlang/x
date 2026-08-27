@@ -40,14 +40,14 @@ fn[X] parse_error(data : ParseErrorData) -> X raise ParseError {
 ///|
 pub fn ParseError::to_string(self : ParseError) -> String {
   match self {
-    ParseError(NoValidToken({ line, column })) =>
+    ParseError(NoValidToken({ line, column, })) =>
       "No valid token at line \{line}, column \{column}"
-    ParseError(InvalidChar({ line, column }, c)) =>
+    ParseError(InvalidChar({ line, column, }, c)) =>
       "Invalid character \{c} at line \{line}, column \{column}"
     ParseError(InvalidEof) => "Unexpected end of file"
-    ParseError(InvalidNumber({ line, column }, s)) =>
+    ParseError(InvalidNumber({ line, column, }, s)) =>
       "Invalid number \{s} at line \{line}, column \{column}"
-    ParseError(InvalidIdentEscape({ line, column })) =>
+    ParseError(InvalidIdentEscape({ line, column, })) =>
       "Invalid escape sequence in identifier at line \{line}, column \{column}"
   }
 }

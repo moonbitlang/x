@@ -36,7 +36,7 @@ fn is_unix_sep_at(path : StringView, index : Int) -> Bool {
 
 ///|
 impl Show for UnixPath with fn output(self : UnixPath, logger : &Logger) -> Unit {
-  let { prefix, trailing_separator, components } = self
+  let { prefix, trailing_separator, components, } = self
   match prefix {
     Root => logger.write_char('/')
     None => ()
@@ -126,5 +126,5 @@ fn UnixPath::parse(path : StringView) -> UnixPath {
     start,
     allow_above_root=prefix is None,
   )
-  { prefix, trailing_separator, components }
+  { prefix, trailing_separator, components, }
 }

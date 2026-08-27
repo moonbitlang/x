@@ -31,7 +31,7 @@ test "throws on documents with only comments" {
 
 ///|
 test "debug parse error data" {
-  let pos : @json5.Position = { line: 1, column: 2 }
+  let pos : @json5.Position = { line: 1, column: 2, }
   let data : @json5.ParseErrorData = InvalidChar(pos, 'x')
   debug_inspect(data, content="InvalidChar({ line: 1, column: 2 }, 'x')")
 }

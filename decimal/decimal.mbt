@@ -78,7 +78,7 @@ pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
   if scale < 0 || scale > max_scale {
     None
   } else {
-    Some(normalize({ coefficient, scale }))
+    Some(normalize({ coefficient, scale, }))
   }
 }
 
@@ -86,7 +86,7 @@ pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
 /// Creates a decimal from a coefficient and scale without validation.
 /// Used internally for performance-critical operations.
 fn new_unchecked(coefficient : @bigint.BigInt, scale : Int) -> Decimal {
-  { coefficient, scale }
+  { coefficient, scale, }
 }
 
 ///|
@@ -94,7 +94,7 @@ fn new_unchecked(coefficient : @bigint.BigInt, scale : Int) -> Decimal {
 /// and adjusting the scale accordingly.
 fn normalize(d : Decimal) -> Decimal {
   if d.coefficient.is_zero() {
-    { coefficient: 0N, scale: 0 }
+    { coefficient: 0N, scale: 0, }
   } else {
     let mut coefficient = d.coefficient
     let mut scale = d.scale
@@ -104,7 +104,7 @@ fn normalize(d : Decimal) -> Decimal {
       coefficient = coefficient / 10N
       scale = scale - 1
     }
-    { coefficient, scale }
+    { coefficient, scale, }
   }
 }
 
@@ -227,7 +227,7 @@ fn is_digit_string(s : StringView) -> Bool {
 /// ```
 ///
 pub fn Decimal::from_int(n : Int) -> Decimal {
-  { coefficient: @bigint.BigInt::from_int(n), scale: 0 }
+  { coefficient: @bigint.BigInt::from_int(n), scale: 0, }
 }
 
 ///|
@@ -247,7 +247,7 @@ pub fn Decimal::from_int(n : Int) -> Decimal {
 /// ```
 ///
 pub fn Decimal::from_bigint(n : @bigint.BigInt) -> Decimal {
-  { coefficient: n, scale: 0 }
+  { coefficient: n, scale: 0, }
 }
 
 ///|
@@ -436,19 +436,19 @@ pub fn Decimal::to_bigint(self : Decimal) -> @bigint.BigInt {
 ///|
 /// Returns the zero decimal value.
 pub fn zero() -> Decimal {
-  { coefficient: 0N, scale: 0 }
+  { coefficient: 0N, scale: 0, }
 }
 
 ///|
 /// Returns the one decimal value.
 pub fn one() -> Decimal {
-  { coefficient: 1N, scale: 0 }
+  { coefficient: 1N, scale: 0, }
 }
 
 ///|
 /// Returns the negative one decimal value.
 pub fn neg_one() -> Decimal {
-  { coefficient: -1N, scale: 0 }
+  { coefficient: -1N, scale: 0, }
 }
 
 ///|
@@ -485,7 +485,7 @@ pub fn Decimal::signum(self : Decimal) -> Int {
 /// Returns the absolute value of the decimal.
 pub fn Decimal::abs(self : Decimal) -> Decimal {
   if self.coefficient < 0N {
-    { coefficient: -self.coefficient, scale: self.scale }
+    { coefficient: -self.coefficient, scale: self.scale, }
   } else {
     self
   }
@@ -626,7 +626,7 @@ pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
       @bigint.BigInt::from_int(scale_diff),
     )
     let new_coeff = self.coefficient * multiplier
-    Some({ coefficient: new_coeff, scale: new_scale })
+    Some({ coefficient: new_coeff, scale: new_scale, })
   } else {
     // Remove digits (truncate)
     let scale_diff = self.scale - new_scale
@@ -634,7 +634,7 @@ pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
       @bigint.BigInt::from_int(scale_diff),
     )
     let new_coeff = self.coefficient / divisor
-    Some({ coefficient: new_coeff, scale: new_scale })
+    Some({ coefficient: new_coeff, scale: new_scale, })
   }
 }
 
@@ -738,7 +738,7 @@ pub impl Div for Decimal with fn div(self : Decimal, other : Decimal) -> Decimal
 ///|
 /// Returns the negation of the decimal.
 pub impl Neg for Decimal with fn neg(self : Decimal) -> Decimal {
-  { coefficient: -self.coefficient, scale: self.scale }
+  { coefficient: -self.coefficient, scale: self.scale, }
 }
 
 ///|

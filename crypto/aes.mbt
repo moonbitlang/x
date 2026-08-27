@@ -138,7 +138,7 @@ fn aes_schedule(key : BytesView) -> AesSchedule raise CryptoError {
     }
     w[i] = w[i - nk] ^ temp
   }
-  { round_keys: w, rounds }
+  { round_keys: w, rounds, }
 }
 
 ///|

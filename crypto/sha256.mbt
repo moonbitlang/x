@@ -35,7 +35,7 @@ pub fn SHA256::new(
 
 ///|
 fn SHA256::new_with_initial_state(reg : FixedArray[UInt]) -> SHA256 {
-  { reg, len: 0, buf: FixedArray::make(64, Byte::default()), buf_index: 0 }
+  { reg, len: 0, buf: FixedArray::make(64, Byte::default()), buf_index: 0, }
 }
 
 ///|

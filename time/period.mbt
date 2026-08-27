@@ -27,13 +27,13 @@ pub fn Period::of(
   months? : Int = 0,
   days? : Int = 0,
 ) -> Period {
-  { years, months, days }
+  { years, months, days, }
 }
 
 ///|
 /// Returns a zero length period.
 pub fn Period::zero() -> Period {
-  { years: 0, months: 0, days: 0 }
+  { years: 0, months: 0, days: 0, }
 }
 
 ///|

@@ -65,7 +65,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
     UTF16LE => Decoder::decode_utf_16le
     UTF16BE => Decoder::decode_utf_16be
   }
-  { i, i_pos, t, t_len, t_need, k }
+  { i, i_pos, t, t_len, t_need, k, }
 }
 
 ///|
