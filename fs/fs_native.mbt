@@ -168,11 +168,11 @@ extern "C" fn read_dir_ffi(path : OsString) -> Handler = "moonbitlang_x_fs_read_
 fn handler_to_fixed_array(handler : Handler) -> FixedArray[OsString] = "%identity"
 
 ///|
-fn read_dir_internal(path : String) -> Array[String] raise IOError {
+fn read_dir_internal(path : String) -> ArrayView[String] raise IOError {
   let res = read_dir_ffi(OsString::from_string(path))
   guard is_null(res) == 0 else { raise IOError(get_error_message()) }
-  let files = Array::from_fixed_array(handler_to_fixed_array(res))
-  files.map(OsString::to_string)
+  let files = handler_to_fixed_array(res)
+  files.map(OsString::to_string)[:]
 }
 
 ///|

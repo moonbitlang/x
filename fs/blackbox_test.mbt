@@ -44,6 +44,8 @@ test "write_and_read" {
 
 ///|
 test "read_dir" {
+  // Check the function type without implicitly converting an Array to a view.
+  let read_dir : (String) -> ArrayView[String] raise @fs.IOError = @fs.read_dir
   let dir = "tmp_fs_read_dir"
   if @fs.path_exists(dir) {
     @fs.remove_file("\{dir}/file_a.txt") catch {
@@ -63,13 +65,14 @@ test "read_dir" {
     }
   }
   @fs.create_dir(dir)
+  debug_inspect(read_dir(dir), content="<ArrayView: []>")
   @fs.create_dir("\{dir}/.hidden_dir")
   @fs.create_dir("\{dir}/example_dir")
   let file_a = "\{dir}/file_a.txt"
   let file_b = "\{dir}/file_b.txt"
   @fs.write_string_to_file(file_a, "a")
   @fs.write_string_to_file(file_b, "b")
-  let files = @fs.read_dir(dir)
+  let files = read_dir(dir).to_owned()
   files.sort()
   debug_inspect(
     files,

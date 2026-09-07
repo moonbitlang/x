@@ -94,7 +94,7 @@ pub fn path_exists(path : String) -> Bool {
 }
 
 ///|
-/// Reads the contents of a directory and returns an array of filenames.
+/// Reads the contents of a directory and returns a read-only view of filenames.
 ///
 /// # Parameters
 ///
@@ -102,8 +102,9 @@ pub fn path_exists(path : String) -> Bool {
 ///
 /// # Returns
 ///
-/// - An array of strings representing the file name and directory name in the directory.
-pub fn read_dir(path : String) -> Array[String] raise IOError {
+/// - A view of strings representing the file names and directory names in the directory.
+///   Use `to_owned()` to copy the view into a mutable array.
+pub fn read_dir(path : String) -> ArrayView[String] raise IOError {
   read_dir_internal(path)
 }
 
