@@ -209,7 +209,7 @@ pub fn to_lowercase(ch : Char) -> Char {
 
 ///|
 let lowercase_map : @hashmap.HashMap[Char, Char] = {
-  let map : @hashmap.HashMap[Char, Char] = @hashmap.HashMap(
+  let map : @hashmap.HashMap[Char, Char] = HashMap(
     [],
     capacity=LOWERCASE_ENTRY_COUNT * 2,
   )

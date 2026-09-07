@@ -66,7 +66,7 @@ test "chacha rejects counter exhaustion before writing output" {
   let error = @test.expect_error(() => {
     cipher.transform_checked(FixedArray::make(65, b'\x00'), output)
   })
-  inspect(error is @crypto.ChaChaError::CounterExhausted, content="true")
+  inspect(error is CounterExhausted, content="true")
   inspect(output[0], content="b'\\xAA'")
   inspect(output[64], content="b'\\xAA'")
   let last_block = @crypto.ChaCha::chacha20(
@@ -99,7 +99,7 @@ test "chacha rejects a short target before advancing state" {
   let error = @test.expect_error(() => {
     cipher.transform_checked(FixedArray::make(65, b'\x00'), target)
   })
-  @test.assert_eq(error is @crypto.ChaChaError::InvalidOutputRange, true)
+  @test.assert_eq(error is InvalidOutputRange, true)
   @test.assert_eq(target[0], b'\xaa')
   @test.assert_eq(target[63], b'\xaa')
 
