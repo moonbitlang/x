@@ -251,10 +251,10 @@ fn create_dir_internal(path : String) -> Unit raise IOError {
 fn read_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "read_dir_new"
 
 ///|
-fn read_dir_internal(path : String) -> Array[String] raise IOError {
+fn read_dir_internal(path : String) -> ArrayView[String] raise IOError {
   let res = read_dir_ffi(string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
-  string_array_from_extern(get_dir_files_ffi())
+  string_array_from_extern(get_dir_files_ffi())[:]
 }
 
 ///|

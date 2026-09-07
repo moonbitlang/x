@@ -194,12 +194,12 @@ extern "js" fn read_dir_ffi(
   #| }
 
 ///|
-fn read_dir_internal(path : String) -> Array[String] raise IOError {
+fn read_dir_internal(path : String) -> ArrayView[String] raise IOError {
   let res = read_dir_ffi(read_dir_sync, path)
   if !res.is_ok() {
     raise IOError(res.error_message())
   }
-  Array::from_fixed_array(res.content())
+  res.content()[:]
 }
 
 ///|

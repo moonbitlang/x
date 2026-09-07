@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Changed `@fs.read_dir` to return `ArrayView[String]`; use `to_owned()` when a mutable array is needed.
 - Migrated internal `StringBuilder` usages to the constructor syntax `StringBuilder()` (#307).
 
 ## [0.5.1]
