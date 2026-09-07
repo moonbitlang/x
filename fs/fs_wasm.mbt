@@ -112,7 +112,7 @@ fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
 
 ///|
 fn byte_array_from_extern(e : XExternByteArray) -> Bytes {
-  let buf = Array::new()
+  let buf = []
   let handle = begin_read_byte_array(e)
   while true {
     let ch = byte_array_read_byte(handle)
@@ -145,7 +145,7 @@ fn finish_read_string_array(handle : XStringArrayReadHandle) = "__moonbit_fs_uns
 
 ///|
 fn string_array_from_extern(e : XExternStringArray) -> Array[String] {
-  let buf = Array::new()
+  let buf = []
   let handle = begin_read_string_array(e)
   while true {
     let extern_str = string_array_read_string(handle)

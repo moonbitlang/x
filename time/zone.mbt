@@ -112,7 +112,7 @@ pub fn Zone::from_tzif2(
     let transition_time = to_int_be(data, offset).to_int64()
     (transition_time, data[transition_indices_offset + i].to_int())
   })
-  let offsets = Array::new(capacity=typecnt)
+  let offsets = Array(capacity=typecnt)
   for i in 0..<typecnt {
     let offset = ttinfo_offset + i * 6
     let dst = data[offset + 4] != 0

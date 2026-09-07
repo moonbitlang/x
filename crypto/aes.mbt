@@ -331,7 +331,7 @@ pub fn aes_ecb_encrypt(
     raise InvalidCrypto(msg="invalid AES data length")
   }
   let schedule = aes_schedule(key)
-  let out : Array[Byte] = Array::new(capacity=data_length)
+  let out : Array[Byte] = Array(capacity=data_length)
   let state = Array::make(16, Byte::default())
   let mut offset = 0
   while offset < data_length {
@@ -358,7 +358,7 @@ pub fn aes_ecb_decrypt(
     raise InvalidCrypto(msg="invalid AES data length")
   }
   let schedule = aes_schedule(key)
-  let out : Array[Byte] = Array::new(capacity=data_length)
+  let out : Array[Byte] = Array(capacity=data_length)
   let state = Array::make(16, Byte::default())
   let mut offset = 0
   while offset < data_length {
@@ -390,7 +390,7 @@ pub fn aes_cbc_encrypt(
     raise InvalidCrypto(msg="invalid AES data length")
   }
   let schedule = aes_schedule(key)
-  let out : Array[Byte] = Array::new(capacity=data_length)
+  let out : Array[Byte] = Array(capacity=data_length)
   let prev = iv.to_array()
   let state = Array::make(16, Byte::default())
   let mut offset = 0
@@ -425,7 +425,7 @@ pub fn aes_cbc_decrypt(
     raise InvalidCrypto(msg="invalid AES data length")
   }
   let schedule = aes_schedule(key)
-  let out : Array[Byte] = Array::new(capacity=data_length)
+  let out : Array[Byte] = Array(capacity=data_length)
   let prev = iv.to_array()
   let state = Array::make(16, Byte::default())
   let mut offset = 0

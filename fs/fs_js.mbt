@@ -45,7 +45,7 @@ extern "js" fn FsStringArrayResult::is_ok(self : Self) -> Bool =
   #| (res) => res.ok
 
 ///|
-extern "js" fn FsStringArrayResult::content(self : Self) -> Array[String] =
+extern "js" fn FsStringArrayResult::content(self : Self) -> FixedArray[String] =
   #| (res) => res.content
 
 ///|
@@ -177,11 +177,11 @@ pub fn path_exists_internal(path : String) -> Bool {
 
 ///|
 #module("node:fs")
-extern "js" fn read_dir_sync(path : String) -> Array[String] = "readdirSync"
+extern "js" fn read_dir_sync(path : String) -> FixedArray[String] = "readdirSync"
 
 ///|
 extern "js" fn read_dir_ffi(
-  read_dir : (String) -> Array[String],
+  read_dir : (String) -> FixedArray[String],
   path : String,
 ) -> FsStringArrayResult =
   #| function(readDir, path) {
@@ -199,7 +199,7 @@ fn read_dir_internal(path : String) -> Array[String] raise IOError {
   if !res.is_ok() {
     raise IOError(res.error_message())
   }
-  res.content()
+  Array::from_fixed_array(res.content())
 }
 
 ///|
