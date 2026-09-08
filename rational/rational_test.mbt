@@ -24,6 +24,13 @@ test "new" {
 }
 
 ///|
+test "numerator and denominator" {
+  let rational = @rational.new(6L, -9L).unwrap()
+  assert_eq(rational.numerator(), -2L)
+  assert_eq(rational.denominator(), 3L)
+}
+
+///|
 test "addition" {
   let a = @rational.new(1L, 2L).unwrap()
   let b = @rational.new(1L, 3L).unwrap()
