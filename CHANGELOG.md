@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added `Rational::numerator` and `Rational::denominator` to access rational components.
+- Added `Rational::numerator` and `Rational::denominator` to access rational components. (#314)
 
 ### Changed
 
