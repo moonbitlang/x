@@ -6,7 +6,6 @@ import {
 
 import {
   "moonbitlang/core/test",
-  "moonbitlang/core/debug",
 } for "wbtest"
 
 import {
