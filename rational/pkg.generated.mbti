@@ -39,6 +39,7 @@ pub fn[T : Integral] Rational::arbitrary(Int, @splitmix.RandomState) -> Self[T]
 pub fn[T : Integral] Rational::ceil(Self[T]) -> T
 #deprecated
 pub fn[T : Integral] Rational::compare(Self[T], Self[T]) -> Int
+pub fn[T] Rational::denominator(Self[T]) -> T
 #deprecated
 pub fn[T : Integral] Rational::div(Self[T], Self[T]) -> Self[T]
 #as_free_fn
@@ -57,6 +58,7 @@ pub fn[T : Integral] Rational::mul(Self[T], Self[T]) -> Self[T]
 pub fn[T : Integral] Rational::neg(Self[T]) -> Self[T]
 #deprecated
 pub fn[T : Eq] Rational::not_equal(Self[T], Self[T]) -> Bool
+pub fn[T] Rational::numerator(Self[T]) -> T
 #deprecated
 pub fn[T : Integral] Rational::op_ge(Self[T], Self[T]) -> Bool
 #deprecated
