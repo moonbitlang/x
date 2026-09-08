@@ -6,8 +6,8 @@ fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes 
   let key = bcrypt_key(password)
   let state = new_blowfish_state()
   blowfish_expand_key(state, salt, key.view())
-  let rounds = 1 << cost
-  for _ in 0..<rounds {
+  let rounds : UInt = 1U << cost
+  for _ in 0U..<rounds {
     blowfish_expand_zero_key(state, key.view())
     blowfish_expand_zero_key(state, salt)
   }
