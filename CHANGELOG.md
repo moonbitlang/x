@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `Rational::numerator` and `Rational::denominator` to access rational components.
+
 ### Changed
 
 - Changed `@fs.read_dir` to return `ArrayView[String]`; use `to_owned()` when a mutable array is needed.
