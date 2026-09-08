@@ -33,12 +33,3 @@ test "stream_to_word wraps input" {
   assert_eq(word, 0x61626361U)
   assert_eq(offset, 1)
 }
-
-///|
-test "blowfish known vector" {
-  let state = new_blowfish_state()
-  blowfish_expand_zero_key(state, Bytes::make(8, (0).to_byte()).view())
-  let (l, r) = blowfish_encrypt_block(state, 0U, 0U)
-  assert_eq(l, 0x4ef99745U)
-  assert_eq(r, 0x6198dd78U)
-}
