@@ -24,6 +24,18 @@ struct Rational[T] {
 } derive(Eq)
 
 ///|
+/// Returns the numerator of this rational number.
+pub fn[T] Rational::numerator(self : Rational[T]) -> T {
+  self.numerator
+}
+
+///|
+/// Returns the denominator of this rational number.
+pub fn[T] Rational::denominator(self : Rational[T]) -> T {
+  self.denominator
+}
+
+///|
 trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary {
   fn from_int(Int) -> Self
   fn signum(self : Self) -> Int
