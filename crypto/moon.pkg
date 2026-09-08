@@ -2,11 +2,11 @@ warnings = "-alert_experimental"
 
 import {
   "moonbitlang/core/cmp",
-  "moonbitlang/core/bench",
   "moonbitlang/core/v128",
 }
 
 import {
+  "moonbitlang/core/bench",
   "moonbitlang/core/test",
   "moonbitlang/x/encoding",
 } for "test"
