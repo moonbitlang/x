@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/debug",
   "moonbitlang/core/double",
   "moonbitlang/core/string",
   "moonbitlang/x/unicode",
@@ -7,4 +6,5 @@ import {
 
 import {
   "moonbitlang/core/test",
+  "moonbitlang/core/debug",
 } for "test"

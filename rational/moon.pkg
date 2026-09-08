@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/debug",
   "moonbitlang/core/int",
   "moonbitlang/core/int64",
   "moonbitlang/core/quickcheck",
@@ -11,3 +10,7 @@ import {
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/test",
 } for "test"
+
+import {
+  "moonbitlang/core/debug",
+} for "wbtest"
