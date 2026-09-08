@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hackwaly/bcrypt"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn cost(String) -> Result[Int, BcryptError]
+
+pub let hash_length : Int
+
+pub fn hash_password(Bytes, Bytes, Int) -> Result[String, BcryptError]
+
+pub let max_cost : Int
+
+pub let min_cost : Int
+
+pub let salt_length : Int
+
+pub fn verify(Bytes, String) -> Result[Bool, BcryptError]
+
+// Errors
+pub suberror BcryptError {
+  InvalidCost(Int)
+  InvalidSaltLength(Int)
+  InvalidHashFormat
+  UnsupportedVersion(String)
+  InvalidBase64
+} derive(Eq, @debug.Debug)
+pub impl Show for BcryptError
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
