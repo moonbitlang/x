@@ -1,4 +1,4 @@
-// Blowfish test vectors by Eric Young (16 rounds).
+// ECB and variable key length vectors by Eric Young (16 rounds).
 // Source: https://www.schneier.com/wp-content/uploads/2015/12/vectors-2.txt
 
 ///|
