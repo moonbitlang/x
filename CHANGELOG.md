@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.2]
+
 ### Added
 
 - Added `Rational::numerator` and `Rational::denominator` to access rational components. (#314)
