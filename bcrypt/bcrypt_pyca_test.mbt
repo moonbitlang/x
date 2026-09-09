@@ -110,13 +110,13 @@ test "pyca bcrypt 2b reference vectors" {
   for index, vector in vectors {
     let (password, salt, cost, expected) = vector
     assert_eq(
-      @bcrypt.hash_password(password, salt, cost),
-      Ok(expected),
+      @bcrypt.hash(password~, salt~, cost~),
+      expected,
       msg="pyca hash vector \{index + 1}",
     )
     assert_eq(
-      @bcrypt.verify(password, expected),
-      Ok(true),
+      @bcrypt.verify(password~, hashed=expected),
+      true,
       msg="pyca verify vector \{index + 1}",
     )
   }
@@ -126,16 +126,16 @@ test "pyca bcrypt 2b reference vectors" {
 test "pyca bcrypt NUL bytes in passwords" {
   // Fixed salt from the first reference vector: cVWp4XaNU8a4v1uMRum2SO.
   let salt = b"\x79\x76\x2B\xE9\x97\x0F\x5B\xE7\x3A\xC7\x7C\x0E\x4F\x0A\x38\x51"
-  let hash = @bcrypt.hash_password(b"abc\x00def", salt, 4).unwrap()
-  assert_eq(@bcrypt.verify(b"abc\x00def", hash), Ok(true))
+  let hash = @bcrypt.hash(password=b"abc\x00def", salt~, cost=4)
+  assert_eq(@bcrypt.verify(password=b"abc\x00def", hashed=hash), true)
   // Bytes after the first NUL, including trailing NULs, affect the password.
   let different_passwords : Array[Bytes] = [
     b"abc", b"abcdef", b"abc\x00deg", b"abc\x00def\x00", b"abc\x00def\x00\x00",
   ]
   for index, password in different_passwords {
     assert_eq(
-      @bcrypt.verify(password, hash),
-      Ok(false),
+      @bcrypt.verify(password~, hashed=hash),
+      false,
       msg="pyca NUL mismatch \{index + 1}",
     )
   }
