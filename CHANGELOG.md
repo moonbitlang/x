@@ -5,10 +5,13 @@
 ### Added
 
 - Added `Rational::numerator` and `Rational::denominator` to access rational components. (#314)
+- Added `ToJson` and `FromJson` implementations for `@time.PlainDate`,
+  `@time.PlainTime`, `@time.PlainDateTime` and `@uuid.UUID`.
 
 ### Changed
 
 - Changed `@fs.read_dir` to return `ArrayView[String]`; use `to_owned()` when a mutable array is needed.
+- `@decimal.Decimal` JSON decoding errors now include the offending JSON value.
 - Migrated internal `StringBuilder` usages to the constructor syntax `StringBuilder()` (#307).
 
 ## [0.5.1]

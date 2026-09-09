@@ -758,7 +758,10 @@ pub impl ToJson for Decimal with fn to_json(self : Decimal) -> Json {
 pub impl @json.FromJson for Decimal with fn from_json(json, path) {
   guard json is String(s) else {
     raise JsonDecodeError(
-      (path, "Decimal::from_json: expected string representation"),
+      (
+        path,
+        "Decimal::from_json: expected string representation \{@debug.repr(json)}",
+      ),
     )
   }
   let result = Decimal::from_string(s)

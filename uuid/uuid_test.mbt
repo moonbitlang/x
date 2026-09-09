@@ -40,3 +40,40 @@ test "ops" {
   inspect(Compare::compare(u1, u1x), content="0")
   assert_eq(u1, u1x)
 }
+
+///|
+test "json_roundtrip" {
+  let hex = "13cb501c-1234-5678-9034-abcdef937e20"
+  let uuid = @uuid.from_hex(hex)
+  debug_inspect(
+    ToJson::to_json(uuid),
+    content="String(\"13cb501c-1234-5678-9034-abcdef937e20\")",
+  )
+  let back : @uuid.UUID = @json.from_json(ToJson::to_json(uuid))
+  inspect(back, content=hex)
+}
+
+///|
+test "json_errors" {
+  try {
+    let _ : @uuid.UUID = @json.from_json(Json::number(1))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(msg, content="UUID::from_json: expected string representation")
+    _ => fail("unexpected error")
+  }
+  try {
+    let _ : @uuid.UUID = @json.from_json(
+      Json::string("13cb501c-99a8-c889-3234"),
+    )
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="UUID::from_json: invalid uuid string - 13cb501c-99a8-c889-3234",
+      )
+    _ => fail("unexpected error")
+  }
+}

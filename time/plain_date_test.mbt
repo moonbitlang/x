@@ -381,3 +381,36 @@ test "until and add_period" {
   let p = start.until(@time.PlainDate::of(1999, 2, 15))
   inspect(start.add_period(p), content="1999-02-15")
 }
+
+///|
+test "plain_date_json_roundtrip" {
+  let date = @time.PlainDate::of(2024, 2, 29)
+  let back : @time.PlainDate = @json.from_json(ToJson::to_json(date))
+  inspect(back, content="2024-02-29")
+}
+
+///|
+test "plain_date_from_json_errors" {
+  try {
+    let _ : @time.PlainDate = @json.from_json(Json::number(1))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="PlainDate::from_json: expected string representation",
+      )
+    _ => fail("unexpected error")
+  }
+  try {
+    let _ : @time.PlainDate = @json.from_json(Json::string("2024-13-01"))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="PlainDate::from_json: invalid plaindate string - 2024-13-01",
+      )
+    _ => fail("unexpected error")
+  }
+}

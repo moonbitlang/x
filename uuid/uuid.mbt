@@ -255,6 +255,30 @@ pub impl Debug for UUID with fn to_repr(self : UUID) -> Repr {
 }
 
 ///|
+/// Converts a uuid to its JSON representation as a string.
+pub impl ToJson for UUID with fn to_json(self : UUID) -> Json {
+  Json::string(self.to_string())
+}
+
+///|
+/// Creates a UUID from its JSON representation.
+pub impl FromJson for UUID with fn from_json(json, path) {
+  guard json is String(s) else {
+    raise JsonDecodeError(
+      (path, "UUID::from_json: expected string representation"),
+    )
+  }
+  try from_hex(s) catch {
+    _ =>
+      raise JsonDecodeError(
+        (path, "UUID::from_json: invalid uuid string - \{s}"),
+      )
+  } noraise {
+    uuid => uuid
+  }
+}
+
+///|
 #deprecated
 pub extend UUID with Eq::{not_equal, equal}
 
@@ -269,3 +293,11 @@ pub extend UUID with Show::{output}
 ///|
 #deprecated
 pub extend UUID with Debug::{to_repr}
+
+///|
+#deprecated
+pub extend UUID with ToJson::{to_json}
+
+///|
+#deprecated
+pub extend UUID with @moonbitlang/core/json.FromJson::{from_json}
