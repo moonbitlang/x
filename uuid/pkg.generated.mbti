@@ -3,6 +3,7 @@ package "moonbitlang/x/uuid"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -19,6 +20,8 @@ pub fn UUID::as_version(Self, Version) -> Self
 pub fn UUID::compare(Self, Self) -> Int
 #deprecated
 pub fn UUID::equal(Self, Self) -> Bool
+#deprecated
+pub fn UUID::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn UUID::hash(Self) -> Int
 #deprecated
 pub fn UUID::not_equal(Self, Self) -> Bool
@@ -34,12 +37,16 @@ pub fn UUID::op_lt(Self, Self) -> Bool
 pub fn UUID::output(Self, &Logger) -> Unit
 pub fn UUID::to_bytes(Self) -> Bytes
 #deprecated
+pub fn UUID::to_json(Self) -> Json
+#deprecated
 pub fn UUID::to_repr(Self) -> @debug.Repr
 pub fn UUID::to_string(Self) -> String
 pub fn UUID::variant(Self) -> Variant
 pub fn UUID::version(Self) -> Version?
 pub impl Show for UUID
+pub impl ToJson for UUID
 pub impl @debug.Debug for UUID
+pub impl @json.FromJson for UUID
 
 pub(all) enum Variant {
   ReservedNCS

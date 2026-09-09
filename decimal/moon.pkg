@@ -4,4 +4,5 @@ import {
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/math",
   "moonbitlang/core/string",
+  "moonbitlang/core/debug",
 }

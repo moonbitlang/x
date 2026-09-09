@@ -758,7 +758,10 @@ pub impl ToJson for Decimal with fn to_json(self : Decimal) -> Json {
 pub impl @json.FromJson for Decimal with fn from_json(json, path) {
   guard json is String(s) else {
     raise JsonDecodeError(
-      (path, "Decimal::from_json: expected string representation"),
+      (
+        path,
+        "Decimal::from_json: expected string representation \{@debug.repr(json)}",
+      ),
     )
   }
   let result = Decimal::from_string(s)
@@ -832,7 +835,7 @@ pub extend Decimal with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend Decimal with @moonbitlang/core/json.FromJson::{from_json}
+pub extend Decimal with FromJson::{from_json}
 
 ///|
 #deprecated
@@ -840,4 +843,4 @@ pub extend Decimal with Hash::{hash, hash_combine}
 
 ///|
 #deprecated
-pub extend Decimal with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}
+pub extend Decimal with @quickcheck.Arbitrary::{arbitrary}

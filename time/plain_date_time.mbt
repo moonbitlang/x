@@ -17,7 +17,7 @@
 struct PlainDateTime {
   date : PlainDate
   time : PlainTime
-} derive(Eq, Compare, Debug)
+} derive(Eq, Compare, Debug, ToJson, FromJson)
 
 ///|
 /// Creates a PlainDateTime from the year, month, day, hour, minute, second and nanosecond.
@@ -452,8 +452,16 @@ pub extend PlainDateTime with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainDateTime with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainDateTime with @string.FromStr::{from_str}
 
 ///|
 #deprecated
 pub extend PlainDateTime with Show::{output}
+
+///|
+#deprecated
+pub extend PlainDateTime with ToJson::{to_json}
+
+///|
+#deprecated
+pub extend PlainDateTime with FromJson::{from_json}

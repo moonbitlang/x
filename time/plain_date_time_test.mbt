@@ -371,3 +371,12 @@ test "to_plain_date and to_plain_time" {
   inspect(d.to_plain_date(), content="2000-01-01")
   inspect(d.to_plain_time(), content="01:02:03.0000004")
 }
+
+///|
+
+///|
+test "plain_date_time_json_roundtrip" {
+  let dt = @time.PlainDateTime::of(2024, 1, 2, hour=3, minute=4, second=5)
+  let back : @time.PlainDateTime = @json.from_json(ToJson::to_json(dt))
+  inspect(back, content="2024-01-02T03:04:05")
+}

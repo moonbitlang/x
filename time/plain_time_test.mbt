@@ -282,3 +282,37 @@ test "until" {
     content="PT-29M-29.999S",
   )
 }
+
+///|
+test "plain_time_json_roundtrip" {
+  let time = @time.PlainTime::of(3, 4, 5, 0)
+  debug_inspect(ToJson::to_json(time), content="String(\"03:04:05\")")
+  let back : @time.PlainTime = @json.from_json(ToJson::to_json(time))
+  inspect(back, content="03:04:05")
+}
+
+///|
+test "plain_time_from_json_errors" {
+  try {
+    let _ : @time.PlainTime = @json.from_json(Json::number(1))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="PlainTime::from_json: expected string representation",
+      )
+    _ => fail("unexpected error")
+  }
+  try {
+    let _ : @time.PlainTime = @json.from_json(Json::string("25:00:00"))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="PlainTime::from_json: invalid plaintime string - 25:00:00",
+      )
+    _ => fail("unexpected error")
+  }
+}

@@ -145,13 +145,32 @@ pub impl Compare for PlainDate with fn compare(
 }
 
 ///|
+/// Converts a PlainDate to its JSON representation as a string.
+pub impl ToJson for PlainDate with fn to_json(self : PlainDate) -> Json {
+  Json::string(self.to_string())
+}
+
+///|
+/// Creates a PlainDate from its JSON representation.
+pub impl FromJson for PlainDate with fn from_json(json, path) {
+  guard json is String(s) else {
+    raise JsonDecodeError(
+      (path, "PlainDate::from_json: expected string representation"),
+    )
+  }
+  PlainDate::parse_str(s) catch {
+    _ =>
+      raise JsonDecodeError(
+        (path, "PlainDate::from_json: invalid plaindate string - \{s}"),
+      )
+  }
+}
+
+///|
 /// Returns the era of this date.
 pub fn PlainDate::era(self : PlainDate) -> String {
-  if self.year >= 1 {
-    "CE"
-  } else {
-    "BCE"
-  }
+  guard self.year >= 1 else { "BCE" }
+  "CE"
 }
 
 ///|
@@ -589,7 +608,7 @@ pub extend PlainDate with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainDate with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainDate with @string.FromStr::{from_str}
 
 ///|
 #deprecated
@@ -602,3 +621,11 @@ pub extend PlainDate with Eq::{not_equal, equal}
 ///|
 #deprecated
 pub extend PlainDate with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+#deprecated
+pub extend PlainDate with ToJson::{to_json}
+
+///|
+#deprecated
+pub extend PlainDate with FromJson::{from_json}

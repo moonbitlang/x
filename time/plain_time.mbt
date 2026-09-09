@@ -103,6 +103,28 @@ pub impl Show for PlainTime with fn output(self : PlainTime, logger : &Logger) -
 }
 
 ///|
+/// Converts a PlainTime to its JSON representation as a string.
+pub impl ToJson for PlainTime with fn to_json(self : PlainTime) -> Json {
+  Json::string(self.to_string())
+}
+
+///|
+/// Creates a PlainTime from its JSON representation.
+pub impl FromJson for PlainTime with fn from_json(json, path) {
+  guard json is String(s) else {
+    raise JsonDecodeError(
+      (path, "PlainTime::from_json: expected string representation"),
+    )
+  }
+  PlainTime::parse_str(s) catch {
+    _ =>
+      raise JsonDecodeError(
+        (path, "PlainTime::from_json: invalid plaintime string - \{s}"),
+      )
+  }
+}
+
+///|
 /// Returns the hour of this time.
 pub fn PlainTime::hour(self : PlainTime) -> Int {
   self.hour
@@ -438,8 +460,16 @@ pub extend PlainTime with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainTime with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainTime with @string.FromStr::{from_str}
 
 ///|
 #deprecated
 pub extend PlainTime with Show::{output}
+
+///|
+#deprecated
+pub extend PlainTime with ToJson::{to_json}
+
+///|
+#deprecated
+pub extend PlainTime with FromJson::{from_json}

@@ -476,3 +476,18 @@ test "decimal_normalization" {
   inspect(d3.coefficient(), content="0")
   inspect(d3.scale(), content="0")
 }
+
+///|
+test "decimal_from_json_non_string_error" {
+  try {
+    let _ : @decimal.Decimal = @json.from_json(Json::number(1))
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError((_, msg)) =>
+      inspect(
+        msg,
+        content="Decimal::from_json: expected string representation Number(1)",
+      )
+    _ => fail("unexpected error")
+  }
+}
