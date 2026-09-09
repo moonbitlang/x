@@ -86,6 +86,20 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: Set up OS UNC test share
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $shareName = "moon-unix-{0}-{1}" -f $env:GITHUB_RUN_ID, $env:GITHUB_RUN_ATTEMPT
+          $shareRoot = Join-Path $env:RUNNER_TEMP $shareName
+          New-Item -ItemType Directory -Path $shareRoot | Out-Null
+          Start-Service LanmanServer
+          $account = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+          New-SmbShare -Name $shareName -Path $shareRoot -FullAccess $account | Out-Null
+          "MOON_UNIX_TEST_UNC_SHARE=$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MOON_UNIX_TEST_UNC_ROOT=\\localhost\$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: moon test
         run: |
           moon test --target all --serial --release
@@ -112,6 +126,13 @@ jobs:
         run: |
           moon fmt
           git diff --exit-code
+
+      - name: Remove OS UNC test share
+        if: always() && runner.os == 'Windows' && env.MOON_UNIX_TEST_UNC_SHARE != ''
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Remove-SmbShare -Name $env:MOON_UNIX_TEST_UNC_SHARE -Force
 
   pre-release-build:
     needs: pre-release-version-check
@@ -155,6 +176,20 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: Set up OS UNC test share
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $shareName = "moon-unix-{0}-{1}" -f $env:GITHUB_RUN_ID, $env:GITHUB_RUN_ATTEMPT
+          $shareRoot = Join-Path $env:RUNNER_TEMP $shareName
+          New-Item -ItemType Directory -Path $shareRoot | Out-Null
+          Start-Service LanmanServer
+          $account = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+          New-SmbShare -Name $shareName -Path $shareRoot -FullAccess $account | Out-Null
+          "MOON_UNIX_TEST_UNC_SHARE=$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MOON_UNIX_TEST_UNC_ROOT=\\localhost\$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: moon test
         run: |
           moon test --target all --serial --release
@@ -181,6 +216,13 @@ jobs:
         run: |
           moon fmt
           git diff --exit-code
+
+      - name: Remove OS UNC test share
+        if: always() && runner.os == 'Windows' && env.MOON_UNIX_TEST_UNC_SHARE != ''
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Remove-SmbShare -Name $env:MOON_UNIX_TEST_UNC_SHARE -Force
 
   nightly-build:
     strategy:
@@ -222,6 +264,20 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: Set up OS UNC test share
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $shareName = "moon-unix-{0}-{1}" -f $env:GITHUB_RUN_ID, $env:GITHUB_RUN_ATTEMPT
+          $shareRoot = Join-Path $env:RUNNER_TEMP $shareName
+          New-Item -ItemType Directory -Path $shareRoot | Out-Null
+          Start-Service LanmanServer
+          $account = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+          New-SmbShare -Name $shareName -Path $shareRoot -FullAccess $account | Out-Null
+          "MOON_UNIX_TEST_UNC_SHARE=$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MOON_UNIX_TEST_UNC_ROOT=\\localhost\$shareName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: moon test
         run: |
           moon test --target all --serial --release
@@ -248,6 +304,13 @@ jobs:
         run: |
           moon fmt
           git diff --exit-code
+
+      - name: Remove OS UNC test share
+        if: always() && runner.os == 'Windows' && env.MOON_UNIX_TEST_UNC_SHARE != ''
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Remove-SmbShare -Name $env:MOON_UNIX_TEST_UNC_SHARE -Force
 
   coverage-check-nightly:
     runs-on: macos-latest

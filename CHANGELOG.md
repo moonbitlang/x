@@ -4,6 +4,10 @@
 
 ### Added
 
+- Added native `@os`, `@os/fs`, `@os/process`, and `@os/os_error` packages for
+  synchronous OS operations on POSIX and Windows, with filesystem and process
+  APIs aligned with `moonbitlang/async`. (#317)
+
 - `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
   options to control offset retention and repeated or skipped local times.
   Defaults preserve the existing behavior. (#331)
@@ -64,6 +68,7 @@
   leap-bearing transition times to Unix seconds, and reports malformed input
   as errors. Zero-offset types retain their abbreviation and DST flag;
   unsupported designation characters use numeric offset abbreviations. (#328)
+
 
 ## [0.5.2]
 

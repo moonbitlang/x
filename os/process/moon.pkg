@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/x/os/os_error",
+  "moonbitlang/x/os/internal/ffi",
+  "moonbitlang/x/os/fs",
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
+}
+
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/x/os",
+} for "test"
+
+supported_targets = "native"

@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/x/os/os_error",
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "unix.c", "unix_win.c", "test_stub.c" ],
+)
