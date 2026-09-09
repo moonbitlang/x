@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "hackwaly/bcrypt"
+package "moonbitlang/x/bcrypt"
 
 import {
   "moonbitlang/core/debug",
@@ -35,4 +35,3 @@ pub impl Show for BcryptError
 // Type aliases
 
 // Traits
-
