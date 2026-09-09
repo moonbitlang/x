@@ -3,6 +3,7 @@ package "moonbitlang/x/time"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
   "moonbitlang/core/string",
 }
 
@@ -122,6 +123,8 @@ pub fn PlainDate::equal(Self, Self) -> Bool
 pub fn PlainDate::era(Self) -> String
 pub fn PlainDate::era_year(Self) -> Int
 #deprecated
+pub fn PlainDate::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+#deprecated
 pub fn PlainDate::from_str(StringView) -> Self raise
 #deprecated
 pub fn PlainDate::from_string(String) -> Self raise
@@ -145,6 +148,8 @@ pub fn PlainDate::ordinal(Self) -> Int
 #deprecated
 pub fn PlainDate::output(Self, &Logger) -> Unit
 #deprecated
+pub fn PlainDate::to_json(Self) -> Json
+#deprecated
 pub fn PlainDate::to_repr(Self) -> @debug.Repr
 pub fn PlainDate::to_string(Self) -> String
 pub fn PlainDate::to_unix_day(Self) -> Int64
@@ -158,9 +163,11 @@ pub fn PlainDate::year(Self) -> Int
 pub impl Compare for PlainDate
 pub impl Eq for PlainDate
 pub impl Show for PlainDate
+pub impl ToJson for PlainDate
+pub impl @json.FromJson for PlainDate
 pub impl @string.FromStr for PlainDate
 
-type PlainDateTime derive(Compare, Eq, @debug.Debug)
+type PlainDateTime derive(Compare, Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn PlainDateTime::add_days(Self, Int64) -> Self raise
 pub fn PlainDateTime::add_duration(Self, Duration) -> Self raise
 pub fn PlainDateTime::add_hours(Self, Int64) -> Self raise
@@ -181,6 +188,8 @@ pub fn PlainDateTime::days_in_year(Self) -> Int
 pub fn PlainDateTime::equal(Self, Self) -> Bool
 pub fn PlainDateTime::era(Self) -> String
 pub fn PlainDateTime::era_year(Self) -> Int
+#deprecated
+pub fn PlainDateTime::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 #deprecated
 pub fn PlainDateTime::from_str(StringView) -> Self raise
 #deprecated
@@ -207,6 +216,8 @@ pub fn PlainDateTime::ordinal(Self) -> Int
 #deprecated
 pub fn PlainDateTime::output(Self, &Logger) -> Unit
 pub fn PlainDateTime::second(Self) -> Int
+#deprecated
+pub fn PlainDateTime::to_json(Self) -> Json
 pub fn PlainDateTime::to_plain_date(Self) -> PlainDate
 pub fn PlainDateTime::to_plain_time(Self) -> PlainTime
 #deprecated
@@ -237,6 +248,8 @@ pub fn PlainTime::at_date(Self, PlainDate) -> PlainDateTime
 pub fn PlainTime::compare(Self, Self) -> Int
 #deprecated
 pub fn PlainTime::equal(Self, Self) -> Bool
+#deprecated
+pub fn PlainTime::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn PlainTime::from_nanosecond_of_day(Int64) -> Self raise
 pub fn PlainTime::from_second_of_day(Int) -> Self raise
 #deprecated
@@ -263,6 +276,8 @@ pub fn PlainTime::output(Self, &Logger) -> Unit
 pub fn PlainTime::second(Self) -> Int
 pub fn PlainTime::second_of_day(Self) -> Int
 #deprecated
+pub fn PlainTime::to_json(Self) -> Json
+#deprecated
 pub fn PlainTime::to_repr(Self) -> @debug.Repr
 pub fn PlainTime::to_string(Self) -> String
 pub fn PlainTime::until(Self, Self) -> Duration raise
@@ -271,6 +286,8 @@ pub fn PlainTime::with_minute(Self, Int) -> Self raise
 pub fn PlainTime::with_nanosecond(Self, Int) -> Self raise
 pub fn PlainTime::with_second(Self, Int) -> Self raise
 pub impl Show for PlainTime
+pub impl ToJson for PlainTime
+pub impl @json.FromJson for PlainTime
 pub impl @string.FromStr for PlainTime
 
 pub(all) enum Weekday {
