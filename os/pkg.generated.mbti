@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/os"
+
+import {
+  "moonbitlang/x/os/os_error",
+}
+
+// Values
+pub fn args() -> Array[String]
+
+pub fn available_parallelism() -> Int
+
+pub fn chdir(String) -> Unit raise @os_error.OSError
+
+pub fn cwd() -> String raise @os_error.OSError
+
+pub fn exit(Int) -> Unit
+
+pub fn getenv(String) -> String?
+
+pub fn getenv_or(String, String) -> String
+
+pub fn getpid() -> Int
+
+pub fn now_ns() -> Int64
+
+pub fn os_kind() -> OsKind
+
+pub fn read_stdin() -> String raise @os_error.OSError
+
+pub fn read_stdin_bytes() -> Bytes raise @os_error.OSError
+
+pub fn setenv(String, String) -> Unit
+
+pub fn stderr_is_terminal() -> Bool
+
+pub fn unsetenv(String) -> Unit
+
+pub fn write_stderr(String) -> Unit raise @os_error.OSError
+
+// Errors
+
+// Types and methods
+pub(all) enum OsKind {
+  Linux
+  Macos
+  Windows
+} derive(Eq)
+pub fn OsKind::equal(Self, Self) -> Bool
+pub fn OsKind::not_equal(Self, Self) -> Bool
+
+// Type aliases
+
+// Traits
