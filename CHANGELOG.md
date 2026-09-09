@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added native `@os`, `@os/fs`, `@os/process`, and `@os/os_error` packages for
+  synchronous OS operations on POSIX and Windows, with filesystem and process
+  APIs aligned with `moonbitlang/async`. (#317)
+
 ## [0.5.2]
 
 ### Added
