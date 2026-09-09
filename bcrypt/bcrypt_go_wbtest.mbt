@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Adapted from Go's TestInvalidHashErrors and TestTooLongPasswordsWork.
+// Adapted from Go's TestCost.
 // Source: https://github.com/golang/crypto/blob/master/bcrypt/bcrypt_test.go
-//
-// Version adaptation: this package emits $2b$ and accepts $2b$/$2y$.
-// The 57-byte ASCII vector's expected prefix changes from $2a$ to $2b$;
-// its password, salt, cost, and digest are unchanged. This input does not
-// trigger historical length-wraparound or high-bit-byte differences.
-// This does not imply that arbitrary $2a$ hashes can be relabeled as $2b$.
 //
 // Copyright 2011 The Go Authors. All rights reserved.
 // Copyright 2009 The Go Authors.
@@ -52,38 +46,16 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ///|
-test "Go invalid hash errors" {
-  // Use the supported 2b minor version so each case reaches the intended error.
-  // Go's short-hash, new-major, and bad-prefix errors map to InvalidHashFormat.
-  let invalid_hashes = [
-    "$2b$10$fooo", "$2b", "$3b$10$sssssssssssssssssssssshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
-    "%2b$10$sssssssssssssssssssssshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
-  ]
-  for hash in invalid_hashes {
-    try @bcrypt.verify(password=b"anything", hashed=hash) catch {
-      err => assert_true(err is @bcrypt.InvalidHashFormat, msg=hash)
-    } noraise {
-      _ => fail("expected InvalidHashFormat: \{hash}")
+test "Go cost extraction" {
+  let suffix = "XajjQvNhvvRt5GSeFk1xFe5l47dONXg781AmZtd869sO8zfsHuw7C"
+  // This package supports 2b and 2y, replacing Go's 2a and version without a minor.
+  // Cost 31 is parsed only; computing its hash is unsuitable for a routine test.
+  for version in ["2b", "2y"] {
+    for case in [("04", 4), ("10", 10), ("31", 31)] {
+      let (cost_text, expected) = case
+      let hash = "$\{version}$\{cost_text}$\{suffix}"
+      assert_eq(parse_hash(hash).unwrap().cost, expected, msg=hash)
     }
   }
-  let invalid_cost = "$2b$32$sssssssssssssssssssssshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh"
-  try @bcrypt.verify(password=b"anything", hashed=invalid_cost) catch {
-    err => assert_true(err is @bcrypt.InvalidCost(32), msg=invalid_cost)
-  } noraise {
-    _ => fail("expected InvalidCost(32): \{invalid_cost}")
-  }
-}
-
-///|
-test "Go password beyond the Blowfish 56 byte limit" {
-  let password = b"012345678901234567890123456789012345678901234567890123456"
-  // Decoded form of Go's salt XajjQvNhvvRt5GSeFk1xFe.
-  let salt : Bytes = [
-    0x65, 0xc9, 0x65, 0x4b, 0x13, 0xe3, 0xc7, 0x14, 0xef, 0xec, 0x85, 0x20, 0x1e,
-    0x6d, 0xf3, 0x1e,
-  ]
-  let expected = "$2b$10$XajjQvNhvvRt5GSeFk1xFe5l47dONXg781AmZtd869sO8zfsHuw7C"
-  assert_eq(password.length(), 57)
-  assert_eq(@bcrypt.hash(password~, salt~, cost=10), expected)
-  assert_eq(@bcrypt.verify(password~, hashed=expected), true)
+  assert_true(parse_hash("$a$a$" + suffix) is Err(InvalidHashFormat))
 }

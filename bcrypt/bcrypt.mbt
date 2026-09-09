@@ -58,16 +58,16 @@ fn bcrypt_key(password : BytesView) -> Bytes {
 }
 
 ///|
-pub let min_cost = 4
+let min_cost = 4
 
 ///|
-pub let max_cost = 31
+let max_cost = 31
 
 ///|
 pub let salt_length = 16
 
 ///|
-pub let hash_length = 60
+let hash_length = 60
 
 ///|
 pub suberror BcryptError {
@@ -110,27 +110,49 @@ priv struct ParsedHash {
 }
 
 ///|
-pub fn hash_password(
-  password : Bytes,
-  salt : Bytes,
-  cost : Int,
-) -> Result[String, BcryptError] {
+/// Hashes `password` as `$2b$` using a raw 16-byte `salt` and `cost` in `4..=31`.
+/// Supply a fresh salt from a cryptographically secure random source.
+/// For example, use `@env.rand(16)` from `moonbitlang/core/env`.
+/// Only the first 72 password bytes are used.
+///
+/// Raises `InvalidSaltLength` or `InvalidCost` for invalid parameters.
+///
+/// # Example
+/// ```mbt nocheck
+/// test {
+///   guard @env.rand(16) is Some(salt) else {
+///     fail("Secure randomness is unavailable")
+///   }
+///   let hashed = @bcrypt.hash(password=b"password", salt~, cost=12)
+///   assert_true(@bcrypt.verify(password=b"password", hashed~))
+/// }
+/// ```
+pub fn hash(
+  password~ : Bytes,
+  salt~ : Bytes,
+  cost~ : Int,
+) -> String raise BcryptError {
   if cost < min_cost || cost > max_cost {
-    Err(InvalidCost(cost))
+    raise InvalidCost(cost)
   } else if salt.length() != salt_length {
-    Err(InvalidSaltLength(salt.length()))
+    raise InvalidSaltLength(salt.length())
   } else {
     let salt_text = bcrypt_base64_encode(salt.view(), salt_length)
     let digest = bcrypt_hash_raw(password.view(), salt.view(), cost)
     let hash_text = bcrypt_base64_encode(digest.view(), 23)
-    Ok("$2b$" + two_digit(cost) + "$" + salt_text + hash_text)
+    "$2b$" + two_digit(cost) + "$" + salt_text + hash_text
   }
 }
 
 ///|
-pub fn verify(password : Bytes, hash : String) -> Result[Bool, BcryptError] {
-  match parse_hash(hash) {
-    Err(err) => Err(err)
+/// Verifies `password` against a complete `$2b$` or `$2y$` hash.
+/// Only the first 72 password bytes are used.
+/// Returns `false` on mismatch.
+///
+/// Raises `BcryptError` if `hashed` cannot be parsed.
+pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError {
+  match parse_hash(hashed) {
+    Err(err) => raise err
     Ok(parsed) => {
       let digest = bcrypt_hash_raw(
         password.view(),
@@ -144,16 +166,8 @@ pub fn verify(password : Bytes, hash : String) -> Result[Bool, BcryptError] {
         "$" +
         parsed.salt_text +
         bcrypt_base64_encode(digest.view(), 23)
-      Ok(timing_safe_equal(hash, recomputed))
+      timing_safe_equal(hashed, recomputed)
     }
-  }
-}
-
-///|
-pub fn cost(hash : String) -> Result[Int, BcryptError] {
-  match parse_hash(hash) {
-    Err(err) => Err(err)
-    Ok(parsed) => Ok(parsed.cost)
   }
 }
 
