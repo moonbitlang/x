@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `moonbitlang/x/jwt` for signing and verifying HS256 JWTs with explicit
+  algorithm selection, typed claims, expiration checks, and issuer/audience
+  validation. (#318)
+
 ## [0.5.2]
 
 ### Added

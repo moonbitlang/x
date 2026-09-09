@@ -1,0 +1,16 @@
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/base64",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/json",
+  "moonbitlang/x/crypto",
+}
+
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+} for "test"
+
+import {
+  "moonbitlang/core/double",
+} for "wbtest"
