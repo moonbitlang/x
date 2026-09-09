@@ -63,18 +63,25 @@ test "hash_password reference vectors" {
 }
 
 ///|
-test "passwords longer than 72 bytes are truncated" {
+test "password length boundaries at 71, 72, and 73 bytes" {
   let salt = reference_salt()
-  let a72 = Bytes::make(72, (97).to_byte())
-  let a73 = Bytes::make(73, (97).to_byte())
-  assert_eq(
-    @bcrypt.hash_password(a72, salt, 5).unwrap(),
-    @bcrypt.hash_password(a73, salt, 5).unwrap(),
-  )
-  assert_eq(
-    @bcrypt.hash_password(a73, salt, 5).unwrap(),
-    "$2b$05$abcdefghijklmnopqrstuuGUnCqbfgs3htOkLrFduUjAyLBw1Rq/u",
-  )
+  let a71 = Bytes::make(71, b'a')
+  let a72 = Bytes::make(72, b'a')
+  let a73 = Bytes::make(73, b'a')
+  // The 71-byte reference value was checked with pyca/bcrypt 5.0.0.
+  let hash71 = "$2b$05$abcdefghijklmnopqrstuuldF68XqW1jV1pTkp5QRjAP2izYsMp1u"
+  let hash72 = "$2b$05$abcdefghijklmnopqrstuuGUnCqbfgs3htOkLrFduUjAyLBw1Rq/u"
+  assert_eq(@bcrypt.hash_password(a71, salt, 5), Ok(hash71))
+  assert_eq(@bcrypt.hash_password(a72, salt, 5), Ok(hash72))
+  assert_eq(@bcrypt.hash_password(a73, salt, 5), Ok(hash72))
+  assert_eq(@bcrypt.verify(a71, hash71), Ok(true))
+  assert_eq(@bcrypt.verify(a71, hash72), Ok(false))
+  assert_eq(@bcrypt.verify(a72, hash72), Ok(true))
+  assert_eq(@bcrypt.verify(a73, hash72), Ok(true))
+  // The 72nd byte participates; bytes starting at the 73rd are ignored.
+  assert_eq(@bcrypt.verify(a71 + b"b", hash72), Ok(false))
+  assert_eq(@bcrypt.verify(a72 + b"b", hash72), Ok(true))
+  assert_eq(@bcrypt.verify(a72 + b"bcdefghi", hash72), Ok(true))
 }
 
 ///|
@@ -105,4 +112,94 @@ test "invalid inputs are rejected" {
     b"password", "$2b$05$abcdefghijklmnopqrst!!WG29KuyeAicPCJODk1zjyGvyQUU2awu",
   )
   assert_true(bad_base64 is Err(@bcrypt.InvalidBase64))
+}
+
+///|
+test "verify rejects tampered digests" {
+  let hash = "$2b$04$abcdefghijklmnopqrstuughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm"
+  assert_eq(@bcrypt.verify(b"password", hash), Ok(true))
+  // The digest occupies offsets 29..59. '.' also preserves valid padding
+  // at the last character while changing the encoded digest bits.
+  for index in [29, 44, 59] {
+    let tampered = hash[:index].to_owned() + "." + hash[index + 1:].to_owned()
+    assert_eq(tampered.length(), 60)
+    assert_true(tampered != hash)
+    assert_eq(@bcrypt.cost(tampered), Ok(4), msg="digest offset \{index}")
+    assert_eq(
+      @bcrypt.verify(b"password", tampered),
+      Ok(false),
+      msg="digest offset \{index}",
+    )
+  }
+}
+
+///|
+test "invalid salt lengths are rejected" {
+  for length in [0, 15, 17] {
+    let result = @bcrypt.hash_password(b"password", Bytes::make(length, 0), 4)
+    assert_true(
+      result is Err(@bcrypt.InvalidSaltLength(actual)) && actual == length,
+      msg="salt length \{length}",
+    )
+  }
+}
+
+///|
+test "invalid hash lengths are rejected" {
+  let hash = "$2b$04$abcdefghijklmnopqrstuughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm"
+  let short_hash = hash[:59].to_owned()
+  let long_hash = hash + "."
+  assert_eq(short_hash.length(), 59)
+  assert_eq(long_hash.length(), 61)
+  for invalid_hash in [short_hash, long_hash] {
+    assert_true(
+      @bcrypt.cost(invalid_hash) is Err(@bcrypt.InvalidHashFormat),
+      msg=invalid_hash,
+    )
+    assert_true(
+      @bcrypt.verify(b"password", invalid_hash)
+      is Err(@bcrypt.InvalidHashFormat),
+      msg=invalid_hash,
+    )
+  }
+}
+
+///|
+test "invalid cost digits and separators are rejected" {
+  let hash = "$2b$04$abcdefghijklmnopqrstuughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm"
+  // Replace each cost digit and each '$' separator independently.
+  for index in [4, 5, 0, 3, 6] {
+    let invalid_hash = hash[:index].to_owned() +
+      "x" +
+      hash[index + 1:].to_owned()
+    assert_eq(invalid_hash.length(), 60)
+    assert_true(
+      @bcrypt.cost(invalid_hash) is Err(@bcrypt.InvalidHashFormat),
+      msg="hash offset \{index}",
+    )
+    assert_true(
+      @bcrypt.verify(b"password", invalid_hash)
+      is Err(@bcrypt.InvalidHashFormat),
+      msg="hash offset \{index}",
+    )
+  }
+}
+
+///|
+test "invalid digest Base64 characters are rejected" {
+  let hash = "$2b$04$abcdefghijklmnopqrstuughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm"
+  for index in [29, 44, 59] {
+    let invalid_hash = hash[:index].to_owned() +
+      "!" +
+      hash[index + 1:].to_owned()
+    assert_eq(invalid_hash.length(), 60)
+    assert_true(
+      @bcrypt.cost(invalid_hash) is Err(@bcrypt.InvalidBase64),
+      msg="digest offset \{index}",
+    )
+    assert_true(
+      @bcrypt.verify(b"password", invalid_hash) is Err(@bcrypt.InvalidBase64),
+      msg="digest offset \{index}",
+    )
+  }
 }
