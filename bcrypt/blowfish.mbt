@@ -178,7 +178,7 @@ priv struct BlowfishState {
 
 ///|
 fn new_blowfish_state() -> BlowfishState {
-  { p: init_p.copy(), s: init_s.copy() }
+  { p: init_p.copy(), s: init_s.copy(), }
 }
 
 ///|

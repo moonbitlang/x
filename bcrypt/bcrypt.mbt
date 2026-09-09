@@ -186,7 +186,7 @@ fn parse_hash(hash : String) -> Result[ParsedHash, BcryptError] {
             if !bcrypt_base64_all_valid(hash.unsafe_substring(start=29, end=60)) {
               Err(InvalidBase64)
             } else {
-              Ok({ minor, cost: parsed_cost, salt_text, salt })
+              Ok({ minor, cost: parsed_cost, salt_text, salt, })
             }
         }
       }
