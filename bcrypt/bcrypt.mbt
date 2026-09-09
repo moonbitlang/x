@@ -1,3 +1,17 @@
+// Copyright 2025 International Digital Economy Academy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 ///|
 let magic_cipher_data : Bytes = b"OrpheanBeholderScryDoubt"
 
@@ -12,7 +26,7 @@ fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes 
     blowfish_expand_zero_key(state, salt)
   }
 
-  let cdata = Array::new(capacity=6)
+  let cdata = Array(capacity=6)
   let mut off = 0
   for _ in 0..<6 {
     let (word, next_off) = stream_to_word(magic_cipher_data.view(), off)
@@ -27,7 +41,7 @@ fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes 
     }
   }
 
-  let out = Array::new(capacity=24)
+  let out = Array(capacity=24)
   for i in 0..<6 {
     out.push((cdata[i] >> 24).to_byte())
     out.push((cdata[i] >> 16).to_byte())
