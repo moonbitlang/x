@@ -6,19 +6,11 @@ import {
 }
 
 // Values
-pub fn cost(String) -> Result[Int, BcryptError]
-
-pub let hash_length : Int
-
-pub fn hash_password(Bytes, Bytes, Int) -> Result[String, BcryptError]
-
-pub let max_cost : Int
-
-pub let min_cost : Int
+pub fn hash(password~ : Bytes, salt~ : Bytes, cost~ : Int) -> String raise BcryptError
 
 pub let salt_length : Int
 
-pub fn verify(Bytes, String) -> Result[Bool, BcryptError]
+pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError
 
 // Errors
 pub suberror BcryptError {
