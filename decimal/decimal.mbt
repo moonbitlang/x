@@ -835,7 +835,7 @@ pub extend Decimal with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend Decimal with @moonbitlang/core/json.FromJson::{from_json}
+pub extend Decimal with FromJson::{from_json}
 
 ///|
 #deprecated
@@ -843,4 +843,4 @@ pub extend Decimal with Hash::{hash, hash_combine}
 
 ///|
 #deprecated
-pub extend Decimal with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}
+pub extend Decimal with @quickcheck.Arbitrary::{arbitrary}

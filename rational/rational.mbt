@@ -845,4 +845,4 @@ pub extend Rational with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend Rational with @moonbitlang/core/quickcheck.Arbitrary::{arbitrary}
+pub extend Rational with @quickcheck.Arbitrary::{arbitrary}

@@ -317,7 +317,7 @@ pub extend Duration with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend Duration with @moonbitlang/core/string.FromStr::{from_str}
+pub extend Duration with @string.FromStr::{from_str}
 
 ///|
 #deprecated

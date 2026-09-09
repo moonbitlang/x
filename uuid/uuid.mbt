@@ -300,4 +300,4 @@ pub extend UUID with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend UUID with @moonbitlang/core/json.FromJson::{from_json}
+pub extend UUID with FromJson::{from_json}

@@ -116,13 +116,11 @@ pub impl FromJson for PlainTime with fn from_json(json, path) {
       (path, "PlainTime::from_json: expected string representation"),
     )
   }
-  try PlainTime::parse_str(s) catch {
+  PlainTime::parse_str(s) catch {
     _ =>
       raise JsonDecodeError(
         (path, "PlainTime::from_json: invalid plaintime string - \{s}"),
       )
-  } noraise {
-    s => s
   }
 }
 
@@ -462,7 +460,7 @@ pub extend PlainTime with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainTime with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainTime with @string.FromStr::{from_str}
 
 ///|
 #deprecated
@@ -474,4 +472,4 @@ pub extend PlainTime with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend PlainTime with @moonbitlang/core/json.FromJson::{from_json}
+pub extend PlainTime with FromJson::{from_json}

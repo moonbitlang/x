@@ -158,24 +158,19 @@ pub impl FromJson for PlainDate with fn from_json(json, path) {
       (path, "PlainDate::from_json: expected string representation"),
     )
   }
-  try PlainDate::parse_str(s) catch {
+  PlainDate::parse_str(s) catch {
     _ =>
       raise JsonDecodeError(
         (path, "PlainDate::from_json: invalid plaindate string - \{s}"),
       )
-  } noraise {
-    s => s
   }
 }
 
 ///|
 /// Returns the era of this date.
 pub fn PlainDate::era(self : PlainDate) -> String {
-  if self.year >= 1 {
-    "CE"
-  } else {
-    "BCE"
-  }
+  guard self.year >= 1 else { "BCE" }
+  "CE"
 }
 
 ///|
@@ -613,7 +608,7 @@ pub extend PlainDate with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainDate with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainDate with @string.FromStr::{from_str}
 
 ///|
 #deprecated
@@ -633,4 +628,4 @@ pub extend PlainDate with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend PlainDate with @moonbitlang/core/json.FromJson::{from_json}
+pub extend PlainDate with FromJson::{from_json}

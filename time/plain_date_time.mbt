@@ -452,7 +452,7 @@ pub extend PlainDateTime with Debug::{to_repr}
 
 ///|
 #deprecated
-pub extend PlainDateTime with @moonbitlang/core/string.FromStr::{from_str}
+pub extend PlainDateTime with @string.FromStr::{from_str}
 
 ///|
 #deprecated
@@ -464,4 +464,4 @@ pub extend PlainDateTime with ToJson::{to_json}
 
 ///|
 #deprecated
-pub extend PlainDateTime with @moonbitlang/core/json.FromJson::{from_json}
+pub extend PlainDateTime with FromJson::{from_json}
