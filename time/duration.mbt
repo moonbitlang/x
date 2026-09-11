@@ -33,9 +33,15 @@ pub fn Duration::of(
     checked_add_int64(hours_sec, minutes_sec),
     seconds,
   )
-  let nanos = (nanoseconds % nanoseconds_per_second).to_int()
-  secs += nanoseconds / nanoseconds_per_second
-  { secs, nanos, }
+  let mut nanos = nanoseconds % nanoseconds_per_second
+  secs = checked_add_int64(secs, nanoseconds / nanoseconds_per_second)
+  // Normalize into the canonical form (0 <= nanos < one second), so that
+  // equal durations always have equal representations (#267, #269).
+  if nanos < 0L {
+    secs = checked_add_int64(secs, -1L)
+    nanos += nanoseconds_per_second
+  }
+  { secs, nanos: nanos.to_int(), }
 }
 
 ///|
@@ -244,8 +250,8 @@ pub fn Duration::add_nanoseconds(
     self.secs,
     nanoseconds / nanoseconds_per_second,
   )
-  let nanoseconds = nanoseconds % nanoseconds_per_second
-  Duration::of(seconds~, nanoseconds~)
+  let nanos = self.nanos.to_int64() + nanoseconds % nanoseconds_per_second
+  Duration::of(seconds~, nanoseconds=nanos)
 }
 
 ///|
