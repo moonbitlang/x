@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added `moonbitlang/x/encoding/percent` for percent encoding and
+  decoding with customizable ASCII escape characters. (#319)
+
 - Added `moonbitlang/x/jwt` for signing and verifying HS256 JWTs with explicit
   algorithm selection, typed claims, expiration checks, and issuer/audience
   validation. (#318)
