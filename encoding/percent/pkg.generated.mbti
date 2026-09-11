@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/encoding/percent"
+
+// Values
+pub let controls : String
+
+pub fn decode(StringView) -> Bytes
+
+pub fn encode(StringView, escape_chars? : StringView) -> String
+
+pub let non_alphanumeric : String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
