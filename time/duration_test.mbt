@@ -99,3 +99,33 @@ test "with_nanoseconds" {
   inspect(d.with_nanoseconds(2000), content="PT0.000002S")
   @test.assert_raise(() => d.with_nanoseconds(1_000_000_000))
 }
+
+///|
+test "add_nanoseconds preserves existing nanoseconds (#268)" {
+  let duration = @time.Duration::of(nanoseconds=1L)
+  let result = duration.add_nanoseconds(2L)
+  inspect(result.to_nanoseconds(), content="3")
+  inspect(result, content="PT0.000000003S")
+}
+
+///|
+test "negative sub-second durations have a canonical representation (#269)" {
+  let a = @time.Duration::of(nanoseconds=-2L)
+  let b = @time.Duration::of(nanoseconds=1L)
+  let added = a.add_duration(b)
+  let direct = @time.Duration::of(nanoseconds=-1L)
+  assert_eq(added, direct)
+  inspect(added, content="PT-0.000000001S")
+}
+
+///|
+test "is_neg agrees with the sign of sub-second durations (#267)" {
+  assert_true(@time.Duration::of(nanoseconds=-1L).is_neg())
+  assert_true(@time.Duration::of(nanoseconds=-999999999L).is_neg())
+  assert_false(@time.Duration::of(nanoseconds=1L).is_neg())
+  assert_false(@time.Duration::of(nanoseconds=-1L).is_zero())
+  inspect(
+    @time.Duration::of(nanoseconds=-999999999L).to_nanoseconds(),
+    content="-999999999",
+  )
+}
