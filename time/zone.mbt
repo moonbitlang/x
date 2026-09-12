@@ -18,14 +18,14 @@ struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int)] // (timestamp, offset_index)
-} derive(Eq, Debug)
+} derive(Eq, Debug, Compare)
 
 ///|
 /// UTC time zone.
 pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset], transitions: [], }
 
 ///|
-/// Creates a time zone with fixed offset from time zone id and offset seconds.
+#deprecated("Use `Zone::fixed_zone` instead")
 pub fn fixed_zone(
   id : String,
   offset_seconds : Int,
@@ -34,6 +34,26 @@ pub fn fixed_zone(
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
   { id, offsets: [offset], transitions: [], }
+}
+
+///|
+/// Creates a fixed offset time zone from time zone id and offset seconds.
+///
+/// Warning: This function does not validate the id against IANA or TZData.
+pub fn Zone::fixed_zone(
+  id : String,
+  offset_seconds : Int,
+  abbrev? : String = "",
+  dst? : Bool = false,
+) -> Zone raise Error {
+  //TODO - Tighten this with IANA & TZDATA
+  match id {
+    "UTC" if offset_seconds == 0 => utc_zone
+    id => {
+      let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
+      { id, offsets: [offset], transitions: [], }
+    }
+  }
 }
 
 ///|
@@ -46,6 +66,33 @@ pub fn Zone::is_fixed(self : Zone) -> Bool {
 /// Returns the fixed zone id (e.g. "UTC", "America/Los_Angeles", etc.)
 pub fn Zone::to_string(self : Zone) -> String {
   self.id
+}
+
+///|
+/// Parses a time zone id like `UTC`, `Asia/Shanghai` or `America/New_York`.
+///
+/// Warning: This function does not validate the id against IANA or TZData. The
+/// returned zone has no offset transitions; use `Zone::from_tzif2` to load the
+/// actual rules when needed.
+pub fn Zone::parse_str(str : StringView) -> Zone raise {
+  //TODO - Tighten this with IANA & TZDATA
+  match str {
+    "UTC" => utc_zone
+    zone => {
+      guard zone.split("/").to_array() is [continent, country] else {
+        fail(invalid_zone_err)
+      }
+      guard !continent.is_empty() && !country.is_empty() else {
+        fail(invalid_zone_err)
+      }
+      { id: zone.to_owned(), offsets: [], transitions: [], }
+    }
+  }
+}
+
+///|
+pub impl @string.FromStr for Zone with fn from_str(str) {
+  Zone::parse_str(str)
 }
 
 ///|
@@ -349,7 +396,7 @@ test "Zone::from_tzif2" {
   inspect(got.offset(), content="-07:00")
   inspect(got.offset().is_dst(), content="true")
   // Behavior of a fixed-offset zone:
-  let zone = fixed_zone(name, -25200, abbrev="PDT", dst=true)
+  let zone = Zone::fixed_zone(name, -25200, abbrev="PDT", dst=true)
   let got = unix(current_time_seconds, zone~)
   inspect(got, content="2025-07-31T17:00:00-07:00[PDT]")
   inspect(got.offset(), content="-07:00")

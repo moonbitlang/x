@@ -380,3 +380,12 @@ test "plain_date_time_json_roundtrip" {
   let back : @time.PlainDateTime = @json.from_json(ToJson::to_json(dt))
   inspect(back, content="2024-01-02T03:04:05")
 }
+
+///|
+test "from_str errors" {
+  for s in ["2000-01-01T00:00:00T", "T00:00:00", "2000-01-01T00:00:00 "] {
+    @test.assert_raise(() => {
+      (@string.FromStr::from_str(s) : @time.PlainDateTime)
+    })
+  }
+}

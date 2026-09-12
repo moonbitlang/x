@@ -74,6 +74,7 @@ fn PlainTime::parse_str(str : StringView) -> PlainTime raise Error {
       )
     _ => fail(invalid_time_err)
   }
+
   PlainTime::of(hour, minute, second, nanosecond)
 }
 

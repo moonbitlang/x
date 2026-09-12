@@ -10,6 +10,7 @@ import {
 // Values
 pub fn date_time(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
 
+#deprecated
 pub fn fixed_zone(String, Int, abbrev? : String, dst? : Bool) -> Zone raise
 
 pub fn unix(Int64, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
@@ -61,6 +62,8 @@ pub fn Duration::with_nanoseconds(Self, Int) -> Self raise
 pub fn Duration::with_seconds(Self, Int64) -> Self
 pub fn Duration::zero() -> Self
 pub impl Show for Duration
+pub impl ToJson for Duration
+pub impl @json.FromJson for Duration
 pub impl @string.FromStr for Duration
 
 type Period derive(Compare, Eq, @debug.Debug)
@@ -74,6 +77,7 @@ pub fn Period::compare(Self, Self) -> Int
 pub fn Period::days(Self) -> Int
 #deprecated
 pub fn Period::equal(Self, Self) -> Bool
+#deprecated
 pub fn Period::from_string(String) -> Self raise
 pub fn Period::is_neg(Self) -> Bool
 pub fn Period::is_zero(Self) -> Bool
@@ -95,6 +99,7 @@ pub fn Period::op_lt(Self, Self) -> Bool
 pub fn Period::op_sub(Self, Self) -> Self raise
 #deprecated
 pub fn Period::output(Self, &Logger) -> Unit
+pub fn Period::parse_str(StringView) -> Self raise
 #deprecated
 pub fn Period::to_repr(Self) -> @debug.Repr
 pub fn Period::to_string(Self) -> String
@@ -105,6 +110,9 @@ pub fn Period::with_years(Self, Int) -> Self
 pub fn Period::years(Self) -> Int
 pub fn Period::zero() -> Self
 pub impl Show for Period
+pub impl ToJson for Period
+pub impl @json.FromJson for Period
+pub impl @string.FromStr for Period
 
 type PlainDate derive(@debug.Debug)
 pub fn PlainDate::add_days(Self, Int64) -> Self raise
@@ -311,19 +319,22 @@ pub fn Weekday::to_repr(Self) -> @debug.Repr
 pub fn Weekday::to_string(Self) -> String
 pub impl Show for Weekday
 
-type Zone derive(Eq, @debug.Debug)
+type Zone derive(Compare, Eq, @debug.Debug)
 #deprecated
 pub fn Zone::equal(Self, Self) -> Bool
+pub fn Zone::fixed_zone(String, Int, abbrev? : String, dst? : Bool) -> Self raise
 pub fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 pub fn Zone::is_fixed(Self) -> Bool
 #deprecated
 pub fn Zone::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn Zone::output(Self, &Logger) -> Unit
+pub fn Zone::parse_str(StringView) -> Self raise
 #deprecated
 pub fn Zone::to_repr(Self) -> @debug.Repr
 pub fn Zone::to_string(Self) -> String
 pub impl Show for Zone
+pub impl @string.FromStr for Zone
 
 type ZoneOffset derive(@debug.Debug)
 pub fn ZoneOffset::abbreviation(Self) -> String
@@ -347,6 +358,7 @@ pub fn ZoneOffset::op_le(Self, Self) -> Bool
 pub fn ZoneOffset::op_lt(Self, Self) -> Bool
 #deprecated
 pub fn ZoneOffset::output(Self, &Logger) -> Unit
+pub fn ZoneOffset::parse_str(StringView) -> Self raise
 pub fn ZoneOffset::seconds(Self) -> Int
 #deprecated
 pub fn ZoneOffset::to_repr(Self) -> @debug.Repr
@@ -354,8 +366,11 @@ pub fn ZoneOffset::to_string(Self) -> String
 pub impl Compare for ZoneOffset
 pub impl Eq for ZoneOffset
 pub impl Show for ZoneOffset
+pub impl ToJson for ZoneOffset
+pub impl @json.FromJson for ZoneOffset
+pub impl @string.FromStr for ZoneOffset
 
-type ZonedDateTime derive(@debug.Debug)
+type ZonedDateTime derive(Compare, Eq, @debug.Debug)
 pub fn ZonedDateTime::add_days(Self, Int64) -> Self raise
 pub fn ZonedDateTime::add_hours(Self, Int64) -> Self raise
 pub fn ZonedDateTime::add_minutes(Self, Int64) -> Self raise
@@ -383,6 +398,7 @@ pub fn ZonedDateTime::offset(Self) -> ZoneOffset
 pub fn ZonedDateTime::ordinal(Self) -> Int
 #deprecated
 pub fn ZonedDateTime::output(Self, &Logger) -> Unit
+pub fn ZonedDateTime::parse_str(StringView) -> Self raise
 pub fn ZonedDateTime::second(Self) -> Int
 pub fn ZonedDateTime::to_plain_date(Self) -> PlainDate
 pub fn ZonedDateTime::to_plain_date_time(Self) -> PlainDateTime
@@ -403,6 +419,9 @@ pub fn ZonedDateTime::with_year(Self, Int) -> Self raise
 pub fn ZonedDateTime::year(Self) -> Int
 pub fn ZonedDateTime::zone(Self) -> Zone
 pub impl Show for ZonedDateTime
+pub impl ToJson for ZonedDateTime
+pub impl @json.FromJson for ZonedDateTime
+pub impl @string.FromStr for ZonedDateTime
 
 // Type aliases
 

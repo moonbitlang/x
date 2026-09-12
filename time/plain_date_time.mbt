@@ -72,24 +72,16 @@ pub fn PlainDateTime::from_string(str : String) -> PlainDateTime raise Error {
 
 ///|
 fn PlainDateTime::parse_str(str : StringView) -> PlainDateTime raise Error {
-  // TODO: better parsing implementation
-  let split = str.split("T")
-  let date_str = match split.next() {
-    Some(part) => part
-    None => fail(invalid_date_time_err)
+  guard str.split("T").to_array() is [date_str, time_str] else {
+    fail(invalid_date_time_err)
   }
-  let time_str = match split.next() {
-    Some(part) => part
-    None => fail(invalid_date_time_err)
+  let date = PlainDate::parse_str(date_str) catch {
+    _ => fail(invalid_date_time_err)
   }
-  match split.next() {
-    Some(_) => fail(invalid_date_time_err)
-    None => {
-      let date = PlainDate::parse_str(date_str)
-      let time = PlainTime::parse_str(time_str)
-      { date, time, }
-    }
+  let time = PlainTime::parse_str(time_str) catch {
+    _ => fail(invalid_date_time_err)
   }
+  PlainDateTime::{ date, time, }
 }
 
 ///|
