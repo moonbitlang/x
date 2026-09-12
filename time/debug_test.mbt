@@ -39,7 +39,7 @@ test "debug" {
       #|}
     ),
   )
-  let zone = @time.fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
   debug_inspect(
     zone,
     content=(

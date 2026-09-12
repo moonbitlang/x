@@ -37,10 +37,16 @@ pub fn Period::zero() -> Period {
 }
 
 ///|
-/// Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
+#deprecated("Use `Period::from_str` instead")
 pub fn Period::from_string(str : String) -> Period raise Error {
+  Period::parse_str(str)
+}
+
+///|
+/// Parses a ISO 8601 format string like `P[n]Y[n]M[n]D`.
+pub fn Period::parse_str(str : StringView) -> Period raise Error {
   // TODO: better parsing impl
-  if str.code_unit_at(0) != 'P' {
+  guard str.length() > 0 && str.code_unit_at(0) == 'P' else {
     fail(invalid_period_err)
   }
   let buf = StringBuilder(size_hint=0)
@@ -71,6 +77,11 @@ pub fn Period::from_string(str : String) -> Period raise Error {
 }
 
 ///|
+pub impl @string.FromStr for Period with fn from_str(str) {
+  Period::parse_str(str)
+}
+
+///|
 /// Returns a string representation of this period using ISO 8601 representation.
 pub fn Period::to_string(self : Period) -> String {
   if self.is_zero() {
@@ -96,6 +107,25 @@ pub fn Period::to_string(self : Period) -> String {
 ///|
 pub impl Show for Period with fn output(self : Period, logger : &Logger) {
   logger.write_string(self.to_string())
+}
+
+///|
+pub impl ToJson for Period with fn to_json(self : Period) -> Json {
+  Json(self.to_string())
+}
+
+///|
+pub impl FromJson for Period with fn from_json(json, path) -> Period raise {
+  guard json is Json::String(str) else {
+    raise @json.JsonDecodeError((path, "Period: expected string \{Repr(json)}"))
+  }
+  let period : Period = @string.FromStr::from_str(str) catch {
+    _e =>
+      raise @json.JsonDecodeError(
+        (path, "Period: Invalid ISO8601 string \{str}"),
+      )
+  }
+  period
 }
 
 ///|

@@ -68,3 +68,43 @@ test "compare" {
   inspect(o1 < o2, content="true")
   inspect(o1 == o1, content="true")
 }
+
+///|
+test "parse_str" {
+  inspect(@time.ZoneOffset::parse_str("Z"), content="Z")
+  inspect(@time.ZoneOffset::parse_str("+08:00"), content="+08:00")
+  inspect(@time.ZoneOffset::parse_str("-05:30"), content="-05:30")
+  inspect(@time.ZoneOffset::parse_str("+08:30"), content="+08:30")
+  inspect(@time.ZoneOffset::parse_str("-00:30"), content="-00:30")
+  inspect(@time.ZoneOffset::parse_str("+18:00"), content="+18:00")
+  inspect(@time.ZoneOffset::parse_str("-18:00"), content="-18:00")
+  // A zero offset is normalized to UTC.
+  inspect(@time.ZoneOffset::parse_str("+00:00"), content="Z")
+  inspect(@time.ZoneOffset::parse_str("-00:00"), content="Z")
+  inspect(@time.ZoneOffset::parse_str("+08:00").seconds(), content="28800")
+  inspect(@time.ZoneOffset::parse_str("-05:30").seconds(), content="-19800")
+}
+
+///|
+test "parse_str errors" {
+  let invalid : Array[String] = [
+    "", "+", "-", "z", "+08", "+8:00", "+08:0", "08:00", "+08:60", "-08:60", "+19:00",
+    "-19:00", "+18:01", "+01:30:30", "|08:00", " +08:00", "+08:00 ",
+  ]
+  for s in invalid {
+    @test.assert_raise(() => @time.ZoneOffset::parse_str(s))
+  }
+}
+
+///|
+test "offset from_str" {
+  inspect(
+    (@string.FromStr::from_str("+05:30") : @time.ZoneOffset),
+    content="+05:30",
+  )
+  inspect((@string.FromStr::from_str("Z") : @time.ZoneOffset), content="Z")
+  inspect(
+    (@string.FromStr::from_str("+05:30") : @time.ZoneOffset).seconds(),
+    content="19800",
+  )
+}

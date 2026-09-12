@@ -8,3 +8,5 @@ compile_commands.json
 .moonagent/
 
 target/
+.openseek/
+.pi/

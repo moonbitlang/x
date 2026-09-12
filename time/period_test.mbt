@@ -22,13 +22,13 @@ test "of" {
 
 ///|
 test "from_string" {
-  inspect(@time.Period::from_string("P10Y2M3D"), content="P10Y2M3D")
-  inspect(@time.Period::from_string("P-10Y-2M-3D"), content="P-10Y-2M-3D")
-  inspect(@time.Period::from_string("P2M3D10Y"), content="P2M3D")
-  @test.assert_raise(() => @time.Period::from_string("10Y"))
-  @test.assert_raise(() => @time.Period::from_string("10Y0M"))
-  @test.assert_raise(() => @time.Period::from_string("P10YT3H"))
-  @test.assert_raise(() => @time.Period::from_string("P2.5Y"))
+  inspect(@time.Period::parse_str("P10Y2M3D"), content="P10Y2M3D")
+  inspect(@time.Period::parse_str("P-10Y-2M-3D"), content="P-10Y-2M-3D")
+  inspect(@time.Period::parse_str("P2M3D10Y"), content="P2M3D")
+  @test.assert_raise(() => @time.Period::parse_str("10Y"))
+  @test.assert_raise(() => @time.Period::parse_str("10Y0M"))
+  @test.assert_raise(() => @time.Period::parse_str("P10YT3H"))
+  @test.assert_raise(() => @time.Period::parse_str("P2.5Y"))
 }
 
 ///|
@@ -181,4 +181,23 @@ test "negated" {
     days=@int.MIN_VALUE,
   )
   @test.assert_raise(() => p.negated())
+}
+
+///|
+test "parse_str errors" {
+  @test.assert_raise(() => @time.Period::parse_str(""))
+  @test.assert_raise(() => @time.Period::parse_str("p1y2m3d"))
+  @test.assert_raise(() => @time.Period::parse_str("P1Y2MX"))
+}
+
+///|
+test "period from_str" {
+  inspect(
+    (@string.FromStr::from_str("P10Y2M3D") : @time.Period),
+    content="P10Y2M3D",
+  )
+  inspect(
+    (@string.FromStr::from_str("P-10Y-2M-3D") : @time.Period),
+    content="P-10Y-2M-3D",
+  )
 }

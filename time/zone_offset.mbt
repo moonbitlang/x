@@ -75,9 +75,57 @@ pub fn ZoneOffset::from_seconds(
 }
 
 ///|
-/// Returns the offset id, e.g. "Z", "+08:00", "-05:30", etc.
+/// Conform to RFC 3339. Returns the offset id, e.g. "Z", "+08:00", "-05:30", etc.
 pub fn ZoneOffset::to_string(self : ZoneOffset) -> String {
   self.id
+}
+
+///|
+/// RFC 3339 - Parse the offset from string e.g. "Z", "+08:00", "-05:30", etc.
+pub fn ZoneOffset::parse_str(str : StringView) -> ZoneOffset raise Error {
+  lexmatch str with longest {
+    re"^Z$" => utc_offset
+    (re"^[+\-]" as posneg) +
+    (re"[0-9]{2}" as hour_str) +
+    re":" +
+    (re"[0-9]{2}$" as minute_str) => {
+      let hh : Int = @string.FromStr::from_str(hour_str)
+      let mm : Int = @string.FromStr::from_str(minute_str)
+
+      match posneg {
+        '+' => ZoneOffset::of(hours=hh, minutes=mm)
+        '-' => ZoneOffset::of(hours=-hh, minutes=-mm)
+        _ => fail(invalid_offset_err)
+      }
+    }
+    _ => fail(invalid_offset_err)
+  }
+}
+
+///|
+pub impl @string.FromStr for ZoneOffset with fn from_str(str) {
+  ZoneOffset::parse_str(str)
+}
+
+///|
+pub impl ToJson for ZoneOffset with fn to_json(self : ZoneOffset) -> Json {
+  Json(self.to_string())
+}
+
+///|
+pub impl FromJson for ZoneOffset with fn from_json(json, path) -> ZoneOffset raise {
+  guard json is Json::String(str) else {
+    raise @json.JsonDecodeError(
+      (path, "ZoneOffset: expected string \{Repr(json)}"),
+    )
+  }
+  let zone_offset : ZoneOffset = @string.FromStr::from_str(str) catch {
+    _e =>
+      raise @json.JsonDecodeError(
+        (path, "ZoneOffset: Invalid RFC3339 string \{str}"),
+      )
+  }
+  zone_offset
 }
 
 ///|

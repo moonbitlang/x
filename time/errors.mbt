@@ -22,6 +22,9 @@ let invalid_date_err = "Invalid date"
 let invalid_date_time_err = "Invalid date time"
 
 ///|
+let invalid_zoned_date_time_err = "Invalid zoned date time"
+
+///|
 let invalid_period_err = "Invalid period"
 
 ///|
@@ -29,3 +32,6 @@ let invalid_duration_err = "Invalid duration"
 
 ///|
 let invalid_offset_err = "Invalid offset"
+
+///|
+let invalid_zone_err = "Invalid zone"

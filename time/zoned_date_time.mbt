@@ -18,7 +18,7 @@ struct ZonedDateTime {
   datetime : PlainDateTime
   zone : Zone
   offset : ZoneOffset
-} derive(Debug)
+} derive(Debug, Eq, Compare)
 
 ///|
 /// Creates a ZonedDateTime from year, month, day, hour, minute, second and a time zone.
@@ -124,11 +124,87 @@ pub fn ZonedDateTime::to_string(self : ZonedDateTime) -> String {
 }
 
 ///|
+pub impl @string.FromStr for ZonedDateTime with fn from_str(str) {
+  ZonedDateTime::parse_str(str)
+}
+
+///|
+/// Parses a RFC 3339 string with an optional bracketed time zone id, like
+/// `2008-08-08T20:00:00Z`, `2008-08-08T20:00:00+08:00[Asia/Shanghai]` or
+/// `2008-08-08T20:00:00.123456789+08:00[Asia/Shanghai]`.
+///
+/// The bracketed id is represented as a fixed-offset zone built from the parsed
+/// offset. This function does not look up the IANA/TZData rules of the id.
+pub fn ZonedDateTime::parse_str(str : StringView) -> ZonedDateTime raise Error {
+  guard str.length() >= 20 else { fail(invalid_zoned_date_time_err) }
+  // `YYYY-MM-DDTHH:MM:SS`, optionally followed by fractional seconds.
+  let mut date_time_end = 19
+  if str.code_unit_at(date_time_end) == '.' {
+    date_time_end = date_time_end + 1
+    let fraction_start = date_time_end
+    while date_time_end < str.length() &&
+          str.code_unit_at(date_time_end) >= '0' &&
+          str.code_unit_at(date_time_end) <= '9' {
+      date_time_end = date_time_end + 1
+    }
+    guard date_time_end > fraction_start else {
+      fail(invalid_zoned_date_time_err)
+    }
+  }
+  let date_time = PlainDateTime::parse_str(
+    str.clamped_view(start=0, end=date_time_end),
+  ) catch {
+    _ => fail(invalid_zoned_date_time_err)
+  }
+  // `Z` or `+HH:MM` / `-HH:MM`.
+  let rest = str.clamped_view(start=date_time_end)
+  guard !rest.is_empty() else { fail(invalid_zoned_date_time_err) }
+  let offset_len : Int = if rest.code_unit_at(0) == 'Z' { 1 } else { 6 }
+  guard rest.length() >= offset_len else { fail(invalid_zoned_date_time_err) }
+  let offset = ZoneOffset::parse_str(rest.clamped_view(start=0, end=offset_len)) catch {
+    _ => fail(invalid_zoned_date_time_err)
+  }
+  // Optional `[Zone/Id]` suffix.
+  let zone_str = rest.clamped_view(start=offset_len)
+  let zone = if zone_str.is_empty() {
+    utc_zone
+  } else {
+    guard zone_str is ['[', .. zone_id, ']'] else {
+      fail(invalid_zoned_date_time_err)
+    }
+    guard !zone_id.is_empty() else { fail(invalid_zoned_date_time_err) }
+    Zone::fixed_zone(zone_id.to_owned(), offset.seconds)
+  }
+  ZonedDateTime::{ datetime: date_time, zone, offset, }
+}
+
+///|
 pub impl Show for ZonedDateTime with fn output(
   self : ZonedDateTime,
   logger : &Logger,
 ) -> Unit {
   logger.write_string(self.to_string())
+}
+
+///|
+pub impl ToJson for ZonedDateTime with fn to_json(self : ZonedDateTime) -> Json {
+  Json(self.to_string())
+}
+
+///|
+pub impl FromJson for ZonedDateTime with fn from_json(json, path) -> ZonedDateTime raise {
+  guard json is Json::String(str) else {
+    raise @json.JsonDecodeError(
+      (path, "ZonedDateTime: expected string \{Repr(json)}"),
+    )
+  }
+  let zdt : ZonedDateTime = @string.FromStr::from_str(str) catch {
+    _e =>
+      raise @json.JsonDecodeError(
+        (path, "ZonedDateTime: Invalid RFC3339 string \{str}"),
+      )
+  }
+  zdt
 }
 
 ///|

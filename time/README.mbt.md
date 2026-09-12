@@ -12,7 +12,7 @@ To create a datatime that represents the current time, you need to obtain the un
 ///|
 test {
   // creates a UTC+8 fixed time zone.
-  let zone = @time.fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
 
   // creates a ZonedDateTime from unix second and time zone.
   let date_time = @time.unix(1714227729L, nanosecond=1000, zone~)

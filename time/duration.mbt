@@ -163,6 +163,27 @@ pub impl Show for Duration with fn output(self : Duration, logger : &Logger) -> 
 }
 
 ///|
+pub impl ToJson for Duration with fn to_json(self : Duration) -> Json {
+  Json(self.to_string())
+}
+
+///|
+pub impl FromJson for Duration with fn from_json(json, path) -> Duration raise {
+  guard json is Json::String(str) else {
+    raise @json.JsonDecodeError(
+      (path, "Duration: expected string \{Repr(json)}"),
+    )
+  }
+  let duration : Duration = @string.FromStr::from_str(str) catch {
+    _e =>
+      raise @json.JsonDecodeError(
+        (path, "Duration: Invalid ISO8601 duration string \{str}"),
+      )
+  }
+  duration
+}
+
+///|
 /// Returns the number of seconds in this duration.
 pub fn Duration::seconds(self : Duration) -> Int64 {
   self.secs
