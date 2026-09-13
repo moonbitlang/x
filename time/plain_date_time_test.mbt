@@ -419,3 +419,213 @@ test "compare" {
   inspect(Compare::compare(base, next_day), content="-1")
   inspect(Compare::compare(next_day, base), content="1")
 }
+
+///|
+fn plain_dt(
+  year : Int,
+  month : Int,
+  day : Int,
+  hour? : Int = 0,
+  minute? : Int = 0,
+  second? : Int = 0,
+  nanosecond? : Int = 0,
+) -> @time.PlainDateTime raise {
+  @time.PlainDateTime::of(
+    year,
+    month,
+    day,
+    hour~,
+    minute~,
+    second~,
+    nanosecond~,
+  )
+}
+
+///|
+test "millisecond and microsecond" {
+  let dt = plain_dt(
+    2000,
+    1,
+    1,
+    hour=1,
+    minute=2,
+    second=3,
+    nanosecond=123_456_789,
+  )
+  inspect(dt.nanosecond(), content="123456789")
+  inspect(dt.millisecond(), content="123")
+  inspect(dt.microsecond(), content="456")
+  inspect(plain_dt(2000, 1, 1).millisecond(), content="0")
+  inspect(plain_dt(2000, 1, 1, nanosecond=1).millisecond(), content="0")
+  inspect(plain_dt(2000, 1, 1, nanosecond=1).microsecond(), content="0")
+  inspect(
+    plain_dt(2000, 1, 1, nanosecond=999_999_999).microsecond(),
+    content="999",
+  )
+}
+
+///|
+test "month_code, day_of_week, week_of_year and year_of_week" {
+  let dt = plain_dt(2021, 1, 1, hour=1)
+  inspect(dt.month_code(), content="M01")
+  inspect(dt.day_of_week(), content="5")
+  inspect(dt.week_of_year(), content="53")
+  inspect(dt.year_of_week(), content="2020")
+  inspect(plain_dt(2000, 12, 31).month_code(), content="M12")
+  inspect(plain_dt(2024, 1, 1).day_of_week(), content="1")
+  inspect(plain_dt(2024, 1, 1).weekday(), content="Monday")
+}
+
+///|
+test "equals, min and max" {
+  let a = plain_dt(2000, 1, 1)
+  let b = plain_dt(2000, 1, 1, nanosecond=1)
+  inspect(a.equals(a), content="true")
+  inspect(a.equals(b), content="false")
+  inspect(@time.PlainDateTime::min(a, b), content="2000-01-01T00:00:00")
+  inspect(
+    @time.PlainDateTime::max(a, b),
+    content="2000-01-01T00:00:00.000000001",
+  )
+  inspect(@time.PlainDateTime::min(b, a), content="2000-01-01T00:00:00")
+}
+
+///|
+test "subtract_years, months, weeks and days" {
+  let dt = plain_dt(2000, 3, 31, hour=1, minute=2, second=3)
+  inspect(dt.subtract_years(1L), content="1999-03-31T01:02:03")
+  inspect(dt.subtract_months(1L), content="2000-02-29T01:02:03")
+  inspect(dt.subtract_weeks(1L), content="2000-03-24T01:02:03")
+  inspect(dt.subtract_days(1L), content="2000-03-30T01:02:03")
+  inspect(dt.subtract_days(0L), content="2000-03-31T01:02:03")
+}
+
+///|
+test "subtract_hours, minutes, seconds and nanoseconds" {
+  let dt = plain_dt(2000, 1, 1)
+  inspect(dt.subtract_hours(1L), content="1999-12-31T23:00:00")
+  inspect(dt.subtract_minutes(1L), content="1999-12-31T23:59:00")
+  inspect(dt.subtract_seconds(1L), content="1999-12-31T23:59:59")
+  inspect(dt.subtract_nanoseconds(1L), content="1999-12-31T23:59:59.999999999")
+  inspect(dt.subtract_hours(0L), content="2000-01-01T00:00:00")
+  inspect(dt.subtract_hours(-1L), content="2000-01-01T01:00:00")
+}
+
+///|
+test "subtract_duration" {
+  let dt = plain_dt(2000, 1, 1, hour=12)
+  inspect(
+    dt.subtract_duration(@time.Duration::of(hours=1L)),
+    content="2000-01-01T11:00:00",
+  )
+  inspect(
+    dt.subtract_duration(@time.Duration::of(nanoseconds=1L)),
+    content="2000-01-01T11:59:59.999999999",
+  )
+  inspect(
+    dt.subtract_duration(@time.Duration::zero()),
+    content="2000-01-01T12:00:00",
+  )
+}
+
+///|
+test "add_period_duration" {
+  let start = plain_dt(2000, 1, 31)
+  let pd = @time.PeriodDuration::of(
+    period=@time.Period::of(months=1),
+    duration=@time.Duration::of(hours=1L),
+  )
+  // The calendar period is applied first (clamping Jan 31 to Feb 29), then
+  // the exact duration; applying the duration first would give
+  // 2000-03-01T01:00:00 instead.
+  inspect(start.add_period_duration(pd), content="2000-02-29T01:00:00")
+  inspect(
+    start.add_period_duration(@time.PeriodDuration::zero()),
+    content="2000-01-31T00:00:00",
+  )
+  inspect(
+    start.add_period_duration(
+      @time.PeriodDuration::from_period(@time.Period::of(days=1)),
+    ),
+    content="2000-02-01T00:00:00",
+  )
+}
+
+///|
+test "subtract_period_duration" {
+  let start = plain_dt(2000, 1, 15, hour=10)
+  let pd = @time.PeriodDuration::of(
+    period=@time.Period::of(months=1),
+    duration=@time.Duration::of(hours=1L),
+  )
+  let later = start.add_period_duration(pd)
+  inspect(later, content="2000-02-15T11:00:00")
+  inspect(later.subtract_period_duration(pd), content="2000-01-15T10:00:00")
+  inspect(
+    later.subtract_period_duration(@time.PeriodDuration::zero()),
+    content="2000-02-15T11:00:00",
+  )
+}
+
+///|
+test "modify_with" {
+  let dt = plain_dt(2000, 1, 15, hour=10, minute=20, second=30, nanosecond=400)
+  inspect(dt.modify_with(year=2024), content="2024-01-15T10:20:30.0000004")
+  inspect(
+    dt.modify_with(month=2, day=29),
+    content="2000-02-29T10:20:30.0000004",
+  )
+  inspect(
+    dt.modify_with(hour=0, minute=0, second=0, nanosecond=0),
+    content="2000-01-15T00:00:00",
+  )
+  inspect(dt.modify_with(), content="2000-01-15T10:20:30.0000004")
+  @test.assert_raise(() => dt.modify_with(month=2, day=30))
+  @test.assert_raise(() => dt.modify_with(hour=25))
+}
+
+///|
+test "until and since" {
+  let a = plain_dt(2000, 1, 1)
+  let b = plain_dt(2000, 1, 1, hour=1, minute=2, second=3)
+  inspect(a.until(b), content="PT1H2M3S")
+  inspect(b.until(a), content="PT-1H-2M-3S")
+  inspect(a.since(b), content="PT-1H-2M-3S")
+  inspect(b.since(a), content="PT1H2M3S")
+  inspect(a.until(a), content="PT0S")
+  // Crosses day boundaries.
+  inspect(plain_dt(2000, 1, 1).until(plain_dt(2000, 1, 2)), content="PT24H")
+  inspect(plain_dt(2000, 1, 2).until(plain_dt(2000, 1, 1)), content="PT-24H")
+  inspect(
+    plain_dt(2000, 1, 1).until(
+      plain_dt(1999, 12, 31, hour=23, minute=59, second=59),
+    ),
+    content="PT-1S",
+  )
+  // Sub-second precision is preserved.
+  inspect(
+    plain_dt(2000, 1, 1, nanosecond=1).until(plain_dt(2000, 1, 1, nanosecond=2)),
+    content="PT0.000000001S",
+  )
+}
+
+///|
+test "until across centuries" {
+  let a = plain_dt(2000, 1, 1)
+  let b = plain_dt(2400, 1, 1)
+  let d = a.until(b)
+  let days = b.to_plain_date().to_unix_day() - a.to_plain_date().to_unix_day()
+  inspect(d.seconds() == days * 86400L, content="true")
+  inspect(d.nanoseconds(), content="0")
+  inspect(d > @time.Duration::zero(), content="true")
+  inspect(b.since(a) == d, content="true")
+}
+
+///|
+test "plain_date_time_hash" {
+  let a = plain_dt(2000, 1, 1, hour=1)
+  let b = plain_dt(2000, 1, 1, hour=1)
+  let c = plain_dt(2000, 1, 1, hour=2)
+  inspect(hash_of(a) == hash_of(b), content="true")
+  inspect(hash_of(a) == hash_of(c), content="false")
+}

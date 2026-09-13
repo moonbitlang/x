@@ -333,3 +333,116 @@ test "compare" {
   inspect(Compare::compare(base, @time.PlainTime::of(1, 2, 3, 5)), content="-1")
   inspect(Compare::compare(@time.PlainTime::of(1, 2, 3, 5), base), content="1")
 }
+
+///|
+test "millisecond and microsecond" {
+  let t = @time.PlainTime::of(1, 2, 3, 123_456_789)
+  inspect(t.nanosecond(), content="123456789")
+  inspect(t.millisecond(), content="123")
+  inspect(t.microsecond(), content="456")
+  inspect(@time.PlainTime::of(1, 2, 3, 0).millisecond(), content="0")
+  inspect(@time.PlainTime::of(1, 2, 3, 0).microsecond(), content="0")
+  inspect(@time.PlainTime::of(1, 2, 3, 1).millisecond(), content="0")
+  inspect(
+    @time.PlainTime::of(1, 2, 3, 999_999_999).microsecond(),
+    content="999",
+  )
+}
+
+///|
+test "equals, min and max" {
+  let a = @time.PlainTime::of(1, 2, 3, 0)
+  let b = @time.PlainTime::of(1, 2, 4, 0)
+  inspect(a.equals(a), content="true")
+  inspect(a.equals(b), content="false")
+  inspect(@time.PlainTime::min(a, b), content="01:02:03")
+  inspect(@time.PlainTime::min(b, a), content="01:02:03")
+  inspect(@time.PlainTime::max(a, b), content="01:02:04")
+  inspect(@time.PlainTime::max(a, a), content="01:02:03")
+}
+
+///|
+test "subtract_hours" {
+  let t = @time.PlainTime::of(1, 2, 3, 0)
+  inspect(t.subtract_hours(1L), content="00:02:03")
+  // Wraps around midnight.
+  inspect(t.subtract_hours(2L), content="23:02:03")
+  inspect(t.subtract_hours(0L), content="01:02:03")
+  inspect(t.subtract_hours(-1L), content="02:02:03")
+}
+
+///|
+test "subtract_minutes" {
+  let t = @time.PlainTime::of(0, 30, 0, 0)
+  inspect(t.subtract_minutes(15L), content="00:15:00")
+  inspect(t.subtract_minutes(30L), content="00:00:00")
+  inspect(t.subtract_minutes(45L), content="23:45:00")
+  inspect(t.subtract_minutes(-30L), content="01:00:00")
+}
+
+///|
+test "subtract_seconds" {
+  let t = @time.PlainTime::of(0, 0, 30, 0)
+  inspect(t.subtract_seconds(30L), content="00:00:00")
+  inspect(t.subtract_seconds(45L), content="23:59:45")
+  inspect(t.subtract_seconds(0L), content="00:00:30")
+}
+
+///|
+test "subtract_nanoseconds" {
+  let t = @time.PlainTime::of(0, 0, 0, 1000)
+  inspect(t.subtract_nanoseconds(400L), content="00:00:00.0000006")
+  inspect(t.subtract_nanoseconds(1000L), content="00:00:00")
+  inspect(t.subtract_nanoseconds(1001L), content="23:59:59.999999999")
+}
+
+///|
+test "subtract_duration" {
+  let t = @time.PlainTime::of(12, 0, 0, 0)
+  inspect(t.subtract_duration(@time.Duration::of(hours=1L)), content="11:00:00")
+  inspect(
+    t.subtract_duration(@time.Duration::of(hours=12L)),
+    content="00:00:00",
+  )
+  inspect(
+    @time.PlainTime::of(0, 0, 0, 0).subtract_duration(
+      @time.Duration::of(nanoseconds=1L),
+    ),
+    content="23:59:59.999999999",
+  )
+  inspect(t.subtract_duration(@time.Duration::zero()), content="12:00:00")
+}
+
+///|
+test "modify_with" {
+  let t = @time.PlainTime::of(1, 2, 3, 400)
+  inspect(t.modify_with(hour=12), content="12:02:03.0000004")
+  inspect(t.modify_with(minute=30), content="01:30:03.0000004")
+  inspect(t.modify_with(second=0), content="01:02:00.0000004")
+  inspect(t.modify_with(nanosecond=0), content="01:02:03")
+  inspect(t.modify_with(), content="01:02:03.0000004")
+  @test.assert_raise(() => t.modify_with(hour=25))
+  @test.assert_raise(() => t.modify_with(nanosecond=1_000_000_000))
+}
+
+///|
+test "since" {
+  let a = @time.PlainTime::of(1, 0, 0, 0)
+  let b = @time.PlainTime::of(2, 0, 0, 0)
+  inspect(b.since(a), content="PT1H")
+  inspect(a.since(b), content="PT-1H")
+  inspect(a.since(a), content="PT0S")
+  inspect(
+    @time.PlainTime::of(0, 0, 0, 0).since(@time.PlainTime::of(23, 59, 59, 0)),
+    content="PT-23H-59M-59S",
+  )
+}
+
+///|
+test "plain_time_hash" {
+  let a = @time.PlainTime::of(1, 2, 3, 400)
+  let b = @time.PlainTime::of(1, 2, 3, 400)
+  let c = @time.PlainTime::of(1, 2, 3, 401)
+  inspect(hash_of(a) == hash_of(b), content="true")
+  inspect(hash_of(a) == hash_of(c), content="false")
+}

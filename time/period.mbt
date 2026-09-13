@@ -18,7 +18,7 @@ struct Period {
   years : Int
   months : Int
   days : Int
-} derive(Eq, Compare, Debug)
+} derive(Debug)
 
 ///|
 /// Creates a Period from years, months, and days.
@@ -34,6 +34,30 @@ pub fn Period::of(
 /// Returns a zero length period.
 pub fn Period::zero() -> Period {
   { years: 0, months: 0, days: 0, }
+}
+
+///|
+/// Creates a Period from a number of years.
+pub fn Period::from_years(years : Int) -> Period {
+  Period::of(years~)
+}
+
+///|
+/// Creates a Period from a number of months.
+pub fn Period::from_months(months : Int) -> Period {
+  Period::of(months~)
+}
+
+///|
+/// Creates a Period from a number of weeks, expressed as a number of days.
+pub fn Period::from_weeks(weeks : Int) -> Period raise Error {
+  Period::of(days=checked_mul_int(weeks, 7))
+}
+
+///|
+/// Creates a Period from a number of days.
+pub fn Period::from_days(days : Int) -> Period {
+  Period::of(days~)
 }
 
 ///|
@@ -107,6 +131,37 @@ pub fn Period::to_string(self : Period) -> String {
 ///|
 pub impl Show for Period with fn output(self : Period, logger : &Logger) {
   logger.write_string(self.to_string())
+}
+
+///|
+pub impl Hash for Period with fn hash_combine(self : Period, hasher : Hasher) -> Unit {
+  hasher.combine(self.years)
+  hasher.combine(self.months)
+  hasher.combine(self.days)
+}
+
+///|
+pub impl Eq for Period with fn equal(self : Period, other : Period) -> Bool {
+  Compare::compare(self, other) == 0
+}
+
+///|
+pub impl Compare for Period with fn compare(self : Period, other : Period) -> Int {
+  if self.years > other.years {
+    1
+  } else if self.years < other.years {
+    -1
+  } else if self.months > other.months {
+    1
+  } else if self.months < other.months {
+    -1
+  } else if self.days > other.days {
+    1
+  } else if self.days < other.days {
+    -1
+  } else {
+    0
+  }
 }
 
 ///|
@@ -204,8 +259,44 @@ pub fn Period::op_add(self : Period, other : Period) -> Period raise Error {
 }
 
 ///|
-pub fn Period::op_sub(self : Period, other : Period) -> Period raise Error {
+/// Subtracts specified years from this period, and returns a new period.
+pub fn Period::subtract_years(self : Period, years : Int) -> Period raise Error {
+  self.add_years(-years)
+}
+
+///|
+/// Subtracts specified months from this period, and returns a new period.
+pub fn Period::subtract_months(
+  self : Period,
+  months : Int,
+) -> Period raise Error {
+  self.add_months(-months)
+}
+
+///|
+/// Subtracts specified weeks from this period, and returns a new period.
+pub fn Period::subtract_weeks(self : Period, weeks : Int) -> Period raise Error {
+  self.add_weeks(-weeks)
+}
+
+///|
+/// Subtracts specified days from this period, and returns a new period.
+pub fn Period::subtract_days(self : Period, days : Int) -> Period raise Error {
+  self.add_days(-days)
+}
+
+///|
+/// Subtracts other period from this period, and returns a new period.
+pub fn Period::subtract_period(
+  self : Period,
+  other : Period,
+) -> Period raise Error {
   self.add_period(other.negated())
+}
+
+///|
+pub fn Period::op_sub(self : Period, other : Period) -> Period raise Error {
+  self.subtract_period(other)
 }
 
 ///|
@@ -227,6 +318,18 @@ pub fn Period::multiply(self : Period, n : Int) -> Period raise Error {
 /// Returns a new period with all elements in this period negated.
 pub fn Period::negated(self : Period) -> Period raise Error {
   self.multiply(-1)
+}
+
+///|
+/// Returns a new period with a positive sign on every element, keeping the
+/// magnitude of this period. Assumes the period's elements share the same
+/// sign, as is the case for any period produced by this library.
+pub fn Period::abs(self : Period) -> Period raise Error {
+  if self.is_neg() {
+    self.negated()
+  } else {
+    self
+  }
 }
 
 ///|
@@ -272,18 +375,30 @@ pub fn Period::is_neg(self : Period) -> Bool {
 }
 
 ///|
-/// Returns the total number of months in this period.
+/// Checks if this period is strictly positive.
+pub fn Period::is_positive(self : Period) -> Bool {
+  !self.is_zero() && !self.is_neg()
+}
+
+///|
+/// Returns the total number of months in this period (years * 12 + months),
+/// ignoring the days element.
 pub fn Period::to_total_months(self : Period) -> Int64 {
   self.years.to_int64() * 12L + self.months.to_int64()
 }
 
 ///|
-#deprecated
-pub extend Period with Eq::{not_equal, equal}
-
-///|
-#deprecated
-pub extend Period with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+/// Returns an equivalent period with the years and months fields normalized,
+/// carrying every whole 12-month group in `months` into `years`. Both fields
+/// end up with the same sign as the total number of months. The `days`
+/// field is left untouched, since a variable number of days per month means
+/// days cannot be safely folded into months without a reference date.
+pub fn Period::normalized(self : Period) -> Period {
+  let total_months = self.to_total_months()
+  let years = total_months / 12L
+  let months = total_months % 12L
+  Period::of(years=years.to_int(), months=months.to_int(), days=self.days)
+}
 
 ///|
 #deprecated

@@ -104,6 +104,17 @@ pub impl Show for PlainTime with fn output(self : PlainTime, logger : &Logger) -
 }
 
 ///|
+pub impl Hash for PlainTime with fn hash_combine(
+  self : PlainTime,
+  hasher : Hasher,
+) -> Unit {
+  hasher.combine(self.hour)
+  hasher.combine(self.minute)
+  hasher.combine(self.second)
+  hasher.combine(self.nanosecond)
+}
+
+///|
 /// Converts a PlainTime to its JSON representation as a string.
 pub impl ToJson for PlainTime with fn to_json(self : PlainTime) -> Json {
   Json::string(self.to_string())
@@ -175,9 +186,23 @@ pub fn PlainTime::second(self : PlainTime) -> Int {
 }
 
 ///|
-/// Returns the nanosecond of this time.
+/// Returns the nanosecond of this time (0 to 999,999,999).
 pub fn PlainTime::nanosecond(self : PlainTime) -> Int {
   self.nanosecond
+}
+
+///|
+/// Returns the millisecond-of-second component (0-999) of this time's
+/// sub-second precision.
+pub fn PlainTime::millisecond(self : PlainTime) -> Int {
+  self.nanosecond / 1_000_000
+}
+
+///|
+/// Returns the microsecond-of-second component (0-999), excluding the
+/// millisecond contribution.
+pub fn PlainTime::microsecond(self : PlainTime) -> Int {
+  self.nanosecond / 1_000 % 1_000
 }
 
 ///|
@@ -194,6 +219,33 @@ pub fn PlainTime::second_of_day(self : PlainTime) -> Int {
 pub fn PlainTime::nanosecond_of_day(self : PlainTime) -> Int64 {
   let sec = self.second_of_day()
   sec.to_int64() * nanoseconds_per_second + self.nanosecond.to_int64()
+}
+
+///|
+/// Returns whether this time is the same wall-clock time as `other`.
+/// Equivalent to `self == other`;
+pub fn PlainTime::equals(self : PlainTime, other : PlainTime) -> Bool {
+  Compare::compare(self, other) == 0
+}
+
+///|
+/// Returns whichever of the two times is earlier (or `a` if they're equal).
+pub fn PlainTime::min(a : PlainTime, b : PlainTime) -> PlainTime {
+  if Compare::compare(a, b) <= 0 {
+    a
+  } else {
+    b
+  }
+}
+
+///|
+/// Returns whichever of the two times is later (or `a` if they're equal).
+pub fn PlainTime::max(a : PlainTime, b : PlainTime) -> PlainTime {
+  if Compare::compare(a, b) >= 0 {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -237,8 +289,18 @@ pub fn PlainTime::add_hours(
   if hours == 0L {
     return self
   }
-  let new_hour = (hours % hours_per_day + self.hour.to_int64()) % hours_per_day
+  let new_hour = (hours % hours_per_day + self.hour.to_int64() + hours_per_day) %
+    hours_per_day
   PlainTime::of(new_hour.to_int(), self.minute, self.second, self.nanosecond)
+}
+
+///|
+/// Subtracts specified hours from this time, and returns a new time.
+pub fn PlainTime::subtract_hours(
+  self : PlainTime,
+  hours : Int64,
+) -> PlainTime raise Error {
+  self.add_hours(-hours)
 }
 
 ///|
@@ -264,6 +326,15 @@ pub fn PlainTime::add_minutes(
     self.second,
     self.nanosecond,
   )
+}
+
+///|
+/// Subtracts specified minutes from this time, and returns a new time.
+pub fn PlainTime::subtract_minutes(
+  self : PlainTime,
+  minutes : Int64,
+) -> PlainTime raise Error {
+  self.add_minutes(-minutes)
 }
 
 ///|
@@ -295,6 +366,15 @@ pub fn PlainTime::add_seconds(
 }
 
 ///|
+/// Subtracts specified seconds from this time, and returns a new time.
+pub fn PlainTime::subtract_seconds(
+  self : PlainTime,
+  seconds : Int64,
+) -> PlainTime raise Error {
+  self.add_seconds(-seconds)
+}
+
+///|
 /// Adds specified nanoseconds to this time, and returns a new time.
 pub fn PlainTime::add_nanoseconds(
   self : PlainTime,
@@ -315,6 +395,15 @@ pub fn PlainTime::add_nanoseconds(
 }
 
 ///|
+/// Subtracts specified nanoseconds from this time, and returns a new time.
+pub fn PlainTime::subtract_nanoseconds(
+  self : PlainTime,
+  nanoseconds : Int64,
+) -> PlainTime raise Error {
+  self.add_nanoseconds(-nanoseconds)
+}
+
+///|
 /// Adds a duration to this time, and returns a new time.
 pub fn PlainTime::add_duration(
   self : PlainTime,
@@ -324,6 +413,18 @@ pub fn PlainTime::add_duration(
     return self
   }
   self.add_nanoseconds(duration.to_nanoseconds())
+}
+
+///|
+/// Subtracts a duration from this time, and returns a new time.
+pub fn PlainTime::subtract_duration(
+  self : PlainTime,
+  duration : Duration,
+) -> PlainTime raise Error {
+  if duration.is_zero() {
+    return self
+  }
+  self.add_nanoseconds(-duration.to_nanoseconds())
 }
 
 ///|
@@ -375,6 +476,35 @@ pub fn PlainTime::with_nanosecond(
 }
 
 ///|
+/// Returns a new time with any of hour, minute, second, or nanosecond
+/// replaced, leaving unspecified fields unchanged.
+pub fn PlainTime::modify_with(
+  self : PlainTime,
+  hour? : Int,
+  minute? : Int,
+  second? : Int,
+  nanosecond? : Int,
+) -> PlainTime raise Error {
+  let hour = match hour {
+    Some(h) => h
+    None => self.hour
+  }
+  let minute = match minute {
+    Some(m) => m
+    None => self.minute
+  }
+  let second = match second {
+    Some(s) => s
+    None => self.second
+  }
+  let nanosecond = match nanosecond {
+    Some(n) => n
+    None => self.nanosecond
+  }
+  PlainTime::of(hour, minute, second, nanosecond)
+}
+
+///|
 /// Returns the duration between this time and another time.
 pub fn PlainTime::until(
   self : PlainTime,
@@ -382,6 +512,16 @@ pub fn PlainTime::until(
 ) -> Duration raise Error {
   let nanoseconds = end.nanosecond_of_day() - self.nanosecond_of_day()
   Duration::of(nanoseconds~)
+}
+
+///|
+/// Returns the duration since another time, i.e. the duration `d` such
+/// that `other.add_duration(d) == self`.
+pub fn PlainTime::since(
+  self : PlainTime,
+  other : PlainTime,
+) -> Duration raise Error {
+  other.until(self)
 }
 
 ///|

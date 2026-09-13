@@ -414,3 +414,136 @@ test "plain_date_from_json_errors" {
     _ => fail("unexpected error")
   }
 }
+
+///|
+fn date(year : Int, month : Int, day : Int) -> @time.PlainDate raise {
+  @time.PlainDate::of(year, month, day)
+}
+
+///|
+test "month_code" {
+  inspect(date(2000, 1, 1).month_code(), content="M01")
+  inspect(date(2000, 9, 30).month_code(), content="M09")
+  inspect(date(2000, 12, 31).month_code(), content="M12")
+}
+
+///|
+test "day_of_week" {
+  inspect(date(2024, 1, 1).day_of_week(), content="1")
+  inspect(date(2024, 1, 6).day_of_week(), content="6")
+  inspect(date(2024, 1, 7).day_of_week(), content="7")
+  inspect(date(2000, 1, 1).day_of_week(), content="6")
+  // `weekday` and `day_of_week` describe the same day.
+  inspect(date(2024, 1, 1).weekday(), content="Monday")
+  inspect(date(2024, 1, 7).weekday(), content="Sunday")
+}
+
+///|
+test "is_leap_year" {
+  inspect(@time.PlainDate::is_leap_year(2000), content="true")
+  inspect(@time.PlainDate::is_leap_year(2024), content="true")
+  inspect(@time.PlainDate::is_leap_year(1900), content="false")
+  inspect(@time.PlainDate::is_leap_year(2023), content="false")
+  inspect(@time.PlainDate::is_leap_year(0), content="true")
+}
+
+///|
+test "week_of_year and year_of_week" {
+  inspect(date(2020, 1, 1).week_of_year(), content="1")
+  inspect(date(2020, 1, 1).year_of_week(), content="2020")
+  // 2021-01-01 (Friday) still belongs to ISO week 53 of 2020.
+  inspect(date(2021, 1, 1).week_of_year(), content="53")
+  inspect(date(2021, 1, 1).year_of_week(), content="2020")
+  inspect(date(2021, 1, 4).week_of_year(), content="1")
+  inspect(date(2021, 1, 4).year_of_week(), content="2021")
+  // 2000-01-01 (Saturday) is week 52 of 1999.
+  inspect(date(2000, 1, 1).week_of_year(), content="52")
+  inspect(date(2000, 1, 1).year_of_week(), content="1999")
+  // 2015 and 2020 have 53 ISO weeks.
+  inspect(date(2015, 12, 28).week_of_year(), content="53")
+  inspect(date(2016, 1, 3).week_of_year(), content="53")
+  inspect(date(2016, 1, 3).year_of_week(), content="2015")
+  inspect(date(2020, 12, 31).week_of_year(), content="53")
+  inspect(date(2020, 12, 31).year_of_week(), content="2020")
+  // 2019-12-30 (Monday) already belongs to ISO week 1 of 2020.
+  inspect(date(2019, 12, 30).week_of_year(), content="1")
+  inspect(date(2019, 12, 30).year_of_week(), content="2020")
+}
+
+///|
+test "equals, min and max" {
+  let a = date(2000, 1, 1)
+  let b = date(2000, 1, 2)
+  inspect(a.equals(a), content="true")
+  inspect(a.equals(b), content="false")
+  inspect(@time.PlainDate::min(a, b), content="2000-01-01")
+  inspect(@time.PlainDate::min(b, a), content="2000-01-01")
+  inspect(@time.PlainDate::max(a, b), content="2000-01-02")
+  inspect(@time.PlainDate::max(a, a), content="2000-01-01")
+}
+
+///|
+test "modify_with" {
+  let d = date(2000, 1, 15)
+  inspect(d.modify_with(year=2024), content="2024-01-15")
+  inspect(d.modify_with(month=2), content="2000-02-15")
+  inspect(d.modify_with(day=31), content="2000-01-31")
+  inspect(d.modify_with(year=2024, month=2, day=29), content="2024-02-29")
+  inspect(d.modify_with(), content="2000-01-15")
+  @test.assert_raise(() => d.modify_with(month=2, day=30))
+  @test.assert_raise(() => d.modify_with(year=10000))
+}
+
+///|
+test "subtract_years" {
+  let d = date(2000, 2, 29)
+  inspect(d.subtract_years(1L), content="1999-02-28")
+  inspect(d.subtract_years(-1L), content="2001-02-28")
+  inspect(d.subtract_years(0L), content="2000-02-29")
+}
+
+///|
+test "subtract_months" {
+  let d = date(2000, 3, 31)
+  inspect(d.subtract_months(1L), content="2000-02-29")
+  inspect(d.subtract_months(2L), content="2000-01-31")
+  inspect(date(2000, 1, 1).subtract_months(1L), content="1999-12-01")
+  inspect(date(2000, 1, 31).subtract_months(1L), content="1999-12-31")
+}
+
+///|
+test "subtract_weeks" {
+  inspect(date(2000, 1, 15).subtract_weeks(2L), content="2000-01-01")
+  inspect(date(2000, 1, 1).subtract_weeks(1L), content="1999-12-25")
+  inspect(date(2000, 1, 15).subtract_weeks(0L), content="2000-01-15")
+}
+
+///|
+test "subtract_days" {
+  inspect(date(2000, 1, 1).subtract_days(1L), content="1999-12-31")
+  inspect(date(2000, 1, 1).subtract_days(-1L), content="2000-01-02")
+  inspect(date(2000, 1, 1).subtract_days(0L), content="2000-01-01")
+}
+
+///|
+test "subtract_period and since" {
+  let a = date(2000, 1, 1)
+  let b = date(2001, 3, 15)
+  inspect(
+    b.subtract_period(@time.Period::of(years=1, months=2, days=14)),
+    content="2000-01-01",
+  )
+  inspect(a.since(b), content="P-1Y-2M-14D")
+  inspect(b.since(a), content="P1Y2M14D")
+  inspect(a.since(a), content="P0D")
+  inspect(b.since(a) == a.until(b), content="true")
+}
+
+///|
+test "plain_date_hash" {
+  let a = date(2000, 1, 1)
+  let b = date(2000, 1, 1)
+  let c = date(2000, 1, 2)
+  inspect(hash_of(a) == hash_of(b), content="true")
+  inspect(hash_of(a) == hash_of(c), content="false")
+}

@@ -145,6 +145,16 @@ pub impl Compare for PlainDate with fn compare(
 }
 
 ///|
+pub impl Hash for PlainDate with fn hash_combine(
+  self : PlainDate,
+  hasher : Hasher,
+) -> Unit {
+  hasher.combine(self.year)
+  hasher.combine(self.month)
+  hasher.combine(self.day)
+}
+
+///|
 /// Converts a PlainDate to its JSON representation as a string.
 pub impl ToJson for PlainDate with fn to_json(self : PlainDate) -> Json {
   Json::string(self.to_string())
@@ -202,22 +212,23 @@ pub fn PlainDate::day(self : PlainDate) -> Int {
 }
 
 ///|
+/// Returns the calendar month code, e.g. "M01" .. "M12"
+/// useful for calendar-agnostic month comparisons).
+pub fn PlainDate::month_code(self : PlainDate) -> String {
+  "M" + add_prefix_zero(self.month.to_string(), 2)
+}
+
+///|
 /// Returns the weekday.
 pub fn PlainDate::weekday(self : PlainDate) -> Weekday {
-  // Zeller's congruence
-  // https://en.wikipedia.org/wiki/Zeller%27s_congruence
-  let mut y = self.year
-  let mut m = self.month
-  let q = self.day
-  if m < 3 {
-    m += 12
-    y -= 1
-  }
-  let k = y % 100
-  let j = y / 100
-  let h = (q + 13 * (m + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7
-  let week_day = (h + 5) % 7 + 1
-  Weekday::new(week_day).unwrap()
+  Weekday::new(iso_day_of_week(self.year, self.month, self.day)).unwrap()
+}
+
+///|
+/// Returns the ISO 8601 day of the week as an integer
+/// (1 = Monday .. 7 = Sunday),
+pub fn PlainDate::day_of_week(self : PlainDate) -> Int {
+  iso_day_of_week(self.year, self.month, self.day)
 }
 
 ///|
@@ -257,6 +268,70 @@ pub fn PlainDate::months_in_year(_self : PlainDate) -> Int {
 /// Checks if the date is in a leap year.
 pub fn PlainDate::in_leap_year(self : PlainDate) -> Bool {
   check_leap_year(self.year)
+}
+
+///|
+/// Checks if the given calendar year is a leap year, without needing
+/// a PlainDate instance first.
+pub fn PlainDate::is_leap_year(year : Int) -> Bool {
+  check_leap_year(year)
+}
+
+///|
+/// Returns the ISO 8601 week number (1-53) of this date.
+pub fn PlainDate::week_of_year(self : PlainDate) -> Int {
+  let ordinal = self.ordinal()
+  let weekday = self.day_of_week()
+  let week = (ordinal - weekday + 10) / 7
+  if week < 1 {
+    iso_weeks_in_year(self.year - 1)
+  } else if week > iso_weeks_in_year(self.year) {
+    1
+  } else {
+    week
+  }
+}
+
+///|
+/// Returns the ISO 8601 week-numbering year of this date. This can differ
+/// from `year()` for a few days at the start/end of the calendar year.
+pub fn PlainDate::year_of_week(self : PlainDate) -> Int {
+  let ordinal = self.ordinal()
+  let weekday = self.day_of_week()
+  let week = (ordinal - weekday + 10) / 7
+  if week < 1 {
+    self.year - 1
+  } else if week > iso_weeks_in_year(self.year) {
+    self.year + 1
+  } else {
+    self.year
+  }
+}
+
+///|
+/// Returns whether this date falls on the same day as `other`.
+pub fn PlainDate::equals(self : PlainDate, other : PlainDate) -> Bool {
+  Compare::compare(self, other) == 0
+}
+
+///|
+/// Returns whichever of the two dates is earlier (or `a` if they're equal).
+pub fn PlainDate::min(a : PlainDate, b : PlainDate) -> PlainDate {
+  if Compare::compare(a, b) <= 0 {
+    a
+  } else {
+    b
+  }
+}
+
+///|
+/// Returns whichever of the two dates is later (or `a` if they're equal).
+pub fn PlainDate::max(a : PlainDate, b : PlainDate) -> PlainDate {
+  if Compare::compare(a, b) >= 0 {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -323,6 +398,30 @@ pub fn PlainDate::with_ordinal(
 }
 
 ///|
+/// Returns a new date with any of year, month, or day replaced, leaving
+/// unspecified fields unchanged.
+pub fn PlainDate::modify_with(
+  self : PlainDate,
+  year? : Int,
+  month? : Int,
+  day? : Int,
+) -> PlainDate raise Error {
+  let year = match year {
+    Some(y) => y
+    None => self.year
+  }
+  let month = match month {
+    Some(m) => m
+    None => self.month
+  }
+  let day = match day {
+    Some(d) => d
+    None => self.day
+  }
+  PlainDate::of(year, month, day)
+}
+
+///|
 /// Adds specified years to this date, and returns a new date.
 pub fn PlainDate::add_years(
   self : PlainDate,
@@ -338,6 +437,15 @@ pub fn PlainDate::add_years(
   } else {
     fail(invalid_date_err)
   }
+}
+
+///|
+/// Subtracts specified years from this date, and returns a new date.
+pub fn PlainDate::subtract_years(
+  self : PlainDate,
+  years : Int64,
+) -> PlainDate raise Error {
+  self.add_years(-years)
 }
 
 ///|
@@ -365,6 +473,15 @@ pub fn PlainDate::add_months(
 }
 
 ///|
+/// Subtracts specified months from this date, and returns a new date.
+pub fn PlainDate::subtract_months(
+  self : PlainDate,
+  months : Int64,
+) -> PlainDate raise Error {
+  self.add_months(-months)
+}
+
+///|
 /// Adds specified weeks to this date, and returns a new date.
 pub fn PlainDate::add_weeks(
   self : PlainDate,
@@ -375,6 +492,15 @@ pub fn PlainDate::add_weeks(
   }
   let days_to_add = checked_mul_int64(weeks, 7L)
   self.add_days(days_to_add)
+}
+
+///|
+/// Subtracts specified weeks from this date, and returns a new date.
+pub fn PlainDate::subtract_weeks(
+  self : PlainDate,
+  weeks : Int64,
+) -> PlainDate raise Error {
+  self.add_weeks(-weeks)
 }
 
 ///|
@@ -393,6 +519,15 @@ pub fn PlainDate::add_days(
 }
 
 ///|
+/// Subtracts specified days from this date, and returns a new date.
+pub fn PlainDate::subtract_days(
+  self : PlainDate,
+  days : Int64,
+) -> PlainDate raise Error {
+  self.add_days(-days)
+}
+
+///|
 /// Adds a period to this date, and returns a new date.
 pub fn PlainDate::add_period(
   self : PlainDate,
@@ -401,6 +536,15 @@ pub fn PlainDate::add_period(
   let mut d = self
   d = d.add_months(period.to_total_months()).add_days(period.days().to_int64())
   d
+}
+
+///|
+/// Subtracts a period from this date, and returns a new date.
+pub fn PlainDate::subtract_period(
+  self : PlainDate,
+  period : Period,
+) -> PlainDate raise Error {
+  self.add_months(-period.to_total_months()).add_days(-period.days().to_int64())
 }
 
 ///|
@@ -425,6 +569,16 @@ pub fn PlainDate::until(
   let years = (total_months / 12L).to_int()
   let months = (total_months % 12L).to_int()
   Period::of(years~, months~, days~)
+}
+
+///|
+/// Returns the period since another date, i.e. the period `p` such that
+/// `other.add_period(p) == self`. Equivalent to `other.until(self)`;
+pub fn PlainDate::since(
+  self : PlainDate,
+  other : PlainDate,
+) -> Period raise Error {
+  other.until(self)
 }
 
 // *****************************
@@ -493,6 +647,41 @@ fn calc_days_in_year(year : Int) -> Int {
     366
   } else {
     365
+  }
+}
+
+///|
+/// Computes the ISO 8601 day of the week (1 = Monday .. 7 = Sunday) for a
+/// given calendar date, via Zeller's congruence. Shared by `weekday()` and
+/// `day_of_week()` so both stay in sync.
+fn iso_day_of_week(year : Int, month : Int, day : Int) -> Int {
+  let mut y = year
+  let mut m = month
+  let q = day
+  if m < 3 {
+    m += 12
+    y -= 1
+  }
+  let k = y % 100
+  let j = y / 100
+  let h = (q + 13 * (m + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7
+  (h + 5) % 7 + 1
+}
+
+///|
+/// Corresponds to Richards' algorithm term used to determine how many ISO
+/// weeks a given year has.
+fn iso_week_p(year : Int) -> Int {
+  (year + year / 4 - year / 100 + year / 400) % 7
+}
+
+///|
+/// Returns 52 or 53: the number of ISO 8601 weeks in the given year.
+fn iso_weeks_in_year(year : Int) -> Int {
+  if iso_week_p(year) == 4 || iso_week_p(year - 1) == 3 {
+    53
+  } else {
+    52
   }
 }
 

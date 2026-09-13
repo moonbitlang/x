@@ -201,3 +201,138 @@ test "period from_str" {
     content="P-10Y-2M-3D",
   )
 }
+
+///|
+test "from_years" {
+  inspect(@time.Period::from_years(0), content="P0D")
+  inspect(@time.Period::from_years(1), content="P1Y")
+  inspect(@time.Period::from_years(-1), content="P-1Y")
+}
+
+///|
+test "from_months" {
+  inspect(@time.Period::from_months(0), content="P0D")
+  inspect(@time.Period::from_months(13), content="P13M")
+  inspect(@time.Period::from_months(-13), content="P-13M")
+}
+
+///|
+test "from_weeks" {
+  inspect(@time.Period::from_weeks(0), content="P0D")
+  inspect(@time.Period::from_weeks(2), content="P14D")
+  inspect(@time.Period::from_weeks(-1), content="P-7D")
+  @test.assert_raise(() => @time.Period::from_weeks(@int.MAX_VALUE))
+}
+
+///|
+test "from_days" {
+  inspect(@time.Period::from_days(0), content="P0D")
+  inspect(@time.Period::from_days(3), content="P3D")
+  inspect(@time.Period::from_days(-3), content="P-3D")
+}
+
+///|
+test "subtract_years" {
+  let p = @time.Period::of(years=2)
+  inspect(p.subtract_years(1), content="P1Y")
+  inspect(p.subtract_years(2), content="P0D")
+  inspect(p.subtract_years(3), content="P-1Y")
+  inspect(p.subtract_years(-1), content="P3Y")
+}
+
+///|
+test "subtract_months" {
+  let p = @time.Period::of(years=1, months=2)
+  inspect(p.subtract_months(2), content="P1Y")
+  inspect(p.subtract_months(3), content="P1Y-1M")
+  inspect(p.subtract_months(14), content="P1Y-12M")
+  inspect(p.subtract_months(15).normalized(), content="P-1M")
+  inspect(p.subtract_months(0), content="P1Y2M")
+}
+
+///|
+test "subtract_weeks" {
+  let p = @time.Period::of(days=14)
+  inspect(p.subtract_weeks(1), content="P7D")
+  inspect(p.subtract_weeks(2), content="P0D")
+  inspect(p.subtract_weeks(3), content="P-7D")
+}
+
+///|
+test "subtract_days" {
+  let p = @time.Period::of(months=1, days=10)
+  inspect(p.subtract_days(3), content="P1M7D")
+  inspect(p.subtract_days(10), content="P1M")
+  inspect(p.subtract_days(11), content="P1M-1D")
+}
+
+///|
+test "subtract_period and op_sub" {
+  let p = @time.Period::of(years=1, months=2, days=3)
+  inspect(p.subtract_period(@time.Period::of(months=1)), content="P1Y1M3D")
+  inspect(p.op_sub(@time.Period::of(months=1, days=4)), content="P1Y1M-1D")
+  inspect(p.subtract_period(@time.Period::zero()), content="P1Y2M3D")
+}
+
+///|
+test "abs" {
+  inspect(@time.Period::zero().abs(), content="P0D")
+  inspect(@time.Period::of(years=1, months=2, days=3).abs(), content="P1Y2M3D")
+  inspect(
+    @time.Period::of(years=-1, months=-2, days=-3).abs(),
+    content="P1Y2M3D",
+  )
+  inspect(@time.Period::of(days=-1).abs(), content="P1D")
+}
+
+///|
+test "is_positive" {
+  inspect(@time.Period::zero().is_positive(), content="false")
+  inspect(@time.Period::of(years=1).is_positive(), content="true")
+  inspect(@time.Period::of(months=1).is_positive(), content="true")
+  inspect(@time.Period::of(days=1).is_positive(), content="true")
+  inspect(@time.Period::of(years=-1).is_positive(), content="false")
+  inspect(@time.Period::of(days=-1).is_positive(), content="false")
+}
+
+///|
+test "normalized" {
+  inspect(@time.Period::from_months(13).normalized(), content="P1Y1M")
+  inspect(@time.Period::from_months(12).normalized(), content="P1Y")
+  inspect(@time.Period::from_months(11).normalized(), content="P11M")
+  inspect(@time.Period::from_months(-13).normalized(), content="P-1Y-1M")
+  inspect(@time.Period::from_months(-12).normalized(), content="P-1Y")
+  inspect(@time.Period::of(years=1, months=12).normalized(), content="P2Y")
+  // Days are preserved: they cannot be folded into months without a
+  // reference date.
+  inspect(
+    @time.Period::of(years=1, months=13, days=5).normalized(),
+    content="P2Y1M5D",
+  )
+  // Already-normalized periods are unchanged.
+  let p = @time.Period::of(years=2, months=3, days=4)
+  inspect(p.normalized() == p, content="true")
+}
+
+///|
+test "eq compare and hash" {
+  let a = @time.Period::of(years=1, months=2, days=3)
+  let b = @time.Period::of(years=1, months=2, days=3)
+  let c = @time.Period::of(years=1, months=2, days=4)
+  inspect(a == b, content="true")
+  inspect(a == c, content="false")
+  inspect(a < c, content="true")
+  inspect(Compare::compare(a, b), content="0")
+  inspect(hash_of(a) == hash_of(b), content="true")
+  // Structurally different periods are not equal, even when they would
+  // resolve to the same length against a particular calendar.
+  inspect(
+    @time.Period::of(years=1) == @time.Period::from_months(12),
+    content="false",
+  )
+  inspect(
+    @time.Period::of(years=1).normalized() ==
+    @time.Period::from_months(12).normalized(),
+    content="true",
+  )
+}

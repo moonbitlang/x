@@ -551,8 +551,369 @@ pub fn ZonedDateTime::with_nanosecond(
 }
 
 ///|
+/// Returns the calendar month code, e.g. "M01" .. "M12", of this datetime.
+pub fn ZonedDateTime::month_code(self : ZonedDateTime) -> String {
+  self.datetime.month_code()
+}
+
+///|
+/// Returns the ISO 8601 day of the week as an integer
+/// (1 = Monday .. 7 = Sunday) of this datetime.
+pub fn ZonedDateTime::day_of_week(self : ZonedDateTime) -> Int {
+  self.datetime.day_of_week()
+}
+
+///|
+/// Returns the ISO 8601 week number (1-53) of this datetime.
+pub fn ZonedDateTime::week_of_year(self : ZonedDateTime) -> Int {
+  self.datetime.week_of_year()
+}
+
+///|
+/// Returns the ISO 8601 week-numbering year of this datetime.
+pub fn ZonedDateTime::year_of_week(self : ZonedDateTime) -> Int {
+  self.datetime.year_of_week()
+}
+
+///|
+/// Returns the millisecond-of-second component (0-999) of this datetime.
+pub fn ZonedDateTime::millisecond(self : ZonedDateTime) -> Int {
+  self.datetime.millisecond()
+}
+
+///|
+/// Returns the microsecond-of-second component (0-999) of this datetime.
+pub fn ZonedDateTime::microsecond(self : ZonedDateTime) -> Int {
+  self.datetime.microsecond()
+}
+
+///|
+/// Returns whether this datetime denotes the same instant as `other`.
+/// Equivalent to `self == other`.
+pub fn ZonedDateTime::equals(
+  self : ZonedDateTime,
+  other : ZonedDateTime,
+) -> Bool {
+  Compare::compare(self, other) == 0
+}
+
+///|
+/// Returns whichever of the two datetimes denotes the earlier instant (or
+/// `a` if they're equal).
+pub fn ZonedDateTime::min(
+  a : ZonedDateTime,
+  b : ZonedDateTime,
+) -> ZonedDateTime {
+  if Compare::compare(a, b) <= 0 {
+    a
+  } else {
+    b
+  }
+}
+
+///|
+/// Returns whichever of the two datetimes denotes the later instant (or
+/// `a` if they're equal).
+pub fn ZonedDateTime::max(
+  a : ZonedDateTime,
+  b : ZonedDateTime,
+) -> ZonedDateTime {
+  if Compare::compare(a, b) >= 0 {
+    a
+  } else {
+    b
+  }
+}
+
+///|
+/// Subtracts specified years from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_years(
+  self : ZonedDateTime,
+  years : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_years(years), self.zone)
+}
+
+///|
+/// Subtracts specified months from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_months(
+  self : ZonedDateTime,
+  months : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_months(months), self.zone)
+}
+
+///|
+/// Subtracts specified weeks from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_weeks(
+  self : ZonedDateTime,
+  weeks : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_weeks(weeks), self.zone)
+}
+
+///|
+/// Subtracts specified days from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_days(
+  self : ZonedDateTime,
+  days : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_days(days), self.zone)
+}
+
+///|
+/// Subtracts specified hours from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_hours(
+  self : ZonedDateTime,
+  hours : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_hours(hours), self.zone)
+}
+
+///|
+/// Subtracts specified minutes from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_minutes(
+  self : ZonedDateTime,
+  minutes : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_minutes(minutes), self.zone)
+}
+
+///|
+/// Subtracts specified seconds from this datetime, and returns a new datetime.
+pub fn ZonedDateTime::subtract_seconds(
+  self : ZonedDateTime,
+  seconds : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_seconds(seconds), self.zone)
+}
+
+///|
+/// Subtracts specified nanoseconds from this datetime, and returns a new
+/// datetime.
+pub fn ZonedDateTime::subtract_nanoseconds(
+  self : ZonedDateTime,
+  nanoseconds : Int64,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_nanoseconds(nanoseconds), self.zone)
+}
+
+///|
+/// Adds a period of date to this datetime, and returns a new datetime.
+/// Since the period is applied to the local (wall-clock) date, the offset
+/// is re-resolved for the zone afterwards — this can change the offset
+/// (and therefore the instant) if the result lands on the other side of a
+/// DST transition.
+pub fn ZonedDateTime::add_period(
+  self : ZonedDateTime,
+  period : Period,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.add_period(period), self.zone)
+}
+
+///|
+/// Subtracts a period of date from this datetime, and returns a new
+/// datetime. See `add_period` regarding offset re-resolution.
+pub fn ZonedDateTime::subtract_period(
+  self : ZonedDateTime,
+  period : Period,
+) -> ZonedDateTime raise Error {
+  create_from_plain(self.datetime.subtract_period(period), self.zone)
+}
+
+///|
+/// Adds an exact-length duration to this datetime, and returns a new
+/// datetime. Unlike `add_period`, this advances the actual instant by the
+/// duration's length; the resulting local time and offset are then
+/// derived from that instant.
+pub fn ZonedDateTime::add_duration(
+  self : ZonedDateTime,
+  duration : Duration,
+) -> ZonedDateTime raise Error {
+  if duration.is_zero() {
+    return self
+  }
+  self.shift_instant(duration.seconds(), duration.nanoseconds().to_int64())
+}
+
+///|
+/// Subtracts an exact-length duration from this datetime, and returns a
+/// new datetime.
+pub fn ZonedDateTime::subtract_duration(
+  self : ZonedDateTime,
+  duration : Duration,
+) -> ZonedDateTime raise Error {
+  if duration.is_zero() {
+    return self
+  }
+  self.shift_instant(
+    checked_mul_int64(duration.seconds(), -1L),
+    -duration.nanoseconds().to_int64(),
+  )
+}
+
+///|
+/// Adds a period-duration to this datetime: the period is applied to the
+/// local date first, then the duration advances the instant, matching
+/// `PlainDateTime::add_period_duration`.
+pub fn ZonedDateTime::add_period_duration(
+  self : ZonedDateTime,
+  period_duration : PeriodDuration,
+) -> ZonedDateTime raise Error {
+  if period_duration.is_zero() {
+    return self
+  }
+  self
+  .add_period(period_duration.period())
+  .add_duration(period_duration.duration())
+}
+
+///|
+/// Subtracts a period-duration from this datetime — the duration first,
+/// then the period — inverting `add_period_duration`.
+pub fn ZonedDateTime::subtract_period_duration(
+  self : ZonedDateTime,
+  period_duration : PeriodDuration,
+) -> ZonedDateTime raise Error {
+  if period_duration.is_zero() {
+    return self
+  }
+  self
+  .subtract_duration(period_duration.duration())
+  .subtract_period(period_duration.period())
+}
+
+///|
+/// Returns a new datetime with any of year, month, day, hour, minute,
+/// second, or nanosecond replaced, leaving unspecified fields (and the
+/// zone) unchanged. The offset is re-resolved for the new local time.
+pub fn ZonedDateTime::modify_with(
+  self : ZonedDateTime,
+  year? : Int,
+  month? : Int,
+  day? : Int,
+  hour? : Int,
+  minute? : Int,
+  second? : Int,
+  nanosecond? : Int,
+) -> ZonedDateTime raise Error {
+  let datetime = self.datetime.modify_with(
+    year?,
+    month?,
+    day?,
+    hour?,
+    minute?,
+    second?,
+    nanosecond?,
+  )
+  create_from_plain(datetime, self.zone)
+}
+
+///|
+/// Returns a new datetime representing the *same instant* viewed in a
+/// different time zone — the wall-clock fields and offset change, the
+/// instant does not. This was entirely absent before: there was no way to
+/// re-view an already-constructed `ZonedDateTime` through another zone.
+pub fn ZonedDateTime::with_zone(
+  self : ZonedDateTime,
+  zone : Zone,
+) -> ZonedDateTime raise Error {
+  ZonedDateTime::from_unix_second(
+    self.to_unix_second(),
+    nanosecond=self.nanosecond(),
+    zone~,
+  )
+}
+
+///|
+/// Returns a new datetime representing the same instant in UTC.
+/// Equivalent to `self.with_zone(utc_zone)`.
+pub fn ZonedDateTime::to_utc(self : ZonedDateTime) -> ZonedDateTime raise Error {
+  self.with_zone(utc_zone)
+}
+
+///|
+/// Returns the exact elapsed duration between this datetime and another,
+/// computed from the instants each denotes (via `to_unix_second`) rather
+/// than from the local wall-clock fields — so two datetimes in different
+/// zones are compared correctly.
+pub fn ZonedDateTime::until(
+  self : ZonedDateTime,
+  end : ZonedDateTime,
+) -> Duration raise Error {
+  let seconds = end.to_unix_second() - self.to_unix_second()
+  let nanoseconds = (end.nanosecond() - self.nanosecond()).to_int64()
+  Duration::of(seconds~, nanoseconds~)
+}
+
+///|
+/// Returns the exact elapsed duration since another datetime.
+pub fn ZonedDateTime::since(
+  self : ZonedDateTime,
+  other : ZonedDateTime,
+) -> Duration raise Error {
+  other.until(self)
+}
+
+///|
+/// Shifts this datetime's instant by whole seconds plus a nanosecond
+/// offset that may be out of range, normalizing the two before converting
+/// back into a local datetime. Without the normalization, a duration that
+/// makes the nanosecond-of-second carry (or borrow) across a second
+/// boundary would be rejected as an invalid datetime.
+fn ZonedDateTime::shift_instant(
+  self : ZonedDateTime,
+  seconds : Int64,
+  nanoseconds : Int64,
+) -> ZonedDateTime raise Error {
+  let mut total_seconds = checked_add_int64(self.to_unix_second(), seconds)
+  let mut nanos = self.nanosecond().to_int64() + nanoseconds
+  total_seconds = checked_add_int64(
+    total_seconds,
+    nanos / nanoseconds_per_second,
+  )
+  nanos = nanos % nanoseconds_per_second
+  if nanos < 0L {
+    total_seconds = checked_add_int64(total_seconds, -1L)
+    nanos += nanoseconds_per_second
+  }
+  ZonedDateTime::from_unix_second(
+    total_seconds,
+    nanosecond=nanos.to_int(),
+    zone=self.zone,
+  )
+}
+
+///|
+/// Resolves the offset for a local (wall-clock) datetime in a zone.
+///
+/// A zone's offset can itself vary by instant (DST), but only the local
+/// time is known up front — so the true instant isn't known until the
+/// offset is, and the offset isn't known until the instant is. This
+/// iterates: treat the local time as a first-guess instant to look up an
+/// offset, use that offset to compute a real candidate instant, then
+/// re-check the offset at that instant, repeating until it stops
+/// changing. This converges in at most a couple of iterations for any
+/// zone whose offset doesn't change by more than it changes in total
+/// (true of every real-world zone).
+///
+/// The previous implementation took exactly one such guess and never
+/// rechecked it, so any datetime within one offset-change's distance of a
+/// DST transition could resolve to the wrong offset (and therefore the
+/// wrong instant). This does not add real IANA/tzdata transition tables —
+/// it only fixes how an offset is resolved once `zone.lookup_offset` can
+/// answer that question correctly.
 fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
-  let offset = zone.lookup_offset(datetime.to_unix_second())
+  let local_secs = datetime.to_unix_second()
+  let mut offset = zone.lookup_offset(local_secs)
+  for i = 0; i < 3; i = i + 1 {
+    let candidate_instant = local_secs - offset.seconds().to_int64()
+    let next_offset = zone.lookup_offset(candidate_instant)
+    if next_offset == offset {
+      break
+    }
+    offset = next_offset
+  }
   { datetime, zone, offset, }
 }
 

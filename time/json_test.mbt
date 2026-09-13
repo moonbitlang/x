@@ -201,3 +201,49 @@ test "ZonedDateTime nanosecond json roundtrip preserves fields" {
   inspect(expected.to_string(), content=actual.to_string())
   assert_eq(actual, expected)
 }
+
+///|
+test "PeriodDuration roundtrip" {
+  let actual = @time.PeriodDuration::of(
+    period=@time.Period::of(years=1, months=2, days=3),
+    duration=@time.Duration::of(hours=4L, minutes=5L, seconds=6L),
+  )
+  let json = ToJson::to_json(actual)
+  debug_inspect(json, content="String(\"P1Y2M3DT4H5M6S\")")
+  let expected : @time.PeriodDuration = @json.from_json(json)
+  assert_eq(actual, expected)
+  inspect(expected.period(), content="P1Y2M3D")
+  inspect(expected.duration(), content="PT4H5M6S")
+  // Sub-second and negative lengths survive the round trip too.
+  let fractional = @time.PeriodDuration::of(
+    duration=@time.Duration::of(nanoseconds=-1L),
+  )
+  let back : @time.PeriodDuration = @json.from_json(ToJson::to_json(fractional))
+  assert_eq(fractional, back)
+  inspect(back, content="PT-0.000000001S")
+}
+
+///|
+test "PeriodDuration json errors" {
+  expect_json_error(
+    Json::number(1),
+    "PeriodDuration: expected string Number(1)",
+    json => {
+      let _ : @time.PeriodDuration = @json.from_json(json)
+    },
+  )
+  expect_json_error(
+    Json::string("nope"),
+    "PeriodDuration: Invalid ISO8601 string nope",
+    json => {
+      let _ : @time.PeriodDuration = @json.from_json(json)
+    },
+  )
+  expect_json_error(
+    Json::string(""),
+    "PeriodDuration: Invalid ISO8601 string ",
+    json => {
+      let _ : @time.PeriodDuration = @json.from_json(json)
+    },
+  )
+}

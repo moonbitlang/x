@@ -17,7 +17,7 @@
 struct PlainDateTime {
   date : PlainDate
   time : PlainTime
-} derive(Debug, ToJson, FromJson)
+} derive(Debug, ToJson, FromJson, Hash)
 
 ///|
 /// Creates a PlainDateTime from the year, month, day, hour, minute, second and nanosecond.
@@ -164,15 +164,40 @@ pub fn PlainDateTime::day(self : PlainDateTime) -> Int {
 }
 
 ///|
+/// Returns the calendar month code, e.g. "M01" .. "M12", of this datetime.
+pub fn PlainDateTime::month_code(self : PlainDateTime) -> String {
+  self.date.month_code()
+}
+
+///|
 /// Returns the weekday of this datetime.
 pub fn PlainDateTime::weekday(self : PlainDateTime) -> Weekday {
   self.date.weekday()
 }
 
 ///|
+/// Returns the ISO 8601 day of the week as an integer
+/// (1 = Monday .. 7 = Sunday) of this datetime.
+pub fn PlainDateTime::day_of_week(self : PlainDateTime) -> Int {
+  self.date.day_of_week()
+}
+
+///|
 /// Returns the ordinal day of year of this datetime.
 pub fn PlainDateTime::ordinal(self : PlainDateTime) -> Int {
   self.date.ordinal()
+}
+
+///|
+/// Returns the ISO 8601 week number (1-53) of this datetime.
+pub fn PlainDateTime::week_of_year(self : PlainDateTime) -> Int {
+  self.date.week_of_year()
+}
+
+///|
+/// Returns the ISO 8601 week-numbering year of this datetime.
+pub fn PlainDateTime::year_of_week(self : PlainDateTime) -> Int {
+  self.date.year_of_week()
 }
 
 ///|
@@ -224,9 +249,56 @@ pub fn PlainDateTime::second(self : PlainDateTime) -> Int {
 }
 
 ///|
-/// Returns the nanosecond of this datetime.
+/// Returns the nanosecond-of-second of this datetime.
 pub fn PlainDateTime::nanosecond(self : PlainDateTime) -> Int {
   self.time.nanosecond()
+}
+
+///|
+/// Returns the millisecond-of-second component (0-999) of this datetime.
+pub fn PlainDateTime::millisecond(self : PlainDateTime) -> Int {
+  self.time.millisecond()
+}
+
+///|
+/// Returns the microsecond-of-second component (0-999) of this datetime.
+pub fn PlainDateTime::microsecond(self : PlainDateTime) -> Int {
+  self.time.microsecond()
+}
+
+///|
+/// Returns whether this datetime is the same as `other`. 
+pub fn PlainDateTime::equals(
+  self : PlainDateTime,
+  other : PlainDateTime,
+) -> Bool {
+  Compare::compare(self, other) == 0
+}
+
+///|
+/// Returns whichever of the two datetimes is earlier (or `a` if equal).
+pub fn PlainDateTime::min(
+  a : PlainDateTime,
+  b : PlainDateTime,
+) -> PlainDateTime {
+  if Compare::compare(a, b) <= 0 {
+    a
+  } else {
+    b
+  }
+}
+
+///|
+/// Returns whichever of the two datetimes is later (or `a` if equal).
+pub fn PlainDateTime::max(
+  a : PlainDateTime,
+  b : PlainDateTime,
+) -> PlainDateTime {
+  if Compare::compare(a, b) >= 0 {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -239,12 +311,30 @@ pub fn PlainDateTime::add_years(
 }
 
 ///|
+/// Subtracts specified years from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_years(
+  self : PlainDateTime,
+  years : Int64,
+) -> PlainDateTime raise Error {
+  { ..self, date: self.date.subtract_years(years), }
+}
+
+///|
 /// Adds specified months to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_months(
   self : PlainDateTime,
   months : Int64,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_months(months), }
+}
+
+///|
+/// Subtracts specified months from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_months(
+  self : PlainDateTime,
+  months : Int64,
+) -> PlainDateTime raise Error {
+  { ..self, date: self.date.subtract_months(months), }
 }
 
 ///|
@@ -257,6 +347,15 @@ pub fn PlainDateTime::add_weeks(
 }
 
 ///|
+/// Subtracts specified weeks from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_weeks(
+  self : PlainDateTime,
+  weeks : Int64,
+) -> PlainDateTime raise Error {
+  { ..self, date: self.date.subtract_weeks(weeks), }
+}
+
+///|
 /// Adds specified days to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_days(
   self : PlainDateTime,
@@ -266,12 +365,30 @@ pub fn PlainDateTime::add_days(
 }
 
 ///|
+/// Subtracts specified days from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_days(
+  self : PlainDateTime,
+  days : Int64,
+) -> PlainDateTime raise Error {
+  { ..self, date: self.date.subtract_days(days), }
+}
+
+///|
 /// Adds a period of date to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_period(
   self : PlainDateTime,
   period : Period,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.add_period(period), }
+}
+
+///|
+/// Subtracts a period of date from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_period(
+  self : PlainDateTime,
+  period : Period,
+) -> PlainDateTime raise Error {
+  { ..self, date: self.date.subtract_period(period), }
 }
 
 ///|
@@ -287,6 +404,18 @@ pub fn PlainDateTime::add_hours(
 }
 
 ///|
+/// Subtracts specified hours from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_hours(
+  self : PlainDateTime,
+  hours : Int64,
+) -> PlainDateTime raise Error {
+  if hours == 0L {
+    return self
+  }
+  self.overflowing_add(h=-hours)
+}
+
+///|
 /// Adds specified minutes to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_minutes(
   self : PlainDateTime,
@@ -296,6 +425,18 @@ pub fn PlainDateTime::add_minutes(
     return self
   }
   self.overflowing_add(m=minutes)
+}
+
+///|
+/// Subtracts specified minutes from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_minutes(
+  self : PlainDateTime,
+  minutes : Int64,
+) -> PlainDateTime raise Error {
+  if minutes == 0L {
+    return self
+  }
+  self.overflowing_add(m=-minutes)
 }
 
 ///|
@@ -311,6 +452,18 @@ pub fn PlainDateTime::add_seconds(
 }
 
 ///|
+/// Subtracts specified seconds from this datetime, and returns a new datetime.
+pub fn PlainDateTime::subtract_seconds(
+  self : PlainDateTime,
+  seconds : Int64,
+) -> PlainDateTime raise Error {
+  if seconds == 0L {
+    return self
+  }
+  self.overflowing_add(s=-seconds)
+}
+
+///|
 /// Adds specified nanoseconds to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_nanoseconds(
   self : PlainDateTime,
@@ -323,6 +476,19 @@ pub fn PlainDateTime::add_nanoseconds(
 }
 
 ///|
+/// Subtracts specified nanoseconds from this datetime, and returns a new
+/// datetime.
+pub fn PlainDateTime::subtract_nanoseconds(
+  self : PlainDateTime,
+  nanoseconds : Int64,
+) -> PlainDateTime raise Error {
+  if nanoseconds == 0L {
+    return self
+  }
+  self.overflowing_add(ns=-nanoseconds)
+}
+
+///|
 /// Adds a duration of time to this datetime, and returns a new datetime.
 pub fn PlainDateTime::add_duration(
   self : PlainDateTime,
@@ -332,6 +498,58 @@ pub fn PlainDateTime::add_duration(
     return self
   }
   self.overflowing_add(s=duration.secs, ns=duration.nanos.to_int64())
+}
+
+///|
+/// Subtracts a duration of time from this datetime, and returns a new
+/// datetime.
+pub fn PlainDateTime::subtract_duration(
+  self : PlainDateTime,
+  duration : Duration,
+) -> PlainDateTime raise Error {
+  if duration.is_zero() {
+    return self
+  }
+  self.overflowing_add(s=-duration.secs, ns=-duration.nanos.to_int64())
+}
+
+///|
+/// Adds a period-duration to this datetime: the period is applied to the
+/// date part first, then the duration is applied on top (with overflow
+/// carried across day boundaries). This order matches the period-before-
+/// time convention `PeriodDuration` itself uses in its ISO string form
+/// (`P1Y2M3DT4H5M6S`).
+///
+/// Note that period and duration application don't always commute — e.g.
+/// near end-of-month, adding the period first vs. the duration first can
+/// land on a different date if both operations overflow. This method
+/// always applies period, then duration.
+pub fn PlainDateTime::add_period_duration(
+  self : PlainDateTime,
+  period_duration : PeriodDuration,
+) -> PlainDateTime raise Error {
+  if period_duration.is_zero() {
+    return self
+  }
+  self
+  .add_period(period_duration.period())
+  .add_duration(period_duration.duration())
+}
+
+///|
+/// Subtracts a period-duration from this datetime. To exactly invert
+/// `add_period_duration`, this subtracts the duration first and then the
+/// period — the reverse order of how `add_period_duration` applies them.
+pub fn PlainDateTime::subtract_period_duration(
+  self : PlainDateTime,
+  period_duration : PeriodDuration,
+) -> PlainDateTime raise Error {
+  if period_duration.is_zero() {
+    return self
+  }
+  self
+  .subtract_duration(period_duration.duration())
+  .subtract_period(period_duration.period())
 }
 
 ///|
@@ -404,6 +622,47 @@ pub fn PlainDateTime::with_nanosecond(
   nanosecond : Int,
 ) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_nanosecond(nanosecond), }
+}
+
+///|
+/// Returns a new datetime with any of year, month, day, hour, minute,
+/// second, or nanosecond replaced, leaving unspecified fields unchanged.
+pub fn PlainDateTime::modify_with(
+  self : PlainDateTime,
+  year? : Int,
+  month? : Int,
+  day? : Int,
+  hour? : Int,
+  minute? : Int,
+  second? : Int,
+  nanosecond? : Int,
+) -> PlainDateTime raise Error {
+  let date = self.date.modify_with(year?, month?, day?)
+  let time = self.time.modify_with(hour?, minute?, second?, nanosecond?)
+  { date, time, }
+}
+
+///|
+/// Returns the exact elapsed duration between this datetime and another,
+/// spanning any number of days.
+pub fn PlainDateTime::until(
+  self : PlainDateTime,
+  end : PlainDateTime,
+) -> Duration raise Error {
+  let day_diff = end.date.to_unix_day() - self.date.to_unix_day()
+  let nanos_diff = end.time.nanosecond_of_day() - self.time.nanosecond_of_day()
+  // Fold the day difference into whole seconds first: multiplying the day
+  // difference by `nanoseconds_per_day` overflows Int64 after ~292 years.
+  Duration::of(seconds=day_diff * seconds_per_day, nanoseconds=nanos_diff)
+}
+
+///|
+/// Returns the exact elapsed duration since another datetime.
+pub fn PlainDateTime::since(
+  self : PlainDateTime,
+  other : PlainDateTime,
+) -> Duration raise Error {
+  other.until(self)
 }
 
 ///|

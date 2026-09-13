@@ -35,3 +35,6 @@ let invalid_offset_err = "Invalid offset"
 
 ///|
 let invalid_zone_err = "Invalid zone"
+
+///|
+let invalid_period_duration_err = "Invalid period duration"

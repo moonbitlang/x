@@ -588,3 +588,249 @@ test "parse_str negative year roundtrip" {
     content="-9999-12-31T23:59:59Z",
   )
 }
+
+///|
+test "month_code, day_of_week, week_of_year and year_of_week" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(2021, 1, 1, hour=1, zone~)
+  inspect(zdt.month_code(), content="M01")
+  inspect(zdt.day_of_week(), content="5")
+  inspect(zdt.week_of_year(), content="53")
+  inspect(zdt.year_of_week(), content="2020")
+  inspect(@time.ZonedDateTime::of(2000, 12, 31).month_code(), content="M12")
+  inspect(@time.ZonedDateTime::of(2024, 1, 1).day_of_week(), content="1")
+  inspect(@time.ZonedDateTime::of(2024, 1, 1).weekday(), content="Monday")
+}
+
+///|
+test "millisecond and microsecond" {
+  let zdt = @time.ZonedDateTime::of(2000, 1, 1, nanosecond=123_456_789)
+  inspect(zdt.nanosecond(), content="123456789")
+  inspect(zdt.millisecond(), content="123")
+  inspect(zdt.microsecond(), content="456")
+  inspect(@time.ZonedDateTime::of(2000, 1, 1).millisecond(), content="0")
+}
+
+///|
+test "equals, min and max" {
+  let a = @time.ZonedDateTime::of(2000, 1, 1)
+  let b = @time.ZonedDateTime::of(2000, 1, 1, hour=1)
+  inspect(a.equals(a), content="true")
+  inspect(a.equals(b), content="false")
+  inspect(@time.ZonedDateTime::min(a, b), content="2000-01-01T00:00:00Z")
+  inspect(@time.ZonedDateTime::min(b, a), content="2000-01-01T00:00:00Z")
+  inspect(@time.ZonedDateTime::max(a, b), content="2000-01-01T01:00:00Z")
+  // The same instant in different zones is equal.
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let same_instant = @time.ZonedDateTime::of(2000, 1, 1, hour=8, zone~)
+  inspect(a.equals(same_instant), content="true")
+  inspect(a == same_instant, content="true")
+}
+
+///|
+test "subtract_years, months, weeks and days" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(
+    2000,
+    3,
+    31,
+    hour=1,
+    minute=2,
+    second=3,
+    zone~,
+  )
+  inspect(
+    zdt.subtract_years(1L),
+    content="1999-03-31T01:02:03+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_months(1L),
+    content="2000-02-29T01:02:03+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_weeks(1L),
+    content="2000-03-24T01:02:03+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_days(1L),
+    content="2000-03-30T01:02:03+08:00[Asia/Shanghai]",
+  )
+}
+
+///|
+test "subtract_hours, minutes, seconds and nanoseconds" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(2000, 1, 1, zone~)
+  inspect(
+    zdt.subtract_hours(1L),
+    content="1999-12-31T23:00:00+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_minutes(1L),
+    content="1999-12-31T23:59:00+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_seconds(1L),
+    content="1999-12-31T23:59:59+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_nanoseconds(1L),
+    content="1999-12-31T23:59:59.999999999+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.subtract_hours(0L),
+    content="2000-01-01T00:00:00+08:00[Asia/Shanghai]",
+  )
+}
+
+///|
+test "add_period and subtract_period" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(2000, 1, 31, zone~)
+  inspect(
+    zdt.add_period(@time.Period::of(months=1)),
+    content="2000-02-29T00:00:00+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.add_period(@time.Period::zero()),
+    content="2000-01-31T00:00:00+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    @time.ZonedDateTime::of(2000, 3, 15, zone~).subtract_period(
+      @time.Period::of(months=1),
+    ),
+    content="2000-02-15T00:00:00+08:00[Asia/Shanghai]",
+  )
+}
+
+///|
+test "add_duration and subtract_duration" {
+  let zdt = @time.ZonedDateTime::of(2000, 1, 1)
+  inspect(
+    zdt.add_duration(@time.Duration::of(hours=1L)),
+    content="2000-01-01T01:00:00Z",
+  )
+  inspect(
+    zdt.subtract_duration(@time.Duration::of(hours=1L)),
+    content="1999-12-31T23:00:00Z",
+  )
+  inspect(
+    zdt.add_duration(@time.Duration::zero()),
+    content="2000-01-01T00:00:00Z",
+  )
+  // Nanoseconds carry across the second boundary.
+  let half = @time.ZonedDateTime::of(2000, 1, 1, nanosecond=500_000_000)
+  inspect(
+    half.add_duration(@time.Duration::of(nanoseconds=600_000_000L)),
+    content="2000-01-01T00:00:01.1Z",
+  )
+  // ...and borrow from it.
+  inspect(
+    zdt.subtract_duration(@time.Duration::of(nanoseconds=1L)),
+    content="1999-12-31T23:59:59.999999999Z",
+  )
+  inspect(
+    half.subtract_duration(@time.Duration::of(nanoseconds=600_000_000L)),
+    content="1999-12-31T23:59:59.9Z",
+  )
+}
+
+///|
+test "add_period_duration and subtract_period_duration" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let start = @time.ZonedDateTime::of(2000, 1, 31, zone~)
+  let pd = @time.PeriodDuration::of(
+    period=@time.Period::of(months=1),
+    duration=@time.Duration::of(hours=1L),
+  )
+  inspect(
+    start.add_period_duration(pd),
+    content="2000-02-29T01:00:00+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    start.add_period_duration(@time.PeriodDuration::zero()),
+    content="2000-01-31T00:00:00+08:00[Asia/Shanghai]",
+  )
+  let later = @time.ZonedDateTime::of(2000, 1, 15, hour=10, zone~)
+  let result = later.add_period_duration(pd)
+  inspect(result, content="2000-02-15T11:00:00+08:00[Asia/Shanghai]")
+  inspect(
+    result.subtract_period_duration(pd),
+    content="2000-01-15T10:00:00+08:00[Asia/Shanghai]",
+  )
+}
+
+///|
+test "modify_with" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(
+    2000,
+    1,
+    1,
+    hour=1,
+    minute=2,
+    second=3,
+    zone~,
+  )
+  inspect(
+    zdt.modify_with(year=2024),
+    content="2024-01-01T01:02:03+08:00[Asia/Shanghai]",
+  )
+  inspect(
+    zdt.modify_with(hour=12),
+    content="2000-01-01T12:02:03+08:00[Asia/Shanghai]",
+  )
+  inspect(zdt.modify_with(), content="2000-01-01T01:02:03+08:00[Asia/Shanghai]")
+  @test.assert_raise(() => zdt.modify_with(day=32))
+}
+
+///|
+test "with_zone and to_utc" {
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let zdt = @time.ZonedDateTime::of(
+    2000,
+    1,
+    1,
+    hour=1,
+    minute=2,
+    second=3,
+    zone~,
+  )
+  let utc = zdt.to_utc()
+  // The wall-clock fields and the offset change, the instant does not.
+  inspect(utc, content="1999-12-31T17:02:03Z")
+  inspect(utc.zone(), content="UTC")
+  inspect(utc.offset(), content="Z")
+  inspect(utc.to_unix_second() == zdt.to_unix_second(), content="true")
+  // Re-viewing through the original zone restores the local fields.
+  let back = utc.with_zone(zone)
+  inspect(back, content="2000-01-01T01:02:03+08:00[Asia/Shanghai]")
+  inspect(back == zdt, content="true")
+  inspect(back.to_unix_second() == zdt.to_unix_second(), content="true")
+  // Nanoseconds survive.
+  let with_nanos = @time.ZonedDateTime::of(2000, 1, 1, nanosecond=123, zone~).to_utc()
+  inspect(with_nanos.nanosecond(), content="123")
+}
+
+///|
+test "until and since" {
+  let a = @time.ZonedDateTime::of(2000, 1, 1)
+  let b = @time.ZonedDateTime::of(2000, 1, 1, hour=2)
+  inspect(a.until(b), content="PT2H")
+  inspect(b.until(a), content="PT-2H")
+  inspect(a.since(b), content="PT-2H")
+  inspect(b.since(a), content="PT2H")
+  inspect(a.until(a), content="PT0S")
+  // Wall-clock fields in different zones: only the instants matter.
+  let zone = Zone::fixed_zone("Asia/Shanghai", 8 * 60 * 60)
+  let same_instant = @time.ZonedDateTime::of(2000, 1, 1, hour=10, zone~)
+  inspect(a.until(same_instant), content="PT2H")
+  inspect(same_instant.until(b), content="PT0S")
+  // Sub-second precision is preserved.
+  inspect(
+    @time.ZonedDateTime::of(2000, 1, 1, nanosecond=1).until(
+      @time.ZonedDateTime::of(2000, 1, 1, nanosecond=2),
+    ),
+    content="PT0.000000001S",
+  )
+}

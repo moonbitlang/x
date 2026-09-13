@@ -39,9 +39,10 @@ test {
 - Support monotonic clock to accurately measure the elapsed time.
 - Support different calendar system, such as Chinese calendar system.
 
-## Deficiencies
+## Deficiencies/Warnings
 
-- The library does not have a TZ implementation yet.
+- The library does not have a TZ implementation yet. Use Zone and ZonedDateTime with care. The data structures can do a roundtrip without
+validation and that is the limit of the existing implementation.
 - The API for `ZonedDateTime` is intentionally left open so that programs can use the offset directly.
 - Calculations on `ZonedDateTime` look the offset up again from the zone, so a value parsed from a string with an explicit offset is treated as a fixed offset zone.
 - A zone id of `""` marks a value that had no bracketed zone id in its string form; it is rendered without a `[zone]` suffix.
