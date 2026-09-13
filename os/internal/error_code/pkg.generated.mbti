@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/os/internal/error_code"
+
+// Values
+pub const EINTR : Int = 4
+
+pub const ERROR_FILE_EXISTS : Int = 80
+
+pub const ERROR_PATH_NOT_FOUND : Int = 3
+
+pub let errno_EACCES : Int
+
+pub let errno_EBADF : Int
+
+pub let errno_EEXIST : Int
+
+pub let errno_EINVAL : Int
+
+pub let errno_ENOENT : Int
+
+pub let errno_ENOTDIR : Int
+
+pub let invalid_data : Int
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
