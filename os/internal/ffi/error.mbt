@@ -13,21 +13,18 @@
 // limitations under the License.
 
 ///|
-extern "c" fn native_code(kind : Int) -> Int = "moonbit_unix_error_code"
-
-///|
 pub fn invalid_argument(context : String) -> Unit raise @os_error.OSError {
-  raise OSError(native_code(6), context~)
+  raise OSError(@error_code.errno_EINVAL, context~)
 }
 
 ///|
 pub fn closed_handle(context : String) -> Unit raise @os_error.OSError {
-  raise OSError(native_code(7), context~)
+  raise OSError(@error_code.errno_EBADF, context~)
 }
 
 ///|
 pub fn invalid_data(context : String) -> Unit raise @os_error.OSError {
-  raise OSError(native_code(8), context~)
+  raise OSError(@error_code.invalid_data, context~)
 }
 
 ///|

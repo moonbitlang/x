@@ -3,45 +3,7 @@
 #include <moonbit.h>
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <errno.h>
 #endif
-
-// Internal indices shared only by this module's MoonBit wrappers.
-MOONBIT_FFI_EXPORT int32_t moonbit_unix_error_code(int32_t kind) {
-#ifdef _WIN32
-  switch (kind) {
-    case 1: return ERROR_FILE_NOT_FOUND;
-    case 2: return ERROR_ALREADY_EXISTS;
-    case 3: return ERROR_ACCESS_DENIED;
-    case 4: return ERROR_DIRECTORY;
-    case 5: return 0;
-    case 6: return ERROR_INVALID_PARAMETER;
-    case 7: return ERROR_INVALID_HANDLE;
-    default: return ERROR_INVALID_DATA;
-  }
-#else
-  switch (kind) {
-    case 1: return ENOENT;
-    case 2: return EEXIST;
-    case 3: return EACCES;
-    case 4: return ENOTDIR;
-    case 5: return EINTR;
-    case 6: return EINVAL;
-    case 7: return EBADF;
-    default: return EIO;
-  }
-#endif
-}
-
-MOONBIT_FFI_EXPORT int32_t moonbit_unix_error_matches(int32_t code, int32_t kind) {
-#ifdef _WIN32
-  if (kind == 1) return code == ERROR_FILE_NOT_FOUND || code == ERROR_PATH_NOT_FOUND;
-  if (kind == 2) return code == ERROR_FILE_EXISTS || code == ERROR_ALREADY_EXISTS;
-  if (kind == 5) return 0;
-#endif
-  return code != 0 && code == moonbit_unix_error_code(kind);
-}
 
 MOONBIT_FFI_EXPORT moonbit_bytes_t moonbit_unix_error_message(int32_t code) {
 #ifdef _WIN32
