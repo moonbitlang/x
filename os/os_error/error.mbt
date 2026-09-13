@@ -24,9 +24,6 @@ pub(all) suberror OSError {
 extern "c" fn native_message(code : Int) -> Bytes = "moonbit_unix_error_message"
 
 ///|
-extern "c" fn native_matches(code : Int, kind : Int) -> Bool = "moonbit_unix_error_matches"
-
-///|
 fn OSError::message(self : OSError) -> String {
   let OSError(code, context~) = self
   let text = @utf8.decode_lossy(native_message(code)).trim_end(chars="\r\n")
@@ -49,49 +46,75 @@ pub impl Debug for OSError with fn to_repr(self) {
 
 ///|
 /// No such file or directory (including a missing parent directory on Windows).
+#cfg(not(platform="windows"))
 pub fn OSError::is_ENOENT(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 1)
+  code == @error_code.errno_ENOENT
+}
+
+///|
+/// No such file or directory (including a missing parent directory on Windows).
+#cfg(platform="windows")
+pub fn OSError::is_ENOENT(self : OSError) -> Bool {
+  let OSError(code, ..) = self
+  code == @error_code.errno_ENOENT || code == @error_code.ERROR_PATH_NOT_FOUND
 }
 
 ///|
 /// The destination already exists.
+#cfg(not(platform="windows"))
 pub fn OSError::is_EEXIST(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 2)
+  code == @error_code.errno_EEXIST
+}
+
+///|
+/// The destination already exists.
+#cfg(platform="windows")
+pub fn OSError::is_EEXIST(self : OSError) -> Bool {
+  let OSError(code, ..) = self
+  code == @error_code.errno_EEXIST || code == @error_code.ERROR_FILE_EXISTS
 }
 
 ///|
 /// Permission denied.
 pub fn OSError::is_EACCES(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 3)
+  code == @error_code.errno_EACCES
 }
 
 ///|
 /// A path component is not a directory.
 pub fn OSError::is_ENOTDIR(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 4)
+  code == @error_code.errno_ENOTDIR
 }
 
 ///|
 /// Interrupted system call. Always false on Windows, matching async.
+#cfg(not(platform="windows"))
 pub fn OSError::is_EINTR(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 5)
+  code == @error_code.EINTR
+}
+
+///|
+/// Interrupted system call. Always false on Windows, matching async.
+#cfg(platform="windows")
+pub fn OSError::is_EINTR(_self : OSError) -> Bool {
+  false
 }
 
 ///|
 /// Invalid argument, including an embedded NUL in a path or process argument.
 pub fn OSError::is_EINVAL(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 6)
+  code == @error_code.errno_EINVAL
 }
 
 ///|
 /// A closed or invalid file descriptor/handle.
 pub fn OSError::is_EBADF(self : OSError) -> Bool {
   let OSError(code, ..) = self
-  native_matches(code, 7)
+  code == @error_code.errno_EBADF
 }
