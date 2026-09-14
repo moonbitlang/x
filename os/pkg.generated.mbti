@@ -12,15 +12,9 @@ pub fn chdir(String) -> Unit raise @os_error.OSError
 
 pub fn cwd() -> String raise @os_error.OSError
 
-pub fn exit(Int) -> Unit
-
 pub fn getpid() -> Int
 
-pub fn now_ns() -> Int64
-
-pub fn os_kind() -> OsKind
-
-pub fn read_stdin() -> String raise @os_error.OSError
+pub fn monotonic_now_ns() -> Int64 raise @os_error.OSError
 
 pub fn read_stdin_bytes() -> Bytes raise @os_error.OSError
 
@@ -31,13 +25,6 @@ pub fn write_stderr(String) -> Unit raise @os_error.OSError
 // Errors
 
 // Types and methods
-pub(all) enum OsKind {
-  Linux
-  Macos
-  Windows
-} derive(Eq)
-pub fn OsKind::equal(Self, Self) -> Bool
-pub fn OsKind::not_equal(Self, Self) -> Bool
 
 // Type aliases
 
