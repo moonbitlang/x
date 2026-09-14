@@ -6,6 +6,7 @@ import {
 }
 
 // Values
+pub fn check_errno(String) -> Unit raise OSError
 
 // Errors
 pub(all) suberror OSError {
