@@ -4,8 +4,8 @@ Synchronous native operating-system operations for MoonBit.
 
 The API is divided into four public packages:
 
-- `moonbitlang/x/os` provides environment and process-global
-  state, standard-stream helpers, clocks, and host information.
+- `moonbitlang/x/os` provides current-directory operations, standard-stream
+  helpers, clocks, and host process information.
 - [`moonbitlang/x/os/os_error`](os_error/README.md) provides native error
   codes, operation context, and portable error classification matching async.
 - [`moonbitlang/x/os/fs`](fs/README.md) provides byte-oriented file I/O,
@@ -23,9 +23,9 @@ These packages support POSIX and Windows native targets. Windows adapts the
 Unix-shaped API to Win32 semantics. Wasm and JavaScript targets are unsupported.
 
 The portable API covers process execution and capture, path and file operations,
-directory listing, links, timestamps, environment variables, and host process
-information. Shared
-POSIX/Win32 stubs live under `internal/ffi`; the public packages expose MoonBit
+directory listing, links, timestamps, and host process information. Command-line
+arguments and process environment variables are provided by `moonbitlang/core/env`.
+Shared POSIX/Win32 stubs live under `internal/ffi`; the public packages expose MoonBit
 APIs without depending on the compiler or the async runtime. File descriptors,
 sockets, signals, users/groups, and terminal control are outside the initial scope.
 

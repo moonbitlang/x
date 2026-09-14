@@ -86,12 +86,12 @@ test "separate pipes drain beyond capacity and handle empty output" {
 
 ///|
 test "child environment overrides and isolation leave the parent untouched" {
-  let saved = @os.getenv("MOON_PROCESS_PARENT")
+  let saved = @env.get_env_var("MOON_PROCESS_PARENT")
   defer (match saved {
-    Some(value) => @os.setenv("MOON_PROCESS_PARENT", value)
-    None => @os.unsetenv("MOON_PROCESS_PARENT")
+    Some(value) => @env.set_env_var("MOON_PROCESS_PARENT", value)
+    None => @env.unset_env_var("MOON_PROCESS_PARENT")
   })
-  @os.setenv("MOON_PROCESS_PARENT", "parent")
+  @env.set_env_var("MOON_PROCESS_PARENT", "parent")
   let cmd = child_command()
   let (_, inherited) = collect_stdout(cmd, ["env"], extra_env=child_env())
   assert_eq(inherited, b"parent|missing")
@@ -110,7 +110,7 @@ test "child environment overrides and isolation leave the parent untouched" {
     inherit_env=false,
   )
   assert_eq(isolated, b"missing|missing")
-  assert_eq(@os.getenv("MOON_PROCESS_PARENT"), Some("parent"))
+  assert_eq(@env.get_env_var("MOON_PROCESS_PARENT"), Some("parent"))
 }
 
 ///|

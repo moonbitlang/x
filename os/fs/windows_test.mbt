@@ -55,7 +55,9 @@ extern "c" fn create_junction_fixture(
 #cfg(platform="windows")
 test "Windows realpath keeps UNC paths absolute and usable" {
   // CI provisions a temporary SMB share. Local Windows runs can supply one.
-  guard @os.getenv("MOON_UNIX_TEST_UNC_ROOT") is Some(root) else { return }
+  guard @env.get_env_var("MOON_UNIX_TEST_UNC_ROOT") is Some(root) else {
+    return
+  }
   assert_true(root.has_prefix("\\\\"))
   let dir = root + "\\realpath-\{@os.getpid()}-\{@os.now_ns()}"
   mkdir(dir)

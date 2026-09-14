@@ -157,9 +157,9 @@ fn child_main() -> Unit raise @os_error.OSError {
       }
     }
     "env" => {
-      child_text(@os.getenv("MOON_PROCESS_PARENT").unwrap_or("missing"))
+      child_text(@env.get_env_var("MOON_PROCESS_PARENT").unwrap_or("missing"))
       child_text("|")
-      child_text(@os.getenv("MOON_PROCESS_EXTRA").unwrap_or("missing"))
+      child_text(@env.get_env_var("MOON_PROCESS_EXTRA").unwrap_or("missing"))
     }
     "cwd" => child_text(@os.cwd())
     "copy" => {
@@ -191,7 +191,7 @@ fn child_main() -> Unit raise @os_error.OSError {
 
 ///|
 fn init {
-  if @os.getenv("MOON_PROCESS_TEST_CHILD") is Some("1") {
+  if @env.get_env_var("MOON_PROCESS_TEST_CHILD") is Some("1") {
     child_main() catch {
       _ => @os.exit(99)
     }

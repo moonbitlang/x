@@ -15,7 +15,7 @@
 ///|
 fn temp_dir() -> String {
   for name in ["TMPDIR", "TEMP", "TMP"] {
-    match @os.getenv(name) {
+    match @env.get_env_var(name) {
       Some(path) if path != "" => return path
       _ => ()
     }

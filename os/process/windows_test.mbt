@@ -35,20 +35,20 @@ test "Windows which respects PATH order before executable extensions" {
   @fs.write_file(dir + "/second/tool.exe", b"fixture")
   @fs.write_file(dir + "/second/tool.custom", b"fixture")
   @fs.mkdir(dir + "/first/directory.exe")
-  let saved_path = @os.getenv("PATH")
-  let saved_ext = @os.getenv("PATHEXT")
+  let saved_path = @env.get_env_var("PATH")
+  let saved_ext = @env.get_env_var("PATHEXT")
   defer {
     match saved_path {
-      Some(value) => @os.setenv("PATH", value)
-      None => @os.unsetenv("PATH")
+      Some(value) => @env.set_env_var("PATH", value)
+      None => @env.unset_env_var("PATH")
     }
     match saved_ext {
-      Some(value) => @os.setenv("PATHEXT", value)
-      None => @os.unsetenv("PATHEXT")
+      Some(value) => @env.set_env_var("PATHEXT", value)
+      None => @env.unset_env_var("PATHEXT")
     }
   }
-  @os.setenv("PATH", "\"" + dir + "/first\";" + dir + "/second")
-  @os.setenv("PATHEXT", ".EXE;.CMD")
+  @env.set_env_var("PATH", "\"" + dir + "/first\";" + dir + "/second")
+  @env.set_env_var("PATHEXT", ".EXE;.CMD")
   assert_eq(
     @fs.realpath(which("tool").unwrap()),
     @fs.realpath(dir + "/first/tool.cmd"),
@@ -58,7 +58,7 @@ test "Windows which respects PATH order before executable extensions" {
     @fs.realpath(dir + "/second/tool.exe"),
   )
   assert_eq(which("directory"), None)
-  @os.setenv("PATHEXT", ".CUSTOM;.EXE")
+  @env.set_env_var("PATHEXT", ".CUSTOM;.EXE")
   assert_eq(
     @fs.realpath(which("tool").unwrap()),
     @fs.realpath(dir + "/second/tool.custom"),
@@ -85,19 +85,19 @@ test "Windows preserves 259 and high-bit exit codes after waiting" {
 ///|
 #cfg(platform="windows")
 test "Windows environment overrides are case insensitive" {
-  let saved = @os.getenv("MOON_PROCESS_PARENT")
+  let saved = @env.get_env_var("MOON_PROCESS_PARENT")
   defer (match saved {
-    Some(value) => @os.setenv("MOON_PROCESS_PARENT", value)
-    None => @os.unsetenv("MOON_PROCESS_PARENT")
+    Some(value) => @env.set_env_var("MOON_PROCESS_PARENT", value)
+    None => @env.unset_env_var("MOON_PROCESS_PARENT")
   })
-  @os.setenv("MOON_PROCESS_PARENT", "parent")
+  @env.set_env_var("MOON_PROCESS_PARENT", "parent")
   let (_, output) = collect_stdout(
     child_command(),
     ["env"],
     extra_env=child_env(extra=Map([("moon_process_parent", "child")])),
   )
   assert_eq(output, b"child|missing")
-  assert_eq(@os.getenv("MOON_PROCESS_PARENT"), Some("parent"))
+  assert_eq(@env.get_env_var("MOON_PROCESS_PARENT"), Some("parent"))
 }
 
 ///|

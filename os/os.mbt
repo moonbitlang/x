@@ -123,31 +123,6 @@ pub fn read_stdin() -> String raise @os_error.OSError {
 }
 
 ///|
-pub fn args() -> Array[String] {
-  @env.args()
-}
-
-///|
-pub fn getenv(name : String) -> String? {
-  @env.get_env_var(name)
-}
-
-///|
-pub fn getenv_or(name : String, fallback : String) -> String {
-  getenv(name).unwrap_or(fallback)
-}
-
-///|
-pub fn setenv(name : String, value : String) -> Unit {
-  @env.set_env_var(name, value)
-}
-
-///|
-pub fn unsetenv(name : String) -> Unit {
-  @env.unset_env_var(name)
-}
-
-///|
 pub fn cwd() -> String raise @os_error.OSError {
   let status = FixedArray::make(1, 0)
   let path = @encoding/utf8.decode_lossy(native_cwd(status)[:])

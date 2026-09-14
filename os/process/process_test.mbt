@@ -14,15 +14,15 @@
 
 ///|
 fn temp_dir() -> String {
-  match @os.getenv("TMPDIR") {
+  match @env.get_env_var("TMPDIR") {
     Some(path) if path != "" => return path
     _ => ()
   }
-  match @os.getenv("TEMP") {
+  match @env.get_env_var("TEMP") {
     Some(path) if path != "" => return path
     _ => ()
   }
-  match @os.getenv("TMP") {
+  match @env.get_env_var("TMP") {
     Some(path) if path != "" => return path
     _ => ()
   }
