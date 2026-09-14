@@ -1,7 +1,19 @@
-// Windows regression fixture: a junction whose display label is not its target.
+// Native regression fixtures.
 typedef int moon_unix_fs_test_tu_marker;
-#ifdef _WIN32
 #include <stdint.h>
+
+#ifndef _WIN32
+int32_t moon_unix_test_is_macos(void) {
+#if defined(__APPLE__)
+  return 1;
+#else
+  return 0;
+#endif
+}
+#endif
+
+// Windows junction whose display label is not its target.
+#ifdef _WIN32
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>

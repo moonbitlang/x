@@ -35,20 +35,16 @@ fn test_dir(name : String) -> String {
 }
 
 ///|
+#cfg(not(platform="windows"))
 test "argv execution bypasses the shell" {
-  if @os.os_kind() is @os.Windows {
-    return
-  }
   let (code, output) = collect_output_merged("printf", ["%s", "a b c"])
   inspect(code, content="0")
   assert_eq(output, b"a b c")
 }
 
 ///|
+#cfg(not(platform="windows"))
 test "redirected spawn and wait_any preserve the child result" {
-  if @os.os_kind() is @os.Windows {
-    return
-  }
   let dir = test_dir("spawn-to")
   @fs.remove_all(dir)
   defer (@fs.remove_all(dir) catch { _ => () })
@@ -68,10 +64,8 @@ test "redirected spawn and wait_any preserve the child result" {
 }
 
 ///|
+#cfg(not(platform="windows"))
 test "spawn_orphan and wait_any wait for completion" {
-  if @os.os_kind() is @os.Windows {
-    return
-  }
   let dir = test_dir("spawn")
   @fs.remove_all(dir)
   defer (@fs.remove_all(dir) catch { _ => () })
@@ -85,10 +79,13 @@ test "spawn_orphan and wait_any wait for completion" {
 }
 
 ///|
-test "process probes" {
-  if @os.os_kind() is @os.Windows {
-    assert_true(which("cmd") is Some(_))
-  } else {
-    assert_true(which("sh") is Some(_))
-  }
+#cfg(platform="windows")
+test "Windows process probes" {
+  assert_true(which("cmd") is Some(_))
+}
+
+///|
+#cfg(not(platform="windows"))
+test "POSIX process probes" {
+  assert_true(which("sh") is Some(_))
 }

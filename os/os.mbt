@@ -13,9 +13,6 @@
 // limitations under the License.
 
 ///|
-extern "c" fn native_os_kind() -> Int = "moonbit_community_unix_os_kind"
-
-///|
 extern "c" fn native_available_parallelism() -> Int = "moonbit_community_unix_available_parallelism"
 
 ///|
@@ -41,10 +38,7 @@ extern "c" fn native_getpid() -> Int = "moonbit_community_unix_getpid"
 extern "c" fn native_read_stdin(status : FixedArray[Int]) -> Bytes = "moonbit_community_unix_read_stdin"
 
 ///|
-extern "c" fn native_now_ns() -> Int64 = "moonbit_community_unix_now_ns"
-
-///|
-extern "c" fn native_exit(code : Int) -> Unit = "moonbit_community_unix_exit"
+extern "c" fn native_monotonic_now_ns() -> Int64 = "moonbit_community_unix_monotonic_now_ns"
 
 ///|
 fn cstr(s : String) -> Bytes {
@@ -52,25 +46,9 @@ fn cstr(s : String) -> Bytes {
 }
 
 ///|
-pub(all) enum OsKind {
-  Linux
-  Macos
-  Windows
-} derive(Eq)
-
-///|
-pub extend OsKind with Eq::{not_equal, equal}
-
-///|
-pub fn os_kind() -> OsKind {
-  match native_os_kind() {
-    1 => Macos
-    2 => Windows
-    _ => Linux
-  }
-}
-
-///|
+/// Estimate parallelism from the number of online logical CPUs, falling back to
+/// 1 if it cannot be determined. This does not account for process affinity or
+/// CPU quotas; callers may need to apply their own concurrency limit.
 pub fn available_parallelism() -> Int {
   let count = native_available_parallelism()
   if count > 0 {
@@ -81,11 +59,19 @@ pub fn available_parallelism() -> Int {
 }
 
 ///|
-pub fn now_ns() -> Int64 {
-  native_now_ns()
+/// Read the monotonic clock in nanoseconds, raising OSError if it is unavailable.
+/// Its origin is unspecified; use differences between readings to measure elapsed
+/// time. Nanosecond units do not imply nanosecond resolution.
+pub fn monotonic_now_ns() -> Int64 raise @os_error.OSError {
+  let value = native_monotonic_now_ns()
+  if value < 0 {
+    @os_error.check_errno("monotonic_now_ns")
+  }
+  value
 }
 
 ///|
+/// Return the current process identifier.
 pub fn getpid() -> Int {
   native_getpid()
 }
@@ -101,6 +87,7 @@ pub fn write_stderr(text : String) -> Unit raise @os_error.OSError {
 }
 
 ///|
+/// Whether stderr is attached to a terminal. Returns false if it cannot be queried.
 pub fn stderr_is_terminal() -> Bool {
   native_stderr_is_terminal() != 0
 }
@@ -117,12 +104,8 @@ pub fn read_stdin_bytes() -> Bytes raise @os_error.OSError {
 }
 
 ///|
-/// Read stdin to EOF and decode UTF-8 lossily. I/O failures raise OSError.
-pub fn read_stdin() -> String raise @os_error.OSError {
-  @encoding/utf8.decode_lossy(read_stdin_bytes()[:])
-}
-
-///|
+/// Return the current working directory, preserving native path separators.
+/// Raise OSError if the directory cannot be determined.
 pub fn cwd() -> String raise @os_error.OSError {
   let status = FixedArray::make(1, 0)
   let path = @encoding/utf8.decode_lossy(native_cwd(status)[:])
@@ -133,15 +116,12 @@ pub fn cwd() -> String raise @os_error.OSError {
 }
 
 ///|
+/// Change the working directory of the current process. This affects subsequent
+/// relative-path operations throughout the process. Invalid paths raise OSError.
 pub fn chdir(path : String) -> Unit raise @os_error.OSError {
   @ffi.validate_string(path, "chdir")
   let code = native_chdir(cstr(path))
   if code != 0 {
     raise OSError(code, context="chdir: " + path)
   }
-}
-
-///|
-pub fn exit(code : Int) -> Unit {
-  native_exit(code)
 }

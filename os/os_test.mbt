@@ -18,3 +18,11 @@ test "host probes" {
   assert_true(getpid() > 0)
   assert_true(cwd().length() > 0)
 }
+
+///|
+test "monotonic clock readings do not go backwards" {
+  let before = monotonic_now_ns()
+  let after = monotonic_now_ns()
+  assert_true(before >= 0)
+  assert_true(after >= before)
+}

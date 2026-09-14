@@ -69,9 +69,6 @@ static int buf_reserve(Buf *b, size_t extra) {
   return 0;
 }
 
-// ── host OS family ────────────────────────────────────────────────────────────
-int32_t moonbit_community_unix_os_kind(void) { return 2; }
-
 int32_t moonbit_community_unix_available_parallelism(void) {
   DWORD n = GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
   if (n == 0) {
@@ -83,18 +80,15 @@ int32_t moonbit_community_unix_available_parallelism(void) {
 }
 
 // ── time / pid / stderr / stdin ───────────────────────────────────────────────
-int64_t moonbit_community_unix_now_ns(void) {
+int64_t moonbit_community_unix_monotonic_now_ns(void) {
   LARGE_INTEGER freq, ctr;
-  if (!QueryPerformanceFrequency(&freq) || freq.QuadPart == 0) return 0;
-  QueryPerformanceCounter(&ctr);
+  if (!QueryPerformanceFrequency(&freq)) return -1;
+  if (freq.QuadPart <= 0) { SetLastError(ERROR_NOT_SUPPORTED); return -1; }
+  if (!QueryPerformanceCounter(&ctr)) return -1;
   return (int64_t)((double)ctr.QuadPart * 1e9 / (double)freq.QuadPart);
 }
 
 int32_t moonbit_community_unix_getpid(void) { return (int32_t)GetCurrentProcessId(); }
-
-// Match POSIX exit(): flush the CRT streams used by MoonBit's println before
-// terminating. ExitProcess bypasses those buffers and loses failure reports.
-void moonbit_community_unix_exit(int32_t code) { exit(code); }
 
 int32_t moonbit_community_unix_write_stderr(const uint8_t *s, int32_t len) {
   if (len < 0) return ERROR_INVALID_PARAMETER;

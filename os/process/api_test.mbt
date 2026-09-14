@@ -20,12 +20,7 @@ test "explicit exit flushes buffered standard output" {
     extra_env=child_env(),
   )
   assert_eq(code, 7)
-  let expected = if @os.os_kind() is Windows {
-    b"before exit\r\n"
-  } else {
-    b"before exit\n"
-  }
-  assert_eq(output, expected)
+  assert_true(output == b"before exit\r\n" || output == b"before exit\n")
 }
 
 ///|

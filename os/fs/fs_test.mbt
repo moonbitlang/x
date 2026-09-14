@@ -186,17 +186,27 @@ test "readdir filtering and sorting" {
   let special = readdir(dir, include_special=true)
   assert_true(special.contains("."))
   assert_true(special.contains(".."))
-  if @os.os_kind() != @os.Windows {
-    assert_eq(readdir(dir, include_hidden=false, sort=true), ["a", "z", "sub"])
-    assert_eq(
-      readdir(dir, include_hidden=false, include_special=true, sort=true),
-      ["a", "z", "sub"],
-    )
-    write_file(dir + "/line\nbreak", b"")
-    assert_true(readdir(dir).contains("line\nbreak"))
-  }
   expect_error("readdir", () => readdir(dir + "/a") |> ignore)
   expect_error("readdir", () => readdir(dir + "/missing") |> ignore)
+}
+
+///|
+#cfg(not(platform="windows"))
+test "readdir hides dotfiles and preserves newlines" {
+  let dir = test_dir("readdir-posix")
+  remove_all(dir)
+  defer (remove_all(dir) catch { _ => () })
+  mkdir(dir)
+  write_file(dir + "/a", b"")
+  write_file(dir + "/.hidden", b"")
+  mkdir(dir + "/sub")
+  assert_eq(readdir(dir, include_hidden=false, sort=true), ["a", "sub"])
+  assert_eq(
+    readdir(dir, include_hidden=false, include_special=true, sort=true),
+    ["a", "sub"],
+  )
+  write_file(dir + "/line\nbreak", b"")
+  assert_true(readdir(dir).contains("line\nbreak"))
 }
 
 ///|

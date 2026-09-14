@@ -61,7 +61,7 @@ fn child_terminate() -> Unit {
 ///|
 #cfg(platform="windows")
 fn child_terminate() -> Unit {
-  @os.exit(96)
+  @sys.exit(96)
 }
 
 ///|
@@ -96,7 +96,7 @@ fn child_write(fd : Int, bytes : Bytes) -> Unit {
   while offset < bytes.length() {
     let written = child_write_once(fd, bytes[offset:].to_owned())
     if written <= 0 {
-      @os.exit(98)
+      @sys.exit(98)
       return
     }
     offset += written
@@ -125,13 +125,13 @@ fn child_main() -> Unit raise @os_error.OSError {
     "bad_stdin" => {
       child_close_fd(0) |> ignore
       (@os.read_stdin_bytes() |> ignore) catch {
-        err => if err.is_EBADF() { child_text("badfd") } else { @os.exit(95) }
+        err => if err.is_EBADF() { child_text("badfd") } else { @sys.exit(95) }
       }
     }
     "bad_stderr" => {
       child_close_fd(2) |> ignore
       @os.write_stderr("unwritable") catch {
-        err => if err.is_EBADF() { child_text("badfd") } else { @os.exit(95) }
+        err => if err.is_EBADF() { child_text("badfd") } else { @sys.exit(95) }
       }
     }
     "args" =>
@@ -142,7 +142,7 @@ fn child_main() -> Unit raise @os_error.OSError {
     "both" => {
       child_write(1, b"out")
       child_write(2, b"err")
-      @os.exit(7)
+      @sys.exit(7)
     }
     "binary" => {
       child_write(1, b"\x00\xff\x80\r\n")
@@ -170,22 +170,22 @@ fn child_main() -> Unit raise @os_error.OSError {
           break
         }
         if n < 0 {
-          @os.exit(98)
+          @sys.exit(98)
           break
         }
         child_write(1, Bytes::from_array(buffer)[:n].to_owned())
       }
     }
-    "exit7" => @os.exit(7)
+    "exit7" => @sys.exit(7)
     "buffered_exit" => {
       println("before exit")
-      @os.exit(7)
+      @sys.exit(7)
     }
-    "exit259" => @os.exit(259)
-    "exit_high" => @os.exit(-2147483647)
+    "exit259" => @sys.exit(259)
+    "exit_high" => @sys.exit(-2147483647)
     "signal" => child_terminate()
     "empty" => ()
-    _ => @os.exit(97)
+    _ => @sys.exit(97)
   }
 }
 
@@ -193,9 +193,9 @@ fn child_main() -> Unit raise @os_error.OSError {
 fn init {
   if @env.get_env_var("MOON_PROCESS_TEST_CHILD") is Some("1") {
     child_main() catch {
-      _ => @os.exit(99)
+      _ => @sys.exit(99)
     }
-    @os.exit(0)
+    @sys.exit(0)
   }
 }
 

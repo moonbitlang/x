@@ -7,8 +7,8 @@
 //   * returned Bytes are allocated via `moonbit_make_bytes`;
 //   * the argv blob is each arg '\0'-terminated and concatenated, `argc` = count;
 //   * FixedArray[Int] -> int32_t*, FixedArray[Int64] -> int64_t* (raw elements).
-//   * access/file_size/kind/process_open return -1 on failure and preserve
-//     errno (GetLastError on Windows) for an immediate check_errno call;
+//   * access/file_size/kind/process_open/monotonic_now_ns return -1 on failure,
+//     preserving errno (GetLastError on Windows) for an immediate check_errno call;
 //   * buffer and multi-value results retain explicit error outputs.
 //
 // The whole POSIX impl is guarded by `#ifndef _WIN32` so that when the manifest
@@ -88,15 +88,6 @@ static uint8_t *read_all_fd(int fd, int32_t *status) {
   return out;
 }
 
-// ── host OS family (resolved at compile time, never sniffed) ──────────────────
-int32_t moonbit_community_unix_os_kind(void) {
-#if defined(__APPLE__)
-  return 1;
-#else
-  return 0;
-#endif
-}
-
 int32_t moonbit_community_unix_available_parallelism(void) {
   long n = sysconf(_SC_NPROCESSORS_ONLN);
   if (n < 1) return 1;
@@ -105,15 +96,13 @@ int32_t moonbit_community_unix_available_parallelism(void) {
 }
 
 // ── time / pid / stderr / stdin ───────────────────────────────────────────────
-int64_t moonbit_community_unix_now_ns(void) {
+int64_t moonbit_community_unix_monotonic_now_ns(void) {
   struct timespec ts;
-  if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return 0;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return -1;
   return (int64_t)ts.tv_sec * 1000000000LL + (int64_t)ts.tv_nsec;
 }
 
 int32_t moonbit_community_unix_getpid(void) { return (int32_t)getpid(); }
-
-void moonbit_community_unix_exit(int32_t code) { exit(code); }
 
 int32_t moonbit_community_unix_write_stderr(const uint8_t *s, int32_t len) {
   if (len < 0) return EINVAL;

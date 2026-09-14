@@ -14,6 +14,10 @@
 
 ///|
 #cfg(not(platform="windows"))
+extern "c" fn is_macos() -> Bool = "moon_unix_test_is_macos"
+
+///|
+#cfg(not(platform="windows"))
 test "signals are statuses rather than operation errors" {
   let cmd = child_command()
   assert_eq(run(cmd, ["signal"], extra_env=child_env()), -15)
@@ -32,7 +36,7 @@ test "redirection applies permissions and relative child executable lookup" {
   let path = dir + "/private"
   let output = redirect_to_file(path, permission=0o600)
   output.close()
-  let stat_args = if @os.os_kind() is @os.Macos {
+  let stat_args = if is_macos() {
     ["-f", "%Lp", path]
   } else {
     ["-c", "%a", path]
@@ -56,11 +60,7 @@ test "capture and failed launch paths do not leak file descriptors" {
   let dir = test_dir("fd-leaks")
   @fs.mkdir(dir, recursive=true)
   defer (@fs.remove_all(dir) catch { _ => () })
-  let fd_dir = if @os.os_kind() is @os.Macos {
-    "/dev/fd"
-  } else {
-    "/proc/self/fd"
-  }
+  let fd_dir = if is_macos() { "/dev/fd" } else { "/proc/self/fd" }
   let before = @fs.readdir(fd_dir).length()
   for _ in 0..<20 {
     expect_error(() => collect_output(dir + "/missing", []) |> ignore)
