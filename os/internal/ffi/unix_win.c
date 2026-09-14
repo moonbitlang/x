@@ -196,22 +196,24 @@ int32_t moonbit_community_unix_write_file(const uint8_t *path, const uint8_t *co
   return close_result(h, error);
 }
 
-int32_t moonbit_community_unix_access(const uint8_t *path, int32_t mode, int32_t *status) {
+int32_t moonbit_community_unix_access(const uint8_t *path, int32_t mode) {
   static const DWORD access_modes[] = { 0, GENERIC_READ, GENERIC_WRITE, FILE_EXECUTE };
-  status[0] = 0;
-  if (mode < 0 || mode > 3) { status[0] = ERROR_INVALID_PARAMETER; return 0; }
+  if (mode < 0 || mode > 3) { SetLastError(ERROR_INVALID_PARAMETER); return -1; }
   wchar_t *wpath = to_wide(path);
-  if (!wpath) { status[0] = (int32_t)GetLastError(); return 0; }
+  if (!wpath) return -1;
   HANDLE h = CreateFileW(wpath, access_modes[mode],
                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                          NULL, OPEN_EXISTING,
                          FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, NULL);
   DWORD error = h == INVALID_HANDLE_VALUE ? GetLastError() : 0;
   free(wpath);
-  if (h != INVALID_HANDLE_VALUE) { status[0] = close_result(h, 0); return 1; }
-  if (error != ERROR_FILE_NOT_FOUND && error != ERROR_PATH_NOT_FOUND &&
-      !(mode != 0 && error == ERROR_ACCESS_DENIED)) status[0] = (int32_t)error;
-  return 0;
+  if (h != INVALID_HANDLE_VALUE) {
+    error = (DWORD)close_result(h, 0);
+    if (!error) return 1;
+  } else if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND ||
+             (mode != 0 && error == ERROR_ACCESS_DENIED)) return 0;
+  SetLastError(error);
+  return -1;
 }
 
 // ── command-line marshalling (MSVCRT quoting, CommandLineToArgvW's inverse) ────
@@ -345,26 +347,29 @@ cleanup:
 }
 
 int64_t moonbit_community_unix_process_open(const uint8_t *path, int32_t output,
-    int32_t append, int32_t create_mode, int32_t permission, int32_t *status) {
+    int32_t append, int32_t create_mode, int32_t permission) {
   (void)permission;
-  status[0] = 0;
   static const DWORD modes[] = {OPEN_EXISTING, TRUNCATE_EXISTING, OPEN_ALWAYS, CREATE_ALWAYS, CREATE_NEW};
-  if (create_mode < 0 || create_mode > 4) { status[0] = ERROR_INVALID_PARAMETER; return -1; }
+  if (create_mode < 0 || create_mode > 4) { SetLastError(ERROR_INVALID_PARAMETER); return -1; }
   wchar_t *wide = to_wide(path);
-  if (!wide) { status[0] = (int32_t)GetLastError(); return -1; }
+  if (!wide) return -1;
   HANDLE handle = CreateFileW(wide, output ? GENERIC_WRITE : GENERIC_READ,
       FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
       output ? modes[create_mode] : OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (handle == INVALID_HANDLE_VALUE) status[0] = (int32_t)GetLastError();
+  int32_t error = handle == INVALID_HANDLE_VALUE ? (int32_t)GetLastError() : 0;
   free(wide);
-  if (status[0]) return -1;
+  if (error) { SetLastError((DWORD)error); return -1; }
   if (output && append) {
     HANDLE append_handle;
     BOOL ok = DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(),
         &append_handle, FILE_APPEND_DATA | SYNCHRONIZE, FALSE, 0);
-    if (!ok) status[0] = (int32_t)GetLastError();
-    status[0] = close_result(handle, status[0]);
-    if (status[0]) { if (ok) CloseHandle(append_handle); return -1; }
+    if (!ok) error = (int32_t)GetLastError();
+    error = close_result(handle, error);
+    if (error) {
+      if (ok) CloseHandle(append_handle);
+      SetLastError((DWORD)error);
+      return -1;
+    }
     handle = append_handle;
   }
   return (int64_t)(intptr_t)handle;
@@ -758,66 +763,70 @@ static void filetime_to_unix_time(const FILETIME *ft, int64_t *out) {
   out[1] = (int64_t)(u.QuadPart % 10000000ULL) * 100LL;
 }
 
-static HANDLE metadata_handle(const uint8_t *path, int32_t follow_symlink, int32_t *status) {
-  status[0] = 0;
+static HANDLE metadata_handle(const uint8_t *path, int32_t follow_symlink) {
   wchar_t *w = to_wide(path);
-  if (!w) { status[0] = (int32_t)GetLastError(); return INVALID_HANDLE_VALUE; }
+  if (!w) return INVALID_HANDLE_VALUE;
   HANDLE h = CreateFileW(w, FILE_READ_ATTRIBUTES,
                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                          NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS |
                          (follow_symlink ? 0 : FILE_FLAG_OPEN_REPARSE_POINT), NULL);
-  if (h == INVALID_HANDLE_VALUE) status[0] = (int32_t)GetLastError();
+  DWORD error = h == INVALID_HANDLE_VALUE ? GetLastError() : 0;
   free(w);
+  if (h == INVALID_HANDLE_VALUE) SetLastError(error);
   return h;
 }
 
 int32_t moonbit_community_unix_mtime(const uint8_t *path, int32_t follow_symlink,
                                     int64_t *out) {
   int32_t error = 0;
-  HANDLE h = metadata_handle(path, follow_symlink, &error);
-  if (error) return error;
+  HANDLE h = metadata_handle(path, follow_symlink);
+  if (h == INVALID_HANDLE_VALUE) return (int32_t)GetLastError();
   FILETIME time;
   if (GetFileTime(h, NULL, NULL, &time)) filetime_to_unix_time(&time, out);
   else error = (int32_t)GetLastError();
   return close_result(h, error);
 }
 
-int64_t moonbit_community_unix_file_size(const uint8_t *path, int32_t *status) {
-  HANDLE h = metadata_handle(path, 1, status);
-  if (status[0]) return 0;
+int64_t moonbit_community_unix_file_size(const uint8_t *path) {
+  HANDLE h = metadata_handle(path, 1);
+  if (h == INVALID_HANDLE_VALUE) return -1;
   BY_HANDLE_FILE_INFORMATION info;
+  int32_t error = 0;
   int64_t result = 0;
   SetLastError(0);
   DWORD type = GetFileType(h);
-  if (type == FILE_TYPE_UNKNOWN && GetLastError()) status[0] = (int32_t)GetLastError();
-  else if (type != FILE_TYPE_DISK) status[0] = ERROR_INVALID_PARAMETER;
-  else if (!GetFileInformationByHandle(h, &info)) status[0] = (int32_t)GetLastError();
-  else if (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) status[0] = ERROR_INVALID_PARAMETER;
+  if (type == FILE_TYPE_UNKNOWN && GetLastError()) error = (int32_t)GetLastError();
+  else if (type != FILE_TYPE_DISK) error = ERROR_INVALID_PARAMETER;
+  else if (!GetFileInformationByHandle(h, &info)) error = (int32_t)GetLastError();
+  else if (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) error = ERROR_INVALID_PARAMETER;
   else {
     uint64_t size = ((uint64_t)info.nFileSizeHigh << 32) | info.nFileSizeLow;
-    if (size > INT64_MAX) status[0] = ERROR_FILE_TOO_LARGE;
+    if (size > INT64_MAX) error = ERROR_FILE_TOO_LARGE;
     else result = (int64_t)size;
   }
-  status[0] = close_result(h, status[0]);
+  error = close_result(h, error);
+  if (error) { SetLastError((DWORD)error); return -1; }
   return result;
 }
 
-int32_t moonbit_community_unix_kind(const uint8_t *path, int32_t follow_symlink, int32_t *status) {
-  HANDLE h = metadata_handle(path, follow_symlink, status);
-  if (status[0]) return 0;
+int32_t moonbit_community_unix_kind(const uint8_t *path, int32_t follow_symlink) {
+  HANDLE h = metadata_handle(path, follow_symlink);
+  if (h == INVALID_HANDLE_VALUE) return -1;
+  int32_t error = 0;
   SetLastError(0);
   DWORD type = GetFileType(h);
   int32_t result = 0;
   if (type == FILE_TYPE_DISK) {
     BY_HANDLE_FILE_INFORMATION info;
-    if (!GetFileInformationByHandle(h, &info)) status[0] = (int32_t)GetLastError();
+    if (!GetFileInformationByHandle(h, &info)) error = (int32_t)GetLastError();
     else if (info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) result = 3;
     else if (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) result = 2;
     else result = 1;
   } else if (type == FILE_TYPE_CHAR) result = 7;
   else if (type == FILE_TYPE_PIPE) result = 5;
-  else if (GetLastError() != 0) status[0] = (int32_t)GetLastError();
-  status[0] = close_result(h, status[0]);
+  else if (GetLastError() != 0) error = (int32_t)GetLastError();
+  error = close_result(h, error);
+  if (error) { SetLastError((DWORD)error); return -1; }
   return result;
 }
 

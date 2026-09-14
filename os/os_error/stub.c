@@ -1,9 +1,18 @@
 #include <stdint.h>
 #include <string.h>
+#include <errno.h>
 #include <moonbit.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+MOONBIT_FFI_EXPORT int32_t moonbit_unix_get_errno(void) {
+#ifdef _WIN32
+  return (int32_t)GetLastError();
+#else
+  return errno;
+#endif
+}
 
 MOONBIT_FFI_EXPORT moonbit_bytes_t moonbit_unix_error_message(int32_t code) {
 #ifdef _WIN32

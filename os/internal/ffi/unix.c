@@ -7,6 +7,9 @@
 //   * returned Bytes are allocated via `moonbit_make_bytes`;
 //   * the argv blob is each arg '\0'-terminated and concatenated, `argc` = count;
 //   * FixedArray[Int] -> int32_t*, FixedArray[Int64] -> int64_t* (raw elements).
+//   * access/file_size/kind/process_open return -1 on failure and preserve
+//     errno (GetLastError on Windows) for an immediate check_errno call;
+//   * buffer and multi-value results retain explicit error outputs.
 //
 // The whole POSIX impl is guarded by `#ifndef _WIN32` so that when the manifest
 // lists BOTH unix.c and unix_win.c, exactly one provides symbols per platform and
@@ -182,14 +185,12 @@ int32_t moonbit_community_unix_write_file(const uint8_t *path, const uint8_t *co
 
 // 1: accessible, 0: missing/denied, -1: unexpected error. Existence probes
 // propagate EACCES; permission probes suppress it, matching async/fs.
-int32_t moonbit_community_unix_access(const uint8_t *path, int32_t mode, int32_t *status) {
+int32_t moonbit_community_unix_access(const uint8_t *path, int32_t mode) {
   static const int modes[] = { F_OK, R_OK, W_OK, X_OK };
-  status[0] = 0;
-  if (mode < 0 || mode > 3) { status[0] = EINVAL; return 0; }
+  if (mode < 0 || mode > 3) { errno = EINVAL; return -1; }
   if (access((const char *)path, modes[mode]) == 0) return 1;
-  int error = errno;
-  if (error != ENOENT && !(mode != 0 && error == EACCES)) status[0] = error;
-  return 0;
+  if (errno == ENOENT || (mode != 0 && errno == EACCES)) return 0;
+  return -1;
 }
 
 // ── synchronous processes (posix_spawn; never fork a threaded runtime) ──────
@@ -270,18 +271,15 @@ static int owned_fd(int fd) {
 }
 
 int64_t moonbit_community_unix_process_open(const uint8_t *path, int32_t output,
-    int32_t append, int32_t create_mode, int32_t permission, int32_t *status) {
-  status[0] = 0;
+    int32_t append, int32_t create_mode, int32_t permission) {
   static const int modes[] = {0, O_TRUNC, O_CREAT, O_CREAT | O_TRUNC, O_CREAT | O_EXCL};
-  if (create_mode < 0 || create_mode > 4) { status[0] = EINVAL; return -1; }
+  if (create_mode < 0 || create_mode > 4) { errno = EINVAL; return -1; }
   int flags = O_CLOEXEC | (output ? O_WRONLY | modes[create_mode] : O_RDONLY);
   if (output && append) flags |= O_APPEND;
   int fd;
   do { fd = open((const char *)path, flags, (mode_t)permission); }
   while (fd < 0 && errno == EINTR);
-  fd = owned_fd(fd);
-  if (fd < 0) status[0] = errno;
-  return (int64_t)fd;
+  return (int64_t)owned_fd(fd);
 }
 
 void moonbit_community_unix_process_close(int64_t handle) {
@@ -471,19 +469,17 @@ int32_t moonbit_community_unix_mtime(const uint8_t *path, int32_t follow_symlink
   return 0;
 }
 
-int64_t moonbit_community_unix_file_size(const uint8_t *path, int32_t *status) {
+int64_t moonbit_community_unix_file_size(const uint8_t *path) {
   struct stat st;
-  status[0] = 0;
-  if (stat((const char *)path, &st) != 0) { status[0] = errno; return 0; }
-  if (!S_ISREG(st.st_mode)) { status[0] = EINVAL; return 0; }
+  if (stat((const char *)path, &st) != 0) return -1;
+  if (!S_ISREG(st.st_mode)) { errno = EINVAL; return -1; }
   return (int64_t)st.st_size;
 }
 
-int32_t moonbit_community_unix_kind(const uint8_t *path, int32_t follow_symlink, int32_t *status) {
-  status[0] = 0;
+int32_t moonbit_community_unix_kind(const uint8_t *path, int32_t follow_symlink) {
   struct stat st;
   if ((follow_symlink ? stat((const char *)path, &st) : lstat((const char *)path, &st)) != 0)
-    { status[0] = errno; return 0; }
+    return -1;
   if (S_ISREG(st.st_mode)) return 1;
   if (S_ISDIR(st.st_mode)) return 2;
   if (S_ISLNK(st.st_mode)) return 3;

@@ -73,6 +73,38 @@ test "NUL paths fail before operating on their prefix" {
 }
 
 ///|
+test "scalar metadata errors preserve codes and successful zero values" {
+  let dir = test_dir("scalar-errors")
+  remove_all(dir)
+  defer (remove_all(dir) catch { _ => () })
+  mkdir(dir)
+  let empty = dir + "/empty"
+  write_file(empty, b"")
+  let missing = dir + "/missing"
+  let @os_error.OSError(expected, ..) = capture_error(() => {
+    read_file(missing) |> ignore
+  })
+  let size_error = capture_error(() => file_size(missing) |> ignore)
+  let @os_error.OSError(code, context~) = size_error
+  assert_eq(code, expected)
+  assert_eq(context, "file_size: " + missing)
+  assert_eq(file_size(empty), 0L)
+  let kind_error = capture_error(() => kind(missing) |> ignore)
+  let @os_error.OSError(code, context~) = kind_error
+  assert_eq(code, expected)
+  assert_eq(context, "kind: " + missing)
+  assert_true(kind(empty) == Regular)
+  // Windows closes the metadata handle after detecting this error.
+  assert_true(capture_error(() => file_size(dir) |> ignore).is_EINVAL())
+  assert_true(kind(dir) == Directory)
+  for probe in [exists, can_read, can_write, can_execute] {
+    assert_false(probe(missing))
+  }
+  assert_true(exists(empty))
+  assert_true(can_read(empty))
+}
+
+///|
 test "hardlink never replaces or removes an existing destination" {
   let dir = test_dir("link-contract")
   remove_all(dir)
