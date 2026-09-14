@@ -6,8 +6,6 @@ import {
 }
 
 // Values
-pub fn args() -> Array[String]
-
 pub fn available_parallelism() -> Int
 
 pub fn chdir(String) -> Unit raise @os_error.OSError
@@ -15,10 +13,6 @@ pub fn chdir(String) -> Unit raise @os_error.OSError
 pub fn cwd() -> String raise @os_error.OSError
 
 pub fn exit(Int) -> Unit
-
-pub fn getenv(String) -> String?
-
-pub fn getenv_or(String, String) -> String
 
 pub fn getpid() -> Int
 
@@ -30,11 +24,7 @@ pub fn read_stdin() -> String raise @os_error.OSError
 
 pub fn read_stdin_bytes() -> Bytes raise @os_error.OSError
 
-pub fn setenv(String, String) -> Unit
-
 pub fn stderr_is_terminal() -> Bool
-
-pub fn unsetenv(String) -> Unit
 
 pub fn write_stderr(String) -> Unit raise @os_error.OSError
 
