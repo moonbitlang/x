@@ -6,5 +6,5 @@ import {
 supported_targets = "native"
 
 options(
-  "native-stub": [ "stub.c" ],
+  "native-stub": [ "stub.c", "test_stub.c" ],
 )

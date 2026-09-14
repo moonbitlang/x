@@ -21,8 +21,8 @@ extern "c" fn native_mtime(
 ) -> Int = "moonbit_community_unix_mtime"
 
 ///|
-#borrow(path, status)
-extern "c" fn native_file_size(path : Bytes, status : FixedArray[Int]) -> Int64 = "moonbit_community_unix_file_size"
+#borrow(path)
+extern "c" fn native_file_size(path : Bytes) -> Int64 = "moonbit_community_unix_file_size"
 
 ///|
 #borrow(path)
@@ -42,12 +42,8 @@ extern "c" fn native_readdir(
 ) -> Bytes = "moonbit_community_unix_readdir"
 
 ///|
-#borrow(path, status)
-extern "c" fn native_kind(
-  path : Bytes,
-  follow_symlink : Int,
-  status : FixedArray[Int],
-) -> Int = "moonbit_community_unix_kind"
+#borrow(path)
+extern "c" fn native_kind(path : Bytes, follow_symlink : Int) -> Int = "moonbit_community_unix_kind"
 
 ///|
 #borrow(path, status)
@@ -94,12 +90,8 @@ extern "c" fn native_write_file(
 ) -> Int = "moonbit_community_unix_write_file"
 
 ///|
-#borrow(path, status)
-extern "c" fn native_access(
-  path : Bytes,
-  mode : Int,
-  status : FixedArray[Int],
-) -> Int = "moonbit_community_unix_access"
+#borrow(path)
+extern "c" fn native_access(path : Bytes, mode : Int) -> Int = "moonbit_community_unix_access"
 
 ///|
 #borrow(path)
@@ -279,10 +271,12 @@ fn access(
   mode : Int,
   operation : String,
 ) -> Bool raise @os_error.OSError {
-  let status = FixedArray::make(1, 0)
-  let result = native_access(cstr(path), mode, status)
-  if status[0] != 0 {
-    fail(operation, path, status[0])
+  let context = operation + ": " + path.to_owned()
+  let bytes = cstr(path)
+  defer ignore(bytes) // Capture errno before releasing the path.
+  let result = native_access(bytes, mode)
+  if result < 0 {
+    @os_error.check_errno(context)
   }
   result != 0
 }
@@ -339,10 +333,12 @@ pub fn mtime(
 ///|
 /// Return the size of a regular file in bytes, following symlinks.
 pub fn file_size(path : StringView) -> Int64 raise @os_error.OSError {
-  let status = FixedArray::make(1, 0)
-  let value = native_file_size(cstr(path), status)
-  if status[0] != 0 {
-    fail("file_size", path, status[0])
+  let context = "file_size: " + path.to_owned()
+  let bytes = cstr(path)
+  defer ignore(bytes) // Capture errno before releasing the path.
+  let value = native_file_size(bytes)
+  if value < 0 {
+    @os_error.check_errno(context)
   }
   value
 }
@@ -392,18 +388,12 @@ pub fn kind(
   path : StringView,
   follow_symlink? : Bool = true,
 ) -> FileKind raise @os_error.OSError {
-  let status = FixedArray::make(1, 0)
-  let value = native_kind(
-    cstr(path),
-    if follow_symlink {
-      1
-    } else {
-      0
-    },
-    status,
-  )
-  if status[0] != 0 {
-    fail("kind", path, status[0])
+  let context = "kind: " + path.to_owned()
+  let bytes = cstr(path)
+  defer ignore(bytes) // Capture errno before releasing the path.
+  let value = native_kind(bytes, if follow_symlink { 1 } else { 0 })
+  if value < 0 {
+    @os_error.check_errno(context)
   }
   match value {
     1 => Regular

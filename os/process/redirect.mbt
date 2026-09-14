@@ -13,14 +13,13 @@
 // limitations under the License.
 
 ///|
-#borrow(path, status)
+#borrow(path)
 extern "c" fn native_open(
   path : Bytes,
   output : Int,
   append : Int,
   create_mode : Int,
   permission : Int,
-  status : FixedArray[Int],
 ) -> Int64 = "moonbit_community_unix_process_open"
 
 ///|
@@ -91,10 +90,12 @@ pub fn redirect_from_file(
   path : String,
 ) -> ProcessInput raise @os_error.OSError {
   validate_string(path)
-  let status = FixedArray::make(1, 0)
-  let handle = native_open(cstr(path), 0, 0, 0, 0, status)
-  if status[0] != 0 {
-    fail("redirect_from_file", path, status[0])
+  let context = "redirect_from_file: " + path
+  let bytes = cstr(path)
+  defer ignore(bytes) // Capture errno before releasing the path.
+  let handle = native_open(bytes, 0, 0, 0, 0)
+  if handle == -1L {
+    @os_error.check_errno(context)
   }
   { handle, }
 }
@@ -119,9 +120,11 @@ pub fn redirect_to_file(
     CreateOrTruncate => 3
     CreateNew => 4
   }
-  let status = FixedArray::make(1, 0)
+  let context = "redirect_to_file: " + path
+  let bytes = cstr(path)
+  defer ignore(bytes) // Capture errno before releasing the path.
   let handle = native_open(
-    cstr(path),
+    bytes,
     1,
     if append {
       1
@@ -130,10 +133,9 @@ pub fn redirect_to_file(
     },
     mode,
     permission,
-    status,
   )
-  if status[0] != 0 {
-    fail("redirect_to_file", path, status[0])
+  if handle == -1L {
+    @os_error.check_errno(context)
   }
   { handle, shared, }
 }

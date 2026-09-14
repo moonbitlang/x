@@ -21,6 +21,22 @@ pub(all) suberror OSError {
 } derive(ToJson)
 
 ///|
+extern "c" fn get_errno() -> Int = "moonbit_unix_get_errno"
+
+///|
+/// Raise the current POSIX errno or Windows GetLastError if it is nonzero.
+/// Call immediately after a native operation reports failure, before any other
+/// work that may overwrite the error. Prepare context before the native call.
+/// Keep borrowed arguments alive until after this check (e.g. defer ignore(bytes)).
+/// Successful operations may leave a stale error and must not be checked.
+pub fn check_errno(context : String) -> Unit raise OSError {
+  let code = get_errno()
+  if code != 0 {
+    raise OSError(code, context~)
+  }
+}
+
+///|
 extern "c" fn native_message(code : Int) -> Bytes = "moonbit_unix_error_message"
 
 ///|

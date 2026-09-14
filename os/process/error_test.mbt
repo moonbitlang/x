@@ -37,6 +37,12 @@ test "process errors preserve launch open and validation failures" {
   assert_true(
     capture_error(() => redirect_from_file(missing) |> ignore).is_ENOENT(),
   )
+  let open_error = capture_error(() => {
+    redirect_to_file(missing, create_mode=OpenExisting) |> ignore
+  })
+  assert_true(open_error.is_ENOENT())
+  let @os_error.OSError(_, context~) = open_error
+  assert_eq(context, "redirect_to_file: " + missing)
   assert_true(capture_error(() => run("", []) |> ignore).is_EINVAL())
   assert_true(
     capture_error(() => run("bad\u{0}command", []) |> ignore).is_EINVAL(),
@@ -45,6 +51,11 @@ test "process errors preserve launch open and validation failures" {
   let cmd = child_command()
   let closed = redirect_to_file(dir + "/output")
   closed.close()
+  assert_true(
+    capture_error(() => {
+      redirect_to_file(dir + "/output", create_mode=CreateNew) |> ignore
+    }).is_EEXIST(),
+  )
   assert_true(
     capture_error(() => {
       run(cmd, ["empty"], stdout=closed, extra_env=child_env()) |> ignore

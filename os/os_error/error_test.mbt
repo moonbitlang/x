@@ -13,6 +13,26 @@
 // limitations under the License.
 
 ///|
+extern "c" fn set_errno(code : Int) -> Unit = "moonbit_unix_test_set_errno"
+
+///|
+test "check_errno captures native errors and accepts zero" {
+  for code in [2, -1, 0x7FFFFFFF] {
+    set_errno(code)
+    let err = try @os_error.check_errno("native call") catch {
+      err => err
+    } noraise {
+      _ => fail("expected OSError")
+    }
+    let @os_error.OSError(actual, context~) = err
+    assert_eq(actual, code)
+    assert_eq(context, "native call")
+  }
+  set_errno(0)
+  @os_error.check_errno("no error")
+}
+
+///|
 test "zero and unknown native codes do not match error predicates" {
   for code in [0, -1, 0x7FFFFFFF] {
     let err = @os_error.OSError(code, context="test")
