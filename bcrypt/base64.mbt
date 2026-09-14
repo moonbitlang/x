@@ -81,7 +81,7 @@ fn bcrypt_base64_decode(
     out.push((((c3 & 0x03) << 6) | c4).to_byte())
   }
   if out.length() == max_length {
-    Ok(Bytes::from_array(out.view()))
+    Ok(Bytes::from_array(out.exact_view()))
   } else {
     Err(InvalidBase64)
   }

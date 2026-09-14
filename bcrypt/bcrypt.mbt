@@ -19,17 +19,17 @@ let magic_cipher_data : Bytes = b"OrpheanBeholderScryDoubt"
 fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes {
   let key = bcrypt_key(password)
   let state = new_blowfish_state()
-  blowfish_expand_key(state, salt, key.view())
+  blowfish_expand_key(state, salt, key.exact_view())
   let rounds : UInt = 1U << cost
   for _ in 0U..<rounds {
-    blowfish_expand_zero_key(state, key.view())
+    blowfish_expand_zero_key(state, key.exact_view())
     blowfish_expand_zero_key(state, salt)
   }
 
   let cdata = Array(capacity=6)
   let mut off = 0
   for _ in 0..<6 {
-    let (word, next_off) = stream_to_word(magic_cipher_data.view(), off)
+    let (word, next_off) = stream_to_word(magic_cipher_data.exact_view(), off)
     cdata.push(word)
     off = next_off
   }
@@ -48,7 +48,7 @@ fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes 
     out.push((cdata[i] >> 8).to_byte())
     out.push(cdata[i].to_byte())
   }
-  Bytes::from_array(out.view())
+  Bytes::from_array(out.exact_view())
 }
 
 ///|
@@ -137,9 +137,9 @@ pub fn hash(
   } else if salt.length() != salt_length {
     raise InvalidSaltLength(salt.length())
   } else {
-    let salt_text = bcrypt_base64_encode(salt.view(), salt_length)
-    let digest = bcrypt_hash_raw(password.view(), salt.view(), cost)
-    let hash_text = bcrypt_base64_encode(digest.view(), 23)
+    let salt_text = bcrypt_base64_encode(salt.exact_view(), salt_length)
+    let digest = bcrypt_hash_raw(password.exact_view(), salt.exact_view(), cost)
+    let hash_text = bcrypt_base64_encode(digest.exact_view(), 23)
     "$2b$" + two_digit(cost) + "$" + salt_text + hash_text
   }
 }
@@ -155,8 +155,8 @@ pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError {
     Err(err) => raise err
     Ok(parsed) => {
       let digest = bcrypt_hash_raw(
-        password.view(),
-        parsed.salt.view(),
+        password.exact_view(),
+        parsed.salt.exact_view(),
         parsed.cost,
       )
       let recomputed = "$2" +
@@ -165,7 +165,7 @@ pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError {
         two_digit(parsed.cost) +
         "$" +
         parsed.salt_text +
-        bcrypt_base64_encode(digest.view(), 23)
+        bcrypt_base64_encode(digest.exact_view(), 23)
       timing_safe_equal(hashed, recomputed)
     }
   }
