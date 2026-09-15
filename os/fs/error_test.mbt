@@ -68,7 +68,6 @@ test "NUL paths fail before operating on their prefix" {
   assert_true(
     capture_error(() => readdir(dir + "\u{0}suffix") |> ignore).is_EINVAL(),
   )
-  assert_true(capture_error(() => @os.chdir(dir + "\u{0}suffix")).is_EINVAL())
   assert_eq(read_file(file), b"keep")
 }
 

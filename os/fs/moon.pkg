@@ -9,4 +9,5 @@ supported_targets = "native"
 import {
   "moonbitlang/core/env",
   "moonbitlang/x/os",
+  "moonbitlang/x/os/process",
 } for "test"

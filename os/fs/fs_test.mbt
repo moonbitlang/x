@@ -24,8 +24,10 @@ fn temp_dir() -> String {
 }
 
 ///|
-fn test_dir(name : String) -> String {
-  temp_dir() + "/moonbit-unix-test-" + @os.getpid().to_string() + "-" + name
+fn test_dir(name : String) -> String raise @os_error.OSError {
+  temp_dir() +
+  "/moonbit-unix-test-\{@process.getpid()}-\{@os.monotonic_now_ns()}-" +
+  name
 }
 
 ///|

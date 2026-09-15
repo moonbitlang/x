@@ -31,7 +31,13 @@ fn temp_dir() -> String {
 
 ///|
 fn test_dir(name : String) -> String {
-  temp_dir() + "/moonbit-unix-test-" + @os.getpid().to_string() + "-" + name
+  temp_dir() + "/moonbit-unix-test-" + getpid().to_string() + "-" + name
+}
+
+///|
+test "current process probes" {
+  assert_true(getpid() > 0)
+  assert_true(cwd().length() > 0)
 }
 
 ///|

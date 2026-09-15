@@ -59,7 +59,7 @@ test "Windows realpath keeps UNC paths absolute and usable" {
     return
   }
   assert_true(root.has_prefix("\\\\"))
-  let dir = root + "\\realpath-\{@os.getpid()}-\{@os.monotonic_now_ns()}"
+  let dir = root + "\\realpath-\{@process.getpid()}-\{@os.monotonic_now_ns()}"
   mkdir(dir)
   defer (remove_all(dir) catch { _ => () })
   let file = dir + "\\hello \u{4e16}\u{754c}.txt"

@@ -1,15 +1,25 @@
 # moonbitlang/x/os/process
 
-Synchronous native process execution. Names, labels and defaults follow the
-workspace's `moonbitlang/async@0.21.2`. This package has no async dependency:
-operations block, raise `@os_error.OSError` on operation failures, and collect
-`Bytes` instead of async's `&@io.Data`. Encoding and shell policy belong to callers.
+Synchronous native process operations. Child-execution names, labels and defaults
+follow the workspace's `moonbitlang/async@0.21.2`. This package has no async
+dependency: operations block, raise `@os_error.OSError` on operation failures, and
+collect `Bytes` instead of async's `&@io.Data`. Encoding and shell policy belong to
+callers.
 
 See [the generated interface](pkg.generated.mbti) for complete signatures
 and [the error model](../os_error/README.md) for portable error handling.
 OS error codes are captured before cleanup; a missing command or redirection
 file can be recognized with `is_ENOENT()`. Invalid arguments use `is_EINVAL()`;
 reusing a closed redirection uses `is_EBADF()`.
+
+## Current process
+
+`getpid()` returns the current process identifier. `cwd()` returns the current
+working directory with native path separators. `chdir(path)` changes the working
+directory for the whole process, affecting subsequent relative-path operations.
+Both `cwd()` and `chdir(path)` raise `@os_error.OSError` on failure.
+
+The `cwd?` option on child-execution functions applies only to the child.
 
 ## Async-aligned surface
 
@@ -101,7 +111,7 @@ reaped once; repeat waits raise. `wait_pid` accepts only positive PIDs. There is
 no TaskGroup-style `spawn`, `Process` handle, cancellation API, or public streaming
 pipe API in this first pass.
 
-Two synchronous extensions remain:
+Two additional child-process utilities are available:
 
 - `wait_any() -> (Int, Int) raise @os_error.OSError` returns a reaped PID and status.
   POSIX waits for any child; Windows waits for children launched by this package.

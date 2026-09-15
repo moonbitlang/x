@@ -48,6 +48,7 @@ test "process errors preserve launch open and validation failures" {
     capture_error(() => run("bad\u{0}command", []) |> ignore).is_EINVAL(),
   )
   assert_true(capture_error(() => wait_pid(0) |> ignore).is_EINVAL())
+  assert_true(capture_error(() => chdir(dir + "\u{0}suffix")).is_EINVAL())
   let cmd = child_command()
   let closed = redirect_to_file(dir + "/output")
   closed.close()

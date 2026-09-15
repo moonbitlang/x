@@ -212,7 +212,7 @@ fn child_main() -> Unit raise @os_error.OSError {
       child_text("|")
       child_text(@env.get_env_var("MOON_PROCESS_EXTRA").unwrap_or("missing"))
     }
-    "cwd" => child_text(@os.cwd())
+    "cwd" => child_text(cwd())
     "copy" => {
       let buffer = FixedArray::make(4096, b'\x00')
       while true {

@@ -88,7 +88,7 @@ static uint8_t *read_all_fd(int fd, int32_t *status) {
   return out;
 }
 
-int32_t moonbit_community_unix_available_parallelism(void) {
+int32_t moonbit_community_unix_online_cpu_count(void) {
   long n = sysconf(_SC_NPROCESSORS_ONLN);
   if (n < 1) return 1;
   if (n > INT32_MAX) return INT32_MAX;

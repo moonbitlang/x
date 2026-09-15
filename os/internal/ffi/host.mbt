@@ -13,14 +13,7 @@
 // limitations under the License.
 
 ///|
-test "online CPU count is positive" {
-  assert_true(online_cpu_count() >= 1)
-}
+pub extern "c" fn online_cpu_count() -> Int = "moonbit_community_unix_online_cpu_count"
 
 ///|
-test "monotonic clock readings do not go backwards" {
-  let before = monotonic_now_ns()
-  let after = monotonic_now_ns()
-  assert_true(before >= 0)
-  assert_true(after >= before)
-}
+pub extern "c" fn monotonic_now_ns() -> Int64 = "moonbit_community_unix_monotonic_now_ns"

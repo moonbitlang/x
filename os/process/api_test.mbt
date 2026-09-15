@@ -113,18 +113,18 @@ test "cwd is child-only and redirection opens before child cwd is applied" {
   let dir = test_dir("child cwd 空")
   @fs.mkdir(dir, recursive=true)
   defer (@fs.remove_all(dir) catch { _ => () })
-  let cwd = @os.cwd()
+  let parent_cwd = cwd()
   let cmd = child_command()
   let (_, output) = collect_stdout(cmd, ["cwd"], cwd=dir, extra_env=child_env())
   assert_eq(
     @fs.realpath(@encoding/utf8.decode_lossy(output[:])),
     @fs.realpath(dir),
   )
-  assert_eq(@os.cwd(), cwd)
+  assert_eq(cwd(), parent_cwd)
   expect_error(() => {
     run(cmd, ["empty"], cwd=dir + "/absent", extra_env=child_env()) |> ignore
   })
-  assert_eq(@os.cwd(), cwd)
+  assert_eq(cwd(), parent_cwd)
   let file = dir + "/stdin"
   @fs.write_file(file, b"input\x00\xff")
   let input = redirect_from_file(file)
@@ -275,7 +275,7 @@ test "PID wait reaps exactly the requested child and rejects repeat waits" {
   let pid = spawn_orphan(cmd, ["exit7"], extra_env=child_env())
   assert_eq(wait_any(), (pid, 7))
   expect_error(() => wait_any() |> ignore)
-  expect_error(() => wait_pid(@os.getpid()) |> ignore)
+  expect_error(() => wait_pid(getpid()) |> ignore)
 }
 
 ///|

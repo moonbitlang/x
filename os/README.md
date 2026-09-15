@@ -4,17 +4,17 @@ Synchronous native operating-system operations for MoonBit.
 
 The API is divided into five public packages:
 
-- `moonbitlang/x/os` provides current-directory operations, clocks, and host
-  process information.
+- `moonbitlang/x/os` provides the online logical CPU count and a monotonic clock.
 - [`moonbitlang/x/os/os_error`](os_error/README.md) provides native error
   codes, operation context, and portable error classification matching async.
 - [`moonbitlang/x/os/fs`](fs/README.md) provides byte-oriented file I/O,
   filesystem metadata, and mutation with async-aligned names and options.
 - [`moonbitlang/x/os/stdio`](stdio/README.md) provides synchronous byte I/O
   and terminal detection for standard input, output, and error streams.
-- [`moonbitlang/x/os/process`](process/README.md) provides direct process
-  spawning, byte-oriented output capture, file redirection, PID waiting, and
-  executable lookup with async-aligned names and options.
+- [`moonbitlang/x/os/process`](process/README.md) provides the current process ID
+  and working directory, plus direct process spawning, byte-oriented output
+  capture, file redirection, PID waiting, and executable lookup with async-aligned
+  names and options.
 
 Operations are synchronous and may block the calling thread. Failures that are
 part of an operation's contract raise `@os_error.OSError`. Filesystem probes return
@@ -39,9 +39,9 @@ text encoding, decoding, and newline handling.
 
 `monotonic_now_ns` reads a monotonic clock with an arbitrary origin, intended for
 elapsed-time measurements, and raises if the clock is unavailable. Nanosecond units
-do not imply nanosecond resolution. `available_parallelism` estimates capacity
-from online logical CPUs, falling back to 1. It does not account for process
-affinity or CPU quotas.
+do not imply nanosecond resolution. `online_cpu_count` returns the number of online
+logical CPUs, falling back to 1. It does not account for process affinity or CPU
+quotas.
 
 Compiler-specific platform classification, cache buffers (`stat_into`), batch
 materialization (`hardlink_many`), and typed directory classification (`list_dir`/`DirEntry`)

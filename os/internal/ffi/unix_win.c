@@ -69,7 +69,7 @@ static int buf_reserve(Buf *b, size_t extra) {
   return 0;
 }
 
-int32_t moonbit_community_unix_available_parallelism(void) {
+int32_t moonbit_community_unix_online_cpu_count(void) {
   DWORD n = GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
   if (n == 0) {
     SYSTEM_INFO info;
