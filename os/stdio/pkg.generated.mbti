@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/os/stdio"
+
+import {
+  "moonbitlang/x/os/os_error",
+}
+
+// Values
+pub let stderr : Output
+
+pub let stdin : Input
+
+pub let stdout : Output
+
+// Errors
+
+// Types and methods
+pub struct Input {
+  // private fields
+}
+pub fn Input::is_terminal(Self) -> Bool
+pub fn Input::read_all(Self) -> Bytes raise @os_error.OSError
+
+pub struct Output {
+  // private fields
+}
+pub fn Output::is_terminal(Self) -> Bool
+pub fn Output::write(Self, BytesView) -> Unit raise @os_error.OSError
+
+// Type aliases
+
+// Traits

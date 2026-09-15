@@ -16,12 +16,6 @@ pub fn getpid() -> Int
 
 pub fn monotonic_now_ns() -> Int64 raise @os_error.OSError
 
-pub fn read_stdin_bytes() -> Bytes raise @os_error.OSError
-
-pub fn stderr_is_terminal() -> Bool
-
-pub fn write_stderr(String) -> Unit raise @os_error.OSError
-
 // Errors
 
 // Types and methods

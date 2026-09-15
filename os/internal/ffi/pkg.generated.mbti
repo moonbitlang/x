@@ -12,6 +12,12 @@ pub fn invalid_argument(String) -> Unit raise @os_error.OSError
 
 pub fn invalid_data(String) -> Unit raise @os_error.OSError
 
+pub fn stdio_is_terminal(Int) -> Int
+
+pub fn stdio_read_all(Int, FixedArray[Int]) -> Bytes
+
+pub fn stdio_write(Int, Bytes, Int, Int) -> Int
+
 pub fn validate_string(StringView, String) -> Unit raise @os_error.OSError
 
 // Errors
