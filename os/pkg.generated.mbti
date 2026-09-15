@@ -6,15 +6,9 @@ import {
 }
 
 // Values
-pub fn available_parallelism() -> Int
-
-pub fn chdir(String) -> Unit raise @os_error.OSError
-
-pub fn cwd() -> String raise @os_error.OSError
-
-pub fn getpid() -> Int
-
 pub fn monotonic_now_ns() -> Int64 raise @os_error.OSError
+
+pub fn online_cpu_count() -> Int
 
 // Errors
 

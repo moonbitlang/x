@@ -12,6 +12,10 @@ pub fn invalid_argument(String) -> Unit raise @os_error.OSError
 
 pub fn invalid_data(String) -> Unit raise @os_error.OSError
 
+pub fn monotonic_now_ns() -> Int64
+
+pub fn online_cpu_count() -> Int
+
 pub fn stdio_is_terminal(Int) -> Int
 
 pub fn stdio_read_all(Int, FixedArray[Int]) -> Bytes
