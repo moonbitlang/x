@@ -7,8 +7,8 @@
 //   * returned Bytes are allocated via `moonbit_make_bytes`;
 //   * the argv blob is each arg '\0'-terminated and concatenated, `argc` = count;
 //   * FixedArray[Int] -> int32_t*, FixedArray[Int64] -> int64_t* (raw elements).
-//   * access/file_size/kind/process_open/monotonic_now_ns return -1 on failure,
-//     preserving errno (GetLastError on Windows) for an immediate check_errno call;
+//   * access/file_size/kind/process_open/monotonic_now_ns/stdio_write return -1
+//     on failure, preserving errno (GetLastError on Windows) for check_errno;
 //   * buffer and multi-value results retain explicit error outputs.
 //
 // The whole POSIX impl is guarded by `#ifndef _WIN32` so that when the manifest
@@ -95,7 +95,7 @@ int32_t moonbit_community_unix_available_parallelism(void) {
   return (int32_t)n;
 }
 
-// ── time / pid / stderr / stdin ───────────────────────────────────────────────
+// ── time / pid / standard streams ────────────────────────────────────────────
 int64_t moonbit_community_unix_monotonic_now_ns(void) {
   struct timespec ts;
   if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return -1;
@@ -104,22 +104,25 @@ int64_t moonbit_community_unix_monotonic_now_ns(void) {
 
 int32_t moonbit_community_unix_getpid(void) { return (int32_t)getpid(); }
 
-int32_t moonbit_community_unix_write_stderr(const uint8_t *s, int32_t len) {
-  if (len < 0) return EINVAL;
+int32_t moonbit_community_unix_stdio_write(int32_t stream, const uint8_t *s,
+                                          int32_t offset, int32_t len) {
+  if (offset < 0 || len < 0) { errno = EINVAL; return -1; }
   int32_t off = 0;
   while (off < len) {
     ssize_t n;
-    do { n = write(2, s + off, (size_t)(len - off)); } while (n < 0 && errno == EINTR);
-    if (n < 0) return errno;
-    if (n == 0) return EIO;
+    do { n = write(stream, s + offset + off, (size_t)(len - off)); } while (n < 0 && errno == EINTR);
+    if (n < 0) return -1;
+    if (n == 0) { errno = EIO; return -1; }
     off += (int32_t)n;
   }
   return 0;
 }
 
-int32_t moonbit_community_unix_stderr_is_terminal(void) { return isatty(2) ? 1 : 0; }
+int32_t moonbit_community_unix_stdio_is_terminal(int32_t stream) { return isatty(stream) ? 1 : 0; }
 
-uint8_t *moonbit_community_unix_read_stdin(int32_t *status) { return read_all_fd(0, status); }
+uint8_t *moonbit_community_unix_stdio_read_all(int32_t stream, int32_t *status) {
+  return read_all_fd(stream, status);
+}
 
 uint8_t *moonbit_community_unix_read_file(const uint8_t *path, int32_t sync_timestamp,
                                          int32_t *status) {

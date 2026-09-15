@@ -79,7 +79,7 @@ int32_t moonbit_community_unix_available_parallelism(void) {
   return n > 0 ? (int32_t)n : 1;
 }
 
-// ── time / pid / stderr / stdin ───────────────────────────────────────────────
+// ── time / pid / standard streams ────────────────────────────────────────────
 int64_t moonbit_community_unix_monotonic_now_ns(void) {
   LARGE_INTEGER freq, ctr;
   if (!QueryPerformanceFrequency(&freq)) return -1;
@@ -90,27 +90,37 @@ int64_t moonbit_community_unix_monotonic_now_ns(void) {
 
 int32_t moonbit_community_unix_getpid(void) { return (int32_t)GetCurrentProcessId(); }
 
-int32_t moonbit_community_unix_write_stderr(const uint8_t *s, int32_t len) {
-  if (len < 0) return ERROR_INVALID_PARAMETER;
-  HANDLE h = GetStdHandle(STD_ERROR_HANDLE);
+static HANDLE stdio_handle(int32_t stream) {
+  switch (stream) {
+    case 0: return GetStdHandle(STD_INPUT_HANDLE);
+    case 1: return GetStdHandle(STD_OUTPUT_HANDLE);
+    case 2: return GetStdHandle(STD_ERROR_HANDLE);
+    default: SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE;
+  }
+}
+
+int32_t moonbit_community_unix_stdio_write(int32_t stream, const uint8_t *s,
+                                          int32_t offset, int32_t len) {
+  if (offset < 0 || len < 0) { SetLastError(ERROR_INVALID_PARAMETER); return -1; }
+  HANDLE h = stdio_handle(stream);
   DWORD off = 0;
   while (off < (DWORD)len) {
     DWORD written = 0;
-    if (!WriteFile(h, s + off, (DWORD)len - off, &written, NULL)) return (int32_t)GetLastError();
-    if (!written) return ERROR_WRITE_FAULT;
+    if (!WriteFile(h, s + offset + off, (DWORD)len - off, &written, NULL)) return -1;
+    if (!written) { SetLastError(ERROR_WRITE_FAULT); return -1; }
     off += written;
   }
   return 0;
 }
 
-int32_t moonbit_community_unix_stderr_is_terminal(void) {
-  HANDLE h = GetStdHandle(STD_ERROR_HANDLE);
+int32_t moonbit_community_unix_stdio_is_terminal(int32_t stream) {
+  HANDLE h = stdio_handle(stream);
   DWORD mode = 0;
   return GetConsoleMode(h, &mode) ? 1 : 0;
 }
 
-uint8_t *moonbit_community_unix_read_stdin(int32_t *status) {
-  HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+uint8_t *moonbit_community_unix_stdio_read_all(int32_t stream, int32_t *status) {
+  HANDLE h = stdio_handle(stream);
   Buf b = {0};
   status[0] = 0;
   for (;;) {

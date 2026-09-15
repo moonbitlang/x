@@ -71,36 +71,3 @@ test "process errors preserve launch open and validation failures" {
     }).is_EBADF(),
   )
 }
-
-///|
-test "standard stream helpers preserve bytes and report closed handles" {
-  let cmd = child_command()
-  let (code, output) = collect_stderr(
-    cmd,
-    ["root_stderr"],
-    extra_env=child_env(),
-  )
-  assert_eq(code, 0)
-  assert_eq(output, b"left\x00right")
-  for mode in ["bad_stdin", "bad_stderr"] {
-    let (code, output) = collect_stdout(cmd, [mode], extra_env=child_env())
-    assert_eq(code, 0)
-    assert_eq(output, b"badfd")
-  }
-  let dir = test_dir("stdin-bytes")
-  @fs.remove_all(dir)
-  defer (@fs.remove_all(dir) catch { _ => () })
-  @fs.mkdir(dir, recursive=true)
-  let file = dir + "/input"
-  for bytes in [b"", b"binary\x00\xff\r\n"] {
-    @fs.write_file(file, bytes)
-    let (code, output) = collect_stdout(
-      cmd,
-      ["root_stdin"],
-      stdin=redirect_from_file(file),
-      extra_env=child_env(),
-    )
-    assert_eq(code, 0)
-    assert_eq(output, bytes)
-  }
-}

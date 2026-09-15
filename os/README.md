@@ -2,14 +2,16 @@
 
 Synchronous native operating-system operations for MoonBit.
 
-The API is divided into four public packages:
+The API is divided into five public packages:
 
-- `moonbitlang/x/os` provides current-directory operations, standard-stream
-  helpers, clocks, and host process information.
+- `moonbitlang/x/os` provides current-directory operations, clocks, and host
+  process information.
 - [`moonbitlang/x/os/os_error`](os_error/README.md) provides native error
   codes, operation context, and portable error classification matching async.
 - [`moonbitlang/x/os/fs`](fs/README.md) provides byte-oriented file I/O,
   filesystem metadata, and mutation with async-aligned names and options.
+- [`moonbitlang/x/os/stdio`](stdio/README.md) provides synchronous byte I/O
+  and terminal detection for standard input, output, and error streams.
 - [`moonbitlang/x/os/process`](process/README.md) provides direct process
   spawning, byte-oriented output capture, file redirection, PID waiting, and
   executable lookup with async-aligned names and options.
@@ -30,9 +32,10 @@ Shared POSIX/Win32 stubs live under `internal/ffi`; the public packages expose M
 APIs without depending on the compiler or the async runtime. File descriptors,
 sockets, signals, users/groups, and terminal control are outside the initial scope.
 
-`read_stdin_bytes` and `write_stderr` raise on I/O failures. The reader preserves
-binary input; callers choose how to decode text. `write_stderr` writes the complete
-UTF-8 text, including embedded NUL.
+`stdio.stdin.read_all()`, `stdio.stdout.write(bytes)`, and
+`stdio.stderr.write(bytes)` preserve binary data and report returned I/O failures
+as errors. POSIX writes retain the process's SIGPIPE disposition. Callers choose
+text encoding, decoding, and newline handling.
 
 `monotonic_now_ns` reads a monotonic clock with an arbitrary origin, intended for
 elapsed-time measurements, and raises if the clock is unavailable. Nanosecond units

@@ -8,6 +8,7 @@ import {
 import {
   "moonbitlang/core/env",
   "moonbitlang/x/os",
+  "moonbitlang/x/os/stdio",
   "moonbitlang/x/sys",
 } for "test"
 

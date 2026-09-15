@@ -120,18 +120,69 @@ extern "c" fn child_close_fd(fd : Int) -> Int = "_close"
 fn child_main() -> Unit raise @os_error.OSError {
   let args = @env.args()
   match args[1] {
-    "root_stderr" => @os.write_stderr("left\u{0}right")
-    "root_stdin" => child_write(1, @os.read_stdin_bytes())
+    "stdio_outputs" => {
+      let bytes = b"skip\x00\xff\x80\r\nend"
+      @stdio.stdout.write(bytes[4:4])
+      @stdio.stderr.write(b"")
+      @stdio.stdout.write(bytes[4:9])
+      @stdio.stderr.write(bytes[5:8])
+    }
+    "stdio_large_outputs" => {
+      let bytes = Bytes::from_array(FixedArray::make(1048576, b'x'))
+      @stdio.stdout.write(bytes)
+      @stdio.stderr.write(bytes)
+    }
+    "stdio_stdin" => child_write(1, @stdio.stdin.read_all())
+    "stdio_terminals" =>
+      child_text(
+        "\{@stdio.stdin.is_terminal()}|\{@stdio.stdout.is_terminal()}|\{@stdio.stderr.is_terminal()}",
+      )
     "bad_stdin" => {
       child_close_fd(0) |> ignore
-      (@os.read_stdin_bytes() |> ignore) catch {
-        err => if err.is_EBADF() { child_text("badfd") } else { @sys.exit(95) }
+      if @stdio.stdin.is_terminal() {
+        @sys.exit(95)
+      }
+      (@stdio.stdin.read_all() |> ignore) catch {
+        err => {
+          let @os_error.OSError(_, context~) = err
+          if err.is_EBADF() && context == "stdin.read_all" {
+            child_text("badfd")
+          } else {
+            @sys.exit(95)
+          }
+        }
+      }
+    }
+    "bad_stdout" => {
+      child_close_fd(1) |> ignore
+      if @stdio.stdout.is_terminal() {
+        @sys.exit(95)
+      }
+      @stdio.stdout.write(b"unwritable") catch {
+        err => {
+          let @os_error.OSError(_, context~) = err
+          if err.is_EBADF() && context == "stdout.write" {
+            child_write(2, b"badfd")
+          } else {
+            @sys.exit(95)
+          }
+        }
       }
     }
     "bad_stderr" => {
       child_close_fd(2) |> ignore
-      @os.write_stderr("unwritable") catch {
-        err => if err.is_EBADF() { child_text("badfd") } else { @sys.exit(95) }
+      if @stdio.stderr.is_terminal() {
+        @sys.exit(95)
+      }
+      @stdio.stderr.write(b"unwritable") catch {
+        err => {
+          let @os_error.OSError(_, context~) = err
+          if err.is_EBADF() && context == "stderr.write" {
+            child_text("badfd")
+          } else {
+            @sys.exit(95)
+          }
+        }
       }
     }
     "args" =>
