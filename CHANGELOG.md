@@ -11,6 +11,20 @@
   algorithm selection, typed claims, expiration checks, and issuer/audience
   validation. (#318)
 
+### Changed
+
+- `@unicode.to_utf8_bytes` and `@unicode.to_utf8_string` now delegate to
+  `moonbitlang/core/encoding/utf8` (`encode` and `decode_lossy`). The decoder
+  replaces ill-formed input with U+FFFD instead of silently truncating it. (#325)
+
+- `@fs.read_file_to_string` now decodes malformed UTF-8 to U+FFFD instead of
+  dropping the trailing bytes, since it uses the core decoder. (#325)
+
+### Deprecated
+
+- Deprecated `@unicode.to_utf8_bytes` and `@unicode.to_utf8_string`; use
+  `encode` and `decode_lossy` from `moonbitlang/core/encoding/utf8` instead. (#325)
+
 ## [0.5.2]
 
 ### Added
