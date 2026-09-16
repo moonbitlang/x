@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#warnings("-deprecated")
 test "to_utf8_bytes encodes ASCII, BMP and astral chars" {
   debug_inspect(
     to_utf8_bytes("Hello"),
@@ -25,6 +26,7 @@ test "to_utf8_bytes encodes ASCII, BMP and astral chars" {
 }
 
 ///|
+#warnings("-deprecated")
 test "to_utf8_string decodes ASCII, BMP and astral chars" {
   debug_inspect(to_utf8_string(b"Hello"), content="\"Hello\"")
   debug_inspect(
@@ -34,6 +36,7 @@ test "to_utf8_string decodes ASCII, BMP and astral chars" {
 }
 
 ///|
+#warnings("-deprecated")
 test "to_utf8_bytes and to_utf8_string are inverse for astral pairs" {
   for s in ["😀", "\u{10000}\u{10ffff}", "hello 😦 世界"] {
     debug_inspect(to_utf8_string(to_utf8_bytes(s)) == s, content="true")
@@ -41,9 +44,10 @@ test "to_utf8_bytes and to_utf8_string are inverse for astral pairs" {
 }
 
 ///|
-test "to_utf8_string truncates incomplete trailing sequences" {
-  debug_inspect(to_utf8_string(b"\xE5\x95"), content="\"\"")
-  debug_inspect(to_utf8_string(b"\xF0\x9F\x98"), content="\"\"")
+#warnings("-deprecated")
+test "to_utf8_string replaces incomplete trailing sequences with U+FFFD" {
+  debug_inspect(to_utf8_string(b"\xE5\x95"), content="\"\u{FFFD}\"")
+  debug_inspect(to_utf8_string(b"\xF0\x9F\x98"), content="\"\u{FFFD}\"")
 }
 
 ///|

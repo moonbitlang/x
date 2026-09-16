@@ -12,8 +12,10 @@ pub let non_ascii_whitespace : CharClass
 
 pub fn to_lowercase(Char) -> Char
 
+#deprecated
 pub fn to_utf8_bytes(String) -> Bytes
 
+#deprecated
 pub fn to_utf8_string(Bytes) -> String
 
 pub fn utf16_pair_to_char(Int, Int) -> Char?

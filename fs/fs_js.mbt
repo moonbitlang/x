@@ -137,7 +137,7 @@ fn read_file_to_string_internal(
     )
   }
   let bytes = read_file_to_bytes_internal(path)
-  @unicode.to_utf8_string(bytes)
+  @utf8.decode_lossy(bytes)
 }
 
 ///|
@@ -162,7 +162,7 @@ fn write_string_to_file_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  let bytes = @unicode.to_utf8_bytes(content)
+  let bytes = @utf8.encode(content)
   write_bytes_to_file_internal(path, bytes)
 }
 

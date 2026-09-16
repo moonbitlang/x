@@ -201,7 +201,7 @@ fn read_file_to_string_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  @unicode.to_utf8_string(read_file_to_bytes_internal(path))
+  @utf8.decode_lossy(read_file_to_bytes_internal(path))
 }
 
 ///|
@@ -227,7 +227,7 @@ fn write_string_to_file_internal(
       "Unsupported encoding: \{encoding}, only utf8 is supported for now",
     )
   }
-  write_bytes_to_file_internal(path, @unicode.to_utf8_bytes(content))
+  write_bytes_to_file_internal(path, @utf8.encode(content))
 }
 
 ///|
