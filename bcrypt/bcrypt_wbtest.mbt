@@ -32,7 +32,7 @@ test "bcrypt base64 round trip" {
     (0xaf).to_byte(),
     (0xc3).to_byte(),
   ])
-  let encoded = bcrypt_base64_encode(salt.view(), 16)
+  let encoded = bcrypt_base64_encode(salt.exact_view(), 16)
   assert_eq(encoded, "abcdefghijklmnopqrstuu")
   assert_eq(bcrypt_base64_decode(encoded, 16).unwrap(), salt)
   assert_eq(
@@ -43,7 +43,7 @@ test "bcrypt base64 round trip" {
 
 ///|
 test "stream_to_word wraps input" {
-  let (word, offset) = stream_to_word(b"abc".view(), 0)
+  let (word, offset) = stream_to_word(b"abc".exact_view(), 0)
   assert_eq(word, 0x61626361U)
   assert_eq(offset, 1)
 }
