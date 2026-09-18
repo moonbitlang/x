@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- CI now tests the MoonBit Wasm allocator and uses the new coverage reporter. (#323)
+
 ### Added
 
 - Added `moonbitlang/x/encoding/percent` for percent encoding and
