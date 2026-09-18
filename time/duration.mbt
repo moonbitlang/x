@@ -264,8 +264,19 @@ pub fn Duration::add_duration(
     return self
   }
   let mut nanos = self.nanos.to_int64() + other.nanos.to_int64()
-  let mut secs = checked_add_int64(self.secs, other.secs)
-  secs = checked_add_int64(secs, nanos / nanoseconds_per_second)
+  let carry = nanos / nanoseconds_per_second
+  // self.secs + other.secs alone can overflow while the exact sum stays
+  // representable: both negative wrapping to MAX_VALUE (sum MIN_VALUE - 1)
+  // is pulled back to MIN_VALUE by the carry.
+  let rescues_to_min = self.secs < 0L &&
+    other.secs < 0L &&
+    carry == 1L &&
+    self.secs + other.secs == @int64.MAX_VALUE
+  let mut secs = if rescues_to_min {
+    @int64.MIN_VALUE
+  } else {
+    checked_add_int64(checked_add_int64(self.secs, other.secs), carry)
+  }
   nanos = nanos % nanoseconds_per_second
   if nanos < 0L {
     secs -= 1L

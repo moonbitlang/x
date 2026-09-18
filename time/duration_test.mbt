@@ -129,3 +129,11 @@ test "is_neg agrees with the sign of sub-second durations (#267)" {
     content="-999999999",
   )
 }
+
+///|
+test "fractional cancellation at minimum seconds" {
+  let a = @time.Duration::of(seconds=@int64.MIN_VALUE, nanoseconds=1L)
+  let b = @time.Duration::of(nanoseconds=-1L)
+  let expected = @time.Duration::of(seconds=@int64.MIN_VALUE)
+  assert_eq(a.add_duration(b), expected)
+}

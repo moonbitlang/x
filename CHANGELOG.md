@@ -70,6 +70,9 @@
 
 ### Fixed
 
+- Fixed `@time.Duration` to keep one canonical representation (floor
+  seconds, nonnegative nanos) so equal durations compare equal, and to
+  fold the nanosecond carry into `add_duration`'s overflow handling (#320)
 - Fixed deprecation warnings from trait method extension calls in
   `@rational`, `@time`, `@path`, `@uuid`, and `@decimal` (#302)
 - Hardened `@crypto` AES, ChaCha, and SHA-512 handling for side-channel,
