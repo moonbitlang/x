@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added `@time.Zone::from_tzif(id, BytesView)` to load TZif versions 1–4. (#328)
+
 - Added an internal TZif v1–v4 parser that preserves leap-second records and
   parses recurring-rule syntax as groundwork for timezone support. (#327)
 
@@ -25,8 +27,17 @@
 
 ### Deprecated
 
+- Deprecated `@time.Zone::from_tzif2`; use `Zone::from_tzif` instead. (#328)
+
 - Deprecated `@unicode.to_utf8_bytes` and `@unicode.to_utf8_string`; use
   `encode` and `decode_lossy` from `moonbitlang/core/encoding/utf8` instead. (#325)
+
+### Fixed
+
+- TZif zone loading now reads authoritative 64-bit transitions, converts
+  leap-bearing transition times to Unix seconds, and reports malformed input
+  as errors. Zero-offset types retain their abbreviation and DST flag;
+  unsupported designation characters use numeric offset abbreviations. (#328)
 
 ## [0.5.2]
 

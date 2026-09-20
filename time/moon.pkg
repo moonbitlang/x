@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/int",
   "moonbitlang/core/string",
   "moonbitlang/core/json",
+  "moonbitlang/x/time/internal/tzif",
 }
 
 import {
@@ -11,4 +12,5 @@ import {
 
 import {
   "moonbitlang/core/test",
+  "moonbitlang/core/buffer",
 } for "test"

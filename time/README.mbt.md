@@ -20,6 +20,17 @@ test {
 }
 ```
 
+Use `@time.Zone::from_tzif(id, data)` to load a caller-supplied TZif v1–v4 file.
+`data` is a `BytesView`; complete `Bytes` values can also be passed. The `id`
+labels the zone; the constructor does not look up timezone database files.
+`Zone::from_tzif2` is deprecated in favor of this interface.
+
+TZif loading currently uses explicit transitions only. Recurring footer rules
+are parsed but not evaluated, so the final recorded offset continues
+indefinitely. Leap-bearing transition times are converted to Unix seconds.
+For v4, transitions needing missing earlier leap history raise an error;
+after leap-table expiration, the last known correction is retained.
+
 ## TODOs
 
 - Convert from/to RFC format string.
