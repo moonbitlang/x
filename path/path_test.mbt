@@ -26,13 +26,13 @@ test "Path::to_string" {
 
 ///|
 test "node-compatible top-level dispatch smoke" {
-  if sep == '/' {
-    inspect(Path::join("a", "/b"), content="a/b")
-    inspect(Path::normalize(""), content=".")
-    inspect(Path::extname(".hidden"), content="")
+  if @path.sep == '/' {
+    inspect(@path.Path::join("a", "/b"), content="a/b")
+    inspect(@path.Path::normalize(""), content=".")
+    inspect(@path.Path::extname(".hidden"), content="")
   } else {
-    inspect(Path::join("a", "\\b"), content="a\\b")
-    inspect(Path::normalize(""), content=".")
-    inspect(Path::extname(".hidden"), content="")
+    inspect(@path.Path::join("a", "\\b"), content="a\\b")
+    inspect(@path.Path::normalize(""), content=".")
+    inspect(@path.Path::extname(".hidden"), content="")
   }
 }
