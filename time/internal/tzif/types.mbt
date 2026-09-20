@@ -24,7 +24,7 @@ pub(all) enum Version {
 /// The authoritative data block. For versions 2–4, the 32-bit compatibility
 /// block is skipped. An empty footer, or a version 1 file, has no future rule.
 /// This is format data: parsing does not resolve local times or apply leaps.
-pub struct Data {
+pub(all) struct Data {
   version : Version
   transitions : Array[Transition]
   local_time_types : Array[LocalTimeType]
@@ -35,7 +35,7 @@ pub struct Data {
 ///|
 /// `time` is a TZif UNIX leap timestamp, not necessarily a POSIX timestamp.
 /// `type_index` selects the local time type in effect from this transition.
-pub struct Transition {
+pub(all) struct Transition {
   time : Int64
   type_index : Int
 } derive(Eq, Debug)
@@ -44,7 +44,7 @@ pub struct Transition {
 /// Offset seconds are added to universal time to obtain local time.
 /// Designations are retained as bytes: older files need not contain UTF-8.
 /// Missing standard/wall and UT/local indicators default to false.
-pub struct LocalTimeType {
+pub(all) struct LocalTimeType {
   offset : Int
   is_dst : Bool
   designation : Bytes
@@ -56,7 +56,7 @@ pub struct LocalTimeType {
 /// A raw leap-table record, preserved without applying its correction.
 /// In v4, a final record repeating the preceding correction is an expiration
 /// marker. A first correction other than ±1 indicates missing earlier history.
-pub struct LeapRecord {
+pub(all) struct LeapRecord {
   time : Int64
   correction : Int
 } derive(Eq, Debug)

@@ -74,81 +74,113 @@ fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
 }
 
 ///|
-const TZIF_MAGIC_HEADER : Int = 0x545A6966
+/// Creates a time zone from a complete TZif v1–v4 file.
+///
+/// Versions 2–4 use the authoritative 64-bit transitions. Leap-bearing
+/// timestamps are converted to Unix seconds; a transition during an inserted
+/// leap second takes effect at the next ordinary second.
+///
+/// A transition preceding a truncated leap history raises an error because
+/// its correction is unknown. After leap-table expiration, the last known
+/// correction continues to apply, assuming no further leap corrections.
+///
+/// Only explicit transitions are used: footer rules are validated but not
+/// evaluated. Before the first transition (or when there are none), type 0 is
+/// used; after the last transition, its offset continues indefinitely.
+/// Offsets must fit `ZoneOffset`'s range of -18 to +18 hours.
+/// Designations containing characters other than ASCII letters, digits, `+`,
+/// and `-` are replaced with the signed numeric offset, following RFC 9636.
+pub fn Zone::from_tzif(id : String, data : BytesView) -> Zone raise Error {
+  Zone::from_tzif_data(id, @tzif.parse(data))
+}
 
 ///|
-const TZIF2_VERSION = 50
-
-///|
-const TZIF2_HEADER_SIZE : Int = 44
-
-///|
-/// Creates a time zone from TZif2 data.
+/// Compatibility entry point for callers with a `FixedArray[Byte]`.
+/// Accepts the same TZif versions as `Zone::from_tzif`.
+#deprecated("Use `Zone::from_tzif` with a `BytesView` instead")
 pub fn Zone::from_tzif2(
   id : String,
   data : FixedArray[Byte],
 ) -> Zone raise Error {
-  let magic = to_int_be(data, 0)
-  if magic != TZIF_MAGIC_HEADER {
-    raise Failure::Failure(
-      "invalid TZif magic: \{magic}, want \{TZIF_MAGIC_HEADER}",
-    )
-  }
-  let version = data[4].to_int()
-  if version != TZIF2_VERSION {
-    raise Failure::Failure(
-      "unsupported TZif2 version: \{version}, want \{TZIF2_VERSION}",
-    )
-  }
+  Zone::from_tzif(id, Bytes::from_array(data[:]))
+}
 
-  //
-  let timecnt = to_int_be(data, 32)
-  let typecnt = to_int_be(data, 36)
-  let transition_indices_offset = TZIF2_HEADER_SIZE + timecnt * 4
-  let ttinfo_offset = transition_indices_offset + timecnt
-  let abbrev_offset = ttinfo_offset + typecnt * 6
-  let transitions = Array::makei(timecnt, fn(i) {
-    let offset = TZIF2_HEADER_SIZE + i * 4
-    let transition_time = to_int_be(data, offset).to_int64()
-    (transition_time, data[transition_indices_offset + i].to_int())
+///|
+// Convert decoded records independently of the binary representation. The
+// public loader supplies validated parser output; tests can supply records.
+fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
+  let offsets = parsed.local_time_types.map(time_type => {
+    let offset = ZoneOffset::from_seconds(time_type.offset)
+    // RFC 9636 section 4 recommends a numeric offset for unsupported bytes.
+    // Validated ASCII bytes map directly to Unicode code points.
+    let abbrev = if time_type.designation
+      .iter()
+      .all(byte => {
+        byte is (b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'+' | b'-')
+      }) {
+      let name = StringBuilder()
+      for byte in time_type.designation {
+        name.write_char(byte.to_int().unsafe_to_char())
+      }
+      name.to_string()
+    } else if time_type.offset == 0 {
+      "+00"
+    } else {
+      offset.id().replace_all(old=":", new="")
+    }
+    // The public constructor canonicalizes zero to UTC; TZif metadata must
+    // survive even when the offset is zero (e.g. GMT or Irish winter time).
+    { ..offset, abbrev, dst: time_type.is_dst, }
   })
-  let offsets = Array(capacity=typecnt)
-  for i in 0..<typecnt {
-    let offset = ttinfo_offset + i * 6
-    let dst = data[offset + 4] != 0
-    let abbrev_index = abbrev_offset + data[offset + 5].to_int()
-    let abbrev = ascii_to_string(data, abbrev_index)
-    offsets.push(
-      ZoneOffset::from_seconds(to_int_be(data, offset), abbrev~, dst~),
-    )
+  let transitions = Array(capacity=parsed.transitions.length())
+  let mut leap_index = 0
+  let truncated_start = match parsed.leap_records {
+    [first, ..] if first.correction != 1 && first.correction != -1 =>
+      Some(first)
+    _ => None
+  }
+  let mut correction = match truncated_start {
+    Some(first) =>
+      // Only the first retained leap's sign is known before processing it.
+      // This prior value projects a transition during that inserted second;
+      // it must never be used for transitions before the retained history.
+      first.correction.to_int64() -
+      (if first.correction > 0 { 1L } else { -1L })
+    None => 0L
+  }
+  for transition in parsed.transitions {
+    if truncated_start is Some(first) && transition.time < first.time {
+      raise Failure::Failure(
+        "TZif transition precedes known leap-second history",
+      )
+    }
+    // Both tables are sorted. An expiration marker repeats the correction,
+    // so this scan carries it forward as permitted by RFC 9636 section 4.
+    while leap_index < parsed.leap_records.length() {
+      let leap = parsed.leap_records[leap_index]
+      if leap.time > transition.time {
+        break
+      }
+      if leap.time == transition.time && leap.correction.to_int64() > correction {
+        // An inserted second has no Unix-second representation. Use the old
+        // correction here to place its transition at the following second,
+        // rather than changing the offset one ordinary second too early.
+        break
+      }
+      correction = leap.correction.to_int64()
+      leap_index += 1
+    }
+    let time = checked_add_int64(transition.time, -correction)
+    // Projection can coincide with the following transition. Keep file order
+    // so lookup_offset selects the last change at that Unix second.
+    transitions.push((time, transition.type_index))
   }
   { id, offsets, transitions, }
 }
 
 ///|
-/// Helper function to convert bytes to 32-bit Int (big-endian)
-fn to_int_be(b : FixedArray[Byte], start : Int) -> Int {
-  (b[start].to_int() << 24) |
-  (b[start + 1].to_int() << 16) |
-  (b[start + 2].to_int() << 8) |
-  b[start + 3].to_int()
-}
-
-///|
-/// Helper function to convert a null-terminated ASCII string to a MoonBit String.
-fn ascii_to_string(b : FixedArray[Byte], start : Int) -> String {
-  let result = StringBuilder()
-  let mut start = start
-  while b[start] != 0 {
-    result.write_char(Int::unsafe_to_char(b[start].to_int()))
-    start += 1
-  }
-  result.to_string()
-}
-
-///|
-test "Zone::from_tzif2" {
-  let data : FixedArray[Byte] = [
+test "Zone::from_tzif loads Los Angeles" {
+  let data : Bytes = [
     // magic number
     84, 90, 105, 102,
     // version
@@ -336,7 +368,7 @@ test "Zone::from_tzif2" {
     49, 49, 46, 49, 46, 48, 10,
   ]
   let name = "America/Los_Angeles"
-  let zone = Zone::from_tzif2(name, data)
+  let zone = Zone::from_tzif(name, data)
   inspect(zone, content="America/Los_Angeles")
   let current_time_seconds = 1706659200L // Tuesday, January 30, 2024 4:00:00pm PST
   let got = unix(current_time_seconds, zone~)

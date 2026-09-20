@@ -314,6 +314,8 @@ pub impl Show for Weekday
 type Zone derive(Eq, @debug.Debug)
 #deprecated
 pub fn Zone::equal(Self, Self) -> Bool
+pub fn Zone::from_tzif(String, BytesView) -> Self raise
+#deprecated
 pub fn Zone::from_tzif2(String, FixedArray[Byte]) -> Self raise
 pub fn Zone::is_fixed(Self) -> Bool
 #deprecated
