@@ -13,8 +13,11 @@
 // limitations under the License.
 
 ///|
-fn aestest_ecb(key : BytesView, data : BytesView) -> String raise CryptoError {
-  bytes_to_hex_string(@crypto.aes_ecb_encrypt(key, data))
+fn aestest_ecb(
+  key : BytesView,
+  data : BytesView,
+) -> String raise @crypto.CryptoError {
+  @crypto.bytes_to_hex_string(@crypto.aes_ecb_encrypt(key, data))
 }
 
 ///|
@@ -66,12 +69,12 @@ test "aes cbc" {
   let data = b"\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff"
   let enc = @crypto.aes_cbc_encrypt(key, iv, data)
   inspect(
-    bytes_to_hex_string(enc),
+    @crypto.bytes_to_hex_string(enc),
     content="c6a13b37878f5b826f4f8162a1c8d8798d4df1c219d7c77049d4ea996ce7ae4c",
   )
   let dec = @crypto.aes_cbc_decrypt(key, iv, enc)
   inspect(
-    bytes_to_hex_string(dec),
+    @crypto.bytes_to_hex_string(dec),
     content="00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
   )
 }

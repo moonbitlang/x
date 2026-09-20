@@ -14,15 +14,18 @@
 
 ///|
 fn md5test(s : String) -> String {
-  bytes_to_hex_string(@crypto.md5(@encoding.encode(UTF16, s)))
+  @crypto.bytes_to_hex_string(@crypto.md5(@encoding.encode(UTF16, s)))
 }
 
 ///|
 test "md5_simple" {
-  let hash = md5(
+  let hash = @crypto.md5(
     @encoding.encode(UTF16, "The quick brown fox jumps over the lazy dog"),
   )
-  inspect(bytes_to_hex_string(hash), content="b0986ae6ee1eefee8a4a399090126837")
+  inspect(
+    @crypto.bytes_to_hex_string(hash),
+    content="b0986ae6ee1eefee8a4a399090126837",
+  )
 }
 
 ///|
@@ -49,28 +52,28 @@ test "md5_rfc1321" { // testsuites in RFC1321
 
 ///|
 test "md5 finalize_into writes at offset" {
-  let ctx = MD5::new()
+  let ctx = @crypto.MD5::new()
   ctx.update(b"abc".to_fixedarray())
   let buf = FixedArray::make(32, b'\x00')
   buf.fill(0xaa)
-  CryptoHasher::finalize_into(ctx, buf, offset=8)
+  @crypto.CryptoHasher::finalize_into(ctx, buf, offset=8)
   inspect(
-    bytes_to_hex_string(buf),
+    @crypto.bytes_to_hex_string(buf),
     content="aaaaaaaaaaaaaaaa900150983cd24fb0d6963f7d28e17f72aaaaaaaaaaaaaaaa",
   )
 }
 
 ///|
 test "md5 finalize is idempotent and reentrant" {
-  let ctx = MD5::new()
+  let ctx = @crypto.MD5::new()
   ctx.update(b"abc".to_fixedarray())
-  let first = bytes_to_hex_string(ctx.finalize())
-  let second = bytes_to_hex_string(ctx.finalize())
+  let first = @crypto.bytes_to_hex_string(ctx.finalize())
+  let second = @crypto.bytes_to_hex_string(ctx.finalize())
   inspect(first, content="900150983cd24fb0d6963f7d28e17f72")
   @test.assert_eq(first, second)
   ctx.update(b"def".to_fixedarray())
   inspect(
-    bytes_to_hex_string(ctx.finalize()),
+    @crypto.bytes_to_hex_string(ctx.finalize()),
     content="e80b5017098950fc58aad83c8c14978e",
   )
 }
@@ -86,5 +89,8 @@ test "md5_additional" { // Additional testsuites
     a[index] = (index % 256).to_byte()
   }
   let hash = @crypto.md5(FixedArray::from_array(a))
-  inspect(bytes_to_hex_string(hash), content="cbecbdb0fdd5cec1e242493b6008cc79")
+  inspect(
+    @crypto.bytes_to_hex_string(hash),
+    content="cbecbdb0fdd5cec1e242493b6008cc79",
+  )
 }

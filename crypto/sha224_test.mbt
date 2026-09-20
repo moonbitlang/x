@@ -50,42 +50,42 @@ test "sha224-additional" {
 
 ///|
 test "sha224 streaming" {
-  let ctx = SHA224::new()
+  let ctx = @crypto.SHA224::new()
   ctx.update(b"abc")
   @test.assert_eq(
-    bytes_to_hex_string(ctx.finalize()),
+    @crypto.bytes_to_hex_string(ctx.finalize()),
     "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7",
   )
-  let chunked = SHA224::new()
+  let chunked = @crypto.SHA224::new()
   chunked.update(b"a")
   chunked.update(b"b")
   chunked.update(b"c")
   @test.assert_eq(
-    bytes_to_hex_string(chunked.finalize()),
-    bytes_to_hex_string(sha224(b"abc")),
+    @crypto.bytes_to_hex_string(chunked.finalize()),
+    @crypto.bytes_to_hex_string(@crypto.sha224(b"abc")),
   )
-  let iter = SHA224::new()
+  let iter = @crypto.SHA224::new()
   iter.update_from_iter(b"abc".iter())
   @test.assert_eq(
-    bytes_to_hex_string(iter.finalize()),
-    bytes_to_hex_string(sha224(b"abc")),
+    @crypto.bytes_to_hex_string(iter.finalize()),
+    @crypto.bytes_to_hex_string(@crypto.sha224(b"abc")),
   )
 }
 
 ///|
 test "sha224 reset" {
-  let ctx = SHA224::new()
+  let ctx = @crypto.SHA224::new()
   ctx.update(b"abc")
-  let first = bytes_to_hex_string(ctx.finalize())
+  let first = @crypto.bytes_to_hex_string(ctx.finalize())
   ctx.update(b"abc")
   ctx.reset()
   ctx.update(b"abc")
-  @test.assert_eq(bytes_to_hex_string(ctx.finalize()), first)
+  @test.assert_eq(@crypto.bytes_to_hex_string(ctx.finalize()), first)
 }
 
 ///|
 test "sha224 finalize_into" {
-  let ctx = SHA224::new()
+  let ctx = @crypto.SHA224::new()
   ctx.update(b"abc")
   let digest = ctx.finalize()
   let buffer = FixedArray::make(32, b'\x00')
@@ -102,7 +102,9 @@ test "sha224 hmac" {
   let key = FixedArray::make(20, b'\x0b').unsafe_reinterpret_as_bytes()
   let message = b"Hi There"
   @test.assert_eq(
-    bytes_to_hex_string(hmac(SHA224::new(), key, message)),
+    @crypto.bytes_to_hex_string(
+      @crypto.hmac(@crypto.SHA224::new(), key, message),
+    ),
     "896fb1128abbdf196832107cd49df33f47b4b1169912ba4f53684b22",
   )
 }
@@ -110,12 +112,12 @@ test "sha224 hmac" {
 ///|
 #warnings("-deprecated")
 test "sha224 via deprecated initial state" {
-  let ctx = SHA256::new(reg=[
+  let ctx = @crypto.SHA256::new(reg=[
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7,
     0xbefa4fa4,
   ])
   ctx.update(b"abc")
-  let expected = sha224(b"abc")
+  let expected = @crypto.sha224(b"abc")
   let full = ctx.finalize()
   @test.assert_eq(full.length(), 32)
   for i = 0; i < 28; i = i + 1 {
