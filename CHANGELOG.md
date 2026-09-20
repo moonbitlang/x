@@ -34,6 +34,10 @@
 
 ### Fixed
 
+- TZif zones now apply recurring footer rules after the final recorded
+  transition, preserving future seasonal offset changes across all backends.
+  Files whose footer disagrees with the final transition are rejected. (#329)
+
 - TZif zone loading now reads authoritative 64-bit transitions, converts
   leap-bearing transition times to Unix seconds, and reports malformed input
   as errors. Zero-offset types retain their abbreviation and DST flag;

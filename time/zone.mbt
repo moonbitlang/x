@@ -18,11 +18,17 @@ struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int)] // (timestamp, offset_index)
+  future : ZoneFuture?
 } derive(Eq, Debug)
 
 ///|
 /// UTC time zone.
-pub let utc_zone : Zone = { id: "UTC", offsets: [utc_offset], transitions: [], }
+pub let utc_zone : Zone = {
+  id: "UTC",
+  offsets: [utc_offset],
+  transitions: [],
+  future: None,
+}
 
 ///|
 /// Creates a time zone with fixed offset from time zone id and offset seconds.
@@ -33,13 +39,18 @@ pub fn fixed_zone(
   dst? : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
-  { id, offsets: [offset], transitions: [], }
+  { id, offsets: [offset], transitions: [], future: None, }
 }
 
 ///|
-/// Checks if this zone only has one offset.
+/// Checks if this zone has a single offset without seasonal rules.
 pub fn Zone::is_fixed(self : Zone) -> Bool {
-  self.offsets.length() == 1
+  self.offsets.length() == 1 &&
+  (match self.future {
+    None => true
+    Some(Fixed(offset)) => self.offsets[0] == offset
+    Some(Seasonal(..)) => false
+  })
 }
 
 ///|
@@ -55,11 +66,12 @@ pub impl Show for Zone with fn output(self : Zone, logger : &Logger) -> Unit {
 
 ///|
 fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
+  if self.future is Some(future) &&
+    (self.transitions.is_empty() || secs >= self.transitions.last().unwrap().0) {
+    return future.lookup_offset(secs)
+  }
   if self.offsets.length() == 0 {
     return utc_offset
-  }
-  if self.is_fixed() {
-    return self.offsets[0]
   }
   let mut last_offset = 0
   for i in 0..<self.transitions.length() {
@@ -84,9 +96,15 @@ fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
 /// its correction is unknown. After leap-table expiration, the last known
 /// correction continues to apply, assuming no further leap corrections.
 ///
-/// Only explicit transitions are used: footer rules are validated but not
-/// evaluated. Before the first transition (or when there are none), type 0 is
-/// used; after the last transition, its offset continues indefinitely.
+/// The footer governs timestamps on or after the last explicit transition,
+/// or all timestamps when there are no transitions. Seasonal footer rules are
+/// evaluated without consulting the host's timezone settings. A daylight
+/// designation without transition rules raises an error, since its behavior
+/// would require implementation-defined defaults.
+/// A footer disagreeing with the final transition's offset, DST flag, or
+/// designation also raises an error.
+/// Before the first transition, type 0 is used. Without a footer, the last
+/// explicit offset continues indefinitely (or type 0 when there are none).
 /// Offsets must fit `ZoneOffset`'s range of -18 to +18 hours.
 /// Designations containing characters other than ASCII letters, digits, `+`,
 /// and `-` are replaced with the signed numeric offset, following RFC 9636.
@@ -175,7 +193,30 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
     // so lookup_offset selects the last change at that Unix second.
     transitions.push((time, transition.type_index))
   }
-  { id, offsets, transitions, }
+  let future = parsed.future_rule.map(ZoneFuture::from_posix)
+  if future is Some(future) && transitions.last() is Some((time, type_index)) {
+    // RFC 9636 section 3.3 requires agreement at the last transition. Compare
+    // at its projected Unix time, with the original designation: replacing
+    // unsupported bytes with a numeric name must not conceal malformed input.
+    let expected = parsed.local_time_types[type_index]
+    let name = StringBuilder()
+    for byte in expected.designation {
+      name.write_char(byte.to_int().unsafe_to_char())
+    }
+    let actual = future.lookup_offset(time)
+    // ZoneOffset equality compares only seconds, so check all three fields.
+    guard actual.seconds() == expected.offset &&
+      actual.is_dst() == expected.is_dst &&
+      actual.abbreviation() == name.to_string() else {
+      raise Failure::Failure("TZif footer disagrees with the final transition")
+    }
+  }
+  // With no history, a fixed footer describes the entire zone. Preserve the
+  // ordinary fixed-zone representation, including equality with utc_zone.
+  if transitions.is_empty() && future is Some(Fixed(offset)) {
+    return { id, offsets: [offset], transitions, future: None, }
+  }
+  { id, offsets, transitions, future, }
 }
 
 ///|
@@ -380,6 +421,9 @@ test "Zone::from_tzif loads Los Angeles" {
   inspect(got, content="2025-07-31T17:00:00-07:00[PDT]")
   inspect(got.offset(), content="-07:00")
   inspect(got.offset().is_dst(), content="true")
+  // Explicit transitions end in 2037; the footer still specifies summer DST.
+  let future = unix(2224713600L, zone~) // 2040-07-01T00:00:00Z.
+  inspect(future, content="2040-06-30T17:00:00-07:00[PDT]")
   // Behavior of a fixed-offset zone:
   let zone = fixed_zone(name, -25200, abbrev="PDT", dst=true)
   let got = unix(current_time_seconds, zone~)

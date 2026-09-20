@@ -25,9 +25,17 @@ Use `@time.Zone::from_tzif(id, data)` to load a caller-supplied TZif v1–v4 fil
 labels the zone; the constructor does not look up timezone database files.
 `Zone::from_tzif2` is deprecated in favor of this interface.
 
-TZif loading currently uses explicit transitions only. Recurring footer rules
-are parsed but not evaluated, so the final recorded offset continues
-indefinitely. Leap-bearing transition times are converted to Unix seconds.
+TZif loading uses explicit transitions for recorded history and evaluates the
+footer's recurring rules from the last transition onward. When there are no
+transitions, the footer governs all timestamps. Evaluation is portable across
+backends and does not consult the host's timezone settings. A daylight footer
+without explicit transition rules raises an error instead of assuming defaults.
+A footer that disagrees with the final transition's offset, DST flag, or
+designation also raises an error.
+Adjacent or overlapping annual daylight periods are treated as continuous
+daylight time.
+Without a footer, the final recorded offset continues indefinitely.
+Leap-bearing transition times are converted to Unix seconds.
 For v4, transitions needing missing earlier leap history raise an error;
 after leap-table expiration, the last known correction is retained.
 
@@ -35,6 +43,6 @@ after leap-table expiration, the last known correction is retained.
 
 - Convert from/to RFC format string.
 - Custom string formatter.
-- Support the time zone offset transition at daylight saving time.
+- Resolve ambiguous and nonexistent local times at daylight-saving transitions.
 - Support monotonic clock to accurately measure the elapsed time.
 - Support different calendar system, such as Chinese calendar system.
