@@ -79,6 +79,16 @@ pub suberror BcryptError {
 } derive(Eq, Debug)
 
 ///|
+#doc(hidden)
+#deprecated
+pub extend BcryptError with Eq::{not_equal, equal}
+
+///|
+#doc(hidden)
+#deprecated
+pub extend BcryptError with Debug::{to_repr}
+
+///|
 pub impl Show for BcryptError with fn output(self, logger) {
   match self {
     InvalidCost(n) => {
@@ -100,6 +110,11 @@ pub impl Show for BcryptError with fn output(self, logger) {
     InvalidBase64 => logger.write_string("InvalidBase64")
   }
 }
+
+///|
+#doc(hidden)
+#deprecated
+pub extend BcryptError with Show::{to_string, output}
 
 ///|
 priv struct ParsedHash {
