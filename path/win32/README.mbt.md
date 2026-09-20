@@ -22,19 +22,19 @@ Extract the last component of a path or get the directory part:
 ///|
 test "basename and dirname examples" {
   // Get the last component (filename)
-  let path : Path = "C:\\Users\\user"
+  let path : @win32.Path = "C:\\Users\\user"
   inspect(path.basename(), content="user")
-  let path : Path = "project\\src\\main.mbt"
+  let path : @win32.Path = "project\\src\\main.mbt"
   inspect(path.basename(), content="main.mbt")
 
   // Get the directory part
-  let path : Path = "C:\\Users\\user"
+  let path : @win32.Path = "C:\\Users\\user"
   inspect(path.dirname(), content="C:\\Users")
-  let path : Path = "project\\src\\main.mbt"
+  let path : @win32.Path = "project\\src\\main.mbt"
   inspect(path.dirname(), content="project\\src")
 
   // Handle trailing backslashes
-  let path : Path = "C:\\Users\\"
+  let path : @win32.Path = "C:\\Users\\"
   inspect(path.basename(), content="Users")
   inspect(path.dirname(), content="C:\\")
 }
@@ -48,16 +48,16 @@ Extract file extensions from paths:
 ///|
 test "extension extraction" {
   // Get file extension including the dot
-  let path : Path = "document.txt"
+  let path : @win32.Path = "document.txt"
   inspect(path.extname(), content=".txt")
-  let path : Path = "archive.tar.gz"
+  let path : @win32.Path = "archive.tar.gz"
   inspect(path.extname(), content=".gz")
-  let path : Path = "project\\main.mbt.md"
+  let path : @win32.Path = "project\\main.mbt.md"
   inspect(path.extname(), content=".md")
   // Files without extensions
-  let path : Path = "README"
+  let path : @win32.Path = "README"
   inspect(path.extname(), content="")
-  let path : Path = "project\\"
+  let path : @win32.Path = "project\\"
   inspect(path.extname(), content="")
 }
 ```
@@ -72,34 +72,34 @@ Windows has various types of absolute paths. The function correctly identifies t
 ///|
 test "absolute path detection" {
   // Standard drive letter paths
-  let path : Path = "C:\\"
+  let path : @win32.Path = "C:\\"
   json_inspect(path.is_absolute(), content=true)
-  let path : Path = "D:\\folder\\file"
+  let path : @win32.Path = "D:\\folder\\file"
   json_inspect(path.is_absolute(), content=true)
   // UNC paths (network shares)
-  let path : Path = "\\\\server\\share\\file"
+  let path : @win32.Path = "\\\\server\\share\\file"
   json_inspect(path.is_absolute(), content=true)
   // Verbatim UNC paths
-  let path : Path = "\\\\?\\UNC\\server\\share\\file"
+  let path : @win32.Path = "\\\\?\\UNC\\server\\share\\file"
   json_inspect(path.is_absolute(), content=true)
   // Verbatim drive letter paths
-  let path : Path = "\\\\?\\C:\\file"
+  let path : @win32.Path = "\\\\?\\C:\\file"
   json_inspect(path.is_absolute(), content=true)
   // Volume GUID paths
-  let path : Path = "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\file"
+  let path : @win32.Path = "\\\\?\\Volume{12345678-1234-1234-1234-1234567890ab}\\file"
   json_inspect(path.is_absolute(), content=true)
   // Device namespace paths
-  let path : Path = "\\\\.\\COM56"
+  let path : @win32.Path = "\\\\.\\COM56"
   json_inspect(path.is_absolute(), content=true)
   // Verbatim symlink paths
-  let path : Path = "\\\\?\\GLOBALROOT\\file"
+  let path : @win32.Path = "\\\\?\\GLOBALROOT\\file"
   json_inspect(path.is_absolute(), content=true)
   // Relative paths
-  let path : Path = "C:folder\\file" // Drive-relative
+  let path : @win32.Path = "C:folder\\file" // Drive-relative
   json_inspect(path.is_absolute(), content=false)
-  let path : Path = "Users\\user"
+  let path : @win32.Path = "Users\\user"
   json_inspect(path.is_absolute(), content=false)
-  let path : Path = ""
+  let path : @win32.Path = ""
   json_inspect(path.is_absolute(), content=false)
 }
 ```
@@ -114,17 +114,17 @@ Combine path components with proper separator handling:
 ///|
 test "path joining" {
   // Basic joining
-  let path : Path = "Users"
+  let path : @win32.Path = "Users"
   inspect(path.join("user"), content="Users\\user")
-  let path : Path = "project"
+  let path : @win32.Path = "project"
   inspect(path.join("src"), content="project\\src")
   // Handle trailing backslashes
-  let path : Path = "Users\\"
+  let path : @win32.Path = "Users\\"
   inspect(path.join("user"), content="Users\\user")
   // Absolute right-hand paths are joined then normalized
-  let path : Path = "relative"
+  let path : @win32.Path = "relative"
   inspect(path.join("\\absolute"), content="relative\\absolute")
-  let path : Path = "C:\\"
+  let path : @win32.Path = "C:\\"
   inspect(
     Show::to_string(path.join("folder").join("file.txt")),
     content="C:\\folder\\file.txt",
@@ -142,14 +142,14 @@ Clean up redundant components and resolve `.` and `..`:
 ///|
 test "path normalization" {
   // Remove redundant components
-  let path : Path = "a\\.\\b\\..\\c\\"
+  let path : @win32.Path = "a\\.\\b\\..\\c\\"
   inspect(path.normalize(), content="a\\c\\")
-  let path : Path = "C:\\Users\\..\\Windows"
+  let path : @win32.Path = "C:\\Users\\..\\Windows"
   inspect(path.normalize(), content="C:\\Windows")
   // Handle complex cases
-  let path : Path = "\\a\\b\\..\\..\\c\\."
+  let path : @win32.Path = "\\a\\b\\..\\..\\c\\."
   inspect(path.normalize(), content="\\c")
-  let path : Path = "a\\b\\c\\.."
+  let path : @win32.Path = "a\\b\\c\\.."
   inspect(path.normalize(), content="a\\b")
 }
 ```
@@ -163,22 +163,22 @@ Calculate the relative path between two Windows locations:
 test "relative path calculation" {
   // Same directory level
   let base = "C:\\Users\\user_name"
-  let path : Path = "C:\\Users\\user_name\\proj_a"
+  let path : @win32.Path = "C:\\Users\\user_name\\proj_a"
   // inspect(path)
   inspect(path.relative(base~), content="proj_a")
 
   // Go up one level
   let base = "C:\\Users\\user_name\\proj_a"
-  let path : Path = "C:\\Users\\user_name"
+  let path : @win32.Path = "C:\\Users\\user_name"
   inspect(path.relative(base~), content="..")
   // Same path
   let base = "C:\\Users\\user_name"
-  let path : Path = "C:\\Users\\user_name"
+  let path : @win32.Path = "C:\\Users\\user_name"
   inspect(path.relative(base~), content="")
 
   // Sibling directories
   let base = "C:\\Users\\user_name\\proj_a"
-  let path : Path = "C:\\Users\\user_name\\proj_b"
+  let path : @win32.Path = "C:\\Users\\user_name\\proj_b"
   inspect(path.relative(base~), content="..\\proj_b")
 }
 ```
@@ -191,9 +191,9 @@ Convert relative paths to absolute paths and normalize them:
 ///|
 test "path resolution" {
   // Resolve and normalize absolute paths
-  let path : Path = "C:\\Users\\..\\Windows\\System32"
+  let path : @win32.Path = "C:\\Users\\..\\Windows\\System32"
   inspect(path.resolve(), content="C:\\Windows\\System32")
-  let path : Path = "C:\\a\\b\\c\\..\\..\\.."
+  let path : @win32.Path = "C:\\a\\b\\c\\..\\..\\.."
   inspect(path.resolve(), content="C:\\")
 
   // Note: resolve() with relative paths depends on current working directory

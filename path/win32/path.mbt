@@ -89,7 +89,7 @@ pub impl Show for Path with fn to_string(path) {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr\\local\\"
+///   let path : @win32.Path = "usr\\local\\"
 ///   inspect(path.basename(), content="local")
 /// }
 /// ```
@@ -116,7 +116,7 @@ pub fn Path::basename(path : Path) -> StringView {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr\\local\\"
+///   let path : @win32.Path = "usr\\local\\"
 ///   inspect(path.dirname(), content="usr")
 /// }
 /// ```
@@ -154,7 +154,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "archive.tar.gz"
+///   let path : @win32.Path = "archive.tar.gz"
 ///   inspect(path.extname(), content=".gz")
 /// }
 /// ```
@@ -176,8 +176,8 @@ pub fn Path::extname(path : Path) -> StringView {
 ///
 /// ```moonbit check
 /// test {
-///   let path1 : Path = "C:\\Program Files\\App"
-///   let path2 : Path = "Program Files\\App"
+///   let path1 : @win32.Path = "C:\\Program Files\\App"
+///   let path2 : @win32.Path = "Program Files\\App"
 ///   json_inspect(path1.is_absolute(), content=true)
 ///   json_inspect(path2.is_absolute(), content=false)
 /// }
@@ -202,9 +202,9 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "C:\\foo\\bar"
+///   let path : @win32.Path = "C:\\foo\\bar"
 ///   inspect(path.root(), content="C:\\")
-///   let path : Path = "\\\\server\\share\\file"
+///   let path : @win32.Path = "\\\\server\\share\\file"
 ///   inspect(path.root(), content="\\\\server\\share\\")
 /// }
 /// ```
@@ -219,8 +219,8 @@ pub fn Path::root(path : Path) -> StringView {
 ///
 /// ```moonbit check
 /// test {
-///   let path1 : Path = "C::\\Program Files"
-///   let path2 : Path = "App"
+///   let path1 : @win32.Path = "C::\\Program Files"
+///   let path2 : @win32.Path = "App"
 ///   inspect(path1.join(path2), content="C::\\Program Files\\App")
 /// }
 /// ```
@@ -244,10 +244,10 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "C:\\usr\\\\local\\..\\bin\\"
+///   let path : @win32.Path = "C:\\usr\\\\local\\..\\bin\\"
 ///   inspect(path.normalize(), content="C:\\usr\\bin\\")
 ///
-///   let rooted_path : Path = "/usr//local/../bin/"
+///   let rooted_path : @win32.Path = "/usr//local/../bin/"
 ///   inspect(rooted_path.normalize(), content="\\usr\\bin\\")
 /// }
 /// ```
@@ -316,12 +316,12 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "C:\\Users\\Alice\\Documents\\Project"
-///   let base : Path = "C:\\Users\\Alice"
+///   let path : @win32.Path = "C:\\Users\\Alice\\Documents\\Project"
+///   let base : @win32.Path = "C:\\Users\\Alice"
 ///   inspect(path.relative(base~), content="Documents\\Project")
 ///
-///   let base : Path = "/usr/local/bin"
-///   let path : Path = "/usr/local/share/doc"
+///   let base : @win32.Path = "/usr/local/bin"
+///   let path : @win32.Path = "/usr/local/share/doc"
 ///   inspect(path.relative(base~), content="..\\share\\doc")
 /// }
 /// ```

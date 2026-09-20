@@ -425,7 +425,7 @@ fn[T] overflow_error() -> T raise RationalError {
 ///
 /// ```moonbit check
 /// test {
-///   let error = RationalError::RationalError("division by zero")
+///   let error = @rational.RationalError::RationalError("division by zero")
 ///   debug_inspect(
 ///     error,
 ///     content=(

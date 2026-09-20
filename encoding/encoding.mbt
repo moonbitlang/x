@@ -29,7 +29,7 @@
 /// ```moonbit check
 /// test {
 ///   let src = "Hello, World!"
-///   let encoded_bytes = encode(UTF8, src)
+///   let encoded_bytes = @encoding.encode(UTF8, src)
 ///   assert_eq(
 ///     encoded_bytes,
 ///     Bytes::from_array([

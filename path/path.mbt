@@ -42,7 +42,7 @@ pub impl Show for Path with fn to_string(path) {
 ///
 /// ```mbt check
 /// test {
-///   let path : Path = "usr/local/bin"
+///   let path : @path.Path = "usr/local/bin"
 ///   inspect(path.basename(), content="bin")
 /// }
 /// ```
@@ -59,7 +59,7 @@ pub fn Path::basename(path : Path) -> StringView {
 ///
 /// ```mbt check
 /// test {
-///   let path : Path = "usr/local/bin"
+///   let path : @path.Path = "usr/local/bin"
 ///   inspect(path.dirname(), content="usr/local")
 /// }
 /// ```
@@ -77,7 +77,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///
 /// ```mbt check
 /// test {
-///   let path : Path = "archive.tar.gz"
+///   let path : @path.Path = "archive.tar.gz"
 ///   inspect(path.extname(), content=".gz")
 /// }
 /// ```
@@ -96,8 +96,8 @@ pub fn Path::extname(path : Path) -> StringView {
 ///
 /// ```mbt check
 /// test {
-///   let path1 : Path = "/usr/local/bin"
-///   let path2 : Path = "usr/local/bin"
+///   let path1 : @path.Path = "/usr/local/bin"
+///   let path2 : @path.Path = "usr/local/bin"
 ///   json_inspect(path1.is_absolute(), content=true)
 ///   json_inspect(path2.is_absolute(), content=false)
 /// }
