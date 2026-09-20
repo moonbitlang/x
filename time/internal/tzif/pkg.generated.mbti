@@ -1,0 +1,135 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/time/internal/tzif"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse(BytesView) -> Data raise ParseError
+
+// Errors
+pub suberror ParseError {
+  ParseError(Int, String)
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn ParseError::equal(Self, Self) -> Bool
+#deprecated
+pub fn ParseError::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn ParseError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub struct Data {
+  version : Version
+  transitions : Array[Transition]
+  local_time_types : Array[LocalTimeType]
+  leap_records : Array[LeapRecord]
+  future_rule : PosixTz?
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Data::equal(Self, Self) -> Bool
+#deprecated
+pub fn Data::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Data::to_repr(Self) -> @debug.Repr
+
+pub struct Daylight {
+  designation : String
+  offset : Int
+  rules : (Rule, Rule)?
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Daylight::equal(Self, Self) -> Bool
+#deprecated
+pub fn Daylight::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Daylight::to_repr(Self) -> @debug.Repr
+
+pub struct LeapRecord {
+  time : Int64
+  correction : Int
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn LeapRecord::equal(Self, Self) -> Bool
+#deprecated
+pub fn LeapRecord::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn LeapRecord::to_repr(Self) -> @debug.Repr
+
+pub struct LocalTimeType {
+  offset : Int
+  is_dst : Bool
+  designation : Bytes
+  is_standard : Bool
+  is_ut : Bool
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn LocalTimeType::equal(Self, Self) -> Bool
+#deprecated
+pub fn LocalTimeType::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn LocalTimeType::to_repr(Self) -> @debug.Repr
+
+pub struct PosixTz {
+  standard_designation : String
+  standard_offset : Int
+  daylight : Daylight?
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn PosixTz::equal(Self, Self) -> Bool
+#deprecated
+pub fn PosixTz::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn PosixTz::to_repr(Self) -> @debug.Repr
+
+pub struct Rule {
+  day : RuleDay
+  time : Int
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Rule::equal(Self, Self) -> Bool
+#deprecated
+pub fn Rule::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Rule::to_repr(Self) -> @debug.Repr
+
+pub(all) enum RuleDay {
+  JulianNoLeap(Int)
+  DayOfYear(Int)
+  MonthWeekDay(month~ : Int, week~ : Int, weekday~ : Int)
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn RuleDay::equal(Self, Self) -> Bool
+#deprecated
+pub fn RuleDay::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn RuleDay::to_repr(Self) -> @debug.Repr
+
+pub struct Transition {
+  time : Int64
+  type_index : Int
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Transition::equal(Self, Self) -> Bool
+#deprecated
+pub fn Transition::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Transition::to_repr(Self) -> @debug.Repr
+
+pub(all) enum Version {
+  V1
+  V2
+  V3
+  V4
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Version::equal(Self, Self) -> Bool
+#deprecated
+pub fn Version::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Version::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
