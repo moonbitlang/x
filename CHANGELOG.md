@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added an internal TZif v1–v4 parser that preserves leap-second records and
+  parses recurring-rule syntax as groundwork for timezone support. (#327)
+
 - Added `moonbitlang/x/encoding/percent` for percent encoding and
   decoding with customizable ASCII escape characters. (#319)
 
