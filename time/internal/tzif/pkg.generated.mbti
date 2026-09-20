@@ -20,7 +20,7 @@ pub fn ParseError::not_equal(Self, Self) -> Bool
 pub fn ParseError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
-pub struct Data {
+pub(all) struct Data {
   version : Version
   transitions : Array[Transition]
   local_time_types : Array[LocalTimeType]
@@ -46,7 +46,7 @@ pub fn Daylight::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn Daylight::to_repr(Self) -> @debug.Repr
 
-pub struct LeapRecord {
+pub(all) struct LeapRecord {
   time : Int64
   correction : Int
 } derive(Eq, @debug.Debug)
@@ -57,7 +57,7 @@ pub fn LeapRecord::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn LeapRecord::to_repr(Self) -> @debug.Repr
 
-pub struct LocalTimeType {
+pub(all) struct LocalTimeType {
   offset : Int
   is_dst : Bool
   designation : Bytes
@@ -106,7 +106,7 @@ pub fn RuleDay::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn RuleDay::to_repr(Self) -> @debug.Repr
 
-pub struct Transition {
+pub(all) struct Transition {
   time : Int64
   type_index : Int
 } derive(Eq, @debug.Debug)
