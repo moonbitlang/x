@@ -19,6 +19,16 @@ pub(all) enum HmacAlgorithm {
 } derive(Eq, Debug)
 
 ///|
+#doc(hidden)
+#deprecated
+pub extend HmacAlgorithm with Eq::{not_equal, equal}
+
+///|
+#doc(hidden)
+#deprecated
+pub extend HmacAlgorithm with Debug::{to_repr}
+
+///|
 /// Errors from encoding or decoding a JWT.
 ///
 /// `InvalidArgument` reports invalid keys, claims to encode, or validation options.
@@ -36,6 +46,11 @@ pub suberror JwtError {
   Expired
   NotYetValid(not_before~ : Double)
 } derive(Debug)
+
+///|
+#doc(hidden)
+#deprecated
+pub extend JwtError with Debug::{to_repr}
 
 ///|
 /// Signs claims as a compact JWT. No claims are added automatically.
