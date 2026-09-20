@@ -14,11 +14,11 @@ For instance, `from_array` creates a stack from an array.
 ```moonbit check
 ///|
 test {
-  let st : @stack.Stack[Unit] = Stack::new()
+  let st : @stack.Stack[Unit] = @stack.Stack::new()
   inspect(st, content="Stack::[]")
-  let st2 = Stack::from_array([1, 2, 3])
+  let st2 = @stack.Stack::from_array([1, 2, 3])
   inspect(st2, content="Stack::[1, 2, 3]")
-  let st3 = Stack::of([1, 2, 3])
+  let st3 = @stack.Stack::of([1, 2, 3])
   inspect(st3, content="Stack::[1, 2, 3]")
 }
 ```
@@ -41,7 +41,7 @@ Use `length` to get the number of elements in the stack. The `is_empty` method c
 ```moonbit check
 ///|
 test {
-  let st = Stack::of([1, 2, 3])
+  let st = @stack.Stack::of([1, 2, 3])
   inspect(st.length(), content="3") // 3
   inspect(st.is_empty(), content="false") // false
 }
@@ -54,7 +54,7 @@ To add elements to the stack, use the `push` method, and to remove them, use the
 ```moonbit check
 ///|
 test {
-  let st = Stack::new()
+  let st = @stack.Stack::new()
   st.push(1)
   st.push(2)
   debug_inspect(st.pop(), content="Some(2)")
@@ -66,14 +66,14 @@ The unsafe version of `pop` is `unsafe_pop`, which will panic if the stack is em
 ```moonbit check
 ///|
 test {
-  let st = Stack::new()
+  let st = @stack.Stack::new()
   st.push(1)
   inspect(st.unsafe_pop(), content="1") // 1
 }
 
 ///|
 test "panic" {
-  let st = Stack::new()
+  let st = @stack.Stack::new()
   st.unsafe_pop()
 }
 ```
@@ -83,7 +83,7 @@ If you don't want to remove the element, you can use the `peek` method and the u
 ```moonbit check
 ///|
 test {
-  let st = Stack::of([1, 2, 3])
+  let st = @stack.Stack::of([1, 2, 3])
   debug_inspect(st.peek(), content="Some(1)")
   inspect(st.unsafe_peek(), content="1") // 1
 }
@@ -94,7 +94,7 @@ If the result of `pop` is not needed, you can use the `drop` method.
 ```moonbit check
 ///|
 test {
-  let st = Stack::of([1, 2, 3])
+  let st = @stack.Stack::of([1, 2, 3])
   st.drop()
   inspect(st, content="Stack::[2, 3]")
 }
@@ -107,7 +107,7 @@ To traverse the stack, use the `iter` method.
 ```moonbit check
 ///|
 test {
-  let st = Stack::of([1, 2, 3])
+  let st = @stack.Stack::of([1, 2, 3])
   let mut sum = 0
   st.iter().each(fn(x) { sum += x })
   inspect(sum, content="6")
@@ -121,7 +121,7 @@ You can convert the stack to an array using the `to_array` method or the `iter` 
 ```moonbit check
 ///|
 test {
-  let st = Stack::of([1, 2, 3])
+  let st = @stack.Stack::of([1, 2, 3])
   debug_inspect(st.to_array(), content="[1, 2, 3]")
   debug_inspect(Array::from_iter(st.iter()), content="[1, 2, 3]")
 }

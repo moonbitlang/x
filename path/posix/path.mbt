@@ -34,7 +34,7 @@ pub impl Show for Path with fn to_string(path) {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr/local/"
+///   let path : @posix.Path = "usr/local/"
 ///   inspect(path.basename(), content="local")
 /// }
 /// ```
@@ -56,7 +56,7 @@ pub fn Path::basename(path : Path) -> StringView {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "usr/local/"
+///   let path : @posix.Path = "usr/local/"
 ///   inspect(path.dirname(), content="usr")
 /// }
 /// ```
@@ -84,7 +84,7 @@ pub fn Path::dirname(path : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "archive.tar.gz"
+///   let path : @posix.Path = "archive.tar.gz"
 ///   inspect(path.extname(), content=".gz")
 /// }
 /// ```
@@ -106,8 +106,8 @@ pub fn Path::extname(path : Path) -> StringView {
 ///
 /// ```moonbit check
 /// test {
-///   let path1 : Path = "/usr/local/bin"
-///   let path2 : Path = "usr/local/bin"
+///   let path1 : @posix.Path = "/usr/local/bin"
+///   let path2 : @posix.Path = "usr/local/bin"
 ///   json_inspect(path1.is_absolute(), content=true)
 ///   json_inspect(path2.is_absolute(), content=false)
 /// }
@@ -123,11 +123,11 @@ pub fn Path::is_absolute(path : Path) -> Bool {
 ///
 /// ```mbt check
 /// test {
-///   assert_eq(Path::join("/usr/local", "bin"), "/usr/local/bin")
-///   assert_eq(Path::join("/usr/local", "/usr"), "/usr/local/usr")
-///   assert_eq(Path::join("/usr/local", ""), "/usr/local")
-///   assert_eq(Path::join("", "local/bin"), "local/bin")
-///   assert_eq(Path::join("", ""), ".")
+///   assert_eq(@posix.Path::join("/usr/local", "bin"), "/usr/local/bin")
+///   assert_eq(@posix.Path::join("/usr/local", "/usr"), "/usr/local/usr")
+///   assert_eq(@posix.Path::join("/usr/local", ""), "/usr/local")
+///   assert_eq(@posix.Path::join("", "local/bin"), "local/bin")
+///   assert_eq(@posix.Path::join("", ""), ".")
 /// }
 /// ```
 pub fn Path::join(lhs : Path, rhs : Path) -> Path {
@@ -151,7 +151,7 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let path : Path = "/usr//local/../bin/"
+///   let path : @posix.Path = "/usr//local/../bin/"
 ///   inspect(path.normalize(), content="/usr/bin/")
 /// }
 /// ```
@@ -182,8 +182,8 @@ fn trim_resolved_trailing_separators(path : Path) -> Path {
 ///
 /// ```moonbit check
 /// test {
-///   let base : Path = "/usr/local/bin"
-///   let path : Path = "/usr/local/share/doc"
+///   let base : @posix.Path = "/usr/local/bin"
+///   let path : @posix.Path = "/usr/local/share/doc"
 ///   inspect(path.relative(base~), content="../share/doc")
 /// }
 /// ```
