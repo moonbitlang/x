@@ -34,6 +34,12 @@
 
 ### Fixed
 
+- `@time.ZonedDateTime::of` and `from_plain_datetime` resolve offsets using
+  wall time, including future seasonal changes. Repeated times choose the
+  earlier instant; skipped times move forward across the gap within the
+  supported date range. Calendar edits preserve an existing offset when it
+  remains valid in a repeated hour. (#330)
+
 - TZif zones now apply recurring footer rules after the final recorded
   transition, preserving future seasonal offset changes across all backends.
   Files whose footer disagrees with the final transition are rejected. (#329)

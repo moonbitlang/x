@@ -39,10 +39,20 @@ Leap-bearing transition times are converted to Unix seconds.
 For v4, transitions needing missing earlier leap history raise an error;
 after leap-table expiration, the last known correction is retained.
 
+Local constructors resolve clock readings against the zone's offsets and
+transitions. When a clock reading occurs twice, construction chooses the
+earlier instant. When a forward jump skips the requested reading, it is moved
+forward across that gap; for example, a skipped 02:30 becomes 03:30 for a
+one-hour jump. Calendar edits retain the existing offset when it is still
+valid in an overlap. These rules apply to both recorded and recurring changes.
+`ZonedDateTime::from_plain_datetime` keeps its non-raising signature.
+Gap adjustments beyond the supported date range remain a known limitation:
+those inputs retain the historical, unresolved result and may not round trip
+through Unix time. The policy for that boundary is deferred.
+
 ## TODOs
 
 - Convert from/to RFC format string.
 - Custom string formatter.
-- Resolve ambiguous and nonexistent local times at daylight-saving transitions.
 - Support monotonic clock to accurately measure the elapsed time.
 - Support different calendar system, such as Chinese calendar system.

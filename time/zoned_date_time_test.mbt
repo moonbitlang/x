@@ -395,3 +395,16 @@ test "with_nanosecond" {
     content="2000-01-01T01:02:03.999999999+08:00[Asia/Shanghai]",
   )
 }
+
+///|
+test "local constructor remains non-raising" {
+  // This function's non-raising type is part of the compatibility contract.
+  let construct : (@time.PlainDateTime, @time.Zone) -> @time.ZonedDateTime = (
+    datetime,
+    zone,
+  ) => @time.ZonedDateTime::from_plain_datetime(datetime, zone~)
+  let zone = @time.fixed_zone("Fixed", 3600)
+  let plain = @time.PlainDateTime::of(2040, 1, 1)
+  let value = construct(plain, zone)
+  assert_eq(value.offset().seconds(), 3600)
+}
