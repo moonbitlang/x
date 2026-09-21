@@ -44,6 +44,7 @@ test "of" {
 }
 
 ///|
+#warnings("-deprecated")
 test "from_plain_datetime" {
   let zone = @time.fixed_zone("Asia/Shanghai", 8 * 60 * 60)
   let datetime = @time.PlainDateTime::of(2000, 1, 1)
@@ -397,6 +398,7 @@ test "with_nanosecond" {
 }
 
 ///|
+#warnings("-deprecated")
 test "local constructor remains non-raising" {
   // This function's non-raising type is part of the compatibility contract.
   let construct : (@time.PlainDateTime, @time.Zone) -> @time.ZonedDateTime = (
@@ -407,4 +409,23 @@ test "local constructor remains non-raising" {
   let plain = @time.PlainDateTime::of(2040, 1, 1)
   let value = construct(plain, zone)
   assert_eq(value.offset().seconds(), 3600)
+}
+
+///|
+test "local constructors expose optional disambiguation" {
+  let plain = @time.PlainDateTime::of(2040, 1, 1)
+  for disambiguation in [@time.Compatible, Earlier, Later, Reject] {
+    let value = @time.ZonedDateTime::from_plain(plain, disambiguation~)
+    assert_eq(value.to_plain_date_time(), plain)
+    assert_eq(value.offset().seconds(), 0)
+    assert_eq(
+      @time.ZonedDateTime::of(2040, 1, 1, disambiguation~).to_unix_second(),
+      value.to_unix_second(),
+    )
+    assert_eq(
+      @time.date_time(2040, 1, 1, disambiguation~).to_unix_second(),
+      value.to_unix_second(),
+    )
+  }
+  assert_eq(@time.ZonedDateTime::from_plain(plain).to_plain_date_time(), plain)
 }
