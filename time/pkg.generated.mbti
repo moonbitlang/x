@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn date_time(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
+pub fn date_time(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone, disambiguation? : Disambiguation) -> ZonedDateTime raise
 
 pub fn fixed_zone(String, Int, abbrev? : String, dst? : Bool) -> Zone raise
 
@@ -21,6 +21,19 @@ pub let utc_zone : Zone
 // Errors
 
 // Types and methods
+pub(all) enum Disambiguation {
+  Compatible
+  Earlier
+  Later
+  Reject
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Disambiguation::equal(Self, Self) -> Bool
+#deprecated
+pub fn Disambiguation::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Disambiguation::to_repr(Self) -> @debug.Repr
+
 type Duration derive(Compare, Eq, @debug.Debug)
 pub fn Duration::add_duration(Self, Self) -> Self raise
 pub fn Duration::add_hours(Self, Int64) -> Self raise
@@ -372,6 +385,8 @@ pub fn ZonedDateTime::days_in_week(Self) -> Int
 pub fn ZonedDateTime::days_in_year(Self) -> Int
 pub fn ZonedDateTime::era(Self) -> String
 pub fn ZonedDateTime::era_year(Self) -> Int
+pub fn ZonedDateTime::from_plain(PlainDateTime, zone? : Zone, disambiguation? : Disambiguation) -> Self raise
+#deprecated
 pub fn ZonedDateTime::from_plain_datetime(PlainDateTime, zone? : Zone) -> Self
 pub fn ZonedDateTime::from_unix_second(Int64, nanosecond? : Int, zone? : Zone) -> Self raise
 pub fn ZonedDateTime::hour(Self) -> Int
@@ -380,7 +395,7 @@ pub fn ZonedDateTime::minute(Self) -> Int
 pub fn ZonedDateTime::month(Self) -> Int
 pub fn ZonedDateTime::months_in_year(Self) -> Int
 pub fn ZonedDateTime::nanosecond(Self) -> Int
-pub fn ZonedDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone) -> Self raise
+pub fn ZonedDateTime::of(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanosecond? : Int, zone? : Zone, disambiguation? : Disambiguation) -> Self raise
 pub fn ZonedDateTime::offset(Self) -> ZoneOffset
 pub fn ZonedDateTime::ordinal(Self) -> Int
 #deprecated
