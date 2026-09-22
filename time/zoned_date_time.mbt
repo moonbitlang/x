@@ -14,6 +14,8 @@
 
 ///|
 /// A datetime with a time zone and offset in the ISO 8601 calendar system.
+/// By default, local construction chooses the earlier instant in an overlap
+/// and moves forward across a gap. Edits retain a still-valid offset.
 struct ZonedDateTime {
   datetime : PlainDateTime
   zone : Zone
@@ -21,8 +23,31 @@ struct ZonedDateTime {
 } derive(Debug)
 
 ///|
+/// How to resolve a local clock reading when a zone's offset changes.
+/// Unambiguous readings are unchanged by every policy.
+pub(all) enum Disambiguation {
+  /// Choose the earlier instant in an overlap; shift forward across a gap.
+  Compatible
+  /// Choose the earlier instant in an overlap; shift backward across a gap.
+  Earlier
+  /// Choose the later instant in an overlap; shift forward across a gap.
+  Later
+  /// Raise an error for either an overlap or a gap.
+  Reject
+} derive(Eq, Debug)
+
+///|
+#deprecated
+pub extend Disambiguation with Eq::{equal, not_equal}
+
+///|
+#deprecated
+pub extend Disambiguation with Debug::{to_repr}
+
+///|
 /// Creates a ZonedDateTime from year, month, day, hour, minute, second and a time zone.
 /// The default time zone is UTC+0.
+/// Uses the same disambiguation policy as `ZonedDateTime::of`.
 pub fn date_time(
   year : Int,
   month : Int,
@@ -32,6 +57,7 @@ pub fn date_time(
   second? : Int = 0,
   nanosecond? : Int = 0,
   zone? : Zone = utc_zone,
+  disambiguation? : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   ZonedDateTime::of(
     year,
@@ -42,6 +68,7 @@ pub fn date_time(
     second~,
     nanosecond~,
     zone~,
+    disambiguation~,
   )
 }
 
@@ -59,6 +86,10 @@ pub fn unix(
 ///|
 /// Creates a ZonedDateTime from year, month, day, hour, minute and second.
 /// The default time zone is UTC+0.
+/// `Compatible` (the default) chooses the earlier instant in an overlap and
+/// shifts forward across a gap. `Earlier` shifts backward across a gap;
+/// `Later` chooses the later instant in an overlap. `Reject` raises an error
+/// for either case. Adjustments beyond the date range remain unresolved.
 pub fn ZonedDateTime::of(
   year : Int,
   month : Int,
@@ -68,6 +99,7 @@ pub fn ZonedDateTime::of(
   second? : Int = 0,
   nanosecond? : Int = 0,
   zone? : Zone = utc_zone,
+  disambiguation? : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   let datetime = PlainDateTime::of(
     year,
@@ -78,17 +110,41 @@ pub fn ZonedDateTime::of(
     second~,
     nanosecond~,
   )
-  create_from_plain(datetime, zone)
+  create_from_plain(datetime, zone, disambiguation~)
+}
+
+///|
+/// Creates a ZonedDateTime from a local calendar date and clock reading.
+/// The default time zone is UTC+0.
+/// `Compatible` (the default) chooses the earlier instant in an overlap and
+/// shifts forward across a gap. `Earlier` shifts backward across a gap;
+/// `Later` chooses the later instant in an overlap. `Reject` raises an error
+/// for either case. Adjustments beyond the date range remain unresolved.
+pub fn ZonedDateTime::from_plain(
+  datetime : PlainDateTime,
+  zone? : Zone = utc_zone,
+  disambiguation? : Disambiguation = Compatible,
+) -> ZonedDateTime raise Error {
+  create_from_plain(datetime, zone, disambiguation~)
 }
 
 ///|
 /// Creates a ZonedDateTime from a PlainDateTime and a time zone.
 /// The default time zone is UTC+0.
+/// When clocks move backward and a local time occurs twice, uses the first
+/// occurrence. When clocks move forward and skip a local time, moves it forward
+/// by the gap's duration. Adjustments beyond the date range remain unresolved.
+#deprecated("Use `ZonedDateTime::from_plain` to choose a disambiguation policy")
 pub fn ZonedDateTime::from_plain_datetime(
   datetime : PlainDateTime,
   zone? : Zone = utc_zone,
 ) -> ZonedDateTime {
-  create_from_plain(datetime, zone)
+  // Compatible never rejects a reading. Keep this entry point non-raising
+  // while callers migrate to the constructor that supports explicit rejection.
+  create_from_plain(datetime, zone) catch {
+    _ =>
+      { datetime, zone, offset: zone.lookup_offset(datetime.to_unix_second()), }
+  }
 }
 
 ///|
@@ -269,7 +325,11 @@ pub fn ZonedDateTime::add_years(
   self : ZonedDateTime,
   years : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_years(years), self.zone)
+  create_from_plain(
+    self.datetime.add_years(years),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -278,7 +338,11 @@ pub fn ZonedDateTime::add_months(
   self : ZonedDateTime,
   months : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_months(months), self.zone)
+  create_from_plain(
+    self.datetime.add_months(months),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -287,7 +351,11 @@ pub fn ZonedDateTime::add_weeks(
   self : ZonedDateTime,
   weeks : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_weeks(weeks), self.zone)
+  create_from_plain(
+    self.datetime.add_weeks(weeks),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -296,7 +364,11 @@ pub fn ZonedDateTime::add_days(
   self : ZonedDateTime,
   days : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_days(days), self.zone)
+  create_from_plain(
+    self.datetime.add_days(days),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -305,7 +377,11 @@ pub fn ZonedDateTime::add_hours(
   self : ZonedDateTime,
   hours : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_hours(hours), self.zone)
+  create_from_plain(
+    self.datetime.add_hours(hours),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -314,7 +390,11 @@ pub fn ZonedDateTime::add_minutes(
   self : ZonedDateTime,
   minutes : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_minutes(minutes), self.zone)
+  create_from_plain(
+    self.datetime.add_minutes(minutes),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -323,7 +403,11 @@ pub fn ZonedDateTime::add_seconds(
   self : ZonedDateTime,
   seconds : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_seconds(seconds), self.zone)
+  create_from_plain(
+    self.datetime.add_seconds(seconds),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -332,7 +416,11 @@ pub fn ZonedDateTime::add_nanoseconds(
   self : ZonedDateTime,
   nanoseconds : Int64,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.add_nanoseconds(nanoseconds), self.zone)
+  create_from_plain(
+    self.datetime.add_nanoseconds(nanoseconds),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -341,7 +429,11 @@ pub fn ZonedDateTime::with_year(
   self : ZonedDateTime,
   year : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_year(year), self.zone)
+  create_from_plain(
+    self.datetime.with_year(year),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -350,7 +442,11 @@ pub fn ZonedDateTime::with_month(
   self : ZonedDateTime,
   month : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_month(month), self.zone)
+  create_from_plain(
+    self.datetime.with_month(month),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -359,7 +455,11 @@ pub fn ZonedDateTime::with_day(
   self : ZonedDateTime,
   day : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_day(day), self.zone)
+  create_from_plain(
+    self.datetime.with_day(day),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -368,7 +468,11 @@ pub fn ZonedDateTime::with_ordinal(
   self : ZonedDateTime,
   ordinal : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_ordinal(ordinal), self.zone)
+  create_from_plain(
+    self.datetime.with_ordinal(ordinal),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -377,7 +481,11 @@ pub fn ZonedDateTime::with_hour(
   self : ZonedDateTime,
   hour : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_hour(hour), self.zone)
+  create_from_plain(
+    self.datetime.with_hour(hour),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -386,7 +494,11 @@ pub fn ZonedDateTime::with_minute(
   self : ZonedDateTime,
   minute : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_minute(minute), self.zone)
+  create_from_plain(
+    self.datetime.with_minute(minute),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -395,7 +507,11 @@ pub fn ZonedDateTime::with_second(
   self : ZonedDateTime,
   second : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_second(second), self.zone)
+  create_from_plain(
+    self.datetime.with_second(second),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
@@ -404,12 +520,141 @@ pub fn ZonedDateTime::with_nanosecond(
   self : ZonedDateTime,
   nanosecond : Int,
 ) -> ZonedDateTime raise Error {
-  create_from_plain(self.datetime.with_nanosecond(nanosecond), self.zone)
+  create_from_plain(
+    self.datetime.with_nanosecond(nanosecond),
+    self.zone,
+    preferred=Some(self.offset),
+  )
 }
 
 ///|
-fn create_from_plain(datetime : PlainDateTime, zone : Zone) -> ZonedDateTime {
-  let offset = zone.lookup_offset(datetime.to_unix_second())
+// Local clock readings are not UTC timestamps. Test possible offsets against
+// the UTC lookup, so construction and conversion back from Unix time agree.
+fn create_from_plain(
+  datetime : PlainDateTime,
+  zone : Zone,
+  disambiguation? : Disambiguation = Compatible,
+  preferred? : ZoneOffset? = None,
+) -> ZonedDateTime raise Error {
+  // PlainDateTime's bounded year range leaves ample Int64 headroom for offsets.
+  let wall = datetime.to_unix_second()
+  if disambiguation == Compatible && preferred is Some(preferred) {
+    let offset = zone.lookup_offset(wall - preferred.seconds().to_int64())
+    if offset.seconds() == preferred.seconds() {
+      return { datetime, zone, offset, }
+    }
+  }
+  let future_offsets = match zone.future {
+    None => []
+    Some(Fixed(offset)) => [offset]
+    Some(Seasonal(standard~, daylight~, ..)) => [standard, daylight]
+  }
+  let mut chosen : ZoneOffset? = None
+  for candidate in zone.offsets.iter().concat(future_offsets.iter()) {
+    let offset = zone.lookup_offset(wall - candidate.seconds().to_int64())
+    if offset.seconds() != candidate.seconds() {
+      continue
+    }
+    match chosen {
+      None => chosen = Some(offset)
+      Some(previous) => {
+        // Several historical types may share one offset. Reject only distinct
+        // valid instants, not duplicate candidates or unused historical types.
+        if disambiguation == Reject && offset.seconds() != previous.seconds() {
+          fail("Ambiguous local time")
+        }
+        // Larger offsets give earlier instants for the same clock reading.
+        // Keep lookup's metadata, even when several types share an offset.
+        if (disambiguation == Later && offset.seconds() < previous.seconds()) ||
+          (disambiguation != Later && offset.seconds() > previous.seconds()) {
+          chosen = Some(offset)
+        }
+      }
+    }
+  }
+  if chosen is Some(offset) {
+    return { datetime, zone, offset, }
+  }
+  if disambiguation == Reject {
+    fail("Nonexistent local time")
+  }
+
+  // No offset maps back to this reading: locate the actual forward jump.
+  // Only transitions within the allowed +/-18-hour offsets can contain it.
+  // Looking at transition boundaries avoids mistaking unused historical types
+  // for either side of a gap. Projected duplicate transitions are harmless:
+  // lookup_offset selects the actual type before and after the whole change.
+  let lower = wall - 18L * 3600L
+  let upper = wall + 18L * 3600L
+  let changes = []
+  for (second, _) in zone.transitions {
+    if second >= lower && second <= upper {
+      changes.push(second)
+    }
+  }
+  if zone.future is Some(Seasonal(standard~, daylight~, start~, end~)) {
+    // Signed rule times and offsets can cross a nominal year boundary.
+    for year in (datetime.year() - 1)..<=(datetime.year() + 1) {
+      for
+        second in [
+          tzif_rule_time(start, year, standard.seconds()),
+          tzif_rule_time(end, year, daylight.seconds()),
+        ] {
+        if second >= lower && second <= upper {
+          changes.push(second)
+        }
+      }
+    }
+  }
+  changes.sort()
+  let mut shifted : (Int64, Int64)? = None
+  for second in changes {
+    let before = zone.lookup_offset(second - 1).seconds().to_int64()
+    let after = zone.lookup_offset(second).seconds().to_int64()
+    if wall >= second + before && wall < second + after {
+      // Interpret with the opposite side's offset, accounting for intervening
+      // changes. Closely spaced jumps can create overlapping wall-clock gaps;
+      // choose the smallest adjustment in the requested direction.
+      let instant = wall -
+        (if disambiguation == Earlier { after } else { before })
+      let resolved = instant + zone.lookup_offset(instant).seconds().to_int64()
+      let better = if disambiguation == Earlier {
+        resolved < wall &&
+        (
+          shifted is None ||
+          (shifted is Some((_, previous)) && resolved > previous)
+        )
+      } else {
+        resolved > wall &&
+        (
+          shifted is None ||
+          (shifted is Some((_, previous)) && resolved < previous)
+        )
+      }
+      if better {
+        shifted = Some((instant, resolved))
+      }
+    }
+  }
+  if shifted is Some((instant, _)) {
+    // The input's nanoseconds are valid and offset arithmetic fits Int64.
+    // Conversion can fail only if the adjustment exceeds the date range.
+    try
+      ZonedDateTime::from_unix_second(
+        instant,
+        nanosecond=datetime.nanosecond(),
+        zone~,
+      )
+    catch {
+      _ => ()
+    } noraise {
+      value => return value
+    }
+  }
+  // TODO: Decide how to handle an unrepresentable gap adjustment, such as
+  // 9999-12-31 23:30 moving into year 10000. Keep the historical result until
+  // that policy is settled, without introducing an error or a panic here.
+  let offset = zone.lookup_offset(wall)
   { datetime, zone, offset, }
 }
 

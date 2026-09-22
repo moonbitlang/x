@@ -73,16 +73,22 @@ fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
   if self.offsets.length() == 0 {
     return utc_offset
   }
-  let mut last_offset = 0
-  for i in 0..<self.transitions.length() {
-    let (timestamp, offset_index) = self.transitions[i]
-    if timestamp <= secs {
-      last_offset = offset_index
+  // Find the first transition strictly after secs. Leap projection can make
+  // timestamps coincide, so the last record at or before secs must win.
+  // Local resolution calls this for each candidate offset; keep it logarithmic
+  // even for caller-supplied TZif files with large type and transition tables.
+  let end = for low = 0, high = self.transitions.length(); low < high; {
+    let mid = low + (high - low) / 2
+    if self.transitions[mid].0 <= secs {
+      continue mid + 1, high
     } else {
-      break
+      continue low, mid
     }
+  } nobreak {
+    low
   }
-  return self.offsets[last_offset]
+  let offset_index = if end == 0 { 0 } else { self.transitions[end - 1].1 }
+  self.offsets[offset_index]
 }
 
 ///|

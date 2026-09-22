@@ -4,6 +4,10 @@
 
 ### Added
 
+- Added `@time.ZonedDateTime::from_plain` and optional `disambiguation` arguments
+  on local constructors. Choose `Compatible` (the default), `Earlier`, `Later`,
+  or `Reject` to control repeated or skipped local times. (#330)
+
 - Added `@time.Zone::from_tzif(id, BytesView)` to load TZif versions 1–4. (#328)
 
 - Added an internal TZif v1–v4 parser that preserves leap-second records and
@@ -27,12 +31,22 @@
 
 ### Deprecated
 
+- Deprecated `@time.ZonedDateTime::from_plain_datetime` in favor of `from_plain`.
+  The existing constructor keeps its non-raising signature and default
+  resolution behavior. (#330)
+
 - Deprecated `@time.Zone::from_tzif2`; use `Zone::from_tzif` instead. (#328)
 
 - Deprecated `@unicode.to_utf8_bytes` and `@unicode.to_utf8_string`; use
   `encode` and `decode_lossy` from `moonbitlang/core/encoding/utf8` instead. (#325)
 
 ### Fixed
+
+- Local `@time.ZonedDateTime` construction now checks offsets against the
+  requested clock reading, fixing incorrect instants near zone transitions.
+  By default, repeated readings choose the earlier instant and skipped readings
+  shift forward within the supported date range. Calendar edits preserve an
+  existing offset when it remains valid in an overlap. (#330)
 
 - TZif zones now apply recurring footer rules after the final recorded
   transition, preserving future seasonal offset changes across all backends.

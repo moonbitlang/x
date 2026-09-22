@@ -39,10 +39,53 @@ Leap-bearing transition times are converted to Unix seconds.
 For v4, transitions needing missing earlier leap history raise an error;
 after leap-table expiration, the last known correction is retained.
 
+`PlainDateTime` holds calendar and clock fields without a time zone: 01:00
+means a clock reading, not one elapsed hour since midnight. A zone can map
+that reading to one instant, multiple instants when clocks move backward, or
+no instant when clocks skip forward.
+
+`ZonedDateTime::from_plain`, `ZonedDateTime::of`, and `date_time` accept an optional
+`disambiguation` argument when resolving those readings:
+
+| Policy | Repeated reading (overlap) | Skipped reading (gap) |
+| --- | --- | --- |
+| `Compatible` (default) | Choose the earlier instant | Shift forward by the gap |
+| `Earlier` | Choose the earlier instant | Shift backward by the gap |
+| `Later` | Choose the later instant | Shift forward by the gap |
+| `Reject` | Raise an error | Raise an error |
+
+For a jump from 02:00 to 03:00, a requested 02:30 becomes 03:30 under
+`Compatible` or `Later`, 01:30 under `Earlier`, and raises under `Reject`.
+Unambiguous readings are preserved under every policy. These rules apply to
+both recorded and recurring changes. Calendar edits retain the existing offset
+when it is still valid in an overlap and otherwise use `Compatible`.
+
+```moonbit check
+///|
+test {
+  let plain = @time.PlainDateTime::of(2040, 1, 1, hour=1)
+  let zone = @time.fixed_zone("Example", 3600)
+  let value = @time.ZonedDateTime::from_plain(
+    plain,
+    zone~,
+    disambiguation=Reject,
+  )
+  // A fixed zone has exactly one matching instant for every local reading.
+  inspect(value, content="2040-01-01T01:00:00+01:00[Example]")
+}
+```
+
+`ZonedDateTime::from_plain_datetime` is deprecated but keeps its non-raising
+signature and `Compatible` behavior. Migrate to `ZonedDateTime::from_plain`,
+which raises when `Reject` is requested and the input is ambiguous or missing.
+
+Gap adjustments beyond the supported date range remain a known limitation:
+those inputs retain the historical, unresolved result and may not round trip
+through Unix time. The policy for that boundary is deferred.
+
 ## TODOs
 
 - Convert from/to RFC format string.
 - Custom string formatter.
-- Resolve ambiguous and nonexistent local times at daylight-saving transitions.
 - Support monotonic clock to accurately measure the elapsed time.
 - Support different calendar system, such as Chinese calendar system.
