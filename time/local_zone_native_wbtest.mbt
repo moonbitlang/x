@@ -28,7 +28,7 @@ test "system local zone loads as a reusable snapshot" {
 
 ///|
 #cfg(all(target="native", platform="windows"))
-extern "C" fn windows_local_offset(second : Int64, local_year : Int) -> Int = "moonbitlang_x_time_windows_local_offset"
+extern "C" fn windows_local_offset(second : Int64, local_year : Int32) -> Int32 = "moonbitlang_x_time_windows_local_offset"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -115,8 +115,8 @@ test "unavailable error descriptions retain the original code and context" {
 #borrow(self, years)
 extern "C" fn WindowsTimezone::registry_years(
   self : WindowsTimezone,
-  years : FixedArray[UInt],
-) -> UInt = "moonbitlang_x_time_windows_registry_years"
+  years : FixedArray[UInt32],
+) -> UInt32 = "moonbitlang_x_time_windows_registry_years"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -124,8 +124,8 @@ test "Windows 7 registry year range agrees with runtime API discovery" {
   let error = Ref(0U)
   let windows = WindowsTimezone::load(error)
   assert_eq(error.val, 0U)
-  let years : FixedArray[UInt] = [0U, 0U]
-  let registry_years : FixedArray[UInt] = [0U, 0U]
+  let years : FixedArray[UInt32] = [0U, 0U]
+  let registry_years : FixedArray[UInt32] = [0U, 0U]
   let status = windows.effective_years(years)
   assert_eq(windows.registry_years(registry_years), status)
   assert_true(status == 0U || status == 2U)

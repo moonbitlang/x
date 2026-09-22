@@ -18,22 +18,22 @@
 // Constructed only by Windows-native code and white-box tests.
 #warnings("-struct_never_constructed")
 priv struct WindowsSystemTime {
-  year : Int
-  month : Int
-  weekday : Int
-  day : Int
-  hour : Int
-  minute : Int
-  second : Int
-  millisecond : Int
+  year : Int32
+  month : Int32
+  weekday : Int32
+  day : Int32
+  hour : Int32
+  minute : Int32
+  second : Int32
+  millisecond : Int32
 } derive(Eq)
 
 ///|
 #warnings("-struct_never_constructed")
 priv struct WindowsTimeZoneInfo {
-  bias : Int
-  standard_bias : Int
-  daylight_bias : Int
+  bias : Int32
+  standard_bias : Int32
+  daylight_bias : Int32
   standard_date : WindowsSystemTime
   daylight_date : WindowsSystemTime
 }
@@ -44,11 +44,11 @@ priv struct WindowsTimeZoneInfo {
 priv enum WindowsRecord {
   Fixed(ZoneOffset)
   Annual(WindowsRule)
-  Absolute(Int, WindowsRule)
+  Absolute(Int32, WindowsRule)
 }
 
 ///|
-fn WindowsRecord::for_year(self : WindowsRecord, year : Int) -> Recurring {
+fn WindowsRecord::for_year(self : WindowsRecord, year : Int32) -> Recurring {
   match self {
     Fixed(offset) => Fixed(offset)
     Annual(rule) => Windows(rule)
@@ -64,7 +64,7 @@ fn WindowsRecord::for_year(self : WindowsRecord, year : Int) -> Recurring {
 ///|
 fn WindowsSystemTime::to_transition(
   self : WindowsSystemTime,
-) -> (Int, WindowsDate?) raise Error {
+) -> (Int32, WindowsDate?) raise Error {
   let { year, month, weekday, day, hour, minute, second, millisecond, } = self
   if month == 0 {
     return (0, None)
@@ -122,7 +122,7 @@ fn WindowsSystemTime::to_transition(
 #warnings("-unused_value")
 fn Zone::from_windows_rules(
   id : String,
-  first_year : Int?,
+  first_year : Int32?,
   rules : Array[WindowsTimeZoneInfo],
 ) -> Zone raise Error {
   let first = match first_year {
@@ -237,8 +237,8 @@ fn Zone::from_windows_rules(
     86400L -
     previous.seconds().to_int64()
   let offsets : Array[ZoneOffset] = []
-  let indices : Map[(Int, Bool), Int] = Map([])
-  let transitions : Array[(Int64, Int)] = []
+  let indices : Map[(Int32, Bool), Int32] = Map([])
+  let transitions : Array[(Int64, Int32)] = []
   let mut finish = cutoff
   for year in first..<=last {
     let index = (year - table_first).clamp(min=0, max=records.length() - 1)

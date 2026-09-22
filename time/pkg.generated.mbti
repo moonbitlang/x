@@ -12,6 +12,8 @@ pub fn date_time(Int, Int, Int, hour? : Int, minute? : Int, second? : Int, nanos
 
 pub fn fixed_zone(String, Int, abbrev? : String, dst? : Bool) -> Zone raise
 
+pub fn local_zone() -> Zone raise
+
 pub fn unix(Int64, nanosecond? : Int, zone? : Zone) -> ZonedDateTime raise
 
 pub let utc_offset : ZoneOffset
@@ -19,6 +21,12 @@ pub let utc_offset : ZoneOffset
 pub let utc_zone : Zone
 
 // Errors
+pub suberror LocalZoneError {
+  LocalZoneError(UInt, context~ : String, message~ : String)
+}
+pub fn LocalZoneError::output(Self, &Logger) -> Unit
+pub fn LocalZoneError::to_string(Self) -> String
+pub impl Show for LocalZoneError
 
 // Types and methods
 pub(all) enum Disambiguation {

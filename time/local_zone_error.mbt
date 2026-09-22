@@ -19,7 +19,7 @@
 /// Malformed timezone data is reported separately by the timezone decoder.
 #warnings("-unused_constructor")
 pub suberror LocalZoneError {
-  LocalZoneError(UInt, context~ : String, message~ : String)
+  LocalZoneError(UInt32, context~ : String, message~ : String)
 }
 
 ///|

@@ -15,12 +15,12 @@
 ///|
 #cfg(all(target="native", not(platform="windows")))
 #borrow(path, error)
-extern "C" fn local_zone_path(path : Bytes, error : Ref[UInt]) -> Bytes = "moonbitlang_x_time_local_zone_path"
+extern "C" fn local_zone_path(path : Bytes, error : Ref[UInt32]) -> Bytes = "moonbitlang_x_time_local_zone_path"
 
 ///|
 #cfg(all(target="native", not(platform="windows")))
 #borrow(path, error)
-extern "C" fn read_zone_file(path : Bytes, error : Ref[UInt]) -> Bytes = "moonbitlang_x_time_read_zone_file"
+extern "C" fn read_zone_file(path : Bytes, error : Ref[UInt32]) -> Bytes = "moonbitlang_x_time_read_zone_file"
 
 ///|
 #cfg(all(target="native", not(platform="windows")))
@@ -61,7 +61,7 @@ priv type WindowsTimezone
 ///|
 #cfg(all(target="native", platform="windows"))
 #borrow(error)
-extern "C" fn WindowsTimezone::load(error : Ref[UInt]) -> WindowsTimezone = "moonbitlang_x_time_windows_current_zone"
+extern "C" fn WindowsTimezone::load(error : Ref[UInt32]) -> WindowsTimezone = "moonbitlang_x_time_windows_current_zone"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -73,16 +73,16 @@ extern "C" fn WindowsTimezone::name(self : WindowsTimezone) -> String = "moonbit
 #borrow(self, years)
 extern "C" fn WindowsTimezone::effective_years(
   self : WindowsTimezone,
-  years : FixedArray[UInt],
-) -> UInt = "moonbitlang_x_time_windows_zone_years"
+  years : FixedArray[UInt32],
+) -> UInt32 = "moonbitlang_x_time_windows_zone_years"
 
 ///|
 #cfg(all(target="native", platform="windows"))
 #borrow(self)
 extern "C" fn WindowsTimezone::rule_for_year(
   self : WindowsTimezone,
-  year : Int,
-) -> UInt = "moonbitlang_x_time_windows_zone_rule"
+  year : Int32,
+) -> UInt32 = "moonbitlang_x_time_windows_zone_rule"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -92,17 +92,17 @@ extern "C" fn WindowsTimezone::dynamic_disabled(self : WindowsTimezone) -> Bool 
 ///|
 #cfg(all(target="native", platform="windows"))
 #borrow(self)
-extern "C" fn WindowsTimezone::bias(self : WindowsTimezone) -> Int = "moonbitlang_x_time_windows_bias"
+extern "C" fn WindowsTimezone::bias(self : WindowsTimezone) -> Int32 = "moonbitlang_x_time_windows_bias"
 
 ///|
 #cfg(all(target="native", platform="windows"))
 #borrow(self)
-extern "C" fn WindowsTimezone::standard_bias(self : WindowsTimezone) -> Int = "moonbitlang_x_time_windows_standard_bias"
+extern "C" fn WindowsTimezone::standard_bias(self : WindowsTimezone) -> Int32 = "moonbitlang_x_time_windows_standard_bias"
 
 ///|
 #cfg(all(target="native", platform="windows"))
 #borrow(self)
-extern "C" fn WindowsTimezone::daylight_bias(self : WindowsTimezone) -> Int = "moonbitlang_x_time_windows_daylight_bias"
+extern "C" fn WindowsTimezone::daylight_bias(self : WindowsTimezone) -> Int32 = "moonbitlang_x_time_windows_daylight_bias"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -110,7 +110,7 @@ extern "C" fn WindowsTimezone::daylight_bias(self : WindowsTimezone) -> Int = "m
 extern "C" fn WindowsTimezone::date_year(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_year"
+) -> Int32 = "moonbitlang_x_time_windows_date_year"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -118,7 +118,7 @@ extern "C" fn WindowsTimezone::date_year(
 extern "C" fn WindowsTimezone::date_month(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_month"
+) -> Int32 = "moonbitlang_x_time_windows_date_month"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -126,7 +126,7 @@ extern "C" fn WindowsTimezone::date_month(
 extern "C" fn WindowsTimezone::date_weekday(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_weekday"
+) -> Int32 = "moonbitlang_x_time_windows_date_weekday"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -134,7 +134,7 @@ extern "C" fn WindowsTimezone::date_weekday(
 extern "C" fn WindowsTimezone::date_day(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_day"
+) -> Int32 = "moonbitlang_x_time_windows_date_day"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -142,7 +142,7 @@ extern "C" fn WindowsTimezone::date_day(
 extern "C" fn WindowsTimezone::date_hour(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_hour"
+) -> Int32 = "moonbitlang_x_time_windows_date_hour"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -150,7 +150,7 @@ extern "C" fn WindowsTimezone::date_hour(
 extern "C" fn WindowsTimezone::date_minute(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_minute"
+) -> Int32 = "moonbitlang_x_time_windows_date_minute"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -158,7 +158,7 @@ extern "C" fn WindowsTimezone::date_minute(
 extern "C" fn WindowsTimezone::date_second(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_second"
+) -> Int32 = "moonbitlang_x_time_windows_date_second"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -166,7 +166,7 @@ extern "C" fn WindowsTimezone::date_second(
 extern "C" fn WindowsTimezone::date_millisecond(
   self : WindowsTimezone,
   daylight~ : Bool,
-) -> Int = "moonbitlang_x_time_windows_date_millisecond"
+) -> Int32 = "moonbitlang_x_time_windows_date_millisecond"
 
 ///|
 #cfg(all(target="native", platform="windows"))
@@ -225,7 +225,7 @@ pub fn local_zone() -> Zone raise Error {
     // determine whether DST itself is disabled.
     (None, [windows.read_rule()])
   } else {
-    let years : FixedArray[UInt] = [0U, 0U]
+    let years : FixedArray[UInt32] = [0U, 0U]
     let error = windows.effective_years(years)
     if error == 2U { // ERROR_FILE_NOT_FOUND: no historical year range.
       (None, [windows.read_rule()])
@@ -261,22 +261,22 @@ pub fn local_zone() -> Zone raise Error {
 
 ///|
 #cfg(all(target="native", platform="windows"))
-extern "C" fn local_zone_error_message(code : UInt) -> String = "moonbitlang_x_time_local_zone_error_message"
+extern "C" fn local_zone_error_message(code : UInt32) -> String = "moonbitlang_x_time_local_zone_error_message"
 
 ///|
 #cfg(all(target="native", not(platform="windows")))
-extern "C" fn local_zone_error_message(code : UInt) -> Bytes = "moonbitlang_x_time_local_zone_error_message"
+extern "C" fn local_zone_error_message(code : UInt32) -> Bytes = "moonbitlang_x_time_local_zone_error_message"
 
 ///|
 #cfg(all(target="native", platform="windows"))
-fn local_zone_error(code : UInt, context : String) -> LocalZoneError {
+fn local_zone_error(code : UInt32, context : String) -> LocalZoneError {
   let message = local_zone_error_message(code).trim_end(chars="\r\n").to_owned()
   LocalZoneError(code, context~, message~)
 }
 
 ///|
 #cfg(all(target="native", not(platform="windows")))
-fn local_zone_error(code : UInt, context : String) -> LocalZoneError {
+fn local_zone_error(code : UInt32, context : String) -> LocalZoneError {
   let message = @utf8.decode_lossy(local_zone_error_message(code))
   LocalZoneError(code, context~, message~)
 }
