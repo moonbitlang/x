@@ -49,14 +49,14 @@ test "zero and unknown native codes do not match error predicates" {
 ///|
 test "unknown error formatting preserves code and context" {
   let err = @os_error.OSError(0x7FFFFFFF, context="read_file: missing")
-  let message = err.to_string()
+  let message = Show::to_string(err)
   assert_true(message.contains("read_file: missing: "))
   assert_true(message.contains("2147483647"))
   assert_false(message.contains("\\r"))
   assert_false(message.contains("\\n"))
   // Formatting another error must not overwrite the first error's message.
-  @os_error.OSError(-1, context="second").to_string() |> ignore
-  assert_eq(err.to_string(), message)
+  @os_error.OSError(-1, context="second") |> Show::to_string() |> ignore
+  assert_eq(Show::to_string(err), message)
   let @os_error.OSError(code, context~) = err
   assert_eq(code, 0x7FFFFFFF)
   assert_eq(context, "read_file: missing")
@@ -90,5 +90,5 @@ test "Windows predicates recognize alternate native codes" {
 #cfg(platform="windows")
 test "Windows message lookup failure falls back to the original code" {
   let err = @os_error.OSError(0x7FFFFFFF, context="read")
-  assert_true(err.to_string().contains("read: OS error 2147483647"))
+  assert_true(Show::to_string(err).contains("read: OS error 2147483647"))
 }

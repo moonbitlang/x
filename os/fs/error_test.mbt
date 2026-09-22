@@ -37,7 +37,7 @@ test "OS errors retain native codes and useful context" {
   assert_false(read_error.is_EEXIST())
   assert_true(context.contains(missing))
   // Display uses an escaped representation, including backslashes on Windows.
-  assert_true(read_error.to_string().contains("read_file:"))
+  assert_true(Show::to_string(read_error).contains("read_file:"))
   let write_error = capture_error(() => {
     write_file(missing, b"x", create_mode=OpenExisting)
   })

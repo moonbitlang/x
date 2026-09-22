@@ -21,6 +21,11 @@ pub(all) suberror OSError {
 } derive(ToJson)
 
 ///|
+#doc(hidden)
+#deprecated
+pub extend OSError with ToJson::{to_json}
+
+///|
 extern "c" fn get_errno() -> Int = "moonbit_unix_get_errno"
 
 ///|
@@ -56,9 +61,19 @@ pub impl Show for OSError with fn output(self, logger) {
 }
 
 ///|
+#doc(hidden)
+#deprecated
+pub extend OSError with Show::{to_string, output}
+
+///|
 pub impl Debug for OSError with fn to_repr(self) {
   Repr::opaque_("@os_error.OSError", Repr::string(self.message()))
 }
+
+///|
+#doc(hidden)
+#deprecated
+pub extend OSError with Debug::{to_repr}
 
 ///|
 /// No such file or directory (including a missing parent directory on Windows).
