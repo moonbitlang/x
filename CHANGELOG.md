@@ -4,6 +4,10 @@
 
 ### Added
 
+- `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
+  options to control offset retention and repeated or skipped local times.
+  Defaults preserve the existing behavior. (#331)
+
 - Added `@time.ZonedDateTime::from_plain` and optional `disambiguation` arguments
   on local constructors. Choose `Compatible` (the default), `Earlier`, `Later`,
   or `Reject` to control repeated or skipped local times. (#330)
@@ -41,6 +45,10 @@
   `encode` and `decode_lossy` from `moonbitlang/core/encoding/utf8` instead. (#325)
 
 ### Fixed
+
+- `@time.ZonedDateTime` hour, minute, second, and nanosecond additions now
+  advance by the requested elapsed time across time-zone offset changes.
+  Calendar-day additions continue to follow local dates. (#331)
 
 - Local `@time.ZonedDateTime` construction now checks offsets against the
   requested clock reading, fixing incorrect instants near zone transitions.

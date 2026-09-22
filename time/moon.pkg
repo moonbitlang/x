@@ -16,3 +16,25 @@ import {
   "moonbitlang/core/test",
   "moonbitlang/core/buffer",
 } for "test"
+
+rule(
+  name: "embed-paris-tzif",
+  command: ":embed --binary --name paris_tzif -i $input -o $output",
+)
+
+dev_build(
+  rule: "embed-paris-tzif",
+  input: "testdata/Europe/Paris.tzif",
+  output: "tzif_paris_generated_wbtest.mbt",
+)
+
+rule(
+  name: "embed-pyongyang-tzif",
+  command: ":embed --binary --name pyongyang_tzif -i $input -o $output",
+)
+
+dev_build(
+  rule: "embed-pyongyang-tzif",
+  input: "testdata/Asia/Pyongyang.tzif",
+  output: "tzif_pyongyang_generated_wbtest.mbt",
+)

@@ -76,6 +76,19 @@ pub fn Duration::zero() -> Self
 pub impl Show for Duration
 pub impl @string.FromStr for Duration
 
+pub(all) enum OffsetPolicy {
+  Prefer
+  Ignore
+  Use
+  Reject
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn OffsetPolicy::equal(Self, Self) -> Bool
+#deprecated
+pub fn OffsetPolicy::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn OffsetPolicy::to_repr(Self) -> @debug.Repr
+
 type Period derive(Compare, Eq, @debug.Debug)
 pub fn Period::add_days(Self, Int) -> Self raise
 pub fn Period::add_months(Self, Int) -> Self raise
@@ -409,14 +422,14 @@ pub fn ZonedDateTime::to_repr(Self) -> @debug.Repr
 pub fn ZonedDateTime::to_string(Self) -> String
 pub fn ZonedDateTime::to_unix_second(Self) -> Int64
 pub fn ZonedDateTime::weekday(Self) -> Weekday
-pub fn ZonedDateTime::with_day(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_hour(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_minute(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_month(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_nanosecond(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_ordinal(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_second(Self, Int) -> Self raise
-pub fn ZonedDateTime::with_year(Self, Int) -> Self raise
+pub fn ZonedDateTime::with_day(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_hour(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_minute(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_month(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_nanosecond(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_ordinal(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_second(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
+pub fn ZonedDateTime::with_year(Self, Int, offset? : OffsetPolicy, disambiguation? : Disambiguation) -> Self raise
 pub fn ZonedDateTime::year(Self) -> Int
 pub fn ZonedDateTime::zone(Self) -> Zone
 pub impl Show for ZonedDateTime

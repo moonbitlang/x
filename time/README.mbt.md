@@ -57,8 +57,25 @@ no instant when clocks skip forward.
 For a jump from 02:00 to 03:00, a requested 02:30 becomes 03:30 under
 `Compatible` or `Later`, 01:30 under `Earlier`, and raises under `Reject`.
 Unambiguous readings are preserved under every policy. These rules apply to
-both recorded and recurring changes. Calendar edits retain the existing offset
-when it is still valid in an overlap and otherwise use `Compatible`.
+both recorded and recurring changes.
+
+Field edits (`with_year`, `with_month`, `with_day`, `with_ordinal`, `with_hour`,
+`with_minute`, `with_second`, and `with_nanosecond`) also accept `disambiguation`
+and a separate `offset : OffsetPolicy` option, following Temporal's rules:
+
+| Offset policy | Treatment of the original offset at the edited local time |
+| --- | --- |
+| `Prefer` (default) | Use it if valid; otherwise resolve using the zone and `disambiguation` |
+| `Ignore` | Resolve using the zone and `disambiguation`, ignoring the original offset |
+| `Use` | Compute the instant using the original offset, then project it into the zone; local fields can change |
+| `Reject` | Use it if valid; otherwise raise, even if the edited local time is unambiguous |
+
+An accepted offset already selects an instant, so `disambiguation` is not used.
+The default `Prefer` plus `Compatible` preserves existing behavior: editing the
+second occurrence of 01:30 to 01:45 retains the second occurrence. To choose the
+first explicitly, use `offset=Ignore, disambiguation=Earlier`. Similarly,
+`Prefer` plus `Reject` accepts an overlap if the original offset is still valid,
+whereas `Ignore` plus `Reject` raises for that overlap.
 
 ```moonbit check
 ///|
@@ -72,8 +89,21 @@ test {
   )
   // A fixed zone has exactly one matching instant for every local reading.
   inspect(value, content="2040-01-01T01:00:00+01:00[Example]")
+  let offset : @time.OffsetPolicy = Ignore
+  debug_inspect(
+    value.with_hour(2, offset~, disambiguation=Reject).to_string(),
+    content="\"2040-01-01T02:00:00+01:00[Example]\"",
+  )
 }
 ```
+
+`add_hours`, `add_minutes`, `add_seconds`, and `add_nanoseconds` add elapsed time
+on the Unix timeline, then obtain the zone's offset at the resulting instant.
+They need no disambiguation policy. In contrast, `add_years`, `add_months`,
+`add_weeks`, and `add_days` operate on local calendar fields, retaining a valid
+original offset and otherwise resolving with `Compatible`. Across a one-hour
+daylight-saving change, adding one calendar day can span 23 or 25 elapsed hours;
+adding 24 hours always advances the instant by 86400 seconds.
 
 `ZonedDateTime::from_plain_datetime` is deprecated but keeps its non-raising
 signature and `Compatible` behavior. Migrate to `ZonedDateTime::from_plain`,
