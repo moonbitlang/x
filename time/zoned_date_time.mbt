@@ -437,9 +437,13 @@ pub fn ZonedDateTime::add_nanoseconds(
 ) -> ZonedDateTime raise Error {
   // Split before adding so even an Int64-sized adjustment cannot overflow
   // the fractional part. Normalize a negative remainder with a second borrow.
-  let nanos = self.nanosecond().to_int64() + nanoseconds % nanoseconds_per_second
+  let nanos = self.nanosecond().to_int64() +
+    nanoseconds % nanoseconds_per_second
   let seconds = checked_add_int64(
-    checked_add_int64(self.to_unix_second(), nanoseconds / nanoseconds_per_second),
+    checked_add_int64(
+      self.to_unix_second(),
+      nanoseconds / nanoseconds_per_second,
+    ),
     floor_div_int64(nanos, nanoseconds_per_second),
   )
   ZonedDateTime::from_unix_second(
@@ -617,7 +621,9 @@ fn create_from_plain(
     let instant = wall - preferred.seconds().to_int64()
     if offset == Use {
       return ZonedDateTime::from_unix_second(
-        instant, nanosecond=datetime.nanosecond(), zone~,
+        instant,
+        nanosecond=datetime.nanosecond(),
+        zone~,
       )
     }
     let resolved = zone.lookup_offset(instant)
