@@ -17,8 +17,6 @@
 // queries. Explicit dated transitions belong to Zone's historical table.
 // Offsets are checked once when loading. Lookup then needs only portable,
 // non-throwing calendar arithmetic, including for timestamps outside Int years.
-// Windows construction is exercised by white-box tests until its loader lands.
-#warnings("-unused_constructor")
 priv enum Recurring {
   Fixed(ZoneOffset)
   Tzif(

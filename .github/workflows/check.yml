@@ -86,6 +86,25 @@ jobs:
           moon version --all
           moonrun --version
 
+      - name: Windows timezone API and legacy fallback
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        shell: pwsh
+        run: |
+          $timezoneOriginalZone = tzutil /g
+          $timezoneOriginalCl = $env:CL
+          try {
+            $env:CL = "$timezoneOriginalCl /D_WIN32_WINNT=0x0601 /DWINVER=0x0601"
+            foreach ($timezoneName in @('UTC', 'Eastern Standard Time')) {
+              tzutil /s $timezoneName
+              if ($LASTEXITCODE -ne 0) { throw "Cannot select timezone $timezoneName" }
+              moon test time --target native --deny-warn --target-dir "_build/time-win7"
+              if ($LASTEXITCODE -ne 0) { throw "Timezone tests failed in $timezoneName" }
+            }
+          } finally {
+            $env:CL = $timezoneOriginalCl
+            tzutil /s $timezoneOriginalZone
+          }
+
       - name: moon test
         run: |
           moon test --target all --serial --release
