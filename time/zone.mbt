@@ -18,7 +18,11 @@ struct Zone {
   id : String
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int)] // (timestamp, offset_index)
-  future : ZoneFuture?
+  // Cutoffs mark the extent of recorded history; the end of a Windows annual
+  // record's validity need not coincide with its last clock change.
+  // Past excludes its cutoff; future includes it. Their scopes never overlap.
+  past : (Int64, Recurring)?
+  future : (Int64, Recurring)?
 } derive(Eq, Debug)
 
 ///|
@@ -27,6 +31,7 @@ pub let utc_zone : Zone = {
   id: "UTC",
   offsets: [utc_offset],
   transitions: [],
+  past: None,
   future: None,
 }
 
@@ -39,17 +44,21 @@ pub fn fixed_zone(
   dst? : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
-  { id, offsets: [offset], transitions: [], future: None, }
+  { id, offsets: [offset], transitions: [], past: None, future: None, }
 }
 
 ///|
 /// Checks if this zone has a single offset without seasonal rules.
 pub fn Zone::is_fixed(self : Zone) -> Bool {
   self.offsets.length() == 1 &&
-  (match self.future {
-    None => true
-    Some(Fixed(offset)) => self.offsets[0] == offset
-    Some(Seasonal(..)) => false
+  [self.past, self.future]
+  .iter()
+  .all(tail => {
+    match tail {
+      None => true
+      Some((_, Fixed(offset))) => self.offsets[0] == offset
+      _ => false
+    }
   })
 }
 
@@ -66,8 +75,10 @@ pub impl Show for Zone with fn output(self : Zone, logger : &Logger) -> Unit {
 
 ///|
 fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
-  if self.future is Some(future) &&
-    (self.transitions.is_empty() || secs >= self.transitions.last().unwrap().0) {
+  if self.past is Some((until, past)) && secs < until {
+    return past.lookup_offset(secs)
+  }
+  if self.future is Some((from, future)) && secs >= from {
     return future.lookup_offset(secs)
   }
   if self.offsets.length() == 0 {
@@ -89,6 +100,68 @@ fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
   }
   let offset_index = if end == 0 { 0 } else { self.transitions[end - 1].1 }
   self.offsets[offset_index]
+}
+
+///|
+// Candidate metadata is refreshed by lookup_offset when resolving a local
+// time. Deduplicate seconds without merging the stored historical types.
+fn Zone::offset_candidates(self : Zone) -> Array[ZoneOffset] {
+  let offsets = self.offsets.copy()
+  for tail in [self.past, self.future] {
+    if tail is Some((_, rule)) {
+      for offset in rule.offsets() {
+        offsets.push(offset)
+      }
+    }
+  }
+  let seen : Map[Int, Bool] = Map([])
+  offsets.filter(offset => {
+    if seen.contains(offset.seconds()) {
+      false
+    } else {
+      seen[offset.seconds()] = true
+      true
+    }
+  })
+}
+
+///|
+// Include scope joins as well as recorded and recurring changes. A join can
+// itself skip or repeat local readings, even if neither rule changes then.
+fn Zone::transitions_near(
+  self : Zone,
+  year : Int,
+  lower : Int64,
+  upper : Int64,
+) -> Array[Int64] {
+  let changes = []
+  for (time, _) in self.transitions {
+    if time >= lower && time <= upper {
+      changes.push(time)
+    }
+  }
+  if self.past is Some((until, rule)) {
+    if until >= lower && until <= upper {
+      changes.push(until)
+    }
+    for time in rule.transitions_near(year) {
+      if time >= lower && time <= upper && time < until {
+        changes.push(time)
+      }
+    }
+  }
+  if self.future is Some((from, rule)) {
+    if from >= lower && from <= upper {
+      changes.push(from)
+    }
+    for time in rule.transitions_near(year) {
+      if time >= lower && time <= upper && time >= from {
+        changes.push(time)
+      }
+    }
+  }
+  changes.sort()
+  changes
 }
 
 ///|
@@ -199,7 +272,7 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
     // so lookup_offset selects the last change at that Unix second.
     transitions.push((time, transition.type_index))
   }
-  let future = parsed.future_rule.map(ZoneFuture::from_posix)
+  let future = parsed.future_rule.map(Recurring::from_posix)
   if future is Some(future) && transitions.last() is Some((time, type_index)) {
     // RFC 9636 section 3.3 requires agreement at the last transition. Compare
     // at its projected Unix time, with the original designation: replacing
@@ -220,9 +293,17 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
   // With no history, a fixed footer describes the entire zone. Preserve the
   // ordinary fixed-zone representation, including equality with utc_zone.
   if transitions.is_empty() && future is Some(Fixed(offset)) {
-    return { id, offsets: [offset], transitions, future: None, }
+    return { id, offsets: [offset], transitions, past: None, future: None, }
   }
-  { id, offsets, transitions, future, }
+  let future = future.map(rule => {
+    // A rule-only file covers the entire Unix-second domain.
+    let from = match transitions.last() {
+      Some((time, _)) => time
+      None => @int64.MIN_VALUE
+    }
+    (from, rule)
+  })
+  { id, offsets, transitions, past: None, future, }
 }
 
 ///|

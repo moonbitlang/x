@@ -13,20 +13,25 @@
 // limitations under the License.
 
 ///|
+// Each variant retains its source's annual semantics behind the same pure
+// queries. Explicit dated transitions belong to Zone's historical table.
 // Offsets are checked once when loading. Lookup then needs only portable,
 // non-throwing calendar arithmetic, including for timestamps outside Int years.
-priv enum ZoneFuture {
+// Windows construction is exercised by white-box tests until its loader lands.
+#warnings("-unused_constructor")
+priv enum Recurring {
   Fixed(ZoneOffset)
-  Seasonal(
+  Tzif(
     standard~ : ZoneOffset,
     daylight~ : ZoneOffset,
     start~ : @tzif.Rule,
     end~ : @tzif.Rule
   )
+  Windows(WindowsRule)
 } derive(Eq, Debug)
 
 ///|
-fn ZoneFuture::from_posix(tz : @tzif.PosixTz) -> ZoneFuture raise Error {
+fn Recurring::from_posix(tz : @tzif.PosixTz) -> Recurring raise Error {
   let standard = ZoneOffset::from_seconds(tz.standard_offset)
   let standard = { ..standard, abbrev: tz.standard_designation, dst: false, }
   match tz.daylight {
@@ -39,16 +44,17 @@ fn ZoneFuture::from_posix(tz : @tzif.PosixTz) -> ZoneFuture raise Error {
       }
       let offset = ZoneOffset::from_seconds(daylight.offset)
       let daylight = { ..offset, abbrev: daylight.designation, dst: true, }
-      Seasonal(standard~, daylight~, start~, end~)
+      Tzif(standard~, daylight~, start~, end~)
     }
   }
 }
 
 ///|
-fn ZoneFuture::lookup_offset(self : ZoneFuture, secs : Int64) -> ZoneOffset {
+fn Recurring::lookup_offset(self : Recurring, secs : Int64) -> ZoneOffset {
   match self {
     Fixed(offset) => offset
-    Seasonal(standard~, daylight~, start~, end~) => {
+    Windows(rule) => rule.lookup_offset(secs)
+    Tzif(standard~, daylight~, start~, end~) => {
       // Gregorian dates and weekdays repeat every 400 years. Reduce first so
       // even Int64 endpoints cannot overflow while applying rule times and
       // offsets. The representative timestamp lies in 1970 through 2369.
@@ -86,6 +92,42 @@ fn ZoneFuture::lookup_offset(self : ZoneFuture, secs : Int64) -> ZoneOffset {
       standard
     }
   }
+}
+
+///|
+fn Recurring::offsets(self : Recurring) -> Array[ZoneOffset] {
+  match self {
+    Fixed(offset) => [offset]
+    Tzif(standard~, daylight~, ..) => [standard, daylight]
+    Windows(rule) => [rule.standard, rule.daylight]
+  }
+}
+
+///|
+// Return candidate changes around a local year. The caller clips them to the
+// rule's scope and checks the actual offsets on both sides, so redundant rule
+// dates (including all-year DST) cannot invent a gap.
+fn Recurring::transitions_near(self : Recurring, year : Int) -> Array[Int64] {
+  let changes = []
+  for year in (year - 1)..<=(year + 1) {
+    match self {
+      Fixed(_) => ()
+      Tzif(standard~, daylight~, start~, end~) => {
+        changes.push(tzif_rule_time(start, year, standard.seconds()))
+        changes.push(tzif_rule_time(end, year, daylight.seconds()))
+      }
+      Windows(rule) => {
+        changes.push(rule.year_boundary(year))
+        if rule.start != YearBoundary {
+          changes.push(rule.start.time(year, rule.standard.seconds()))
+        }
+        if rule.end != YearBoundary {
+          changes.push(rule.end.time(year, rule.daylight.seconds()))
+        }
+      }
+    }
+  }
+  changes
 }
 
 ///|

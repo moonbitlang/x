@@ -25,6 +25,7 @@ test "transition lookup preserves table order at every boundary" {
       offsets,
       // Leap projection can give several records the same Unix second.
       transitions: Array::makei(count, i => ((i / 3 - 20).to_int64(), i % 3)),
+      past: None,
       future: None,
     }
     for second in -21L..<=67L {

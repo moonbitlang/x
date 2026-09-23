@@ -636,13 +636,8 @@ fn create_from_plain(
       fail("Offset is not valid for local time")
     }
   }
-  let future_offsets = match zone.future {
-    None => []
-    Some(Fixed(offset)) => [offset]
-    Some(Seasonal(standard~, daylight~, ..)) => [standard, daylight]
-  }
   let mut chosen : ZoneOffset? = None
-  for candidate in zone.offsets.iter().concat(future_offsets.iter()) {
+  for candidate in zone.offset_candidates() {
     let offset = zone.lookup_offset(wall - candidate.seconds().to_int64())
     if offset.seconds() != candidate.seconds() {
       continue
@@ -678,27 +673,7 @@ fn create_from_plain(
   // lookup_offset selects the actual type before and after the whole change.
   let lower = wall - 18L * 3600L
   let upper = wall + 18L * 3600L
-  let changes = []
-  for (second, _) in zone.transitions {
-    if second >= lower && second <= upper {
-      changes.push(second)
-    }
-  }
-  if zone.future is Some(Seasonal(standard~, daylight~, start~, end~)) {
-    // Signed rule times and offsets can cross a nominal year boundary.
-    for year in (datetime.year() - 1)..<=(datetime.year() + 1) {
-      for
-        second in [
-          tzif_rule_time(start, year, standard.seconds()),
-          tzif_rule_time(end, year, daylight.seconds()),
-        ] {
-        if second >= lower && second <= upper {
-          changes.push(second)
-        }
-      }
-    }
-  }
-  changes.sort()
+  let changes = zone.transitions_near(datetime.year(), lower, upper)
   let mut shifted : (Int64, Int64)? = None
   for second in changes {
     let before = zone.lookup_offset(second - 1).seconds().to_int64()
