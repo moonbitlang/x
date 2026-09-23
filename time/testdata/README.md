@@ -1,5 +1,38 @@
 # Timezone test data
 
+## Windows annual-rule examples
+
+`zone_windows_wbtest.mbt` tests normalized annual rules from the Unicode
+project's Windows registry export at
+[`icu-demos` revision 3862ba73](https://github.com/unicode-org/icu-demos/blob/3862ba73f29a1515e9a91fb1814271e470b6fb90/WinTZ/src/com/ibm/icu/dev/tools/wintz/TimeZone.reg).
+The tests spell out the fields so the expected clock changes can be reviewed
+without decoding binary data. They exercise rule evaluation; registry parsing
+and multi-year history conversion are separate follow-up work.
+
+| Registry key / record | Standard / daylight offset | Enter daylight time | Leave daylight time |
+| --- | --- | --- | --- |
+| Eastern Standard Time / 2007 | -05:00 / -04:00 | March, second Sunday, 02:00 | November, first Sunday, 02:00 |
+| AUS Eastern Standard Time / 2008 | +10:00 / +11:00 | October, first Sunday, 02:00 | April, first Sunday, 03:00 |
+| North Korea Standard Time / 2015 | +08:30 / +09:00 | Already daylight at year start | August, second Friday, next midnight |
+| North Korea Standard Time / 2018 | +09:00 / +08:30 | Already daylight at year start | May, first Friday, 23:30 |
+| Russian Standard Time / 2011 | +03:00 / +04:00 | March, last Sunday, 02:00 | Still daylight at year end |
+
+Offsets use `-(Bias + seasonal bias) * 60` seconds. Windows's political changes
+can use its daylight fields, so its DST flag need not match IANA's flag.
+Names in the Eastern test are readable labels; the rule evaluator does not
+derive abbreviations from localized Windows descriptions.
+
+The relative date and bias fields follow
+[TIME_ZONE_INFORMATION](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information).
+The explicit `YearBoundary` cases represent the start/end state markers
+described in [.NET's implementation](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.AdjustmentRule.cs).
+Following [Noda Time](https://nodatime.org/3.3.x/api/NodaTime.TimeZones.BclDateTimeZone.html),
+the 2015 North Korea record's `23:59:59.999` is normalized to next midnight.
+These normalized values do not imply that the native structure documentation
+specifies every marker or that native API equivalence has been tested.
+
+## TZif files
+
 The arithmetic and field-edit tests use complete TZif files for `Europe/Paris`
 and `Asia/Pyongyang` compiled from **IANA tzdb 2024a**. The unmodified binaries
 are committed as [`Europe/Paris.tzif`](Europe/Paris.tzif) and

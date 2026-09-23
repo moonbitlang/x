@@ -234,6 +234,7 @@ test "second edits respect second-sized gaps and overlaps" {
     id: "Seconds",
     offsets: [utc_offset, ZoneOffset::from_seconds(28)],
     transitions: [(0L, 1), (60L, 0)],
+    past: None,
     future: None,
   }
   let start = ZonedDateTime::from_unix_second(5, zone~) // 00:00:33+00:00:28

@@ -163,6 +163,7 @@ test "elapsed arithmetic handles second-sized changes" {
     id: "Seconds",
     offsets: [utc_offset, ZoneOffset::from_seconds(28)],
     transitions: [(0L, 1), (60L, 0)],
+    past: None,
     future: None,
   }
   for (instant, seconds) in [(-1L, 2L), (1L, -2L), (59L, 2L), (61L, -2L)] {

@@ -47,6 +47,7 @@ test "debug" {
       #|  id: "Asia/Shanghai",
       #|  offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
       #|  transitions: [],
+      #|  past: None,
       #|  future: None,
       #|}
     ),
@@ -63,6 +64,7 @@ test "debug" {
       #|    id: "Asia/Shanghai",
       #|    offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
       #|    transitions: [],
+      #|    past: None,
       #|    future: None,
       #|  },
       #|  offset: { id: "+08:00", abbrev: "", seconds: 28800, dst: false },

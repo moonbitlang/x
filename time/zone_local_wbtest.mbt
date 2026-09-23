@@ -31,8 +31,14 @@ fn eastern_local_zone(recurring : Bool) -> Zone raise Error {
         (PlainDateTime::of(2040, 11, 4, hour=6).to_unix_second(), 0),
       ]
     },
+    past: None,
     future: if recurring {
-      Some(ZoneFuture::from_posix(footer_fixture(eastern_footer)))
+      Some(
+        (
+          @int64.MIN_VALUE,
+          Recurring::from_posix(footer_fixture(eastern_footer)),
+        ),
+      )
     } else {
       None
     },
@@ -185,6 +191,7 @@ test "local gaps support skipped dates" {
     transitions: [
       (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
     ],
+    past: None,
     future: None,
   }
   let value = ZonedDateTime::of(2011, 12, 30, hour=12, zone~)
@@ -204,6 +211,7 @@ test "known limitation: year 9999 gap retains the historical result" {
     transitions: [
       (PlainDateTime::of(9999, 12, 31, hour=23).to_unix_second(), 1),
     ],
+    past: None,
     future: None,
   }
   let plain = PlainDateTime::of(9999, 12, 31, hour=23, minute=30)
@@ -283,6 +291,7 @@ test "closely spaced jumps still resolve a gap forward" {
       ZoneOffset::from_seconds(-100),
     ],
     transitions: [(0L, 1), (20L, 2), (150L, 0)],
+    past: None,
     future: None,
   }
   let value = ZonedDateTime::of(1970, 1, 1, minute=1, second=15, zone~)
@@ -539,6 +548,7 @@ test "gap policies handle half-hour, negative daylight, and whole-day jumps" {
     transitions: [
       (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
     ],
+    past: None,
     future: None,
   }
   for
@@ -576,6 +586,7 @@ test "Reject counts distinct instants instead of duplicate offset types" {
     id: "Duplicate types",
     offsets: [utc_offset, ZoneOffset::from_seconds(3600), utc_offset],
     transitions: [(0L, 2)],
+    past: None,
     future: None,
   }
   let plain = PlainDateTime::of(2040, 1, 1)
@@ -595,6 +606,7 @@ test "disambiguation handles more than two occurrences" {
       utc_offset,
     ],
     transitions: [(0L, 1), (1800L, 2)],
+    past: None,
     future: None,
   }
   let plain = PlainDateTime::of(1970, 1, 1, hour=1, minute=15)
@@ -623,6 +635,7 @@ test "Earlier resolves closely spaced jumps backward" {
       ZoneOffset::from_seconds(-100),
     ],
     transitions: [(0L, 1), (20L, 2), (150L, 0)],
+    past: None,
     future: None,
   }
   let plain = PlainDateTime::of(1970, 1, 1, minute=1, second=15)
@@ -641,6 +654,7 @@ test "known limitation: Earlier gap adjustment before year -9999 is unresolved" 
     id: "Out of range",
     offsets: [utc_offset, ZoneOffset::from_seconds(3600)],
     transitions: [(PlainDateTime::of(-9999, 1, 1).to_unix_second(), 1)],
+    past: None,
     future: None,
   }
   let plain = PlainDateTime::of(-9999, 1, 1, minute=30)
