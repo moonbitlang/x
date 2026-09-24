@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `@unicode` case-folding tables are now immutable read-only arrays, reducing
+  the compiled size of programs that call `@unicode.to_lowercase`. (#334)
+
 ## [0.5.6] - 2026-10-20
 
 ### Added
