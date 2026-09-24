@@ -1,0 +1,79 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/os/fs"
+
+import {
+  "moonbitlang/x/os/os_error",
+}
+
+// Values
+pub fn can_execute(StringView) -> Bool raise @os_error.OSError
+
+pub fn can_read(StringView) -> Bool raise @os_error.OSError
+
+pub fn can_write(StringView) -> Bool raise @os_error.OSError
+
+pub fn exists(StringView) -> Bool raise @os_error.OSError
+
+pub fn file_size(StringView) -> Int64 raise @os_error.OSError
+
+pub fn hardlink(StringView, StringView) -> Unit raise @os_error.OSError
+
+pub fn kind(StringView, follow_symlink? : Bool) -> FileKind raise @os_error.OSError
+
+pub fn mkdir(StringView, permission? : Int, recursive? : Bool) -> Unit raise @os_error.OSError
+
+pub fn mtime(StringView, follow_symlink? : Bool) -> (Int64, Int) raise @os_error.OSError
+
+pub fn read_file(StringView, sync_timestamp? : Bool) -> Bytes raise @os_error.OSError
+
+pub fn readdir(StringView, include_hidden? : Bool, include_special? : Bool, sort? : Bool) -> Array[String] raise @os_error.OSError
+
+pub fn readlink(StringView) -> String raise @os_error.OSError
+
+pub fn realpath(StringView) -> String raise @os_error.OSError
+
+pub fn remove(StringView) -> Unit raise @os_error.OSError
+
+pub fn remove_all(StringView) -> Unit raise @os_error.OSError
+
+pub fn rmdir(StringView, recursive? : Bool) -> Unit raise @os_error.OSError
+
+pub fn set_executable(StringView) -> Unit raise @os_error.OSError
+
+pub fn touch(StringView) -> Unit raise @os_error.OSError
+
+pub fn write_file(StringView, Bytes, create_mode? : CreateMode, permission? : Int, sync? : SyncMode, append? : Bool) -> Unit raise @os_error.OSError
+
+// Errors
+
+// Types and methods
+pub(all) enum CreateMode {
+  OpenExisting
+  TruncateExisting
+  OpenOrCreate
+  CreateOrTruncate
+  CreateNew
+}
+
+pub(all) enum FileKind {
+  Unknown
+  Regular
+  Directory
+  SymLink
+  Socket
+  Pipe
+  BlockDevice
+  CharDevice
+} derive(Eq)
+pub fn FileKind::equal(Self, Self) -> Bool
+pub fn FileKind::not_equal(Self, Self) -> Bool
+
+pub(all) enum SyncMode {
+  NoSync
+  Data
+  Full
+}
+
+// Type aliases
+
+// Traits

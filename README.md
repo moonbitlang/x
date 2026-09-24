@@ -28,6 +28,9 @@ And import any packages in your `moon.pkg.json` file. for example:
 }
 ```
 
+The [`os` packages](os/README.md) provide synchronous native OS operations on
+POSIX and Windows, including file I/O, process spawning, and output capture.
+
 **Please note that the packages in this repository may change frequently.**
 
 # Contributing
