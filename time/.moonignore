@@ -1,3 +1,4 @@
-# TZif inputs and generated bindings are only needed by repository tests.
+# Timezone fixture inputs and generated bindings are only needed by repository tests.
 /testdata/
 /tzif_*_generated_wbtest.mbt
+/windows_*_generated_wbtest.mbt

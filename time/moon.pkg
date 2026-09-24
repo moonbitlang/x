@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/int",
   "moonbitlang/core/string",
   "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/x/time/internal/tzif",
 }
 
@@ -37,4 +38,35 @@ dev_build(
   rule: "embed-pyongyang-tzif",
   input: "testdata/Asia/Pyongyang.tzif",
   output: "tzif_pyongyang_generated_wbtest.mbt",
+)
+
+rule(
+  name: "embed-windows-pyongyang",
+  command: ":embed --binary --name windows_pyongyang -i $input -o $output",
+)
+
+dev_build(
+  rule: "embed-windows-pyongyang",
+  input: "testdata/windows/pyongyang.bin",
+  output: "windows_pyongyang_generated_wbtest.mbt",
+)
+
+rule(
+  name: "embed-windows-moscow",
+  command: ":embed --binary --name windows_moscow -i $input -o $output",
+)
+
+dev_build(
+  rule: "embed-windows-moscow",
+  input: "testdata/windows/moscow.bin",
+  output: "windows_moscow_generated_wbtest.mbt",
+)
+
+options(
+  "native-stub": [ "local_zone_native.c" ],
+  targets: {
+    "local_zone_native.mbt": [ "native", "llvm" ],
+    "local_zone_other.mbt": [ "js", "wasm", "wasm-gc" ],
+    "local_zone_native_wbtest.mbt": [ "native", "llvm" ],
+  },
 )
