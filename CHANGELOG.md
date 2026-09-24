@@ -33,6 +33,9 @@
 - `@fs.read_file_to_string` now decodes malformed UTF-8 to U+FFFD instead of
   dropping the trailing bytes, since it uses the core decoder. (#325)
 
+- `@unicode` case-folding tables are now immutable read-only arrays, reducing
+  the compiled size of programs that call `@unicode.to_lowercase`. (#334)
+
 ### Deprecated
 
 - Deprecated `@time.ZonedDateTime::from_plain_datetime` in favor of `from_plain`.
