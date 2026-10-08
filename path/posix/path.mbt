@@ -140,6 +140,37 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 }
 
 ///|
+/// Joins paths without normalization or filesystem access.
+///
+/// Preserves `.`, `..`, repeated separators, and trailing separators. An empty
+/// operand leaves the other unchanged; two empty operands produce an empty path.
+/// Adds `/` only when both operands are nonempty and `lhs` does not end in `/`.
+/// Like `join`, an absolute `rhs` does not replace `lhs`; leading separators in
+/// `rhs` are retained. This operation does not validate or confine the result.
+///
+/// Use this when `..` must be interpreted by the filesystem after following a
+/// possible symlink, rather than being collapsed lexically by `join`.
+///
+/// ```mbt check
+/// test {
+///   assert_eq(@posix.Path::join_raw("base/link", "../file"), "base/link/../file")
+///   assert_eq(@posix.Path::join_raw("base/", "file"), "base/file")
+///   assert_eq(@posix.Path::join_raw("", ""), "")
+/// }
+/// ```
+pub fn Path::join_raw(lhs : Path, rhs : Path) -> Path {
+  let lhs = lhs.0
+  let rhs = rhs.0
+  guard !lhs.is_empty() else { rhs }
+  guard !rhs.is_empty() else { lhs }
+  if lhs is [.., '/'] {
+    lhs + rhs
+  } else {
+    lhs + "/" + rhs
+  }
+}
+
+///|
 /// 1. resolve `.` by directly removing it
 /// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
 /// 3. remove redundant slashes

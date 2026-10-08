@@ -2,13 +2,15 @@
 
 This package provides Node-compatible POSIX path manipulation utilities. It handles paths using forward slashes (`/`) as the path separator.
 
+`join_raw` extends this API with joining without normalization, preserving `.` and `..` for filesystem traversal.
+
 ## Overview
 
 The package offers a complete set of functions for working with file paths:
 
 - Path decomposition: `basename`, `dirname`, `extname`
 - Path testing: `is_absolute`
-- Path construction: `join`
+- Path construction: `join`, `join_raw`
 - Path transformation: `normalize`, `relative`, `resolve`
 - Platform constants: `sep`, `delimiter`
 

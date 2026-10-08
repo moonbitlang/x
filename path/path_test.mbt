@@ -25,6 +25,27 @@ test "Path::to_string" {
 }
 
 ///|
+test "join_raw dispatch preserves components on the host platform" {
+  assert_eq(@path.Path::join_raw("", "").to_string(), "")
+  assert_eq(@path.Path::join_raw("a//../b/", "").to_string(), "a//../b/")
+  assert_eq(@path.Path::join_raw("", "a//../b/").to_string(), "a//../b/")
+  assert_eq(@path.Path::join_raw("a/", "b").to_string(), "a/b")
+  if @path.sep == '/' {
+    assert_eq(
+      @path.Path::join_raw("link", "../file").to_string(),
+      "link/../file",
+    )
+    assert_eq(@path.Path::join_raw("C:", "file").to_string(), "C:/file")
+  } else {
+    assert_eq(
+      @path.Path::join_raw("link", "..\\file").to_string(),
+      "link\\..\\file",
+    )
+    assert_eq(@path.Path::join_raw("C:", "file").to_string(), "C:\\file")
+  }
+}
+
+///|
 test "node-compatible top-level dispatch smoke" {
   if @path.sep == '/' {
     inspect(@path.Path::join("a", "/b"), content="a/b")

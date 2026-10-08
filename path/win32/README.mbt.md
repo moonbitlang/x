@@ -2,13 +2,15 @@
 
 This package provides Node-compatible Windows path manipulation utilities. It handles paths using backslashes (`\`) as the output separator and accepts both `/` and `\` as input separators.
 
+`join_raw` extends this API with joining without normalization, preserving `.` and `..` for filesystem traversal and retaining the original separator spelling.
+
 ## Overview
 
 The package offers a complete set of functions for working with Windows file paths:
 
 - Path decomposition: `basename`, `dirname`, `extname`
 - Path testing: `is_absolute`
-- Path construction: `join`
+- Path construction: `join`, `join_raw`
 - Path transformation: `normalize`, `relative`, `resolve`
 - Platform constants: `sep`, `delimiter`
 

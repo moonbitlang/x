@@ -234,6 +234,37 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
 }
 
 ///|
+/// Joins paths without normalization or filesystem access.
+///
+/// Preserves `.`, `..`, separator spelling, and Windows prefixes, including
+/// verbatim prefixes. An empty operand leaves the other unchanged; two empty
+/// operands produce an empty path. Adds `\` between nonempty operands unless
+/// `lhs` ends in `/` or `\`. Like `join`, `C:` and `file` produce `C:\file`.
+///
+/// Like `join`, rooted or different-drive right-hand paths do not replace `lhs`.
+/// Leading separators in `rhs` are retained. This operation does not validate
+/// or confine the result.
+///
+/// ```mbt check
+/// test {
+///   assert_eq(@win32.Path::join_raw("C:\\link", "..\\file"), "C:\\link\\..\\file")
+///   assert_eq(@win32.Path::join_raw("C:", "file"), "C:\\file")
+///   assert_eq(@win32.Path::join_raw("C:/base/", "file"), "C:/base/file")
+/// }
+/// ```
+pub fn Path::join_raw(lhs : Path, rhs : Path) -> Path {
+  let lhs = lhs.0
+  let rhs = rhs.0
+  guard !lhs.is_empty() else { rhs }
+  guard !rhs.is_empty() else { lhs }
+  if lhs is [.., last_char] && is_win_sep(last_char) {
+    lhs + rhs
+  } else {
+    lhs + "\\" + rhs
+  }
+}
+
+///|
 /// 1. resolve `.` by directly removing it
 /// 2. resolve `..` by removing the preceding path component if exists, otherwise keep it.
 /// 3. remove redundant backslashes
