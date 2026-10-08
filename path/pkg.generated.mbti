@@ -21,6 +21,7 @@ pub fn Path::equal(Self, Self) -> Bool
 pub fn Path::extname(Self) -> StringView
 pub fn Path::is_absolute(Self) -> Bool
 pub fn Path::join(Self, Self) -> Self
+pub fn Path::join_raw(Self, Self) -> Self
 pub fn Path::normalize(Self) -> Self
 #deprecated
 pub fn Path::not_equal(Self, Self) -> Bool
