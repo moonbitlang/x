@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added `Path::join_raw` to `path`, `path/posix`, and `path/win32` for joining
+  paths without collapsing `.` or `..`, preserving symlink-sensitive paths. (#336)
+
 - `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
   options to control offset retention and repeated or skipped local times.
   Defaults preserve the existing behavior. (#331)

@@ -18,6 +18,56 @@ test "debug" {
 }
 
 ///|
+test "join_raw preserves components, Windows prefixes and separator spelling" {
+  let cases : Array[(String, String, String)] = [
+    ("", "", ""),
+    ("", "C:/a//../b/", "C:/a//../b/"),
+    ("C:/a//../b/", "", "C:/a//../b/"),
+    ("a", "b", "a\\b"),
+    ("a\\", "b", "a\\b"),
+    ("a/", "b", "a/b"),
+    ("a\\\\", "b/", "a\\\\b/"),
+    ("a", ".", "a\\."),
+    ("C:\\link", "..\\file", "C:\\link\\..\\file"),
+    ("C:/link", "../file", "C:/link\\../file"),
+    ("missing\\..\\existing", "file", "missing\\..\\existing\\file"),
+    ("C:", "file", "C:\\file"),
+    ("c:", "..\\file", "c:\\..\\file"),
+    ("C:", "", "C:"),
+    ("C:\\", "file", "C:\\file"),
+    ("C:dir", "file", "C:dir\\file"),
+    ("1:", "file", "1:\\file"),
+    ("\\", "file", "\\file"),
+    ("\\\\server\\share", "file", "\\\\server\\share\\file"),
+    ("//server/share/", "file", "//server/share/file"),
+    ("\\\\?\\C:\\link", "..\\file", "\\\\?\\C:\\link\\..\\file"),
+    (
+      "\\\\?\\UNC\\server\\share", ".\\file", "\\\\?\\UNC\\server\\share\\.\\file",
+    ),
+    ("\\\\.\\pipe", "name", "\\\\.\\pipe\\name"),
+    ("a", "\\b", "a\\\\b"),
+    ("a/", "/b", "a//b"),
+    ("C:", "\\b", "C:\\\\b"),
+    ("C:\\a", "D:\\b", "C:\\a\\D:\\b"),
+    ("模板", "..\\文件", "模板\\..\\文件"),
+  ]
+  for (lhs, rhs, expected) in cases {
+    assert_eq(
+      Show::to_string(@win32.Path::join_raw(lhs, rhs)),
+      expected,
+      msg="join_raw(\{lhs}, \{rhs})",
+    )
+  }
+  // The existing join keeps its normalization and bare-drive contracts.
+  assert_eq(
+    Show::to_string(@win32.Path::join("C:\\link", "..\\file")),
+    "C:\\file",
+  )
+  assert_eq(Show::to_string(@win32.Path::join("C:", "file")), "C:\\file")
+  assert_eq(Show::to_string(@win32.Path::join("", "")), ".")
+}
+
+///|
 test "basename node fixtures" {
   inspect(@win32.Path::basename(""), content="")
   inspect(@win32.Path::basename("\\"), content="")

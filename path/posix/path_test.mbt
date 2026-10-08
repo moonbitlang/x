@@ -18,6 +18,39 @@ test "debug" {
 }
 
 ///|
+test "join_raw preserves lexical components and separator spelling" {
+  let cases : Array[(String, String, String)] = [
+    ("", "", ""),
+    ("", "./a//../b/", "./a//../b/"),
+    ("./a//../b/", "", "./a//../b/"),
+    ("a", "b", "a/b"),
+    ("a/", "b", "a/b"),
+    ("a//", "b/", "a//b/"),
+    ("a", ".", "a/."),
+    ("a/link", "../file", "a/link/../file"),
+    ("missing/../existing", "file", "missing/../existing/file"),
+    ("/", "file", "/file"),
+    ("//host/share", "file", "//host/share/file"),
+    ("a", "/b", "a//b"),
+    ("a/", "/b", "a//b"),
+    ("a", "//b", "a///b"),
+    ("C:", "file", "C:/file"),
+    ("a\\", "b", "a\\/b"),
+    ("模板", "../文件", "模板/../文件"),
+  ]
+  for (lhs, rhs, expected) in cases {
+    assert_eq(
+      Show::to_string(@posix.Path::join_raw(lhs, rhs)),
+      expected,
+      msg="join_raw(\{lhs}, \{rhs})",
+    )
+  }
+  // The existing join keeps its normalization contract.
+  assert_eq(Show::to_string(@posix.Path::join("a/link", "../file")), "a/file")
+  assert_eq(Show::to_string(@posix.Path::join("", "")), ".")
+}
+
+///|
 test "basename node fixtures" {
   inspect(@posix.Path::basename(""), content="")
   inspect(@posix.Path::basename("/"), content="")

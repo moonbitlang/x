@@ -15,8 +15,9 @@
 ///|
 /// Path utilities with the existing MoonBit API surface.
 ///
-/// Behavior follows Node `node:path` for the active platform flavor. The
-/// top-level package dispatches to `@path/posix` or `@path/win32` at runtime.
+/// Behavior follows Node `node:path` for the active platform flavor, with
+/// `join_raw` as an extension for joining without normalization. The top-level
+/// package dispatches to `@path/posix` or `@path/win32` at runtime.
 
 ///|
 let is_windows : Bool = @ffi.is_windows()
@@ -121,6 +122,34 @@ pub fn Path::join(lhs : Path, rhs : Path) -> Path {
     @win32.Path::join(lhs.0, rhs.0).0
   } else {
     Show::to_string(@posix.Path::join(lhs.0, rhs.0))
+  }
+}
+
+///|
+/// Joins paths using the host platform's rules without normalization or
+/// filesystem access. In particular, `..` is preserved for filesystem traversal.
+///
+/// An empty operand leaves the other unchanged. Existing separators are preserved,
+/// and a separator is inserted only when needed.
+/// Like `join`, an absolute right-hand path does not replace `lhs`.
+/// This operation does not validate paths or guarantee containment.
+///
+/// See `@path/posix` and `@path/win32` for separator-specific rules and examples.
+///
+/// ```mbt check
+/// test {
+///   let path : @path.Path = "link"
+///   assert_eq(
+///     path.join_raw("..").to_string(),
+///     "link" + @path.sep.to_string() + "..",
+///   )
+/// }
+/// ```
+pub fn Path::join_raw(lhs : Path, rhs : Path) -> Path {
+  if is_windows {
+    @win32.Path::join_raw(lhs.0, rhs.0).0
+  } else {
+    @posix.Path::join_raw(lhs.0, rhs.0).0
   }
 }
 
