@@ -3,15 +3,42 @@ on:
   release:
     types: [released]
 
+permissions: {}
+
+concurrency:
+  group: publish
+  queue: max
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      published_tag: ${{ steps.tag.outputs.name }}
+      tag_exists: ${{ steps.tag.outputs.exists }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: prepare version tag
+        id: tag
+        run: |
+          VERSION=$(sed -nE 's/^version[[:space:]]*=[[:space:]]*"([^"]+)"[[:space:]]*$/\1/p' moon.mod)
+          test -n "$VERSION"
+          TAG="v$VERSION"
+          git check-ref-format "refs/tags/$TAG"
+          # A release-triggered run already has a tag; never move it to another commit.
+          if git show-ref --verify --quiet "refs/tags/$TAG"; then
+            test "$(git rev-parse "refs/tags/$TAG^{commit}")" = "$(git rev-parse HEAD)"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "name=$TAG" >> "$GITHUB_OUTPUT"
       - name: install
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: moon version
         run: |
           moon version --all
@@ -34,8 +61,24 @@ jobs:
           git diff --exit-code
       - name: publish
         run: |
-          echo $SECRET > ~/.moon/credentials.json
+          trap 'rm -f ~/.moon/credentials.json' EXIT
+          printf '%s\n' "$SECRET" > ~/.moon/credentials.json
           moon publish
-          rm ~/.moon/credentials.json
         env:
           SECRET: ${{ secrets.MOONCAKES_MOONBITLANG_TOKEN }}
+
+  tag:
+    needs: publish
+    if: needs.publish.outputs.tag_exists != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: tag published commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISHED_TAG: ${{ needs.publish.outputs.published_tag }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/$PUBLISHED_TAG" \
+            -f sha="$GITHUB_SHA"
