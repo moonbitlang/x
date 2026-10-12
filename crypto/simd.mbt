@@ -17,8 +17,8 @@
 #inline
 fn parse_be_u32x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
-  words : FixedArray[UInt],
+  byte_offset : Int32,
+  words : FixedArray[UInt32],
 ) -> Unit {
   for group in 0..<4 {
     let value = @v128.v128_load(bytes, byte_offset + group * 16)
@@ -38,8 +38,8 @@ fn parse_be_u32x16_into(
 #inline
 fn parse_be_u32x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
-  words : FixedArray[UInt],
+  byte_offset : Int32,
+  words : FixedArray[UInt32],
 ) -> Unit {
   for word_offset in 0..<16 {
     let offset = byte_offset + word_offset * 4
@@ -58,8 +58,8 @@ fn parse_be_u32x16_into(
 #inline
 fn parse_le_u32x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
-  words : FixedArray[UInt],
+  byte_offset : Int32,
+  words : FixedArray[UInt32],
 ) -> Unit {
   for group in 0..<4 {
     let value = @v128.v128_load(bytes, byte_offset + group * 16)
@@ -76,8 +76,8 @@ fn parse_le_u32x16_into(
 #inline
 fn parse_le_u32x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
-  words : FixedArray[UInt],
+  byte_offset : Int32,
+  words : FixedArray[UInt32],
 ) -> Unit {
   for word_offset in 0..<16 {
     let offset = byte_offset + word_offset * 4
@@ -96,7 +96,7 @@ fn parse_le_u32x16_into(
 #inline
 fn parse_be_u64x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
+  byte_offset : Int32,
   words : FixedArray[UInt64],
 ) -> Unit {
   for group in 0..<8 {
@@ -115,7 +115,7 @@ fn parse_be_u64x16_into(
 #inline
 fn parse_be_u64x16_into(
   bytes : FixedArray[Byte],
-  byte_offset : Int,
+  byte_offset : Int32,
   words : FixedArray[UInt64],
 ) -> Unit {
   for word_offset in 0..<16 {
@@ -138,7 +138,7 @@ fn parse_be_u64x16_into(
 #cfg(any(target="native", target="wasm"))
 fn xor_bytes_with_splat_in_place(
   bytes : FixedArray[Byte],
-  length : Int,
+  length : Int32,
   mask : Byte,
 ) -> Unit {
   let simd_end = length / 16 * 16
@@ -157,7 +157,7 @@ fn xor_bytes_with_splat_in_place(
 #cfg(not(any(target="native", target="wasm")))
 fn xor_bytes_with_splat_in_place(
   bytes : FixedArray[Byte],
-  length : Int,
+  length : Int32,
   mask : Byte,
 ) -> Unit {
   for offset in 0..<length {

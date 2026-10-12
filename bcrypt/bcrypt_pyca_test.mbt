@@ -21,7 +21,7 @@
 ///|
 test "pyca bcrypt 2b reference vectors" {
   // Password, decoded 16-byte salt, cost, and complete expected hash.
-  let vectors : Array[(Bytes, Bytes, Int, String)] = [
+  let vectors : Array[(Bytes, Bytes, Int32, String)] = [
     (
       b"Kk4DQuMMfZL9o", b"\x79\x76\x2B\xE9\x97\x0F\x5B\xE7\x3A\xC7\x7C\x0E\x4F\x0A\x38\x51",
       4, "$2b$04$cVWp4XaNU8a4v1uMRum2SO026BWLIoQMD/TXg5uZV.0P.uO8m3YEm",

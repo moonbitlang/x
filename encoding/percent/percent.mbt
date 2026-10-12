@@ -20,7 +20,7 @@
 /// Duplicate and non-ASCII characters in escape_chars are ignored.
 pub fn encode(
   input : StringView,
-  escape_chars? : StringView = non_alphanumeric,
+  escape_chars~ : StringView = non_alphanumeric,
 ) -> String {
   let mut lower = 0UL
   let mut upper = 0UL
@@ -78,11 +78,11 @@ pub fn decode(input : StringView) -> Bytes {
 }
 
 ///|
-fn hex_value(byte : Byte) -> Int {
+fn hex_value(byte : Byte) -> Int32 {
   match byte {
-    b'0'..=b'9' => byte.to_int() - b'0'.to_int()
-    b'A'..=b'F' => byte.to_int() - b'A'.to_int() + 10
-    b'a'..=b'f' => byte.to_int() - b'a'.to_int() + 10
+    b'0'..<=b'9' => byte.to_int() - b'0'.to_int()
+    b'A'..<=b'F' => byte.to_int() - b'A'.to_int() + 10
+    b'a'..<=b'f' => byte.to_int() - b'a'.to_int() + 10
     _ => -1
   }
 }
@@ -101,7 +101,7 @@ pub let controls : String = String::from_array(
 pub let non_alphanumeric : String = {
   let chars = StringBuilder()
   for value in 0..<128 {
-    if !(value is ('A'..='Z' | 'a'..='z' | '0'..='9')) {
+    if !(value is ('A'..<='Z' | 'a'..<='z' | '0'..<='9')) {
       chars.write_char(value.unsafe_to_char())
     }
   }

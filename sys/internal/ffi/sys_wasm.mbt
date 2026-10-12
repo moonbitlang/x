@@ -13,4 +13,4 @@
 // limitations under the License.
 
 ///|
-pub fn exit(code : Int) = "__moonbit_sys_unstable" "exit"
+pub fn exit(code : Int32) = "__moonbit_sys_unstable" "exit"

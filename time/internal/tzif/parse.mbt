@@ -15,20 +15,20 @@
 ///|
 priv struct Header {
   version : Version
-  ut_count : Int
-  standard_count : Int
-  leap_count : Int
-  transition_count : Int
-  type_count : Int
-  designation_count : Int
+  ut_count : Int32
+  standard_count : Int32
+  leap_count : Int32
+  transition_count : Int32
+  type_count : Int32
+  designation_count : Int32
 }
 
 ///|
 // Return the header, its bounded data block, and the remaining file.
 fn read_header(
   bytes : BytesView,
-  width : Int,
-  origin : Int,
+  width : Int32,
+  origin : Int32,
 ) -> (Header, BytesView, BytesView) raise ParseError {
   let offset = bytes.start_offset() - origin
   guard bytes is [.. b"TZif", .. rest] else {
@@ -83,8 +83,8 @@ fn read_header(
 ///|
 fn read_time(
   bytes : BytesView,
-  width : Int,
-  origin : Int,
+  width : Int32,
+  origin : Int32,
 ) -> (Int64, BytesView) raise ParseError {
   let offset = bytes.start_offset() - origin
   match width {

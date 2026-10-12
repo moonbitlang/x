@@ -21,13 +21,13 @@ fn random_chars(rand : @random.Rand) -> Char {
   if i >= 0xD800 && i <= 0xDFFF {
     return random_chars(rand)
   }
-  Int::unsafe_to_char(i)
+  Int32::unsafe_to_char(i)
 }
 
 ///|
 fn random_bytes(
   rand : @random.Rand,
-  n : Int,
+  n : Int32,
   write_char : (@buffer.Buffer, Char) -> Unit,
 ) -> Bytes {
   let buf = Buffer(size_hint=n * 4)
@@ -38,17 +38,17 @@ fn random_bytes(
 }
 
 ///|
-fn random_utf8(rand : @random.Rand, n : Int) -> Bytes {
+fn random_utf8(rand : @random.Rand, n : Int32) -> Bytes {
   random_bytes(rand, n, @buffer.Buffer::write_char_utf8)
 }
 
 ///|
-fn random_utf16le(rand : @random.Rand, n : Int) -> Bytes {
+fn random_utf16le(rand : @random.Rand, n : Int32) -> Bytes {
   random_bytes(rand, n, @buffer.Buffer::write_char_utf16le)
 }
 
 ///|
-fn random_utf16be(rand : @random.Rand, n : Int) -> Bytes {
+fn random_utf16be(rand : @random.Rand, n : Int32) -> Bytes {
   random_bytes(rand, n, @buffer.Buffer::write_char_utf16be)
 }
 

@@ -75,15 +75,15 @@ pub extend Disambiguation with Debug::{to_repr}
 /// The default time zone is UTC+0.
 /// Uses the same disambiguation policy as `ZonedDateTime::of`.
 pub fn date_time(
-  year : Int,
-  month : Int,
-  day : Int,
-  hour? : Int = 0,
-  minute? : Int = 0,
-  second? : Int = 0,
-  nanosecond? : Int = 0,
-  zone? : Zone = utc_zone,
-  disambiguation? : Disambiguation = Compatible,
+  year : Int32,
+  month : Int32,
+  day : Int32,
+  hour~ : Int32 = 0,
+  minute~ : Int32 = 0,
+  second~ : Int32 = 0,
+  nanosecond~ : Int32 = 0,
+  zone~ : Zone = utc_zone,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   ZonedDateTime::of(
     year,
@@ -103,8 +103,8 @@ pub fn date_time(
 /// The default time zone is UTC+0.
 pub fn unix(
   second : Int64,
-  nanosecond? : Int = 0,
-  zone? : Zone = utc_zone,
+  nanosecond~ : Int32 = 0,
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   ZonedDateTime::from_unix_second(second, nanosecond~, zone~)
 }
@@ -117,15 +117,15 @@ pub fn unix(
 /// `Later` chooses the later instant in an overlap. `Reject` raises an error
 /// for either case. Adjustments beyond the date range remain unresolved.
 pub fn ZonedDateTime::of(
-  year : Int,
-  month : Int,
-  day : Int,
-  hour? : Int = 0,
-  minute? : Int = 0,
-  second? : Int = 0,
-  nanosecond? : Int = 0,
-  zone? : Zone = utc_zone,
-  disambiguation? : Disambiguation = Compatible,
+  year : Int32,
+  month : Int32,
+  day : Int32,
+  hour~ : Int32 = 0,
+  minute~ : Int32 = 0,
+  second~ : Int32 = 0,
+  nanosecond~ : Int32 = 0,
+  zone~ : Zone = utc_zone,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   let datetime = PlainDateTime::of(
     year,
@@ -148,8 +148,8 @@ pub fn ZonedDateTime::of(
 /// for either case. Adjustments beyond the date range remain unresolved.
 pub fn ZonedDateTime::from_plain(
   datetime : PlainDateTime,
-  zone? : Zone = utc_zone,
-  disambiguation? : Disambiguation = Compatible,
+  zone~ : Zone = utc_zone,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(datetime, zone, disambiguation~)
 }
@@ -163,7 +163,7 @@ pub fn ZonedDateTime::from_plain(
 #deprecated("Use `ZonedDateTime::from_plain` to choose a disambiguation policy")
 pub fn ZonedDateTime::from_plain_datetime(
   datetime : PlainDateTime,
-  zone? : Zone = utc_zone,
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime {
   // Compatible never rejects a reading. Keep this entry point non-raising
   // while callers migrate to the constructor that supports explicit rejection.
@@ -178,8 +178,8 @@ pub fn ZonedDateTime::from_plain_datetime(
 /// The default time zone is UTC+0.
 pub fn ZonedDateTime::from_unix_second(
   second : Int64,
-  nanosecond? : Int = 0,
-  zone? : Zone = utc_zone,
+  nanosecond~ : Int32 = 0,
+  zone~ : Zone = utc_zone,
 ) -> ZonedDateTime raise Error {
   let offset = zone.lookup_offset(second)
   let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)
@@ -245,25 +245,25 @@ pub fn ZonedDateTime::era(self : ZonedDateTime) -> String {
 
 ///|
 /// Returns the year of era of this datetime.
-pub fn ZonedDateTime::era_year(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::era_year(self : ZonedDateTime) -> Int32 {
   self.datetime.era_year()
 }
 
 ///|
 /// Returns the year of this datetime.
-pub fn ZonedDateTime::year(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::year(self : ZonedDateTime) -> Int32 {
   self.datetime.year()
 }
 
 ///|
 /// Returns the month of this datetime.
-pub fn ZonedDateTime::month(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::month(self : ZonedDateTime) -> Int32 {
   self.datetime.month()
 }
 
 ///|
 /// Returns the day of month of this datetime.
-pub fn ZonedDateTime::day(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::day(self : ZonedDateTime) -> Int32 {
   self.datetime.day()
 }
 
@@ -275,31 +275,31 @@ pub fn ZonedDateTime::weekday(self : ZonedDateTime) -> Weekday {
 
 ///|
 /// Returns the ordinal day of year of this datetime.
-pub fn ZonedDateTime::ordinal(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::ordinal(self : ZonedDateTime) -> Int32 {
   self.datetime.ordinal()
 }
 
 ///|
 /// Returns the number of days in a month of this datetime.
-pub fn ZonedDateTime::days_in_week(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::days_in_week(self : ZonedDateTime) -> Int32 {
   self.datetime.days_in_week()
 }
 
 ///|
 /// Returns the number of days in a month of this datetime.
-pub fn ZonedDateTime::days_in_month(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::days_in_month(self : ZonedDateTime) -> Int32 {
   self.datetime.days_in_month()
 }
 
 ///|
 /// Returns the number of days in a year of this datetime.
-pub fn ZonedDateTime::days_in_year(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::days_in_year(self : ZonedDateTime) -> Int32 {
   self.datetime.days_in_year()
 }
 
 ///|
 /// Returns the number of months in a year of this datetime.
-pub fn ZonedDateTime::months_in_year(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::months_in_year(self : ZonedDateTime) -> Int32 {
   self.datetime.months_in_year()
 }
 
@@ -311,25 +311,25 @@ pub fn ZonedDateTime::in_leap_year(self : ZonedDateTime) -> Bool {
 
 ///|
 /// Returns the hour of this datetime.
-pub fn ZonedDateTime::hour(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::hour(self : ZonedDateTime) -> Int32 {
   self.datetime.hour()
 }
 
 ///|
 /// Returns the minute of this datetime.
-pub fn ZonedDateTime::minute(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::minute(self : ZonedDateTime) -> Int32 {
   self.datetime.minute()
 }
 
 ///|
 /// Returns the second of this datetime.
-pub fn ZonedDateTime::second(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::second(self : ZonedDateTime) -> Int32 {
   self.datetime.second()
 }
 
 ///|
 /// Returns the nanosecond of this datetime.
-pub fn ZonedDateTime::nanosecond(self : ZonedDateTime) -> Int {
+pub fn ZonedDateTime::nanosecond(self : ZonedDateTime) -> Int32 {
   self.datetime.nanosecond()
 }
 
@@ -459,9 +459,9 @@ pub fn ZonedDateTime::add_nanoseconds(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_year(
   self : ZonedDateTime,
-  year : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  year : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_year(year),
@@ -478,9 +478,9 @@ pub fn ZonedDateTime::with_year(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_month(
   self : ZonedDateTime,
-  month : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  month : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_month(month),
@@ -497,9 +497,9 @@ pub fn ZonedDateTime::with_month(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_day(
   self : ZonedDateTime,
-  day : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  day : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_day(day),
@@ -516,9 +516,9 @@ pub fn ZonedDateTime::with_day(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_ordinal(
   self : ZonedDateTime,
-  ordinal : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  ordinal : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_ordinal(ordinal),
@@ -535,9 +535,9 @@ pub fn ZonedDateTime::with_ordinal(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_hour(
   self : ZonedDateTime,
-  hour : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  hour : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_hour(hour),
@@ -554,9 +554,9 @@ pub fn ZonedDateTime::with_hour(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_minute(
   self : ZonedDateTime,
-  minute : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  minute : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_minute(minute),
@@ -573,9 +573,9 @@ pub fn ZonedDateTime::with_minute(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_second(
   self : ZonedDateTime,
-  second : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  second : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_second(second),
@@ -592,9 +592,9 @@ pub fn ZonedDateTime::with_second(
 /// original offset; otherwise choose the earlier overlap or shift a gap forward.
 pub fn ZonedDateTime::with_nanosecond(
   self : ZonedDateTime,
-  nanosecond : Int,
-  offset? : OffsetPolicy = Prefer,
-  disambiguation? : Disambiguation = Compatible,
+  nanosecond : Int32,
+  offset~ : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
 ) -> ZonedDateTime raise Error {
   create_from_plain(
     self.datetime.with_nanosecond(nanosecond),
@@ -611,9 +611,9 @@ pub fn ZonedDateTime::with_nanosecond(
 fn create_from_plain(
   datetime : PlainDateTime,
   zone : Zone,
-  disambiguation? : Disambiguation = Compatible,
-  preferred? : ZoneOffset? = None,
-  offset? : OffsetPolicy = Prefer,
+  disambiguation~ : Disambiguation = Compatible,
+  preferred~ : ZoneOffset? = None,
+  offset~ : OffsetPolicy = Prefer,
 ) -> ZonedDateTime raise Error {
   // PlainDateTime's bounded year range leaves ample Int64 headroom for offsets.
   let wall = datetime.to_unix_second()

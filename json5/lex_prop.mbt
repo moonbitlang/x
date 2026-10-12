@@ -28,8 +28,8 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
     Some('\\') => {
       lex_assert_char(ctx, 'u')
       let c = lex_hex_digits(ctx, 4)
-      let c = Int::unsafe_to_char(c)
-      if c is ('$' | '_' | 'a'..='z' | 'A'..='Z' | '0'..='9') ||
+      let c = Int32::unsafe_to_char(c)
+      if c is ('$' | '_' | 'a'..<='z' | 'A'..<='Z' | '0'..<='9') ||
         (c > '\u{7f}' && @unicode.non_ascii_id_start.contains(c)) {
         let buffer = StringBuilder()
         buffer.write_char(c)
@@ -42,7 +42,7 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
       }
     }
     Some(c) => {
-      if c is ('a'..='z' | 'A'..='Z') ||
+      if c is ('a'..<='z' | 'A'..<='Z') ||
         (c > '\u{7f}' && @unicode.non_ascii_id_start.contains(c)) {
         let s = lex_ident(ctx, ctx.offset - 1)
         return String(s)
@@ -56,11 +56,11 @@ fn lex_property_name(ctx : ParseContext) -> Token raise ParseError {
 ///|
 fn lex_ident(
   ctx : ParseContext,
-  start : Int,
-  buffer? : StringBuilder = StringBuilder(),
+  start : Int32,
+  buffer~ : StringBuilder = StringBuilder(),
 ) -> String raise ParseError {
   let mut start = start
-  fn flush(end : Int) {
+  fn flush(end : Int32) {
     if start > 0 && end > start {
       buffer.write_view(ctx.input[start:end])
     }
@@ -72,8 +72,8 @@ fn lex_ident(
         flush(ctx.offset - 1)
         lex_assert_char(ctx, 'u')
         let c = lex_hex_digits(ctx, 4)
-        let c = Int::unsafe_to_char(c)
-        if c is ('$' | '_' | 'a'..='z' | 'A'..='Z' | '0'..='9') ||
+        let c = Int32::unsafe_to_char(c)
+        if c is ('$' | '_' | 'a'..<='z' | 'A'..<='Z' | '0'..<='9') ||
           (c > '\u{7f}' && @unicode.non_ascii_id_continue.contains(c)) {
           buffer.write_char(c)
           start = ctx.offset
@@ -86,7 +86,7 @@ fn lex_ident(
       }
       Some('$' | '_') => continue
       Some(c) => {
-        if c is ('a'..='z' | 'A'..='Z' | '0'..='9') ||
+        if c is ('a'..<='z' | 'A'..<='Z' | '0'..<='9') ||
           (c > '\u{7f}' && @unicode.non_ascii_id_continue.contains(c)) {
           continue
         }

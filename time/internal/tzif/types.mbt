@@ -37,7 +37,7 @@ pub(all) struct Data {
 /// `type_index` selects the local time type in effect from this transition.
 pub(all) struct Transition {
   time : Int64
-  type_index : Int
+  type_index : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -45,7 +45,7 @@ pub(all) struct Transition {
 /// Designations are retained as bytes: older files need not contain UTF-8.
 /// Missing standard/wall and UT/local indicators default to false.
 pub(all) struct LocalTimeType {
-  offset : Int
+  offset : Int32
   is_dst : Bool
   designation : Bytes
   is_standard : Bool
@@ -58,7 +58,7 @@ pub(all) struct LocalTimeType {
 /// marker. A first correction other than ±1 indicates missing earlier history.
 pub(all) struct LeapRecord {
   time : Int64
-  correction : Int
+  correction : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -66,7 +66,7 @@ pub(all) struct LeapRecord {
 /// `LocalTimeType`, reversing the sign used in the footer's textual syntax.
 pub struct PosixTz {
   standard_designation : String
-  standard_offset : Int
+  standard_offset : Int32
   daylight : Daylight?
 } derive(Eq, Debug)
 
@@ -74,7 +74,7 @@ pub struct PosixTz {
 /// Missing rules remain unspecified; the parser never supplies host defaults.
 pub struct Daylight {
   designation : String
-  offset : Int
+  offset : Int32
   rules : (Rule, Rule)?
 } derive(Eq, Debug)
 
@@ -83,20 +83,20 @@ pub struct Daylight {
 /// Version 3 and 4 times can be negative or extend beyond the named day.
 pub struct Rule {
   day : RuleDay
-  time : Int
+  time : Int32
 } derive(Eq, Debug)
 
 ///|
 pub(all) enum RuleDay {
-  JulianNoLeap(Int) // 1–365; February 29 is not counted.
-  DayOfYear(Int) // 0–365; February 29 is counted.
-  MonthWeekDay(month~ : Int, week~ : Int, weekday~ : Int) // Sunday = 0; week 5 = last.
+  JulianNoLeap(Int32) // 1–365; February 29 is not counted.
+  DayOfYear(Int32) // 0–365; February 29 is counted.
+  MonthWeekDay(month~ : Int32, week~ : Int32, weekday~ : Int32) // Sunday = 0; week 5 = last.
 } derive(Eq, Debug)
 
 ///|
 /// The zero-based input byte offset and the reason parsing failed.
 pub suberror ParseError {
-  ParseError(Int, String)
+  ParseError(Int32, String)
 } derive(Eq, Debug)
 
 ///|

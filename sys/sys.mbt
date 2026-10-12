@@ -84,6 +84,6 @@ pub fn unset_env_var(key : String) -> Unit {
 
 ///|
 /// Exits the program immediately with the given exit code.
-pub fn exit(code : Int) -> Unit {
+pub fn exit(code : Int32) -> Unit {
   @ffi.exit(code)
 }

@@ -15,19 +15,19 @@
 ///|
 /// A time without a time zone
 struct PlainTime {
-  hour : Int
-  minute : Int
-  second : Int
-  nanosecond : Int
+  hour : Int32
+  minute : Int32
+  second : Int32
+  nanosecond : Int32
 } derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a PlainTime from the hour, minute, second and nanosecond.
 pub fn PlainTime::of(
-  hour : Int,
-  minute : Int,
-  second : Int,
-  nanosecond : Int,
+  hour : Int32,
+  minute : Int32,
+  second : Int32,
+  nanosecond : Int32,
 ) -> PlainTime raise Error {
   if validate_time(hour, minute, second, nanosecond) {
     { hour, minute, second, nanosecond, }
@@ -126,31 +126,31 @@ pub impl FromJson for PlainTime with fn from_json(json, path) {
 
 ///|
 /// Returns the hour of this time.
-pub fn PlainTime::hour(self : PlainTime) -> Int {
+pub fn PlainTime::hour(self : PlainTime) -> Int32 {
   self.hour
 }
 
 ///|
 /// Returns the minute of this time.
-pub fn PlainTime::minute(self : PlainTime) -> Int {
+pub fn PlainTime::minute(self : PlainTime) -> Int32 {
   self.minute
 }
 
 ///|
 /// Returns the second of this time.
-pub fn PlainTime::second(self : PlainTime) -> Int {
+pub fn PlainTime::second(self : PlainTime) -> Int32 {
   self.second
 }
 
 ///|
 /// Returns the nanosecond of this time.
-pub fn PlainTime::nanosecond(self : PlainTime) -> Int {
+pub fn PlainTime::nanosecond(self : PlainTime) -> Int32 {
   self.nanosecond
 }
 
 ///|
 /// Returns the total seconds of this time.
-pub fn PlainTime::second_of_day(self : PlainTime) -> Int {
+pub fn PlainTime::second_of_day(self : PlainTime) -> Int32 {
   let sec = self.hour * seconds_per_hour.to_int() +
     self.minute * seconds_per_minute.to_int() +
     self.second
@@ -166,7 +166,7 @@ pub fn PlainTime::nanosecond_of_day(self : PlainTime) -> Int64 {
 
 ///|
 /// Creates a PlainTime from the total seconds of the day.
-pub fn PlainTime::from_second_of_day(second : Int) -> PlainTime raise Error {
+pub fn PlainTime::from_second_of_day(second : Int32) -> PlainTime raise Error {
   if second < 0 || second > seconds_per_day.to_int() {
     fail(invalid_time_err)
   }
@@ -298,7 +298,7 @@ pub fn PlainTime::add_duration(
 /// Returns a new time with the specified hour.
 pub fn PlainTime::with_hour(
   self : PlainTime,
-  hour : Int,
+  hour : Int32,
 ) -> PlainTime raise Error {
   if hour == self.hour {
     return self
@@ -310,7 +310,7 @@ pub fn PlainTime::with_hour(
 /// Returns a new time with the specified minute.
 pub fn PlainTime::with_minute(
   self : PlainTime,
-  minute : Int,
+  minute : Int32,
 ) -> PlainTime raise Error {
   if minute == self.minute {
     return self
@@ -322,7 +322,7 @@ pub fn PlainTime::with_minute(
 /// Returns a new time with the specified second.
 pub fn PlainTime::with_second(
   self : PlainTime,
-  second : Int,
+  second : Int32,
 ) -> PlainTime raise Error {
   if second == self.second {
     return self
@@ -334,7 +334,7 @@ pub fn PlainTime::with_second(
 /// Returns a new time with the specified nanosecond.
 pub fn PlainTime::with_nanosecond(
   self : PlainTime,
-  nanosecond : Int,
+  nanosecond : Int32,
 ) -> PlainTime raise Error {
   if nanosecond == self.nanosecond {
     return self
@@ -417,7 +417,7 @@ let nanoseconds_per_hour : Int64 = nanoseconds_per_minute * minutes_per_hour
 let nanoseconds_per_day : Int64 = nanoseconds_per_second * seconds_per_day
 
 ///|
-fn validate_time(h : Int, m : Int, s : Int, ns : Int) -> Bool {
+fn validate_time(h : Int32, m : Int32, s : Int32, ns : Int32) -> Bool {
   let valid_hour = validate_hour(h)
   let valid_minute = validate_minute(m)
   let valid_second = validate_second(s)
@@ -427,22 +427,22 @@ fn validate_time(h : Int, m : Int, s : Int, ns : Int) -> Bool {
 }
 
 ///|
-fn validate_hour(h : Int) -> Bool {
+fn validate_hour(h : Int32) -> Bool {
   h >= min_hour && h <= max_hour
 }
 
 ///|
-fn validate_minute(m : Int) -> Bool {
+fn validate_minute(m : Int32) -> Bool {
   m >= min_minute && m <= max_minute
 }
 
 ///|
-fn validate_second(s : Int) -> Bool {
+fn validate_second(s : Int32) -> Bool {
   s >= min_second && s <= max_second
 }
 
 ///|
-fn validate_nano(n : Int) -> Bool {
+fn validate_nano(n : Int32) -> Bool {
   n >= min_nanosecond && n <= max_nanosecond
 }
 

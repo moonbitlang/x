@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn add_prefix_zero(s : String, len : Int) -> String {
+fn add_prefix_zero(s : String, len : Int32) -> String {
   let buf = StringBuilder(size_hint=len)
   for i = s.length(); i < len; i = i + 1 {
     buf.write_char('0')
@@ -71,7 +71,7 @@ test "remove_suffix_zero && format_nanos" {
 }
 
 ///|
-fn add_suffix_zero(s : StringView, len : Int) -> String {
+fn add_suffix_zero(s : StringView, len : Int32) -> String {
   let buf = StringBuilder(size_hint=len)
   buf.write_stringview(s)
   for i = s.length(); i < len; i = i + 1 {
@@ -100,7 +100,7 @@ fn[T] int64_overflow_err() -> T raise Error {
 
 ///|
 /// FIXME: use checked_add method of Int
-fn checked_add_int(x : Int, y : Int) -> Int raise Error {
+fn checked_add_int(x : Int32, y : Int32) -> Int32 raise Error {
   let r = x.to_int64() + y.to_int64()
   if r < @int.MIN_VALUE.to_int64() || r > @int.MAX_VALUE.to_int64() {
     int_overflow_err()
@@ -111,7 +111,7 @@ fn checked_add_int(x : Int, y : Int) -> Int raise Error {
 
 ///|
 /// FIXME: use checked_mul method of Int
-fn checked_mul_int(x : Int, y : Int) -> Int raise Error {
+fn checked_mul_int(x : Int32, y : Int32) -> Int32 raise Error {
   let r = x.to_int64() * y.to_int64()
   if r < @int.MIN_VALUE.to_int64() || r > @int.MAX_VALUE.to_int64() {
     int_overflow_err()
@@ -355,7 +355,7 @@ fn floor(x : Double) -> Double {
 }
 
 ///|
-fn floor_div_int(x : Int, y : Int) -> Int raise Error {
+fn floor_div_int(x : Int32, y : Int32) -> Int32 raise Error {
   if y == 0 {
     raise Failure::Failure("division by zero")
   }
@@ -478,7 +478,7 @@ test "floor_div_int64" {
 }
 
 ///|
-fn floor_mod_int(x : Int, y : Int) -> Int raise Error {
+fn floor_mod_int(x : Int32, y : Int32) -> Int32 raise Error {
   x - floor_div_int(x, y) * y
 }
 

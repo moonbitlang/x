@@ -37,7 +37,7 @@ pub impl Show for Weekday with fn output(self : Weekday, logger : &Logger) -> Un
 }
 
 ///|
-fn Weekday::new(week_day : Int) -> Weekday? {
+fn Weekday::new(week_day : Int32) -> Weekday? {
   match week_day {
     1 => Some(Monday)
     2 => Some(Tuesday)
@@ -51,7 +51,7 @@ fn Weekday::new(week_day : Int) -> Weekday? {
 }
 
 ///|
-fn Weekday::value(self : Weekday) -> Int {
+fn Weekday::value(self : Weekday) -> Int32 {
   match self {
     Monday => 1
     Tuesday => 2

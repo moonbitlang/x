@@ -38,9 +38,9 @@ const HEX_DIGITS = "0123456789abcdef"
 
 ///|
 /// convert a sequence of `UInt` to hex representation
-pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
+pub fn uints_to_hex_string(input : Iter[UInt32]) -> String {
   let buffer = StringBuilder()
-  let rems : FixedArray[Int] = FixedArray::make(8, 0)
+  let rems : FixedArray[Int32] = FixedArray::make(8, 0)
   for x in input {
     let mut value = x
     for i in 0..<8 {
@@ -51,7 +51,7 @@ pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
     }
     for xdigit in rems {
       buffer.write_char(
-        HEX_DIGITS.code_unit_at(xdigit).to_int() |> Int::unsafe_to_char,
+        HEX_DIGITS.code_unit_at(xdigit).to_int() |> Int32::unsafe_to_char,
       )
     }
   }
@@ -60,15 +60,15 @@ pub fn uints_to_hex_string(input : Iter[UInt]) -> String {
 
 ///|
 test "uints_to_hex_string" {
-  let xs : Array[UInt] = [0x12345678, 0xabcdcdab]
+  let xs : Array[UInt32] = [0x12345678, 0xabcdcdab]
   inspect(uints_to_hex_string(xs.iter()), content="12345678abcdcdab")
 }
 
 ///|
 fn arr_u32_to_u8be_into(
-  x : Iter[UInt],
+  x : Iter[UInt32],
   buffer : FixedArray[Byte],
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   let mut idx = offset
   x.each(fn(d) {
@@ -82,9 +82,9 @@ fn arr_u32_to_u8be_into(
 
 ///|
 fn arr_u32_to_u8le_into(
-  x : Iter[UInt],
+  x : Iter[UInt32],
   buffer : FixedArray[Byte],
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   let mut idx = offset
   x.each(fn(d) {
@@ -100,7 +100,7 @@ fn arr_u32_to_u8le_into(
 fn arr_u64_to_u8be_into(
   x : Iter[UInt64],
   buffer : FixedArray[Byte],
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   let mut idx = offset
   x.each(fn(d) {
@@ -118,17 +118,17 @@ fn arr_u64_to_u8be_into(
 
 ///|
 /// rotate a UInt64 `x` right by `n` bit(s)
-fn rotate_right_u64(x : UInt64, n : Int) -> UInt64 {
+fn rotate_right_u64(x : UInt64, n : Int32) -> UInt64 {
   (x >> n) | (x << (64 - n))
 }
 
 ///|
 /// rotate a UInt `x` left by `n` bit(s)
-fn rotate_left_u(x : UInt, n : Int) -> UInt {
+fn rotate_left_u(x : UInt32, n : Int32) -> UInt32 {
   (x << n) | (x >> (32 - n))
 }
 
 ///|
-fn rotate_right_u(x : UInt, n : Int) -> UInt {
+fn rotate_right_u(x : UInt32, n : Int32) -> UInt32 {
   (x >> n) | (x << (32 - n))
 }

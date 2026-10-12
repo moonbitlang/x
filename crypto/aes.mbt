@@ -25,13 +25,13 @@ pub suberror CryptoError {
 /// An expanded AES key schedule, shared by the ECB/CBC mode functions. No
 /// padding is applied anywhere; callers must pad themselves.
 priv struct AesSchedule {
-  round_keys : FixedArray[UInt]
-  rounds : Int
+  round_keys : FixedArray[UInt32]
+  rounds : Int32
 }
 
 ///|
 /// Multiplies two bytes in GF(2^8) without secret-dependent branches.
-fn gf_mul(a : Int, b : Int) -> Int {
+fn gf_mul(a : Int32, b : Int32) -> Int32 {
   let mut x = a & 0xff
   let mut y = b & 0xff
   let mut res = 0
@@ -46,7 +46,7 @@ fn gf_mul(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn gf_pow(x : Int, exp : Int) -> Int {
+fn gf_pow(x : Int32, exp : Int32) -> Int32 {
   let mut result = 1
   let mut base = x & 0xff
   let mut e = exp
@@ -61,7 +61,7 @@ fn gf_pow(x : Int, exp : Int) -> Int {
 }
 
 ///|
-fn rotl8(x : Int, bits : Int) -> Int {
+fn rotl8(x : Int32, bits : Int32) -> Int32 {
   ((x << bits) | (x >> (8 - bits))) & 0xff
 }
 
@@ -79,8 +79,8 @@ fn aes_inv_sub_byte(value : Byte) -> Byte {
 }
 
 ///|
-fn aes_rcon() -> Array[UInt] {
-  let rcon : Array[UInt] = []
+fn aes_rcon() -> Array[UInt32] {
+  let rcon : Array[UInt32] = []
   let mut value = 1
   for _ in 0..<=13 {
     rcon.push(value.reinterpret_as_uint() << 24)
@@ -90,7 +90,7 @@ fn aes_rcon() -> Array[UInt] {
 }
 
 ///|
-fn u32_from_be(bytes : BytesView, offset : Int) -> UInt {
+fn u32_from_be(bytes : BytesView, offset : Int32) -> UInt32 {
   let b0 = bytes[offset].to_uint()
   let b1 = bytes[offset + 1].to_uint()
   let b2 = bytes[offset + 2].to_uint()
@@ -99,7 +99,7 @@ fn u32_from_be(bytes : BytesView, offset : Int) -> UInt {
 }
 
 ///|
-fn aes_sub_word(word : UInt) -> UInt {
+fn aes_sub_word(word : UInt32) -> UInt32 {
   let b0 = aes_sub_byte((word >> 24).to_byte()).to_uint()
   let b1 = aes_sub_byte((word >> 16).to_byte()).to_uint()
   let b2 = aes_sub_byte((word >> 8).to_byte()).to_uint()
@@ -108,12 +108,12 @@ fn aes_sub_word(word : UInt) -> UInt {
 }
 
 ///|
-fn aes_rot_word(word : UInt) -> UInt {
+fn aes_rot_word(word : UInt32) -> UInt32 {
   (word << 8) | (word >> 24)
 }
 
 ///|
-let aes_rcon_cached : Array[UInt] = aes_rcon()
+let aes_rcon_cached : Array[UInt32] = aes_rcon()
 
 ///|
 fn aes_schedule(key : BytesView) -> AesSchedule raise CryptoError {
@@ -124,7 +124,7 @@ fn aes_schedule(key : BytesView) -> AesSchedule raise CryptoError {
   let nk = key_len / 4
   let rounds = nk + 6
   let total_words = 4 * (rounds + 1)
-  let w : FixedArray[UInt] = FixedArray::make(total_words, 0U)
+  let w : FixedArray[UInt32] = FixedArray::make(total_words, 0U)
   for i in 0..<nk {
     w[i] = u32_from_be(key, i * 4)
   }
@@ -149,8 +149,8 @@ fn byte_xor(a : Byte, b : Byte) -> Byte {
 ///|
 fn aes_add_round_key(
   state : Array[Byte],
-  round_keys : FixedArray[UInt],
-  round : Int,
+  round_keys : FixedArray[UInt32],
+  round : Int32,
 ) -> Unit {
   let base = round * 4
   for word_index in 0..<4 {

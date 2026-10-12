@@ -16,11 +16,15 @@
 let magic_cipher_data : Bytes = b"OrpheanBeholderScryDoubt"
 
 ///|
-fn bcrypt_hash_raw(password : BytesView, salt : BytesView, cost : Int) -> Bytes {
+fn bcrypt_hash_raw(
+  password : BytesView,
+  salt : BytesView,
+  cost : Int32,
+) -> Bytes {
   let key = bcrypt_key(password)
   let state = new_blowfish_state()
   blowfish_expand_key(state, salt, key.exact_view())
-  let rounds : UInt = 1U << cost
+  let rounds : UInt32 = 1U << cost
   for _ in 0U..<rounds {
     blowfish_expand_zero_key(state, key.exact_view())
     blowfish_expand_zero_key(state, salt)
@@ -71,8 +75,8 @@ let hash_length = 60
 
 ///|
 pub suberror BcryptError {
-  InvalidCost(Int)
-  InvalidSaltLength(Int)
+  InvalidCost(Int32)
+  InvalidSaltLength(Int32)
   InvalidHashFormat
   UnsupportedVersion(String)
   InvalidBase64
@@ -119,7 +123,7 @@ pub extend BcryptError with Show::{to_string, output}
 ///|
 priv struct ParsedHash {
   minor : Char
-  cost : Int
+  cost : Int32
   salt_text : String
   salt : Bytes
 }
@@ -145,7 +149,7 @@ priv struct ParsedHash {
 pub fn hash(
   password~ : Bytes,
   salt~ : Bytes,
-  cost~ : Int,
+  cost~ : Int32,
 ) -> String raise BcryptError {
   if cost < min_cost || cost > max_cost {
     raise InvalidCost(cost)
@@ -224,14 +228,14 @@ fn parse_hash(hash : String) -> Result[ParsedHash, BcryptError] {
 }
 
 ///|
-fn two_digit(n : Int) -> String {
+fn two_digit(n : Int32) -> String {
   let tens = n / 10 + '0'.to_int()
   let ones = n % 10 + '0'.to_int()
   String::from_array([tens.unsafe_to_char(), ones.unsafe_to_char()])
 }
 
 ///|
-fn is_ascii_digit_code(code : Int) -> Bool {
+fn is_ascii_digit_code(code : Int32) -> Bool {
   code >= '0'.to_int() && code <= '9'.to_int()
 }
 

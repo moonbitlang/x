@@ -29,7 +29,7 @@ priv struct WindowsRule {
 priv enum WindowsDate {
   // month: 1..12, week: 1..5 (5 means last), weekday: Sunday=0..Saturday=6.
   // second is local wall time in 0..86400; 86400 denotes next midnight.
-  MonthWeekDay(month~ : Int, week~ : Int, weekday~ : Int, second~ : Int)
+  MonthWeekDay(month~ : Int32, week~ : Int32, weekday~ : Int32, second~ : Int32)
   // As a start: already in DST at year's start. As an end: still in DST
   // at year's end. This is a state marker, not a literal clock change.
   // Semantics follow the marker predicates in .NET's AdjustmentRule:
@@ -38,7 +38,7 @@ priv enum WindowsDate {
 } derive(Eq, Debug)
 
 ///|
-fn WindowsDate::time(self : WindowsDate, year : Int, offset : Int) -> Int64 {
+fn WindowsDate::time(self : WindowsDate, year : Int32, offset : Int32) -> Int64 {
   let (day, second) = match self {
     YearBoundary => (date_to_fixed_days(year, 1, 1), 0)
     MonthWeekDay(month~, week~, weekday~, second~) => {
@@ -61,7 +61,7 @@ fn WindowsDate::time(self : WindowsDate, year : Int, offset : Int) -> Int64 {
 ///|
 fn WindowsRule::offset_in_year(
   self : WindowsRule,
-  year : Int,
+  year : Int32,
   second : Int64,
 ) -> ZoneOffset {
   let daylight = match (self.start, self.end) {
@@ -87,7 +87,7 @@ fn WindowsRule::offset_in_year(
 }
 
 ///|
-fn WindowsRule::ending_offset(self : WindowsRule, year : Int) -> ZoneOffset {
+fn WindowsRule::ending_offset(self : WindowsRule, year : Int32) -> ZoneOffset {
   let daylight = match (self.start, self.end) {
     (_, YearBoundary) => true
     (YearBoundary, _) => false
@@ -103,7 +103,7 @@ fn WindowsRule::ending_offset(self : WindowsRule, year : Int) -> ZoneOffset {
 ///|
 // The preceding year's final offset locates the next annual rule's start
 // in UTC. Candidate transitions include this instant even if no clock moves.
-fn WindowsRule::year_boundary(self : WindowsRule, year : Int) -> Int64 {
+fn WindowsRule::year_boundary(self : WindowsRule, year : Int32) -> Int64 {
   (date_to_fixed_days(year, 1, 1) - days_zero_year_to_unix_epoch) * 86400L -
   self.ending_offset(year - 1).seconds().to_int64()
 }

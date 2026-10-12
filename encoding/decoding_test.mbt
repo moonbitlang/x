@@ -652,7 +652,7 @@ test "lossy decoding UTF16LE incorrectly encoded data to String" {
   inspect(chars, content="�")
   assert_eq(chars.length(), 1)
   assert_eq(
-    Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
+    Int32::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
 }
@@ -676,7 +676,7 @@ test "lossy decoding UTF16 (alias for UTF16LE) incorrectly encoded data to Strin
   inspect(chars, content="�")
   assert_eq(chars.length(), 1)
   assert_eq(
-    Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
+    Int32::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
 }
@@ -700,7 +700,7 @@ test "lossy decoding UTF16BE incorrectly encoded data to String" {
   inspect(chars, content="�")
   assert_eq(chars.length(), 1)
   assert_eq(
-    Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
+    Int32::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
 }
@@ -726,7 +726,7 @@ test "lossy decoding UTF16BE which is `HI+!LO`" {
   inspect(chars, content="�H") // ✅
   assert_eq(chars.length(), 2)
   assert_eq(
-    Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
+    Int32::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
   debug_inspect(chars.get_char(1), content="Some('H')")
@@ -755,7 +755,7 @@ test "lossy decoding UTF8 incorrectly encoded data to String" {
   let chars = decoder.decode_lossy(buf.to_bytes())
   inspect(chars, content="�")
   assert_eq(
-    Int::unsafe_to_char(chars.code_unit_at(0).to_int()),
+    Int32::unsafe_to_char(chars.code_unit_at(0).to_int()),
     @encoding.U_REP,
   )
 }

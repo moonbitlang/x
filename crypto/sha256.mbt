@@ -15,17 +15,17 @@
 ///|
 #alias(Sha256Context, deprecated="Use `SHA256` instead")
 struct SHA256 {
-  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+  reg : FixedArray[UInt32] // register A B C D E F G H. i.e. digest
   mut len : UInt64
   buf : FixedArray[Byte]
-  mut buf_index : Int
+  mut buf_index : Int32
 }
 
 ///|
 /// Instantiate a SHA-256 context with the standard initial hash value.
 #label_migration(reg, fill=false, msg="The `reg` parameter is deprecated: constructing a SHA-256 hasher with a custom initial state is no longer supported. If you were passing the SHA-224 initial state, use `SHA224::new()` instead.")
 pub fn SHA256::new(
-  reg? : FixedArray[UInt] = [
+  reg~ : FixedArray[UInt32] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
     0x5be0cd19,
   ],
@@ -34,12 +34,12 @@ pub fn SHA256::new(
 }
 
 ///|
-fn SHA256::new_with_initial_state(reg : FixedArray[UInt]) -> SHA256 {
+fn SHA256::new_with_initial_state(reg : FixedArray[UInt32]) -> SHA256 {
   { reg, len: 0, buf: FixedArray::make(64, Byte::default()), buf_index: 0, }
 }
 
 ///|
-let sha256_t : FixedArray[UInt] = [ // pre calculated
+let sha256_t : FixedArray[UInt32] = [ // pre calculated
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
   0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
   0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
@@ -56,20 +56,20 @@ let sha256_t : FixedArray[UInt] = [ // pre calculated
 // Maj(x,y,z) = (x & y) ^ (x & z) ^ (y & z)
 
 ///|
-fn sha256_ch(x : UInt, y : UInt, z : UInt) -> UInt {
+fn sha256_ch(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   ((y ^ z) & x) ^ z
 }
 
 ///|
-fn sha256_maj(x : UInt, y : UInt, z : UInt) -> UInt {
+fn sha256_maj(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   (x & y) | (x & z) | (y & z)
 }
 
 ///|
 fn SHA256::transform(
   data : FixedArray[Byte],
-  reg : FixedArray[UInt],
-  w : FixedArray[UInt],
+  reg : FixedArray[UInt32],
+  w : FixedArray[UInt32],
 ) -> Unit {
   guard! reg.length() == 8
   guard! w.length() == 16
@@ -184,8 +184,8 @@ pub fn SHA256::finalize(self : SHA256) -> FixedArray[Byte] {
 fn SHA256::_finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
-  size? : Int = 8,
-  offset? : Int = 0,
+  size~ : Int32 = 8,
+  offset~ : Int32 = 0,
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(64, Byte::default())
@@ -217,12 +217,12 @@ fn SHA256::_finalize_into(
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with fn size(_self : SHA256) -> Int {
+pub impl CryptoHasher for SHA256 with fn size(_self : SHA256) -> Int32 {
   32
 }
 
 ///|
-pub impl CryptoHasher for SHA256 with fn block_size(_self : SHA256) -> Int {
+pub impl CryptoHasher for SHA256 with fn block_size(_self : SHA256) -> Int32 {
   64
 }
 
@@ -246,7 +246,7 @@ pub impl CryptoHasher for SHA256 with fn reset(self : SHA256) -> Unit {
 pub impl CryptoHasher for SHA256 with fn finalize_into(
   self : SHA256,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self._finalize_into(buffer, offset~)
 }

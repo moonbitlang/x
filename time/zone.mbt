@@ -17,7 +17,7 @@
 struct Zone {
   id : String
   offsets : Array[ZoneOffset]
-  transitions : Array[(Int64, Int)] // (timestamp, offset_index)
+  transitions : Array[(Int64, Int32)] // (timestamp, offset_index)
   // Cutoffs mark the extent of recorded history; the end of a Windows annual
   // record's validity need not coincide with its last clock change.
   // Past excludes its cutoff; future includes it. Their scopes never overlap.
@@ -39,9 +39,9 @@ pub let utc_zone : Zone = {
 /// Creates a time zone with fixed offset from time zone id and offset seconds.
 pub fn fixed_zone(
   id : String,
-  offset_seconds : Int,
-  abbrev? : String = "",
-  dst? : Bool = false,
+  offset_seconds : Int32,
+  abbrev~ : String = "",
+  dst~ : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
   { id, offsets: [offset], transitions: [], past: None, future: None, }
@@ -114,7 +114,7 @@ fn Zone::offset_candidates(self : Zone) -> Array[ZoneOffset] {
       }
     }
   }
-  let seen : Map[Int, Bool] = Map([])
+  let seen : Map[Int32, Bool] = Map([])
   offsets.filter(offset => {
     if seen.contains(offset.seconds()) {
       false
@@ -130,7 +130,7 @@ fn Zone::offset_candidates(self : Zone) -> Array[ZoneOffset] {
 // itself skip or repeat local readings, even if neither rule changes then.
 fn Zone::transitions_near(
   self : Zone,
-  year : Int,
+  year : Int32,
   lower : Int64,
   upper : Int64,
 ) -> Array[Int64] {
@@ -213,7 +213,7 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
     let abbrev = if time_type.designation
       .iter()
       .all(byte => {
-        byte is (b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'+' | b'-')
+        byte is (b'A'..<=b'Z' | b'a'..<=b'z' | b'0'..<=b'9' | b'+' | b'-')
       }) {
       let name = StringBuilder()
       for byte in time_type.designation {

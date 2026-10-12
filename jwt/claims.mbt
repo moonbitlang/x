@@ -54,7 +54,7 @@ fn validate_claim_types(claims : Json) -> Unit raise JwtError {
 fn validate_claims(
   claims : Json,
   now : Double,
-  leeway : Int,
+  leeway : Int32,
   require_exp : Bool,
   issuer : String?,
   audience : String?,

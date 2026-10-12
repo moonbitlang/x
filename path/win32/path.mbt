@@ -22,7 +22,7 @@ fn is_win_sep(ch : Char) -> Bool {
 }
 
 ///|
-fn last_win_sep(path : StringView) -> Int? {
+fn last_win_sep(path : StringView) -> Int32? {
   match (path.rev_find("/"), path.rev_find("\\")) {
     (None, None) => None
     (Some(idx), None) | (None, Some(idx)) => Some(idx)

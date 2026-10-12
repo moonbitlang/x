@@ -14,8 +14,8 @@
 
 ///|
 pub(all) struct Position {
-  line : Int // 1-based
-  column : Int // 0-based
+  line : Int32 // 1-based
+  column : Int32 // 0-based
 } derive(Eq, Debug)
 
 ///|

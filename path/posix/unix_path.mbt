@@ -30,7 +30,7 @@ priv struct UnixPath {
 } derive(ToJson, Hash, Eq)
 
 ///|
-fn is_unix_sep_at(path : StringView, index : Int) -> Bool {
+fn is_unix_sep_at(path : StringView, index : Int32) -> Bool {
   path.get_char(index) == Some('/')
 }
 
@@ -87,7 +87,7 @@ fn push_unix_component(
 }
 
 ///|
-fn skip_unix_separators(path : StringView, start : Int) -> Int {
+fn skip_unix_separators(path : StringView, start : Int32) -> Int32 {
   let mut index = start
   while index < path.length() && is_unix_sep_at(path, index) {
     index += 1
@@ -98,7 +98,7 @@ fn skip_unix_separators(path : StringView, start : Int) -> Int {
 ///|
 fn parse_unix_components(
   path : StringView,
-  start : Int,
+  start : Int32,
   allow_above_root~ : Bool,
 ) -> Array[StringView] {
   let components : Array[StringView] = []

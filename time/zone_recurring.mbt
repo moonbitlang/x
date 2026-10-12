@@ -107,7 +107,7 @@ fn Recurring::offsets(self : Recurring) -> Array[ZoneOffset] {
 // Return candidate changes around a local year. The caller clips them to the
 // rule's scope and checks the actual offsets on both sides, so redundant rule
 // dates (including all-year DST) cannot invent a gap.
-fn Recurring::transitions_near(self : Recurring, year : Int) -> Array[Int64] {
+fn Recurring::transitions_near(self : Recurring, year : Int32) -> Array[Int64] {
   let changes = []
   for year in (year - 1)..<=(year + 1) {
     match self {
@@ -133,7 +133,7 @@ fn Recurring::transitions_near(self : Recurring, year : Int) -> Array[Int64] {
 ///|
 // POSIX start times use the standard offset; end times use the daylight
 // offset. The date is local wall time and may spill into another day or year.
-fn tzif_rule_time(rule : @tzif.Rule, year : Int, offset : Int) -> Int64 {
+fn tzif_rule_time(rule : @tzif.Rule, year : Int32, offset : Int32) -> Int64 {
   let day = match rule.day {
     JulianNoLeap(n) =>
       date_to_fixed_days(year, 1, 1) +

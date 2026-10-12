@@ -16,7 +16,7 @@
 fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
   let buf = StringBuilder()
   let mut start = ctx.offset
-  fn flush(end : Int) {
+  fn flush(end : Int32) {
     if start > 0 && end > start {
       buf.write_view(ctx.input[start:end])
     }
@@ -56,11 +56,11 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
           }
           Some('x') => {
             let c = lex_hex_digits(ctx, 2)
-            buf.write_char(Int::unsafe_to_char(c))
+            buf.write_char(Int32::unsafe_to_char(c))
           }
           Some('u') => {
             let c = lex_hex_digits(ctx, 4)
-            buf.write_char(Int::unsafe_to_char(c))
+            buf.write_char(Int32::unsafe_to_char(c))
           }
           Some(c) => {
             if c >= '1' && c <= '9' {
@@ -80,7 +80,7 @@ fn lex_string(ctx : ParseContext, quote : Char) -> String raise ParseError {
 }
 
 ///|
-fn lex_hex_digits(ctx : ParseContext, n : Int) -> Int raise ParseError {
+fn lex_hex_digits(ctx : ParseContext, n : Int32) -> Int32 raise ParseError {
   let mut r = 0
   for i = 0; i < n; i = i + 1 {
     match read_char(ctx) {

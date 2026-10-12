@@ -38,8 +38,8 @@ fn is_valid_utf16(text : String) -> Bool {
   for units = text.code_units() {
     match units {
       [] => break true
-      [0xD800..=0xDBFF, 0xDC00..=0xDFFF, .. rest] => continue rest
-      [0xD800..=0xDFFF, ..] => break false
+      [0xD800..<=0xDBFF, 0xDC00..<=0xDFFF, .. rest] => continue rest
+      [0xD800..<=0xDFFF, ..] => break false
       [_, .. rest] => continue rest
     }
   }

@@ -62,7 +62,7 @@ let shift_one : FixedArray[Char] = [
 ///|
 /// Inclusive ranges and isolated chars with their fold delta; isolated
 /// chars are written as `(ch, ch, delta)`.
-let shift_ranges : FixedArray[(Char, Char, Int)] = [
+let shift_ranges : FixedArray[(Char, Char, Int32)] = [
   ('A', 'Z', 0x20),
   ('À', 'Ö', 0x20),
   ('Ø', 'Þ', 0x20),

@@ -24,7 +24,7 @@ priv struct WinPath {
   components : Array[StringView]
   /// Index of the root's end in the original path string (before any
   /// normalization), following Node `path.win32.parse().root`.
-  root_end : Int
+  root_end : Int32
 } derive(ToJson, Hash, Eq)
 
 ///|
@@ -204,7 +204,7 @@ impl Show for WinPath with fn output(self, logger) {
 }
 
 ///|
-fn is_win_sep_at(path : StringView, index : Int) -> Bool {
+fn is_win_sep_at(path : StringView, index : Int32) -> Bool {
   path.get_char(index) is Some(ch) && is_win_sep(ch)
 }
 
@@ -214,7 +214,7 @@ fn start_with_win_drive(path : StringView) -> Bool {
 }
 
 ///|
-fn skip_win_separators(path : StringView, start : Int) -> Int {
+fn skip_win_separators(path : StringView, start : Int32) -> Int32 {
   let mut index = start
   while index < path.length() && is_win_sep_at(path, index) {
     index += 1
@@ -223,7 +223,7 @@ fn skip_win_separators(path : StringView, start : Int) -> Int {
 }
 
 ///|
-fn find_next_win_sep(path : StringView, start : Int) -> Int? {
+fn find_next_win_sep(path : StringView, start : Int32) -> Int32? {
   for i in start..<path.length() {
     guard is_win_sep_at(path, i) else { continue }
     return Some(i)
@@ -257,7 +257,7 @@ fn push_windows_component(
 ///|
 fn parse_windows_components(
   path : StringView,
-  start : Int,
+  start : Int32,
   allow_above_root~ : Bool,
 ) -> Array[StringView] {
   let components : Array[StringView] = []
@@ -306,7 +306,7 @@ fn parse_device_prefixed_path(
 }
 
 ///|
-fn component_root_end(path : StringView, start : Int) -> Int {
+fn component_root_end(path : StringView, start : Int32) -> Int32 {
   match find_next_win_sep(path, start) {
     None => path.length()
     Some(index) => index + 1

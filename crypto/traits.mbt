@@ -15,14 +15,14 @@
 ///|
 pub(open) trait CryptoHasher {
   /// Returns the byte-length of hash output
-  fn size(Self) -> Int
+  fn size(Self) -> Int32
   /// Returns the underlying block size of the hasher
-  fn block_size(Self) -> Int
+  fn block_size(Self) -> Int32
   /// Resets to initial state
   fn reset(Self) -> Unit
   /// Updates hash state with new data
   fn update(Self, BytesView) -> Unit
   /// Writes the hash output into the provided buffer.
   /// The buffer must be at least `size(Self)` bytes long after the offset.
-  fn finalize_into(Self, FixedArray[Byte], offset~ : Int) -> Unit
+  fn finalize_into(Self, FixedArray[Byte], offset~ : Int32) -> Unit
 }

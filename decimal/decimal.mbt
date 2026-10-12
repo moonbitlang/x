@@ -47,7 +47,7 @@
 ///
 pub struct Decimal {
   coefficient : @bigint.BigInt
-  scale : Int
+  scale : Int32
 } derive(Debug)
 
 ///|
@@ -74,7 +74,7 @@ pub let max_scale = 28
 /// }
 /// ```
 ///
-pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
+pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int32) -> Decimal? {
   if scale < 0 || scale > max_scale {
     None
   } else {
@@ -85,7 +85,7 @@ pub fn Decimal::new(coefficient : @bigint.BigInt, scale : Int) -> Decimal? {
 ///|
 /// Creates a decimal from a coefficient and scale without validation.
 /// Used internally for performance-critical operations.
-fn new_unchecked(coefficient : @bigint.BigInt, scale : Int) -> Decimal {
+fn new_unchecked(coefficient : @bigint.BigInt, scale : Int32) -> Decimal {
   { coefficient, scale, }
 }
 
@@ -226,7 +226,7 @@ fn is_digit_string(s : StringView) -> Bool {
 /// }
 /// ```
 ///
-pub fn Decimal::from_int(n : Int) -> Decimal {
+pub fn Decimal::from_int(n : Int32) -> Decimal {
   { coefficient: @bigint.BigInt::from_int(n), scale: 0, }
 }
 
@@ -270,7 +270,7 @@ pub fn Decimal::from_bigint(n : @bigint.BigInt) -> Decimal {
 /// }
 /// ```
 ///
-pub fn Decimal::from_double(d : Double, precision : Int) -> Decimal? {
+pub fn Decimal::from_double(d : Double, precision : Int32) -> Decimal? {
   if d.is_nan() {
     return None
   }
@@ -396,7 +396,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
 /// }
 /// ```
 ///
-pub fn Decimal::to_int(self : Decimal) -> Int? {
+pub fn Decimal::to_int(self : Decimal) -> Int32? {
   if self.scale == 0 {
     Some(self.coefficient.to_int())
   } else {
@@ -471,7 +471,7 @@ pub fn Decimal::is_negative(self : Decimal) -> Bool {
 
 ///|
 /// Returns the sign of the decimal: -1, 0, or 1.
-pub fn Decimal::signum(self : Decimal) -> Int {
+pub fn Decimal::signum(self : Decimal) -> Int32 {
   if self.coefficient.is_zero() {
     0
   } else if self.coefficient > 0N {
@@ -499,7 +499,7 @@ pub fn Decimal::coefficient(self : Decimal) -> @bigint.BigInt {
 
 ///|
 /// Returns the scale (number of decimal places) of the decimal.
-pub fn Decimal::scale(self : Decimal) -> Int {
+pub fn Decimal::scale(self : Decimal) -> Int32 {
   self.scale
 }
 
@@ -527,7 +527,7 @@ pub fn Decimal::scale(self : Decimal) -> Int {
 /// }
 /// ```
 ///
-pub fn Decimal::round(self : Decimal, places : Int) -> Decimal? {
+pub fn Decimal::round(self : Decimal, places : Int32) -> Decimal? {
   if places < 0 || places > max_scale {
     return None
   }
@@ -573,7 +573,7 @@ pub fn Decimal::round(self : Decimal, places : Int) -> Decimal? {
 /// }
 /// ```
 ///
-pub fn Decimal::truncate(self : Decimal, places : Int) -> Decimal? {
+pub fn Decimal::truncate(self : Decimal, places : Int32) -> Decimal? {
   if places < 0 || places > max_scale {
     return None
   }
@@ -613,7 +613,7 @@ pub fn Decimal::truncate(self : Decimal, places : Int) -> Decimal? {
 /// }
 /// ```
 ///
-pub fn Decimal::scale_to(self : Decimal, new_scale : Int) -> Decimal? {
+pub fn Decimal::scale_to(self : Decimal, new_scale : Int32) -> Decimal? {
   if new_scale < 0 || new_scale > max_scale {
     return None
   }
@@ -648,7 +648,7 @@ pub impl Default for Decimal with fn default() {
 /// Tests equality between two decimals.
 pub impl Eq for Decimal with fn equal(self : Decimal, other : Decimal) -> Bool {
   // Normalize both decimals to the same scale for comparison
-  let max_scale = Int::max(self.scale, other.scale)
+  let max_scale = Int32::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
     (Some(self_scaled), Some(other_scaled)) =>
       self_scaled.coefficient == other_scaled.coefficient
@@ -658,9 +658,9 @@ pub impl Eq for Decimal with fn equal(self : Decimal, other : Decimal) -> Bool {
 
 ///|
 /// Compares two decimals and returns their relative order.
-pub impl Compare for Decimal with fn compare(self : Decimal, other : Decimal) -> Int {
+pub impl Compare for Decimal with fn compare(self : Decimal, other : Decimal) -> Int32 {
   // Normalize both decimals to the same scale for comparison
-  let max_scale = Int::max(self.scale, other.scale)
+  let max_scale = Int32::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
     (Some(self_scaled), Some(other_scaled)) =>
       self_scaled.coefficient.compare(other_scaled.coefficient)
@@ -672,7 +672,7 @@ pub impl Compare for Decimal with fn compare(self : Decimal, other : Decimal) ->
 /// Adds two decimals.
 pub impl Add for Decimal with fn add(self : Decimal, other : Decimal) -> Decimal {
   // Normalize both decimals to the same scale
-  let max_scale = Int::max(self.scale, other.scale)
+  let max_scale = Int32::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
     (Some(self_scaled), Some(other_scaled)) =>
       new_unchecked(
@@ -687,7 +687,7 @@ pub impl Add for Decimal with fn add(self : Decimal, other : Decimal) -> Decimal
 /// Subtracts one decimal from another.
 pub impl Sub for Decimal with fn sub(self : Decimal, other : Decimal) -> Decimal {
   // Normalize both decimals to the same scale
-  let max_scale = Int::max(self.scale, other.scale)
+  let max_scale = Int32::max(self.scale, other.scale)
   match (self.scale_to(max_scale), other.scale_to(max_scale)) {
     (Some(self_scaled), Some(other_scaled)) =>
       new_unchecked(
@@ -728,7 +728,7 @@ pub impl Div for Decimal with fn div(self : Decimal, other : Decimal) -> Decimal
   // Scale up the dividend to get maximum precision
   let scale_diff = max_scale - self.scale + other.scale
   let multiplier = @bigint.BigInt::from_int(10).pow(
-    @bigint.BigInt::from_int(Int::max(0, scale_diff)),
+    @bigint.BigInt::from_int(Int32::max(0, scale_diff)),
   )
   let scaled_dividend = self.coefficient * multiplier
   let quotient = scaled_dividend / other.coefficient

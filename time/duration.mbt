@@ -16,16 +16,16 @@
 /// An amount of time with nanosecond precision.
 struct Duration {
   secs : Int64
-  nanos : Int
+  nanos : Int32
 } derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a Duration from hours, minutes, seconds and nanoseconds.
 pub fn Duration::of(
-  hours? : Int64 = 0L,
-  minutes? : Int64 = 0L,
-  seconds? : Int64 = 0L,
-  nanoseconds? : Int64 = 0L,
+  hours~ : Int64 = 0L,
+  minutes~ : Int64 = 0L,
+  seconds~ : Int64 = 0L,
+  nanoseconds~ : Int64 = 0L,
 ) -> Duration raise Error {
   let hours_sec = checked_mul_int64(hours, seconds_per_hour)
   let minutes_sec = checked_mul_int64(minutes, seconds_per_minute)
@@ -45,7 +45,7 @@ pub fn Duration::of(
 }
 
 ///|
-fn create(secs : Int64, nanos : Int) -> Duration raise Error {
+fn create(secs : Int64, nanos : Int32) -> Duration raise Error {
   if nanos < min_nanosecond || nanos > max_nanosecond {
     fail(invalid_duration_err)
   }
@@ -176,7 +176,7 @@ pub fn Duration::seconds(self : Duration) -> Int64 {
 
 ///|
 /// Returns the number of nanoseconds in this duration.
-pub fn Duration::nanoseconds(self : Duration) -> Int {
+pub fn Duration::nanoseconds(self : Duration) -> Int32 {
   self.nanos
 }
 
@@ -306,7 +306,7 @@ pub fn Duration::with_seconds(self : Duration, seconds : Int64) -> Duration {
 /// Returns a new duration with the specified nanosecond of second.
 pub fn Duration::with_nanoseconds(
   self : Duration,
-  nanoseconds : Int,
+  nanoseconds : Int32,
 ) -> Duration raise Error {
   if nanoseconds == self.nanos {
     return self

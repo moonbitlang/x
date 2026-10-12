@@ -20,14 +20,14 @@
 /// The ranges passed to `of` must be sorted in ascending order and
 /// non-overlapping.
 pub struct CharClass {
-  bmp : FixedArray[Int]
-  astral : FixedArray[Int]
+  bmp : FixedArray[Int32]
+  astral : FixedArray[Int32]
 }
 
 ///|
 pub fn CharClass::of(array : Array[(Char, Char)]) -> CharClass {
   let bmp = FixedArray::make(0x10000 / 32, 0)
-  let astral : Array[Int] = []
+  let astral : Array[Int32] = []
   for item in array {
     let (min, max) = item
     let lo = min.to_int()
@@ -44,7 +44,7 @@ pub fn CharClass::of(array : Array[(Char, Char)]) -> CharClass {
 }
 
 ///|
-fn fill_bmp(bmp : FixedArray[Int], a : Int, b : Int) -> Unit {
+fn fill_bmp(bmp : FixedArray[Int32], a : Int32, b : Int32) -> Unit {
   let mut w = a >> 5
   let last = b >> 5
   if w == last {
@@ -62,7 +62,7 @@ fn fill_bmp(bmp : FixedArray[Int], a : Int, b : Int) -> Unit {
 
 ///|
 /// A bitmask with the lowest `bits` bits set, where `0 <= bits <= 32`.
-fn low_mask(bits : Int) -> Int {
+fn low_mask(bits : Int32) -> Int32 {
   if bits == 32 {
     -1
   } else {
@@ -72,7 +72,7 @@ fn low_mask(bits : Int) -> Int {
 
 ///|
 /// A bitmask with bits `lo..=hi` set, where `0 <= lo <= hi <= 31`.
-fn mask_between(lo : Int, hi : Int) -> Int {
+fn mask_between(lo : Int32, hi : Int32) -> Int32 {
   (-1 ^ low_mask(lo)) & low_mask(hi + 1)
 }
 

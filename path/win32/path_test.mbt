@@ -531,7 +531,7 @@ test "resolve drops trailing separators except regular roots" {
 }
 
 ///|
-fn test_is_win_sep_at(path : String, index : Int) -> Bool {
+fn test_is_win_sep_at(path : String, index : Int32) -> Bool {
   match path.get_char(index) {
     Some('\\' | '/') => true
     _ => false

@@ -15,9 +15,9 @@
 ///|
 priv struct FooterParser {
   bytes : BytesView
-  base : Int
+  base : Int32
   version : Version
-  mut pos : Int
+  mut pos : Int32
 }
 
 ///|
@@ -29,8 +29,8 @@ fn FooterParser::designation(self : FooterParser) -> String raise ParseError {
   let start = self.pos
   let name = StringBuilder()
   while self.bytes.get(self.pos) is Some(byte) {
-    let letter = byte is (b'A'..=b'Z' | b'a'..=b'z')
-    if !(letter || (quoted && byte is (b'0'..=b'9' | b'+' | b'-'))) {
+    let letter = byte is (b'A'..<=b'Z' | b'a'..<=b'z')
+    if !(letter || (quoted && byte is (b'0'..<=b'9' | b'+' | b'-'))) {
       break
     }
     name.write_char(byte.to_int().unsafe_to_char())
@@ -62,12 +62,12 @@ fn FooterParser::expect(
 ///|
 fn FooterParser::number(
   self : FooterParser,
-  minimum : Int,
-  maximum : Int,
-) -> Int raise ParseError {
+  minimum : Int32,
+  maximum : Int32,
+) -> Int32 raise ParseError {
   let start = self.pos
   let mut value = 0
-  while self.bytes.get(self.pos) is Some(byte) && byte is (b'0'..=b'9') {
+  while self.bytes.get(self.pos) is Some(byte) && byte is (b'0'..<=b'9') {
     let digit = byte.to_int() - b'0'.to_int()
     guard value <= (maximum - digit) / 10 else {
       raise ParseError(self.base + start, "footer number out of range")
@@ -87,9 +87,9 @@ fn FooterParser::number(
 ///|
 fn FooterParser::clock(
   self : FooterParser,
-  maximum_hour : Int,
+  maximum_hour : Int32,
   signed : Bool,
-) -> Int raise ParseError {
+) -> Int32 raise ParseError {
   let sign = match self.bytes.get(self.pos) {
     Some(b'-') if signed => {
       self.pos += 1
@@ -148,7 +148,7 @@ fn FooterParser::rule(self : FooterParser) -> Rule raise ParseError {
 ///|
 fn parse_footer(
   bytes : BytesView,
-  base : Int,
+  base : Int32,
   version : Version,
 ) -> PosixTz raise ParseError {
   let parser : FooterParser = { bytes, base, version, pos: 0, }
@@ -161,7 +161,7 @@ fn parse_footer(
   } else {
     let designation = parser.designation()
     let offset = match bytes.get(parser.pos) {
-      Some(b'0'..=b'9' | b'+' | b'-') => -parser.clock(24, true)
+      Some(b'0'..<=b'9' | b'+' | b'-') => -parser.clock(24, true)
       _ => standard_offset + 3600
     }
     let rules = if bytes.get(parser.pos) == Some(b',') {

@@ -18,7 +18,7 @@
 pub const U_REP = '\u{FFFD}'
 
 ///|
-let utf_8_len : ReadOnlyArray[Int] = [
+let utf_8_len : ReadOnlyArray[Int32] = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -103,7 +103,7 @@ pub fn decoder(encoding : Encoding) -> Decoder {
 pub fn Decoder::decode(
   self : Decoder,
   input : BytesView,
-  stream? : Bool = false,
+  stream~ : Bool = false,
 ) -> String raise Error {
   if input.length() > 0 {
     self.i_cont(input)
@@ -168,7 +168,7 @@ pub fn Decoder::decode_to(
   self : Decoder,
   input : BytesView,
   output : StringBuilder,
-  stream? : Bool = false,
+  stream~ : Bool = false,
 ) -> Unit raise {
   if input.length() > 0 {
     self.i_cont(input)
@@ -269,7 +269,7 @@ pub fn Decoder::finish(self : Decoder) -> String raise Error {
 pub fn Decoder::decode_lossy(
   self : Decoder,
   input : BytesView,
-  stream? : Bool = false,
+  stream~ : Bool = false,
 ) -> String {
   if input.length() > 0 {
     self.i_cont(input)
@@ -309,7 +309,7 @@ pub fn Decoder::decode_lossy_to(
   self : Decoder,
   input : BytesView,
   output : StringBuilder,
-  stream? : Bool = false,
+  stream~ : Bool = false,
 ) -> Unit {
   if input.length() > 0 {
     self.i_cont(input)
@@ -404,12 +404,12 @@ fn Decoder::ret(self : Decoder, k : Cont, v : Decode) -> Decode {
 }
 
 ///|
-fn Decoder::i_rem(self : Decoder) -> Int {
+fn Decoder::i_rem(self : Decoder) -> Int32 {
   self.i.length() - self.i_pos
 }
 
 ///|
-fn Decoder::t_need(self : Decoder, need : Int) -> Unit {
+fn Decoder::t_need(self : Decoder, need : Int32) -> Unit {
   self.t_len = 0
   self.t_need = need
 }
@@ -427,7 +427,7 @@ fn Decoder::refill(self : Decoder, k : Cont) -> Decode {
 
 ///|
 fn t_fill(k : Cont, decoder : Decoder) -> Decode {
-  fn blit(decoder : Decoder, l : Int) -> Unit {
+  fn blit(decoder : Decoder, l : Int32) -> Unit {
     decoder.i.blit_to(
       decoder.t,
       len=l,
@@ -489,9 +489,9 @@ fn Decoder::t_decode_utf_8(self : Decoder) -> Decode {
 }
 
 ///|
-fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
-  fn uchar(c : Int) {
-    Uchar(Int::unsafe_to_char(c))
+fn r_utf_8(bytes : FixedArray[Byte], offset : Int32, length : Int32) -> Decode {
+  fn uchar(c : Int32) {
+    Uchar(Int32::unsafe_to_char(c))
   }
 
   match length {
@@ -577,7 +577,7 @@ fn r_utf_8(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
 
 ///|
 priv enum UTF16Decode {
-  Hi(Int)
+  Hi(Int32)
   UTF16Malformed(Bytes)
   UTF16Uchar(Char)
 }
@@ -630,7 +630,7 @@ fn Decoder::decode_utf_16le_lo(self : Decoder, v : UTF16Decode) -> Decode {
 }
 
 ///|
-fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
+fn t_decode_utf_16le_lo(hi : Int32, decoder : Decoder) -> Decode {
   if decoder.t_len < decoder.t_need {
     decoder.ret(
       Decoder::decode_utf_16le,
@@ -643,10 +643,10 @@ fn t_decode_utf_16le_lo(hi : Int, decoder : Decoder) -> Decode {
 
 ///|
 fn r_utf_16_lo(
-  hi : Int,
+  hi : Int32,
   bytes : FixedArray[Byte],
-  offset0 : Int,
-  offset1 : Int,
+  offset0 : Int32,
+  offset1 : Int32,
 ) -> Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
@@ -671,8 +671,8 @@ fn r_utf_16_lo(
 ///|
 fn r_utf_16(
   bytes : FixedArray[Byte],
-  offset0 : Int,
-  offset1 : Int,
+  offset0 : Int32,
+  offset1 : Int32,
 ) -> UTF16Decode {
   let b0 = bytes[offset0].to_int()
   let b1 = bytes[offset1].to_int()
@@ -682,7 +682,7 @@ fn r_utf_16(
   } else if u.is_trailing_surrogate() {
     UTF16Malformed(slice(bytes, @cmp.minimum(offset0, offset1), 2))
   } else {
-    UTF16Uchar(Int::unsafe_to_char(u))
+    UTF16Uchar(Int32::unsafe_to_char(u))
   }
 }
 
@@ -741,7 +741,7 @@ fn[T, U, V] curry(f : (T, U) -> V) -> (T) -> (U) -> V {
 }
 
 ///|
-fn t_decode_utf_16be_lo(hi : Int, self : Decoder) -> Decode {
+fn t_decode_utf_16be_lo(hi : Int32, self : Decoder) -> Decode {
   if self.t_len < self.t_need {
     self.ret(
       Decoder::decode_utf_16be,

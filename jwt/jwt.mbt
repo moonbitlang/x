@@ -142,8 +142,8 @@ pub fn[T : @json.FromJson] decode(
   token : String,
   key~ : Bytes,
   algorithm~ : HmacAlgorithm,
-  leeway? : Int = 0,
-  require_exp? : Bool = true,
+  leeway~ : Int32 = 0,
+  require_exp~ : Bool = true,
   issuer? : String,
   audience? : String,
 ) -> T raise JwtError {
@@ -165,8 +165,8 @@ fn[T : @json.FromJson] decode_at(
   key~ : Bytes,
   algorithm~ : HmacAlgorithm,
   now~ : Double,
-  leeway? : Int = 0,
-  require_exp? : Bool = true,
+  leeway~ : Int32 = 0,
+  require_exp~ : Bool = true,
   issuer? : String,
   audience? : String,
 ) -> T raise JwtError {
@@ -182,7 +182,7 @@ fn[T : @json.FromJson] decode_at(
   // Check code units before slicing or UTF-8 encoding, which assume valid
   // UTF-16. JWT compact serialization is ASCII even when its claims are not.
   for unit in token.code_units() {
-    guard unit is ('A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.') else {
+    guard unit is ('A'..<='Z' | 'a'..<='z' | '0'..<='9' | '-' | '_' | '.') else {
       raise InvalidToken("JWT contains invalid characters")
     }
   }
