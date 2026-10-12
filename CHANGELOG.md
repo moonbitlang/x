@@ -4,6 +4,8 @@
 
 ### Added
 
+- Published versions now receive matching Git tags automatically. (#338)
+
 - `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
   options to control offset retention and repeated or skipped local times.
   Defaults preserve the existing behavior. (#331)
