@@ -14,9 +14,8 @@
 
 ///|
 // One normalized annual rule, without OS handles or a multi-year database.
-// A later Windows loader validates offsets and dates before constructing it.
+// The Windows loader validates offsets and dates before constructing it.
 // Absolute SYSTEMTIME dates belong in the explicit transition history.
-#warnings("-struct_never_constructed")
 priv struct WindowsRule {
   standard : ZoneOffset
   daylight : ZoneOffset

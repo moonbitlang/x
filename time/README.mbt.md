@@ -25,6 +25,28 @@ Use `@time.Zone::from_tzif(id, data)` to load a caller-supplied TZif v1–v4 fil
 labels the zone; the constructor does not look up timezone database files.
 `Zone::from_tzif2` is deprecated in favor of this interface.
 
+On the native backend, `@time.local_zone()` loads a snapshot of the
+system-configured local timezone on Linux, macOS, and Windows. Retain the
+returned `Zone` for repeated conversions; those conversions do no OS I/O.
+Calling `local_zone()` again reads the latest installed settings and rules.
+OS failures raise `LocalZoneError`, containing the native error code, operation
+context, and system message. Missing, malformed, or unsupported timezone data
+also raises an error.
+The function raises on JS and Wasm; caller-supplied TZif loading remains portable.
+
+Linux and macOS read `/etc/localtime`, independently of the process's `TZ`
+environment variable. Windows uses the system's local timezone and daylight-saving
+settings without requiring ICU. The loader detects the Windows 8 year-range API
+at runtime and uses a registry fallback on Windows 7.
+
+The returned ID is a source label. Unix uses the zoneinfo symlink's name when
+recoverable and otherwise `local`; Windows uses its registry key name, such as
+`Eastern Standard Time`, and otherwise `local`. Windows offset abbreviations
+are numeric. IDs and DST flags can differ between Windows and IANA data.
+
+Historical accuracy is limited by the OS's installed data. The returned zone
+retains that data until you explicitly load a fresh snapshot.
+
 TZif loading uses explicit transitions for recorded history and evaluates the
 footer's recurring rules from the last transition onward. When there are no
 transitions, the footer governs all timestamps. Evaluation is portable across
