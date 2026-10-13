@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added `moonbitlang/x/json_stream` for parsing JSON directly from an
+  `Iter[Char]` without first materializing the complete document as a string.
+
 - Published versions now receive matching Git tags automatically. (#338)
 
 - `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
