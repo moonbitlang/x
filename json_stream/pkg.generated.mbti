@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/json_stream"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn parse(Iter[Char], max_nesting_depth? : Int) -> Json raise @json.ParseError
+
+pub fn valid(Iter[Char]) -> Bool
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
