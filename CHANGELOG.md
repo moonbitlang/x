@@ -7,7 +7,7 @@
 - Added `@fs.append_bytes_to_file` and `@fs.append_string_to_file` to append
   data to the end of a file, `@fs.sync_file` to flush a file to the storage
   device, and `@fs.rename` to rename files and directories. Supported on the
-  native and js backends.
+  native and js backends. (#341)
 
 - Published versions now receive matching Git tags automatically. (#338)
 
