@@ -62,6 +62,25 @@ We normalize it to midnight, as
 January 1 at midnight also acts as a year-boundary marker, as explained in
 [.NET's adjustment-rule implementation](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.AdjustmentRule.cs).
 
+The synthetic cases in `zone_windows_data_wbtest.mbt` cover combinations absent
+from these historical fixtures. The `TIME_ZONE_INFORMATION` contract above
+defines each date's `wYear` independently:
+
+| DaylightDate | StandardDate | Expected history |
+| --- | --- | --- |
+| Year zero | Year zero | Both recur annually. |
+| Absolute | Absolute | Each occurs once, possibly in different years. |
+| Absolute | Year zero | Standard except from the one-time start to the next recurring end. |
+| Year zero | Absolute | Daylight except from the one-time end to the next recurring start. |
+
+Mixed dates retain literal relative weekdays, including January dates; they do
+not use the annual adapter's year-boundary markers. Expanding the recurring
+member in the neighboring years around the one-time event captures its previous
+and next occurrence, including UTC/local year differences and end-of-day carry.
+Repeated events that leave both the offset and DST flag unchanged are discarded.
+Tests check exact transition seconds, constant tails, negative and zero DST
+shifts, and clock changes spanning midnight at New Year.
+
 To check the fixture values against the source, download the linked UTF-16
 registry export as `TimeZone.reg`. This script prints its annual fields in the
 same order used by the fixtures, without creating a binary fixture:

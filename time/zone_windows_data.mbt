@@ -26,7 +26,7 @@ priv struct WindowsSystemTime {
   minute : Int32
   second : Int32
   millisecond : Int32
-} derive(Eq)
+}
 
 ///|
 #warnings("-struct_never_constructed")
@@ -44,30 +44,88 @@ priv struct WindowsTimeZoneInfo {
 priv enum WindowsRecord {
   Fixed(ZoneOffset)
   Annual(WindowsRule)
-  Absolute(Int32, WindowsRule)
+  // A finite timeline after expanding each date independently. Repeated
+  // events that merely reassert the active offset have already been removed.
+  Dated(ZoneOffset, Array[(Int64, ZoneOffset)])
 }
 
 ///|
-fn WindowsRecord::for_year(self : WindowsRecord, year : Int32) -> Recurring {
+priv enum WindowsTransition {
+  Annual(WindowsDate)
+  // Local wall-clock seconds, including the actual year and day of month.
+  Once(Int64)
+} derive(Eq)
+
+///|
+fn WindowsRecord::lookup_offset(
+  self : WindowsRecord,
+  year : Int32,
+  second : Int64,
+) -> ZoneOffset {
   match self {
-    Fixed(offset) => Fixed(offset)
-    Annual(rule) => Windows(rule)
-    Absolute(only_year, rule) =>
-      if year == only_year {
-        Windows(rule)
-      } else {
-        Fixed(rule.standard)
+    Fixed(offset) => offset
+    Annual(rule) => rule.offset_in_year(year, second)
+    Dated(initial, changes) => {
+      let mut offset = initial
+      for (time, next) in changes {
+        if time > second {
+          break
+        }
+        offset = next
       }
+      offset
+    }
+  }
+}
+
+///|
+fn WindowsRecord::year_boundary(self : WindowsRecord, year : Int32) -> Int64 {
+  let wall = (date_to_fixed_days(year, 1, 1) - days_zero_year_to_unix_epoch) *
+    86400L
+  match self {
+    Fixed(offset) => wall - offset.seconds().to_int64()
+    Annual(rule) => rule.year_boundary(year)
+    Dated(initial, changes) => {
+      // A midnight overlap belongs to the preceding year's history until its
+      // last occurrence. If midnight is skipped, the new year starts at the
+      // actual clock change, not at a fabricated instant within the gap.
+      let mut boundary : Int64? = None
+      let mut gap : Int64? = None
+      let mut start = @int64.MIN_VALUE
+      let mut offset = initial
+      for (time, next) in changes {
+        let candidate = wall - offset.seconds().to_int64()
+        if candidate >= start && candidate < time {
+          boundary = Some(candidate)
+        }
+        if wall >= time + offset.seconds().to_int64() &&
+          wall < time + next.seconds().to_int64() {
+          gap = Some(time)
+        }
+        start = time
+        offset = next
+      }
+      let candidate = wall - offset.seconds().to_int64()
+      if candidate >= start {
+        boundary = Some(candidate)
+      }
+      // Finite offset intervals cover every instant; a wall midnight either
+      // occurs in an interval or lies inside a forward jump between them.
+      match boundary {
+        Some(time) => time
+        None => gap.unwrap()
+      }
+    }
   }
 }
 
 ///|
 fn WindowsSystemTime::to_transition(
   self : WindowsSystemTime,
-) -> (Int32, WindowsDate?) raise Error {
+) -> WindowsTransition? raise Error {
   let { year, month, weekday, day, hour, minute, second, millisecond, } = self
   if month == 0 {
-    return (0, None)
+    return None
   }
   guard year >= 0 &&
     year <= 65535 &&
@@ -101,18 +159,18 @@ fn WindowsSystemTime::to_transition(
   } else {
     hour * 3600 + minute * 60 + second
   }
-  let date = if year == 0 && month == 1 && day == 1 && second == 0 {
-    WindowsDate::YearBoundary
-  } else if year == 0 {
-    MonthWeekDay(month~, week=day, weekday~, second~)
+  let date = if year != 0 {
+    // Absolute dates never pass through the week/weekday evaluator. Adding
+    // 86400 naturally carries an end-of-day occurrence into the next year.
+    Once(
+      (date_to_fixed_days(year, month, day) - days_zero_year_to_unix_epoch) *
+      86400L +
+      second.to_int64(),
+    )
   } else {
-    // Express this date in the annual evaluator only for its original year.
-    // WindowsRecord::Absolute prevents it from recurring in any other year.
-    let fixed = date_to_fixed_days(year, month, day)
-    let weekday = (((fixed + 6L) % 7L + 7L) % 7L).to_int()
-    MonthWeekDay(month~, week=(day - 1) / 7 + 1, weekday~, second~)
+    Annual(MonthWeekDay(month~, week=day, weekday~, second~))
   }
-  (year, Some(date))
+  Some(date)
 }
 
 ///|
@@ -145,10 +203,10 @@ fn Zone::from_windows_rules(
   let last = first + rules.length() - 1
   let records : Array[WindowsRecord] = []
   for info in rules {
-    let (end_year, end) = info.standard_date.to_transition()
-    let (start_year, start) = info.daylight_date.to_transition()
-    guard (start is None) == (end is None) && start_year == end_year else {
-      fail("Incomplete or inconsistent Windows transition dates")
+    let end = info.standard_date.to_transition()
+    let start = info.daylight_date.to_transition()
+    guard (start is None) == (end is None) else {
+      fail("Incomplete Windows transition dates")
     }
     // With no seasonal dates Windows ignores both seasonal biases.
     let standard_bias = if start is None { 0 } else { info.standard_bias }
@@ -169,35 +227,94 @@ fn Zone::from_windows_rules(
         dst: i == 1,
       }
     })
-    // Identical native dates disable DST. Compare before normalization:
-    // distinct January markers can both become YearBoundary.
+    // Equal dates disable DST; absolute dates ignore the weekday field.
+    // Compare before distinct January dates can become YearBoundary.
     match (start, end) {
-      (Some(start), Some(end)) if info.standard_date != info.daylight_date => {
-        let rule : WindowsRule = {
-          standard: offsets[0],
-          daylight: offsets[1],
-          start,
-          end,
+      (Some(start), Some(end)) if start != end => {
+        if start is Annual(start) && end is Annual(end) {
+          // Preserve the established annual-rule boundary convention. Mixed
+          // pairs keep the literal relative dates from TIME_ZONE_INFORMATION.
+          let start = match start {
+            MonthWeekDay(month=1, week=1, second=0, ..) => YearBoundary
+            _ => start
+          }
+          let end = match end {
+            MonthWeekDay(month=1, week=1, second=0, ..) => YearBoundary
+            _ => end
+          }
+          records.push(
+            Annual({ standard: offsets[0], daylight: offsets[1], start, end, }),
+          )
+          continue
+        }
+        // At least one date is one-time. A mixed pair settles to the yearly
+        // event's offset after that event next occurs. Thus only neighboring
+        // years around the dated event are needed, not an arbitrary horizon.
+        let years = [start, end].filter_map(date => {
+          match date {
+            Once(wall) =>
+              Some(
+                fixed_days_to_year_ord(
+                  wall / 86400L + days_zero_year_to_unix_epoch,
+                ).0,
+              )
+            Annual(_) => None
+          }
+        })
+        let candidates : Array[(Int64, Int32)] = []
+        // Tag 0 enters daylight, tag 1 enters standard. Sorting the tag also
+        // makes standard win when two events coincide, as for equal dates.
+        for tag, date in [start, end] {
+          let before = offsets[tag].seconds()
+          match date {
+            Once(wall) => candidates.push((wall - before.to_int64(), tag))
+            Annual(date) => {
+              let year = years[0] // The other member is the sole one-time date.
+              for year in (year - 1)..<=(year + 1) {
+                candidates.push((date.time(year, before), tag))
+              }
+            }
+          }
+        }
+        candidates.sort()
+        let initial = match (start, end) {
+          (Annual(_), _) => offsets[1]
+          (_, Annual(_)) => offsets[0]
+          _ => offsets[candidates[0].1] // Before the earliest one-time event.
+        }
+        let changes : Array[(Int64, ZoneOffset)] = []
+        let mut previous = initial
+        for i, (time, tag) in candidates {
+          if i + 1 < candidates.length() && candidates[i + 1].0 == time {
+            continue
+          }
+          let next = offsets[1 - tag]
+          if next.seconds() != previous.seconds() ||
+            next.is_dst() != previous.is_dst() {
+            changes.push((time, next))
+            previous = next
+          }
         }
         records.push(
-          if start_year == 0 {
-            Annual(rule)
+          if changes.is_empty() {
+            Fixed(initial)
           } else {
-            Absolute(start_year, rule)
+            Dated(initial, changes)
           },
         )
       }
       _ => records.push(Fixed(offsets[0]))
     }
   }
-  let endpoints = [records[0], records.last().unwrap()].map(record => {
+  let endpoints = [records[0], records.last().unwrap()].mapi((i, record) => {
     match record {
       Fixed(offset) => Recurring::Fixed(offset)
       Annual(rule) => Windows(rule)
-      Absolute(_, rule) => Fixed(rule.standard)
+      Dated(initial, changes) =>
+        Fixed(if i == 0 { initial } else { changes.last().unwrap().1 })
     }
   })
-  if records.length() == 1 && !(records[0] is Absolute(_, _)) {
+  if records.length() == 1 && !(records[0] is Dated(_, _)) {
     let rule = endpoints[0]
     return {
       id,
@@ -216,59 +333,63 @@ fn Zone::from_windows_rules(
   // Absolute endpoint dates remain one-off events even outside the registry's
   // year bounds. Expand only the finite span containing those dates.
   let first = match records[0] {
-    Absolute(year, _) =>
+    Dated(_, changes) => {
+      // Include a neighboring year because UTC and local years can differ.
+      let year = fixed_days_to_year_ord(
+          changes[0].0 / 86400L + days_zero_year_to_unix_epoch,
+        ).0 -
+        1
       if table_first == 0 {
         year
       } else {
         table_first.min(year)
       }
+    }
     _ => table_first
   }
   let last = match records.last().unwrap() {
-    Absolute(year, _) => table_last.max(year)
+    Dated(_, changes) => {
+      let year = fixed_days_to_year_ord(
+          changes.last().unwrap().0 / 86400L + days_zero_year_to_unix_epoch,
+        ).0 +
+        1
+      table_last.max(year)
+    }
     _ => table_last
   }
-  let before = records[0].for_year(first - 1)
-  let mut previous = match before {
-    Windows(rule) => rule.ending_offset(first - 1)
-    _ => before.lookup_offset(0L)
-  }
-  let cutoff = (date_to_fixed_days(first, 1, 1) - days_zero_year_to_unix_epoch) *
-    86400L -
-    previous.seconds().to_int64()
+  let cutoff = records[0].year_boundary(first)
+  let mut previous = records[0].lookup_offset(first - 1, cutoff - 1)
   let offsets : Array[ZoneOffset] = []
   let indices : Map[(Int32, Bool), Int32] = Map([])
   let transitions : Array[(Int64, Int32)] = []
   let mut finish = cutoff
   for year in first..<=last {
     let index = (year - table_first).clamp(min=0, max=records.length() - 1)
-    let rule = records[index].for_year(year)
+    let record = records[index]
     let begin = finish
-    let ending = match rule {
-      Windows(rule) => rule.ending_offset(year)
-      _ => rule.lookup_offset(0L)
-    }
-    finish = (date_to_fixed_days(year + 1, 1, 1) - days_zero_year_to_unix_epoch) *
-      86400L -
-      ending.seconds().to_int64()
+    finish = record.year_boundary(year + 1)
     let changes = [begin]
-    if rule is Windows(windows) {
-      if windows.start != YearBoundary {
-        changes.push(windows.start.time(year, windows.standard.seconds()))
+    match record {
+      Annual(windows) => {
+        if windows.start != YearBoundary {
+          changes.push(windows.start.time(year, windows.standard.seconds()))
+        }
+        if windows.end != YearBoundary {
+          changes.push(windows.end.time(year, windows.daylight.seconds()))
+        }
       }
-      if windows.end != YearBoundary {
-        changes.push(windows.end.time(year, windows.daylight.seconds()))
-      }
+      Dated(_, events) =>
+        for (time, _) in events {
+          changes.push(time)
+        }
+      Fixed(_) => ()
     }
     changes.sort()
     for time in changes {
       if time < begin || time >= finish {
         continue
       }
-      let offset = match rule {
-        Windows(rule) => rule.offset_in_year(year, time)
-        _ => rule.lookup_offset(time)
-      }
+      let offset = record.lookup_offset(year, time)
       let key = (offset.seconds(), offset.is_dst())
       let index = match indices.get(key) {
         Some(index) => index
