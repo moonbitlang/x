@@ -4,6 +4,11 @@
 
 ### Added
 
+- Added `@fs.append_bytes_to_file` and `@fs.append_string_to_file` to append
+  data to the end of a file, `@fs.sync_file` to flush a file to the storage
+  device, and `@fs.rename` to rename files and directories. Supported on the
+  native and js backends.
+
 - Published versions now receive matching Git tags automatically. (#338)
 
 - Added `@time.local_zone()` to load a reusable snapshot of the system local

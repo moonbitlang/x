@@ -93,6 +93,14 @@ extern "C" fn fflush_ffi(stream : Handler) -> Int32 = "moonbitlang_x_fs_fflush_f
 extern "C" fn fclose_ffi(file : Handler) -> Int32 = "moonbitlang_x_fs_fclose_ffi"
 
 ///|
+#borrow(path)
+extern "C" fn sync_ffi(path : OsString) -> Int32 = "moonbitlang_x_fs_sync_ffi"
+
+///|
+#borrow(from, to)
+extern "C" fn rename_ffi(from : OsString, to : OsString) -> Int32 = "moonbitlang_x_fs_rename_ffi"
+
+///|
 fn get_error_message() -> String {
   @utf8.decode_lossy(get_error_message_ffi())
 }
@@ -230,6 +238,50 @@ extern "C" fn remove_file_ffi(path : OsString) -> Int32 = "moonbitlang_x_fs_remo
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
   guard remove_file_ffi(OsString::from_string(path)) == 0 else {
+    raise IOError(get_error_message())
+  }
+}
+
+///|
+fn append_bytes_to_file_internal(
+  path : String,
+  content : Bytes,
+) -> Unit raise IOError {
+  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("ab"))
+  guard is_null(file) == 0 else { raise IOError(get_error_message()) }
+  let bytes_written = fwrite_ffi(content, 1, content.length(), file)
+  guard bytes_written == content.length() else {
+    raise IOError(get_error_message())
+  }
+  guard fflush_ffi(file) == 0 else { raise IOError(get_error_message()) }
+  guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
+}
+
+///|
+fn append_string_to_file_internal(
+  path : String,
+  content : String,
+  encoding~ : String = "utf8",
+) -> Unit raise IOError {
+  guard encoding == "utf8" else {
+    raise IOError(
+      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
+    )
+  }
+  let bytes = @utf8.encode(content)
+  append_bytes_to_file_internal(path, bytes)
+}
+
+///|
+fn sync_file_internal(path : String) -> Unit raise IOError {
+  guard sync_ffi(OsString::from_string(path)) == 0 else {
+    raise IOError(get_error_message())
+  }
+}
+
+///|
+fn rename_internal(from : String, to : String) -> Unit raise IOError {
+  guard rename_ffi(OsString::from_string(from), OsString::from_string(to)) == 0 else {
     raise IOError(get_error_message())
   }
 }

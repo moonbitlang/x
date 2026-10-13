@@ -169,5 +169,60 @@ pub fn remove_file(path : String) -> Unit raise IOError {
 }
 
 ///|
+/// Appends `content` to the end of the file at `path`, creating the file if it
+/// does not exist.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file to append to.
+/// - `content` : A `Bytes` to append to the file.
+pub fn append_bytes_to_file(
+  path : String,
+  content : Bytes,
+) -> Unit raise IOError {
+  append_bytes_to_file_internal(path, content)
+}
+
+///|
+/// Appends `content` to the end of the file at `path`, creating the file if it
+/// does not exist.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file to append to.
+/// - `content` : A `String` to append to the file.
+/// - `encoding~` : The encoding of the file. Only support `utf8` for now.
+pub fn append_string_to_file(
+  path : String,
+  content : String,
+  encoding~ : String = "utf8",
+) -> Unit raise IOError {
+  append_string_to_file_internal(path, content, encoding~)
+}
+
+///|
+/// Synchronizes the file at `path` with the underlying storage device so that
+/// data previously written to the file becomes durable. The file must exist.
+///
+/// # Parameters
+///
+/// - `path` : The path to the file to synchronize.
+pub fn sync_file(path : String) -> Unit raise IOError {
+  sync_file_internal(path)
+}
+
+///|
+/// Renames the file or directory `from` to `to`. If `to` already exists, it is
+/// replaced.
+///
+/// # Parameters
+///
+/// - `from` : The current path of the file or directory.
+/// - `to` : The new path of the file or directory.
+pub fn rename(from : String, to : String) -> Unit raise IOError {
+  rename_internal(from, to)
+}
+
+///|
 #deprecated
 pub extend IOError with Debug::{to_repr}

@@ -103,3 +103,89 @@ test "create_dir_and_remove_dir" {
   @fs.remove_dir(dir)
   assert_false(@fs.path_exists(dir))
 }
+
+///|
+#cfg(all(not(target="wasm"), not(target="wasm-gc")))
+test "append_and_sync" {
+  let dir = "tmp_fs_append_sync"
+  if @fs.path_exists(dir) {
+    @fs.remove_file("\{dir}/wal.txt") catch {
+      _ => ()
+    }
+    @fs.remove_file("\{dir}/created.txt") catch {
+      _ => ()
+    }
+    @fs.remove_dir(dir) catch {
+      _ => ()
+    }
+  }
+  @fs.create_dir(dir)
+  let wal = "\{dir}/wal.txt"
+  @fs.write_bytes_to_file(wal, b"first")
+  @fs.append_bytes_to_file(wal, b"-second")
+  @fs.append_string_to_file(wal, "-third")
+  @fs.sync_file(wal)
+  inspect(@fs.read_file_to_string(wal), content="first-second-third")
+  let created = "\{dir}/created.txt"
+  @fs.append_bytes_to_file(created, b"hello")
+  inspect(@fs.read_file_to_string(created), content="hello")
+  @fs.remove_file(wal)
+  @fs.remove_file(created)
+  @fs.remove_dir(dir)
+}
+
+///|
+#cfg(all(not(target="wasm"), not(target="wasm-gc")))
+test "rename" {
+  let dir = "tmp_fs_rename"
+  if @fs.path_exists(dir) {
+    @fs.remove_file("\{dir}/a.txt") catch {
+      _ => ()
+    }
+    @fs.remove_file("\{dir}/b.txt") catch {
+      _ => ()
+    }
+    @fs.remove_dir(dir) catch {
+      _ => ()
+    }
+  }
+  @fs.create_dir(dir)
+  let a = "\{dir}/a.txt"
+  let b = "\{dir}/b.txt"
+  @fs.write_string_to_file(a, "contents-a")
+  @fs.write_string_to_file(b, "contents-b")
+  @fs.rename(a, b)
+  assert_false(@fs.path_exists(a))
+  inspect(@fs.read_file_to_string(b), content="contents-a")
+  @fs.remove_file(b)
+  @fs.remove_dir(dir)
+}
+
+///|
+#cfg(all(not(target="js"), not(target="native"), not(target="llvm")))
+test "append_sync_rename_unsupported_on_wasm" {
+  try {
+    @fs.append_bytes_to_file("tmp_fs_wasm_unsupported.txt", b"x")
+    fail("expected IOError on the wasm backend")
+  } catch {
+    _ => ()
+  }
+  try {
+    @fs.append_string_to_file("tmp_fs_wasm_unsupported.txt", "x")
+    fail("expected IOError on the wasm backend")
+  } catch {
+    _ => ()
+  }
+  try {
+    @fs.sync_file("tmp_fs_wasm_unsupported.txt")
+    fail("expected IOError on the wasm backend")
+  } catch {
+    _ => ()
+  }
+  try {
+    @fs.rename("tmp_fs_wasm_unsupported.txt", "tmp_fs_wasm_renamed.txt")
+    fail("expected IOError on the wasm backend")
+  } catch {
+    _ => ()
+  }
+}
