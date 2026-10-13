@@ -19,10 +19,10 @@
 ///|
 #alias(SM3Context, deprecated="Use `SM3` instead")
 struct SM3 {
-  reg : FixedArray[UInt] // register A B C D E F G H. i.e. digest
+  reg : FixedArray[UInt32] // register A B C D E F G H. i.e. digest
   mut len : UInt64
   buf : FixedArray[Byte]
-  mut buf_index : Int
+  mut buf_index : Int32
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn SM3::new() -> SM3 {
 }
 
 ///|
-let t : FixedArray[UInt] = [ // pre calculated
+let t : FixedArray[UInt32] = [ // pre calculated
   0x79cc4519, 0xf3988a32, 0xe7311465, 0xce6228cb, 0x9cc45197, 0x3988a32f, 0x7311465e,
   0xe6228cbc, 0xcc451979, 0x988a32f3, 0x311465e7, 0x6228cbce, 0xc451979c, 0x88a32f39,
   0x11465e73, 0x228cbce6, 0x9d8a7a87, 0x3b14f50f, 0x7629ea1e, 0xec53d43c, 0xd8a7a879,
@@ -58,12 +58,12 @@ let t : FixedArray[UInt] = [ // pre calculated
 //        | (X and Y) or (X and Z) or (Y and Z) where 16 <= j <=63
 
 ///|
-fn SM3::ff_0(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::ff_0(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   x ^ y ^ z
 }
 
 ///|
-fn SM3::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::ff_1(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   (x & y) | (x & z) | (y & z)
 }
 
@@ -71,12 +71,12 @@ fn SM3::ff_1(x : UInt, y : UInt, z : UInt) -> UInt {
 //        | (X and Y) or (~X and Z) where 16 <= j <= 63
 
 ///|
-fn SM3::gg_0(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::gg_0(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   x ^ y ^ z
 }
 
 ///|
-fn SM3::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
+fn SM3::gg_1(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   ((y ^ z) & x) ^ z // equivalent of (x & y) | (x.lnot() & z), but faster
 }
 
@@ -84,20 +84,20 @@ fn SM3::gg_1(x : UInt, y : UInt, z : UInt) -> UInt {
 // P_1 = X xor (X <<< 15) xor (X <<< 23)
 
 ///|
-fn SM3::p_0(x : UInt) -> UInt {
+fn SM3::p_0(x : UInt32) -> UInt32 {
   x ^ rotate_left_u(x, 9) ^ rotate_left_u(x, 17)
 }
 
 ///|
-fn SM3::p_1(x : UInt) -> UInt {
+fn SM3::p_1(x : UInt32) -> UInt32 {
   x ^ rotate_left_u(x, 15) ^ rotate_left_u(x, 23)
 }
 
 ///|
 fn SM3::transform(
   data : FixedArray[Byte],
-  reg : FixedArray[UInt],
-  schedule : FixedArray[UInt],
+  reg : FixedArray[UInt32],
+  schedule : FixedArray[UInt32],
 ) -> Unit {
   guard! reg.length() == 8
   let mut a = reg.unsafe_get(0)
@@ -164,7 +164,7 @@ fn SM3::transform(
 
 ///|
 pub fn SM3::update_from_iter(self : SM3, data : Iter[Byte]) -> Unit {
-  let mut schedule : FixedArray[UInt]? = None
+  let mut schedule : FixedArray[UInt32]? = None
   data.each(fn(b) {
     self.buf[self.buf_index] = b
     self.buf_index += 1
@@ -234,7 +234,7 @@ pub fn SM3::finalize(self : SM3) -> FixedArray[Byte] {
 fn SM3::_finalize_into(
   self : SM3,
   buffer : FixedArray[Byte],
-  offset? : Int = 0,
+  offset~ : Int32 = 0,
 ) -> Unit {
   let schedule = FixedArray::make(68, 0U)
   // Copy data
@@ -266,12 +266,12 @@ fn SM3::_finalize_into(
 }
 
 ///|
-pub impl CryptoHasher for SM3 with fn size(_self : SM3) -> Int {
+pub impl CryptoHasher for SM3 with fn size(_self : SM3) -> Int32 {
   32
 }
 
 ///|
-pub impl CryptoHasher for SM3 with fn block_size(_self : SM3) -> Int {
+pub impl CryptoHasher for SM3 with fn block_size(_self : SM3) -> Int32 {
   64
 }
 
@@ -295,7 +295,7 @@ pub impl CryptoHasher for SM3 with fn reset(self : SM3) -> Unit {
 pub impl CryptoHasher for SM3 with fn finalize_into(
   self : SM3,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self._finalize_into(buffer, offset~)
 }

@@ -41,7 +41,7 @@ struct ConversionProbe {
 } derive(Eq, Debug)
 
 ///|
-let conversion_calls : Ref[Int] = Ref(0)
+let conversion_calls : Ref[Int32] = Ref(0)
 
 ///|
 impl @json.FromJson for ConversionProbe with fn from_json(json, path) {

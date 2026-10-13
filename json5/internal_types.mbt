@@ -14,9 +14,9 @@
 
 ///|
 priv struct ParseContext {
-  mut offset : Int
+  mut offset : Int32
   input : String
-  end_offset : Int
+  end_offset : Int32
 }
 
 ///|

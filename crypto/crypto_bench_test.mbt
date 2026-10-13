@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-let crypto_bench_size : Int = 64 * 1024
+let crypto_bench_size : Int32 = 64 * 1024
 
 ///|
 fn crypto_bench_input() -> FixedArray[Byte] {

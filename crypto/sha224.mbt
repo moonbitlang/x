@@ -53,12 +53,12 @@ pub impl CryptoHasher for SHA224 with fn update(self : SHA224, data : BytesView)
 }
 
 ///|
-pub impl CryptoHasher for SHA224 with fn size(_self : SHA224) -> Int {
+pub impl CryptoHasher for SHA224 with fn size(_self : SHA224) -> Int32 {
   28
 }
 
 ///|
-pub impl CryptoHasher for SHA224 with fn block_size(_self : SHA224) -> Int {
+pub impl CryptoHasher for SHA224 with fn block_size(_self : SHA224) -> Int32 {
   64
 }
 
@@ -81,7 +81,7 @@ pub impl CryptoHasher for SHA224 with fn reset(self : SHA224) -> Unit {
 pub impl CryptoHasher for SHA224 with fn finalize_into(
   self : SHA224,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self.ctx._finalize_into(buffer, size=7, offset~)
 }

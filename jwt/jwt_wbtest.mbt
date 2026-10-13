@@ -65,10 +65,10 @@ fn raw_token(header : String, payload : String) -> String {
 fn expect_decode_error(
   token : String,
   expected? : (JwtError) -> Bool,
-  key? : Bytes = test_key,
-  now? : Double = 1000.0,
-  leeway? : Int = 0,
-  require_exp? : Bool = true,
+  key~ : Bytes = test_key,
+  now~ : Double = 1000.0,
+  leeway~ : Int32 = 0,
+  require_exp~ : Bool = true,
   issuer? : String,
   audience? : String,
 ) -> Unit raise {

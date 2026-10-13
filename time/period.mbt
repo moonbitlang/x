@@ -15,17 +15,17 @@
 ///|
 /// An amount of time representing by years, months and days in the ISO-8601 calendar system.
 struct Period {
-  years : Int
-  months : Int
-  days : Int
+  years : Int32
+  months : Int32
+  days : Int32
 } derive(Eq, Compare, Debug)
 
 ///|
 /// Creates a Period from years, months, and days.
 pub fn Period::of(
-  years? : Int = 0,
-  months? : Int = 0,
-  days? : Int = 0,
+  years~ : Int32 = 0,
+  months~ : Int32 = 0,
+  days~ : Int32 = 0,
 ) -> Period {
   { years, months, days, }
 }
@@ -100,25 +100,25 @@ pub impl Show for Period with fn output(self : Period, logger : &Logger) {
 
 ///|
 /// Returns the number of years in this duration.
-pub fn Period::years(self : Period) -> Int {
+pub fn Period::years(self : Period) -> Int32 {
   self.years
 }
 
 ///|
 /// Returns the number of months in this duration.
-pub fn Period::months(self : Period) -> Int {
+pub fn Period::months(self : Period) -> Int32 {
   self.months
 }
 
 ///|
 /// Returns the number of days in this duration.
-pub fn Period::days(self : Period) -> Int {
+pub fn Period::days(self : Period) -> Int32 {
   self.days
 }
 
 ///|
 /// Adds specified years to this period, and returns a new period.
-pub fn Period::add_years(self : Period, years : Int) -> Period raise Error {
+pub fn Period::add_years(self : Period, years : Int32) -> Period raise Error {
   if years == 0 {
     return self
   }
@@ -128,7 +128,7 @@ pub fn Period::add_years(self : Period, years : Int) -> Period raise Error {
 
 ///|
 /// Adds specified weeks to this period, and returns a new period.
-pub fn Period::add_weeks(self : Period, weeks : Int) -> Period raise Error {
+pub fn Period::add_weeks(self : Period, weeks : Int32) -> Period raise Error {
   if weeks == 0 {
     return self
   }
@@ -138,7 +138,7 @@ pub fn Period::add_weeks(self : Period, weeks : Int) -> Period raise Error {
 
 ///|
 /// Adds specified months to this period, and returns a new period.
-pub fn Period::add_months(self : Period, months : Int) -> Period raise Error {
+pub fn Period::add_months(self : Period, months : Int32) -> Period raise Error {
   if months == 0 {
     return self
   }
@@ -148,7 +148,7 @@ pub fn Period::add_months(self : Period, months : Int) -> Period raise Error {
 
 ///|
 /// Adds specified days to this period, and returns a new period.
-pub fn Period::add_days(self : Period, days : Int) -> Period raise Error {
+pub fn Period::add_days(self : Period, days : Int32) -> Period raise Error {
   if days == 0 {
     return self
   }
@@ -180,7 +180,7 @@ pub fn Period::op_sub(self : Period, other : Period) -> Period raise Error {
 
 ///|
 /// Returns a new period with all elements in this period multiplied by the specified value.
-pub fn Period::multiply(self : Period, n : Int) -> Period raise Error {
+pub fn Period::multiply(self : Period, n : Int32) -> Period raise Error {
   if n == 0 {
     return Period::zero()
   }
@@ -201,7 +201,7 @@ pub fn Period::negated(self : Period) -> Period raise Error {
 
 ///|
 /// Returns a new period with the specified amount of years.
-pub fn Period::with_years(self : Period, years : Int) -> Period {
+pub fn Period::with_years(self : Period, years : Int32) -> Period {
   if years == self.years {
     self
   } else {
@@ -211,7 +211,7 @@ pub fn Period::with_years(self : Period, years : Int) -> Period {
 
 ///|
 /// Returns a new period with the specified amount of months.
-pub fn Period::with_months(self : Period, months : Int) -> Period {
+pub fn Period::with_months(self : Period, months : Int32) -> Period {
   if months == self.months {
     self
   } else {
@@ -221,7 +221,7 @@ pub fn Period::with_months(self : Period, months : Int) -> Period {
 
 ///|
 /// Returns a new period with the specified amount of days.
-pub fn Period::with_days(self : Period, days : Int) -> Period {
+pub fn Period::with_days(self : Period, days : Int32) -> Period {
   if days == self.days {
     self
   } else {

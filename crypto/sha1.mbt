@@ -28,7 +28,7 @@ pub fn[Data : ByteSource] sha1(input : Data) -> FixedArray[Byte] {
     bytes[i] = (bits >> (56 - (i - (new_length - 8)) * 8)).to_byte()
   }
   // Hash
-  let h : FixedArray[UInt] = [
+  let h : FixedArray[UInt32] = [
     0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0,
   ]
   let bytes_per_chunk = 512 / 8

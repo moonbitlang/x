@@ -14,14 +14,14 @@
 
 ///|
 trait ByteSource {
-  fn op_get(Self, index : Int) -> Byte
-  fn length(Self) -> Int
+  fn op_get(Self, index : Int32) -> Byte
+  fn length(Self) -> Int32
   fn blit_to(
     Self,
     dst : FixedArray[Byte],
-    len~ : Int,
-    src_offset~ : Int,
-    dst_offset~ : Int,
+    len~ : Int32,
+    src_offset~ : Int32,
+    dst_offset~ : Int32,
   ) -> Unit
 }
 

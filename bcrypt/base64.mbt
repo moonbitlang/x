@@ -16,7 +16,7 @@
 let bcrypt_alphabet : Bytes = b"./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 ///|
-fn bcrypt_base64_encode(bytes : BytesView, length : Int) -> String {
+fn bcrypt_base64_encode(bytes : BytesView, length : Int32) -> String {
   let builder = StringBuilder(size_hint=(length * 4 + 2) / 3)
   let mut offset = 0
   while offset < length {
@@ -49,7 +49,7 @@ fn bcrypt_base64_encode(bytes : BytesView, length : Int) -> String {
 ///|
 fn bcrypt_base64_decode(
   text : String,
-  max_length : Int,
+  max_length : Int32,
 ) -> Result[Bytes, BcryptError] {
   let out = Array(capacity=max_length)
   let mut offset = 0
@@ -98,13 +98,13 @@ fn bcrypt_base64_all_valid(text : String) -> Bool {
 }
 
 ///|
-fn bcrypt_base64_index(code : Int) -> Int {
+fn bcrypt_base64_index(code : Int32) -> Int32 {
   match code {
     46 => 0 // .
     47 => 1 // /
-    65..=90 => code - 65 + 2
-    97..=122 => code - 97 + 28
-    48..=57 => code - 48 + 54
+    65..<=90 => code - 65 + 2
+    97..<=122 => code - 97 + 28
+    48..<=57 => code - 48 + 54
     _ => -1
   }
 }

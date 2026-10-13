@@ -37,16 +37,16 @@ pub fn[T] Rational::denominator(self : Rational[T]) -> T {
 
 ///|
 trait Integral: Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary {
-  fn from_int(Int) -> Self
-  fn signum(self : Self) -> Int
+  fn from_int(Int32) -> Self
+  fn signum(self : Self) -> Int32
   fn abs(self : Self) -> Self
   fn to_bigint(self : Self) -> BigInt
   fn from_bigint(BigInt) -> Self?
-  fn compare_fraction(Self, Self, Self, Self) -> Int
+  fn compare_fraction(Self, Self, Self, Self) -> Int32
 }
 
 ///|
-pub impl Integral for Int64 with fn from_int(i : Int) -> Int64 {
+pub impl Integral for Int64 with fn from_int(i : Int32) -> Int64 {
   i.to_int64()
 }
 
@@ -56,7 +56,7 @@ pub impl Integral for Int64 with fn abs(self : Int64) -> Int64 {
 }
 
 ///|
-pub impl Integral for Int64 with fn signum(self : Int64) -> Int {
+pub impl Integral for Int64 with fn signum(self : Int64) -> Int32 {
   self.compare(0L)
 }
 
@@ -76,27 +76,27 @@ pub impl Integral for Int64 with fn from_bigint(b : BigInt) -> Int64? {
 }
 
 ///|
-pub impl Integral for Int with fn from_int(i : Int) -> Int {
+pub impl Integral for Int32 with fn from_int(i : Int32) -> Int32 {
   i
 }
 
 ///|
-pub impl Integral for Int with fn abs(self : Int) -> Int {
+pub impl Integral for Int32 with fn abs(self : Int32) -> Int32 {
   self.abs()
 }
 
 ///|
-pub impl Integral for Int with fn signum(self : Int) -> Int {
+pub impl Integral for Int32 with fn signum(self : Int32) -> Int32 {
   self.compare(0)
 }
 
 ///|
-pub impl Integral for Int with fn to_bigint(self : Int) -> BigInt {
+pub impl Integral for Int32 with fn to_bigint(self : Int32) -> BigInt {
   BigInt::from_int(self)
 }
 
 ///|
-pub impl Integral for Int with fn from_bigint(b : BigInt) -> Int? {
+pub impl Integral for Int32 with fn from_bigint(b : BigInt) -> Int32? {
   if b.compare_int(@int.MIN_VALUE) >= 0 && b.compare_int(@int.MAX_VALUE) <= 0 {
     Some(b.to_int())
   } else {
@@ -105,7 +105,7 @@ pub impl Integral for Int with fn from_bigint(b : BigInt) -> Int? {
 }
 
 ///|
-pub impl Integral for BigInt with fn from_int(i : Int) -> BigInt {
+pub impl Integral for BigInt with fn from_int(i : Int32) -> BigInt {
   BigInt::from_int(i)
 }
 
@@ -119,7 +119,7 @@ pub impl Integral for BigInt with fn abs(self : BigInt) -> BigInt {
 }
 
 ///|
-pub impl Integral for BigInt with fn signum(self : BigInt) -> Int {
+pub impl Integral for BigInt with fn signum(self : BigInt) -> Int32 {
   self.compare(0N)
 }
 
@@ -137,7 +137,7 @@ pub impl Integral for BigInt with fn from_bigint(b : BigInt) -> BigInt? {
 pub type Rational64 = Rational[Int64]
 
 ///|
-pub type Rational32 = Rational[Int]
+pub type Rational32 = Rational[Int32]
 
 ///|
 pub type BigRational = Rational[BigInt]

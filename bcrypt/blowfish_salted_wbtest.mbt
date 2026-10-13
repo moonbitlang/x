@@ -49,9 +49,9 @@
 fn test_salted_encrypt(
   key : BytesView,
   salt : BytesView,
-  l : UInt,
-  r : UInt,
-) -> (UInt, UInt) {
+  l : UInt32,
+  r : UInt32,
+) -> (UInt32, UInt32) {
   let state = new_blowfish_state()
   // Go's NewSaltedCipher uses ordinary key expansion for an empty salt.
   if salt.length() == 0 {
@@ -66,7 +66,7 @@ fn test_salted_encrypt(
 test "blowfish salted reference vectors" {
   let key = Bytes::makei(32, i => i.to_byte())
   let salt = Bytes::makei(32, i => (i + 32).to_byte())
-  let ciphertexts : Array[(UInt, UInt)] = [
+  let ciphertexts : Array[(UInt32, UInt32)] = [
     (0x0C823B7B, 0x8D014B7E),
     (0xD1E193F0, 0x70A6DB12),
     (0xFC5EBADE, 0xCBF859AD),

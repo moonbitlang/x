@@ -15,7 +15,7 @@
 ///|
 struct Stack[T] {
   mut elements : @list.List[T]
-  mut len : Int
+  mut len : Int32
 } derive(Default)
 
 ///|

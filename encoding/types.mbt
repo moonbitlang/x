@@ -44,17 +44,17 @@ struct Decoder {
   // Input position
   // Keeps track of the current position within the input bytes `i`.
   // Indicates the next byte (starting point) to read from `i` during the decoding process
-  mut i_pos : Int
+  mut i_pos : Int32
   // Temporary bytes
   // Used to temporarily store bytes that are read in parts
   // (which might happen for multi-byte encoded characters).
   t : FixedArray[Byte]
   // Temporary Length
   // Tracks how many bytes currently reside in the temporary bytes `t`.
-  mut t_len : Int
+  mut t_len : Int32
   // Temporary Need
   // The number of bytes still needed to complete the character code currently being processed.
-  mut t_need : Int
+  mut t_need : Int32
   // Continuation
   // Called with a `Decoder` state.
   mut k : Cont
@@ -76,24 +76,28 @@ fn Decode::_use_decode_debug(self : Decode) -> Repr {
 // helper constructor
 
 ///|
-fn slice(bytes : FixedArray[Byte], offset : Int, length : Int) -> Bytes {
+fn slice(bytes : FixedArray[Byte], offset : Int32, length : Int32) -> Bytes {
   let new_bytes = FixedArray::make(length, b'0')
   bytes.blit_to(new_bytes, len=length, src_offset=offset)
   Bytes::from_array(new_bytes)
 }
 
 ///|
-fn malformed(bytes : FixedArray[Byte], offset : Int, length : Int) -> Decode {
+fn malformed(
+  bytes : FixedArray[Byte],
+  offset : Int32,
+  length : Int32,
+) -> Decode {
   Malformed(slice(bytes, offset, length))
 }
 
 ///|
 fn malformed_pair(
   be : Bool,
-  hi : Int,
+  hi : Int32,
   bytes : FixedArray[Byte],
-  offset : Int,
-  length : Int,
+  offset : Int32,
+  length : Int32,
 ) -> Decode {
   let bs1 = FixedArray::make(length, Byte::default())
   bytes.blit_to(bs1, len=length, src_offset=offset)

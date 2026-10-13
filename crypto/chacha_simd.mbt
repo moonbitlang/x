@@ -16,10 +16,10 @@
 /// Generates one serialized ChaCha block with scalar rounds.
 #cfg(not(any(target="native", target="wasm")))
 fn chachaBlock(
-  key : FixedArray[UInt],
-  count : UInt,
-  nonce : FixedArray[UInt],
-  round : UInt,
+  key : FixedArray[UInt32],
+  count : UInt32,
+  nonce : FixedArray[UInt32],
+  round : UInt32,
   output : FixedArray[Byte],
 ) -> Unit {
   guard! key.length() == 8
@@ -60,10 +60,10 @@ fn chachaBlock(
 /// rounds and its inverse restores the serialized state order.
 #cfg(any(target="native", target="wasm"))
 fn chachaBlock(
-  key : FixedArray[UInt],
-  count : UInt,
-  nonce : FixedArray[UInt],
-  round : UInt,
+  key : FixedArray[UInt32],
+  count : UInt32,
+  nonce : FixedArray[UInt32],
+  round : UInt32,
   output : FixedArray[Byte],
 ) -> Unit {
   guard! key.length() == 8
@@ -161,12 +161,12 @@ fn chachaBlock(
 #inline
 fn[Data : ByteSource] chacha_xor_into(
   data : Data,
-  input_offset : Int,
+  input_offset : Int32,
   target : FixedArray[Byte],
-  target_offset : Int,
+  target_offset : Int32,
   key_stream : FixedArray[Byte],
-  key_stream_offset : Int,
-  length : Int,
+  key_stream_offset : Int32,
+  length : Int32,
 ) -> Unit {
   for i in 0..<length {
     target.unsafe_set(
@@ -181,12 +181,12 @@ fn[Data : ByteSource] chacha_xor_into(
 #inline
 fn[Data : ByteSource] chacha_xor_into(
   data : Data,
-  input_offset : Int,
+  input_offset : Int32,
   target : FixedArray[Byte],
-  target_offset : Int,
+  target_offset : Int32,
   key_stream : FixedArray[Byte],
-  key_stream_offset : Int,
-  length : Int,
+  key_stream_offset : Int32,
+  length : Int32,
 ) -> Unit {
   data.blit_to(
     target,

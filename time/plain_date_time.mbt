@@ -22,13 +22,13 @@ struct PlainDateTime {
 ///|
 /// Creates a PlainDateTime from the year, month, day, hour, minute, second and nanosecond.
 pub fn PlainDateTime::of(
-  year : Int,
-  month : Int,
-  day : Int,
-  hour? : Int = 0,
-  minute? : Int = 0,
-  second? : Int = 0,
-  nanosecond? : Int = 0,
+  year : Int32,
+  month : Int32,
+  day : Int32,
+  hour~ : Int32 = 0,
+  minute~ : Int32 = 0,
+  second~ : Int32 = 0,
+  nanosecond~ : Int32 = 0,
 ) -> PlainDateTime raise Error {
   {
     date: PlainDate::of(year, month, day),
@@ -40,7 +40,7 @@ pub fn PlainDateTime::of(
 /// Creates a PlainDateTime from the elapsed seconds since the unix epoch.
 pub fn PlainDateTime::from_unix_second(
   second : Int64,
-  nanosecond : Int,
+  nanosecond : Int32,
   offset : ZoneOffset,
 ) -> PlainDateTime raise Error {
   if !validate_nano(nanosecond) {
@@ -123,25 +123,25 @@ pub fn PlainDateTime::era(self : PlainDateTime) -> String {
 
 ///|
 /// Returns the year of era of this datetime.
-pub fn PlainDateTime::era_year(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::era_year(self : PlainDateTime) -> Int32 {
   self.date.era_year()
 }
 
 ///|
 /// Returns the year of this datetime.
-pub fn PlainDateTime::year(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::year(self : PlainDateTime) -> Int32 {
   self.date.year()
 }
 
 ///|
 /// Returns the month of this datetime.
-pub fn PlainDateTime::month(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::month(self : PlainDateTime) -> Int32 {
   self.date.month()
 }
 
 ///|
 /// Returns the day of month of this datetime.
-pub fn PlainDateTime::day(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::day(self : PlainDateTime) -> Int32 {
   self.date.day()
 }
 
@@ -153,31 +153,31 @@ pub fn PlainDateTime::weekday(self : PlainDateTime) -> Weekday {
 
 ///|
 /// Returns the ordinal day of year of this datetime.
-pub fn PlainDateTime::ordinal(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::ordinal(self : PlainDateTime) -> Int32 {
   self.date.ordinal()
 }
 
 ///|
 /// Returns the number of days in a week of this datetime.
-pub fn PlainDateTime::days_in_week(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::days_in_week(self : PlainDateTime) -> Int32 {
   self.date.days_in_week()
 }
 
 ///|
 /// Returns the number of days in a month of this datetime.
-pub fn PlainDateTime::days_in_month(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::days_in_month(self : PlainDateTime) -> Int32 {
   self.date.days_in_month()
 }
 
 ///|
 /// Returns the number of days in a year of this datetime.
-pub fn PlainDateTime::days_in_year(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::days_in_year(self : PlainDateTime) -> Int32 {
   self.date.days_in_year()
 }
 
 ///|
 /// Returns the number of months in a year of this datetime.
-pub fn PlainDateTime::months_in_year(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::months_in_year(self : PlainDateTime) -> Int32 {
   self.date.months_in_year()
 }
 
@@ -189,25 +189,25 @@ pub fn PlainDateTime::in_leap_year(self : PlainDateTime) -> Bool {
 
 ///|
 /// Returns the hour of this datetime.
-pub fn PlainDateTime::hour(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::hour(self : PlainDateTime) -> Int32 {
   self.time.hour()
 }
 
 ///|
 /// Returns the minute of this datetime.
-pub fn PlainDateTime::minute(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::minute(self : PlainDateTime) -> Int32 {
   self.time.minute()
 }
 
 ///|
 /// Returns the second of this datetime.
-pub fn PlainDateTime::second(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::second(self : PlainDateTime) -> Int32 {
   self.time.second()
 }
 
 ///|
 /// Returns the nanosecond of this datetime.
-pub fn PlainDateTime::nanosecond(self : PlainDateTime) -> Int {
+pub fn PlainDateTime::nanosecond(self : PlainDateTime) -> Int32 {
   self.time.nanosecond()
 }
 
@@ -320,7 +320,7 @@ pub fn PlainDateTime::add_duration(
 /// Returns a new datetime with the specified year.
 pub fn PlainDateTime::with_year(
   self : PlainDateTime,
-  year : Int,
+  year : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_year(year), }
 }
@@ -329,7 +329,7 @@ pub fn PlainDateTime::with_year(
 /// Returns a new datetime with the specified month.
 pub fn PlainDateTime::with_month(
   self : PlainDateTime,
-  month : Int,
+  month : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_month(month), }
 }
@@ -338,7 +338,7 @@ pub fn PlainDateTime::with_month(
 /// Returns a new datetime with the specified day of month.
 pub fn PlainDateTime::with_day(
   self : PlainDateTime,
-  day : Int,
+  day : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_day(day), }
 }
@@ -347,7 +347,7 @@ pub fn PlainDateTime::with_day(
 /// Returns a new datetime with the specified ordinal day of year.
 pub fn PlainDateTime::with_ordinal(
   self : PlainDateTime,
-  ordinal : Int,
+  ordinal : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, date: self.date.with_ordinal(ordinal), }
 }
@@ -356,7 +356,7 @@ pub fn PlainDateTime::with_ordinal(
 /// Returns a new datetime with the specified hour.
 pub fn PlainDateTime::with_hour(
   self : PlainDateTime,
-  hour : Int,
+  hour : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_hour(hour), }
 }
@@ -365,7 +365,7 @@ pub fn PlainDateTime::with_hour(
 /// Returns a new datetime with the specified minute.
 pub fn PlainDateTime::with_minute(
   self : PlainDateTime,
-  minute : Int,
+  minute : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_minute(minute), }
 }
@@ -374,7 +374,7 @@ pub fn PlainDateTime::with_minute(
 /// Returns a new datetime with the specified second.
 pub fn PlainDateTime::with_second(
   self : PlainDateTime,
-  second : Int,
+  second : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_second(second), }
 }
@@ -383,7 +383,7 @@ pub fn PlainDateTime::with_second(
 /// Returns a new datetime with the specified nanosecond.
 pub fn PlainDateTime::with_nanosecond(
   self : PlainDateTime,
-  nanosecond : Int,
+  nanosecond : Int32,
 ) -> PlainDateTime raise Error {
   { ..self, time: self.time.with_nanosecond(nanosecond), }
 }
@@ -407,10 +407,10 @@ pub fn PlainDateTime::to_plain_time(self : PlainDateTime) -> PlainTime {
 ///|
 fn PlainDateTime::overflowing_add(
   self : PlainDateTime,
-  h? : Int64 = 0L,
-  m? : Int64 = 0L,
-  s? : Int64 = 0L,
-  ns? : Int64 = 0L,
+  h~ : Int64 = 0L,
+  m~ : Int64 = 0L,
+  s~ : Int64 = 0L,
+  ns~ : Int64 = 0L,
 ) -> PlainDateTime raise Error {
   if h == 0L && m == 0L && s == 0L && ns == 0L {
     return self

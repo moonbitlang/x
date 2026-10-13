@@ -15,7 +15,7 @@
 ///|
 #deprecated("The `Num` trait is deprecated.")
 pub trait Num {
-  fn from_int(Int) -> Self
+  fn from_int(Int32) -> Self
   fn op_add(Self, Self) -> Self
   fn op_sub(Self, Self) -> Self
   fn op_mul(Self, Self) -> Self

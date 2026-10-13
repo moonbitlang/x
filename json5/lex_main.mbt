@@ -15,7 +15,7 @@
 ///|
 fn lex_value(
   ctx : ParseContext,
-  allow_rbracket? : Bool = false,
+  allow_rbracket~ : Bool = false,
 ) -> Token raise ParseError {
   for ;; {
     let view = ctx.input[ctx.offset:]

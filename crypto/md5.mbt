@@ -20,15 +20,15 @@
 ///|
 #alias(MD5Context, deprecated="Use `MD5` instead")
 struct MD5 {
-  reg : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
+  reg : FixedArray[UInt32] // state 'a' 'b' 'c' 'd'
   mut len : UInt64
   buf : FixedArray[Byte]
-  mut buf_index : Int
+  mut buf_index : Int32
 }
 
 ///|
 #inline
-fn load_md5_words(block : FixedArray[Byte], input : FixedArray[UInt]) -> Unit {
+fn load_md5_words(block : FixedArray[Byte], input : FixedArray[UInt32]) -> Unit {
   // Callers allocate the fixed MD5 block widths, so the unchecked accesses
   // below stay within block[0..64) and input[0..16).
   for word_offset in 0..<16 {
@@ -44,12 +44,12 @@ fn load_md5_words(block : FixedArray[Byte], input : FixedArray[UInt]) -> Unit {
 }
 
 ///|
-pub impl CryptoHasher for MD5 with fn size(_self : MD5) -> Int {
+pub impl CryptoHasher for MD5 with fn size(_self : MD5) -> Int32 {
   16
 }
 
 ///|
-pub impl CryptoHasher for MD5 with fn block_size(_self : MD5) -> Int {
+pub impl CryptoHasher for MD5 with fn block_size(_self : MD5) -> Int32 {
   64
 }
 
@@ -85,7 +85,7 @@ pub fn MD5::finalize(self : MD5) -> FixedArray[Byte] {
 pub impl CryptoHasher for MD5 with fn finalize_into(
   self : MD5,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self.md5_compute().blit_to(buffer, len=16, src_offset=0, dst_offset=offset)
 }
@@ -147,22 +147,22 @@ fn MD5::md5_compute(self : MD5) -> FixedArray[Byte] {
 //          I(X,Y,Z) = Y xor (X v not(Z))
 
 ///|
-fn MD5::f(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD5::f(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   (x & y) | (x.lnot() & z)
 }
 
 ///|
-fn MD5::g(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD5::g(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   ((x ^ y) & z) ^ y
 }
 
 ///|
-fn MD5::h(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD5::h(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   x ^ y ^ z
 }
 
 ///|
-fn MD5::i(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD5::i(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   y ^ (x | z.lnot())
 }
 
@@ -192,7 +192,10 @@ fn[Data : ByteSource] md5_update(ctx : MD5, data : Data) -> Unit {
 
 ///|
 #inline
-fn md5_transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
+fn md5_transform(
+  state : FixedArray[UInt32],
+  input : FixedArray[UInt32],
+) -> Unit {
   // load_md5_words always supplies exactly 16 words; every constant word index
   // used by the rounds below is therefore in bounds.
   let mut a = state[0]

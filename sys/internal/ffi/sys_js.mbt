@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub extern "js" fn exit(code : Int) -> Unit =
+pub extern "js" fn exit(code : Int32) -> Unit =
   #| function(code) {
   #|   process.exit(code);
   #| }

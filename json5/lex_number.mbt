@@ -16,7 +16,7 @@
 fn lex_hexadecimal(ctx : ParseContext, neg~ : Bool) -> Double raise ParseError {
   match read_char(ctx) {
     Some(c) => {
-      if c is ('0'..='9' | 'a'..='f' | 'A'..='F') {
+      if c is ('0'..<='9' | 'a'..<='f' | 'A'..<='F') {
         let n = lex_hexadecimal_integer(ctx, hex_digit_to_int(c))
         return if neg { -n } else { n }
       }
@@ -28,11 +28,11 @@ fn lex_hexadecimal(ctx : ParseContext, neg~ : Bool) -> Double raise ParseError {
 }
 
 ///|
-fn lex_hexadecimal_integer(ctx : ParseContext, n : Int) -> Double {
+fn lex_hexadecimal_integer(ctx : ParseContext, n : Int32) -> Double {
   for n = n.to_double() {
     match read_char(ctx) {
       Some(c) => {
-        if c is ('0'..='9' | 'a'..='f' | 'A'..='F') {
+        if c is ('0'..<='9' | 'a'..<='f' | 'A'..<='F') {
           continue n * 16.0 + hex_digit_to_int(c).to_double()
         }
         ctx.offset -= 1
@@ -46,8 +46,8 @@ fn lex_hexadecimal_integer(ctx : ParseContext, n : Int) -> Double {
 ///|
 fn lex_number_end(
   ctx : ParseContext,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Double raise ParseError {
   // parse_double already accepts a StringView; only materialize an
   // owned String for the error payload (the cold path). Saves one

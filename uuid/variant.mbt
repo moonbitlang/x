@@ -35,7 +35,7 @@ pub(all) enum Version {
   V3
   V4
   V5
-  Unknown(Int)
+  Unknown(Int32)
 } derive(Debug)
 
 ///|

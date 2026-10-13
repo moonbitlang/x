@@ -90,7 +90,7 @@ pub fn UUID::to_bytes(self : UUID) -> Bytes {
 test "bytes" {
   let buf = Bytes::from_array(
     [201, 130, 251, 104, 223, 80, 76, 161, 145, 248, 186, 162, 4, 9, 229, 185].map(
-      Int::to_byte,
+      Int32::to_byte,
     ),
   )
   inspect(
@@ -116,7 +116,7 @@ test "bytes" {
 }
 
 ///|
-fn hex_char_to_int64(c : Int) -> Int64 raise Error {
+fn hex_char_to_int64(c : Int32) -> Int64 raise Error {
   let d = if '0'.to_int() <= c && c <= '9'.to_int() {
     c - '0'
   } else if 'a'.to_int() <= c && c <= 'f'.to_int() {
@@ -175,21 +175,23 @@ pub fn from_hex(hex : String) -> UUID raise Error {
 
 ///|
 #cfg(not(target="js"))
-let hex_table : Array[Int] = "0123456789abcdef".to_array().map(c => c.to_int())
+let hex_table : Array[Int32] = "0123456789abcdef"
+  .to_array()
+  .map(c => c.to_int())
 
 ///|
 #cfg(not(target="js"))
-let dash : Int = '-'.to_int()
+let dash : Int32 = '-'.to_int()
 
 ///|
 #cfg(not(target="js"))
-let segments : ReadOnlyArray[Int] = [8, 4, 4, 0, 4, 12]
+let segments : ReadOnlyArray[Int32] = [8, 4, 4, 0, 4, 12]
 
 // XXX: use sum() instead; weird `moon fmt`
 
 ///|
 #cfg(not(target="js"))
-let size : Int = (
+let size : Int32 = (
     segments.fold((acc, x) => acc + x, init=0) + segments.length() - 2
   ) *
   2

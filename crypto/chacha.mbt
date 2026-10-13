@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn flipWord(word : UInt) -> UInt {
+fn flipWord(word : UInt32) -> UInt32 {
   let b0 = (word & 0xff) << 24
   let b1 = (word & 0xff00) << 8
   let b2 = (word & 0xff0000) >> 8
@@ -30,11 +30,11 @@ test "flipWord" {
 
 ///|
 fn FixedArray::quarterRound(
-  state : FixedArray[UInt],
-  w : Int,
-  x : Int,
-  y : Int,
-  z : Int,
+  state : FixedArray[UInt32],
+  w : Int32,
+  x : Int32,
+  y : Int32,
+  z : Int32,
 ) -> Unit {
   let mut a = state[w]
   let mut b = state[x]
@@ -104,7 +104,7 @@ test "quarterRound" {
 }
 
 ///|
-fn FixedArray::chachaBlockRound(state : FixedArray[UInt]) -> Unit {
+fn FixedArray::chachaBlockRound(state : FixedArray[UInt32]) -> Unit {
   state
   ..quarterRound(0, 4, 8, 12)
   ..quarterRound(1, 5, 9, 13)
@@ -162,7 +162,7 @@ test "chachaBlockRound" {
 }
 
 ///|
-fn FixedArray::chachaBlockLoop(state : FixedArray[UInt], n : UInt) -> Unit {
+fn FixedArray::chachaBlockLoop(state : FixedArray[UInt32], n : UInt32) -> Unit {
   for _ in 0U..<n {
     state.chachaBlockRound()
   }
@@ -290,10 +290,10 @@ test "chacha block output" {
 /// - Returns the encrypted block of data.
 #deprecated("Use ChaCha::chacha8 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha8(
-  key : FixedArray[UInt],
-  counter : UInt,
+  key : FixedArray[UInt32],
+  counter : UInt32,
   block : Data,
-  nonce? : UInt = 0,
+  nonce~ : UInt32 = 0,
 ) -> FixedArray[Byte] raise Error {
   guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -310,10 +310,10 @@ pub fn[Data : ByteSource] chacha8(
 /// - Returns the encrypted block of data.
 #deprecated("Use ChaCha::chacha12 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha12(
-  key : FixedArray[UInt],
-  counter : UInt,
+  key : FixedArray[UInt32],
+  counter : UInt32,
   block : Data,
-  nonce? : UInt = 0,
+  nonce~ : UInt32 = 0,
 ) -> FixedArray[Byte] raise Error {
   guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -330,10 +330,10 @@ pub fn[Data : ByteSource] chacha12(
 /// - Returns the encrypted block of data.
 #deprecated("Use ChaCha::chacha20 and ChaCha::transform instead")
 pub fn[Data : ByteSource] chacha20(
-  key : FixedArray[UInt],
-  counter : UInt,
+  key : FixedArray[UInt32],
+  counter : UInt32,
   block : Data,
-  nonce? : UInt = 0,
+  nonce~ : UInt32 = 0,
 ) -> FixedArray[Byte] raise Error {
   guard key.length() == 8 else {
     fail("Invalid key length -- key must be 8 32-bit unsigned integers")
@@ -344,11 +344,11 @@ pub fn[Data : ByteSource] chacha20(
 ///|
 #coverage.skip
 fn[Data : ByteSource] chacha(
-  key : FixedArray[UInt],
-  counter : UInt,
+  key : FixedArray[UInt32],
+  counter : UInt32,
   block : Data,
-  round : UInt,
-  nonce : FixedArray[UInt],
+  round : UInt32,
+  nonce : FixedArray[UInt32],
 ) -> FixedArray[Byte] {
   let block_length = block.length()
   guard block_length > 0 else { FixedArray::make(0, Byte::default()) }
@@ -382,21 +382,21 @@ pub suberror ChaChaError {
 
 ///|
 struct ChaCha {
-  key : FixedArray[UInt]
-  nonce : FixedArray[UInt]
+  key : FixedArray[UInt32]
+  nonce : FixedArray[UInt32]
   key_stream : FixedArray[Byte]
-  mut counter : UInt
+  mut counter : UInt32
   mut exhausted : Bool
-  mut offset : Int
-  round : UInt
+  mut offset : Int32
+  round : UInt32
 }
 
 ///|
 fn[K : ByteSource, N : ByteSource] ChaCha::new(
   key : K,
   nonce : N,
-  round : UInt,
-  counter : UInt,
+  round : UInt32,
+  counter : UInt32,
 ) -> ChaCha raise Error {
   guard key.length() == 32 else {
     fail("Invalid key length -- key must be 256 bits")
@@ -439,7 +439,7 @@ fn[K : ByteSource, N : ByteSource] ChaCha::new(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(
   key : K,
   nonce : N,
-  counter? : UInt = 0,
+  counter~ : UInt32 = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 4, counter)
 }
@@ -454,7 +454,7 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha8(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(
   key : K,
   nonce : N,
-  counter? : UInt = 0,
+  counter~ : UInt32 = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 6, counter)
 }
@@ -469,13 +469,13 @@ pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha12(
 pub fn[K : ByteSource, N : ByteSource] ChaCha::chacha20(
   key : K,
   nonce : N,
-  counter? : UInt = 0,
+  counter~ : UInt32 = 0,
 ) -> ChaCha raise Error {
   ChaCha::new(key, nonce, 10, counter)
 }
 
 ///|
-fn ChaCha::can_transform(self : ChaCha, data_length : Int) -> Bool {
+fn ChaCha::can_transform(self : ChaCha, data_length : Int32) -> Bool {
   let buffered_bytes = if self.offset < 64 { 64 - self.offset } else { 0 }
   guard data_length > buffered_bytes else { true }
   guard !self.exhausted else { false }
@@ -488,8 +488,8 @@ fn ChaCha::can_transform(self : ChaCha, data_length : Int) -> Bool {
 ///|
 fn target_has_capacity(
   target : FixedArray[Byte],
-  offset : Int,
-  data_length : Int,
+  offset : Int32,
+  data_length : Int32,
 ) -> Bool {
   guard offset >= 0 && offset <= target.length() else { false }
   data_length <= target.length() - offset
@@ -511,8 +511,8 @@ fn[D : ByteSource] ChaCha::transform_unchecked(
   self : Self,
   data : D,
   target : FixedArray[Byte],
-  offset : Int,
-  data_length : Int,
+  offset : Int32,
+  data_length : Int32,
 ) -> Unit {
   let remaining_offset = if self.offset < 64 {
     let length = @cmp.minimum(data_length, 64 - self.offset)
@@ -569,7 +569,7 @@ pub fn[D : ByteSource] ChaCha::transform(
   self : Self,
   data : D,
   target : FixedArray[Byte],
-  offset? : Int = 0,
+  offset~ : Int32 = 0,
 ) -> Unit {
   let data_length = data.length()
   guard target_has_capacity(target, offset, data_length) else {
@@ -591,7 +591,7 @@ pub fn[D : ByteSource] ChaCha::transform_checked(
   self : Self,
   data : D,
   target : FixedArray[Byte],
-  offset? : Int = 0,
+  offset~ : Int32 = 0,
 ) -> Unit raise ChaChaError {
   let data_length = data.length()
   guard target_has_capacity(target, offset, data_length) else {

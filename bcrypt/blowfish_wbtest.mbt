@@ -16,7 +16,7 @@
 // Source: https://www.schneier.com/wp-content/uploads/2015/12/vectors-2.txt
 
 ///|
-fn test_encrypt(key : BytesView, l : UInt, r : UInt) -> (UInt, UInt) {
+fn test_encrypt(key : BytesView, l : UInt32, r : UInt32) -> (UInt32, UInt32) {
   let state = new_blowfish_state()
   blowfish_expand_zero_key(state, key)
   blowfish_encrypt_block(state, l, r)
@@ -25,7 +25,7 @@ fn test_encrypt(key : BytesView, l : UInt, r : UInt) -> (UInt, UInt) {
 ///|
 test "blowfish ECB reference vectors" {
   // Key, plaintext, and ciphertext; blocks are pairs of big-endian words.
-  let vectors : Array[(Bytes, (UInt, UInt), (UInt, UInt))] = [
+  let vectors : Array[(Bytes, (UInt32, UInt32), (UInt32, UInt32))] = [
     (
       b"\x00\x00\x00\x00\x00\x00\x00\x00",
       (0x00000000U, 0x00000000U),
@@ -207,7 +207,7 @@ test "blowfish ECB reference vectors" {
 test "blowfish variable key length reference vectors" {
   // Test key lengths from 1 to 24 bytes using prefixes of this key.
   let key = b"\xF0\xE1\xD2\xC3\xB4\xA5\x96\x87\x78\x69\x5A\x4B\x3C\x2D\x1E\x0F\x00\x11\x22\x33\x44\x55\x66\x77"
-  let ciphertexts : Array[(UInt, UInt)] = [
+  let ciphertexts : Array[(UInt32, UInt32)] = [
     (0xF9AD597C, 0x49DB005E),
     (0xE91D21C1, 0xD961A6D6),
     (0xE9C2B70A, 0x1BC65CF3),

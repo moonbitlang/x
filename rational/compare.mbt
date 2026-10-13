@@ -70,7 +70,7 @@ fn compare_positive_fractions(
   denominator1 : UInt64,
   numerator2 : UInt64,
   denominator2 : UInt64,
-) -> Int {
+) -> Int32 {
   for numerator1 = numerator1, denominator1 = denominator1, numerator2 = numerator2, denominator2 = denominator2, reverse = false {
     let quotient1 = numerator1 / denominator1
     let remainder1 = numerator1 % denominator1
@@ -108,7 +108,7 @@ pub impl Integral for Int64 with fn compare_fraction(
   denominator1 : Int64,
   numerator2 : Int64,
   denominator2 : Int64,
-) -> Int {
+) -> Int32 {
   guard !(int64_product_fits(numerator1, denominator2) &&
     int64_product_fits(numerator2, denominator1)) else {
     Compare::compare(numerator1 * denominator2, numerator2 * denominator1)
@@ -128,12 +128,12 @@ pub impl Integral for Int64 with fn compare_fraction(
 ///
 /// MoonBit `Int` is 32-bit, so every product of two `Int` values fits in
 /// `Int64` and needs neither overflow detection nor arbitrary precision.
-pub impl Integral for Int with fn compare_fraction(
-  numerator1 : Int,
-  denominator1 : Int,
-  numerator2 : Int,
-  denominator2 : Int,
-) -> Int {
+pub impl Integral for Int32 with fn compare_fraction(
+  numerator1 : Int32,
+  denominator1 : Int32,
+  numerator2 : Int32,
+  denominator2 : Int32,
+) -> Int32 {
   Compare::compare(
     numerator1.to_int64() * denominator2.to_int64(),
     numerator2.to_int64() * denominator1.to_int64(),
@@ -150,7 +150,7 @@ pub impl Integral for BigInt with fn compare_fraction(
   denominator1 : BigInt,
   numerator2 : BigInt,
   denominator2 : BigInt,
-) -> Int {
+) -> Int32 {
   Compare::compare(numerator1 * denominator2, numerator2 * denominator1)
 }
 
@@ -185,7 +185,7 @@ pub impl Integral for BigInt with fn compare_fraction(
 pub impl[T : Integral] Compare for Rational[T] with fn compare(
   self : Rational[T],
   other : Rational[T],
-) -> Int {
+) -> Int32 {
   guard self.denominator.signum() > 0 && other.denominator.signum() > 0 else {
     let left = self.numerator.to_bigint() * other.denominator.to_bigint()
     let right = other.numerator.to_bigint() * self.denominator.to_bigint()

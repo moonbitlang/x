@@ -21,7 +21,7 @@ struct SHA512 {
   mut len_high : UInt64
   mut len_low : UInt64
   buf : FixedArray[Byte]
-  mut buf_index : Int
+  mut buf_index : Int32
 }
 
 ///|
@@ -209,8 +209,8 @@ pub fn SHA512::finalize(self : SHA512) -> FixedArray[Byte] {
 fn SHA512::_finalize_into(
   self : SHA512,
   buffer : FixedArray[Byte],
-  size? : Int = 8,
-  offset? : Int = 0,
+  size~ : Int32 = 8,
+  offset~ : Int32 = 0,
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(128, Byte::default())
@@ -254,12 +254,12 @@ fn SHA512::_finalize_into(
 }
 
 ///|
-pub impl CryptoHasher for SHA512 with fn size(_self : SHA512) -> Int {
+pub impl CryptoHasher for SHA512 with fn size(_self : SHA512) -> Int32 {
   64
 }
 
 ///|
-pub impl CryptoHasher for SHA512 with fn block_size(_self : SHA512) -> Int {
+pub impl CryptoHasher for SHA512 with fn block_size(_self : SHA512) -> Int32 {
   128
 }
 
@@ -284,7 +284,7 @@ pub impl CryptoHasher for SHA512 with fn reset(self : SHA512) -> Unit {
 pub impl CryptoHasher for SHA512 with fn finalize_into(
   self : SHA512,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self._finalize_into(buffer, offset~)
 }

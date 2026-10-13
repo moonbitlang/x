@@ -25,12 +25,12 @@
 /// ```
 #as_free_fn
 pub fn[T] Stack::new() -> Stack[T] {
-  { elements: @list.List::new(), len: 0, }
+  { elements: List([]), len: 0, }
 }
 
 ///|
 test "new" {
-  let s : Stack[Int] = new()
+  let s : Stack[Int32] = new()
   inspect(s, content="Stack::[]")
 }
 
@@ -111,7 +111,7 @@ pub impl[T : Debug] Debug for Stack[T] with fn to_repr(self : Stack[T]) -> Repr 
 
 ///|
 test "to_string" {
-  let empty : Stack[Int] = new()
+  let empty : Stack[Int32] = new()
   inspect(empty, content="Stack::[]")
   inspect(of([1, 2, 3, 4, 5]), content="Stack::[1, 2, 3, 4, 5]")
 }
@@ -148,7 +148,7 @@ test "from_stack" {
 ///   assert_eq(s.length(), 0)
 /// ```
 pub fn[T] Stack::clear(self : Stack[T]) -> Unit {
-  self.elements = @list.empty()
+  self.elements = List([])
   self.len = 0
 }
 
@@ -220,7 +220,7 @@ pub fn[T] Stack::push_stack(self : Stack[T], stack : Stack[T]) -> Unit {
 ///|
 test "push_stack" {
   let s = of([1, 2, 3])
-  let s1 : Stack[Int] = new()
+  let s1 : Stack[Int32] = new()
   s1.push_stack(s)
   inspect(s1, content="Stack::[3, 2, 1]")
   inspect(s.length() == s1.length(), content="true")
@@ -242,7 +242,7 @@ pub fn[T] Stack::push_array(self : Stack[T], array : Array[T]) -> Unit {
 
 ///|
 test "push_array" {
-  let s : Stack[Int] = new()
+  let s : Stack[Int32] = new()
   s.push_array([1, 2, 3])
   inspect(s, content="Stack::[3, 2, 1]")
   inspect(s.len, content="3")
@@ -275,7 +275,7 @@ pub fn[T] Stack::pop(self : Stack[T]) -> T? {
 ///|
 test "pop" {
   let s = of([1, 2, 3])
-  let s1 : Stack[Int] = new()
+  let s1 : Stack[Int32] = new()
   debug_inspect(s.pop(), content="Some(1)")
   inspect(s, content="Stack::[2, 3]")
   inspect(s.len, content="2")
@@ -362,7 +362,7 @@ pub fn[T] Stack::drop_result(self : Stack[T]) -> Result[Unit, Unit] {
 ///|
 test "drop_result" {
   let s = of([1, 2, 3])
-  let s1 : Stack[Int] = new()
+  let s1 : Stack[Int32] = new()
   inspect(s1.drop_result() == Err(()), content="true")
   inspect(s.drop_result() == Ok(()), content="true")
   inspect(s, content="Stack::[2, 3]")
@@ -403,7 +403,7 @@ pub fn[T] Stack::unsafe_peek(self : Stack[T]) -> T {
 
 ///|
 test "unsafe_peek" {
-  let s : Stack[Int] = of([1, 2, 3])
+  let s : Stack[Int32] = of([1, 2, 3])
   inspect(s.unsafe_peek(), content="1")
   inspect(s, content="Stack::[1, 2, 3]")
   inspect(s.len, content="3")
@@ -433,7 +433,7 @@ test "is_empty" {
 
 ///|
 /// Returns the number of elements of the Stack
-pub fn[T] Stack::length(self : Stack[T]) -> Int {
+pub fn[T] Stack::length(self : Stack[T]) -> Int32 {
   self.len
 }
 
@@ -453,7 +453,7 @@ pub fn[T] Stack::each(self : Stack[T], f : (T) -> Unit) -> Unit {
 
 ///|
 test "iter" {
-  let s : Stack[Int] = new()
+  let s : Stack[Int32] = new()
   let mut sum = 0
   let mut sub = 0
   s.each(fn(i) { sum = sum + i })

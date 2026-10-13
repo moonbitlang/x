@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn offset_to_position(input : String, offset : Int) -> Position {
+fn offset_to_position(input : String, offset : Int32) -> Position {
   let mut line = 1
   let mut column = 0
   for i = 0; i < offset; i = i + 1 {
@@ -31,25 +31,28 @@ fn offset_to_position(input : String, offset : Int) -> Position {
 ///|
 fn[X] no_valid_token(
   ctx : ParseContext,
-  shift? : Int = 0,
+  shift~ : Int32 = 0,
 ) -> X raise ParseError {
   let offset = ctx.offset + shift
   parse_error(NoValidToken(offset_to_position(ctx.input, offset)))
 }
 
 ///|
-fn[X] invalid_char(ctx : ParseContext, shift? : Int = 0) -> X raise ParseError {
+fn[X] invalid_char(
+  ctx : ParseContext,
+  shift~ : Int32 = 0,
+) -> X raise ParseError {
   let offset = ctx.offset + shift
   parse_error(
     InvalidChar(
       offset_to_position(ctx.input, offset),
-      Int::unsafe_to_char(ctx.input.code_unit_at(offset).to_int()),
+      Int32::unsafe_to_char(ctx.input.code_unit_at(offset).to_int()),
     ),
   )
 }
 
 ///|
-fn hex_digit_to_int(c : Char) -> Int {
+fn hex_digit_to_int(c : Char) -> Int32 {
   if c >= 'A' {
     (c.to_int() & (32).lnot()) - 'A'.to_int() + 10
   } else {

@@ -13,4 +13,4 @@
 // limitations under the License.
 
 ///|
-pub extern "C" fn exit(code : Int) = "exit"
+pub extern "C" fn exit(code : Int32) = "exit"

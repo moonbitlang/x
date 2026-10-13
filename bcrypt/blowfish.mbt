@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-let init_s : Array[UInt] = [
+let init_s : Array[UInt32] = [
   0xd1310ba6U, 0x98dfb5acU, 0x2ffd72dbU, 0xd01adfb7U, 0xb8e1afedU, 0x6a267e96U, 0xba7c9045U,
   0xf12c7f99U, 0x24a19947U, 0xb3916cf7U, 0x0801f2e2U, 0x858efc16U, 0x636920d8U, 0x71574e69U,
   0xa458fea3U, 0xf4933d7eU, 0x0d95748fU, 0x728eb658U, 0x718bcd58U, 0x82154aeeU, 0x7b54a41dU,
@@ -164,7 +164,7 @@ let init_s : Array[UInt] = [
 ]
 
 ///|
-let init_p : Array[UInt] = [
+let init_p : Array[UInt32] = [
   0x243f6a88U, 0x85a308d3U, 0x13198a2eU, 0x03707344U, 0xa4093822U, 0x299f31d0U, 0x082efa98U,
   0xec4e6c89U, 0x452821e6U, 0x38d01377U, 0xbe5466cfU, 0x34e90c6cU, 0xc0ac29b7U, 0xc97c50ddU,
   0x3f84d5b5U, 0xb5470917U, 0x9216d5d9U, 0x8979fb1bU,
@@ -172,8 +172,8 @@ let init_p : Array[UInt] = [
 
 ///|
 priv struct BlowfishState {
-  p : Array[UInt]
-  s : Array[UInt]
+  p : Array[UInt32]
+  s : Array[UInt32]
 }
 
 ///|
@@ -182,7 +182,7 @@ fn new_blowfish_state() -> BlowfishState {
 }
 
 ///|
-fn blowfish_f(state : BlowfishState, x : UInt) -> UInt {
+fn blowfish_f(state : BlowfishState, x : UInt32) -> UInt32 {
   let a = ((x >> 24) & 0xffU).reinterpret_as_int()
   let b = ((x >> 16) & 0xffU).reinterpret_as_int()
   let c = ((x >> 8) & 0xffU).reinterpret_as_int()
@@ -193,9 +193,9 @@ fn blowfish_f(state : BlowfishState, x : UInt) -> UInt {
 ///|
 fn blowfish_encrypt_block(
   state : BlowfishState,
-  l0 : UInt,
-  r0 : UInt,
-) -> (UInt, UInt) {
+  l0 : UInt32,
+  r0 : UInt32,
+) -> (UInt32, UInt32) {
   let mut l = l0
   let mut r = r0
   for i in 0..<16 {
@@ -214,7 +214,7 @@ fn blowfish_encrypt_block(
 }
 
 ///|
-fn stream_to_word(data : BytesView, offset : Int) -> (UInt, Int) {
+fn stream_to_word(data : BytesView, offset : Int32) -> (UInt32, Int32) {
   let mut word = 0U
   let mut off = offset
   for _ in 0..<4 {

@@ -19,19 +19,19 @@
 
 ///|
 struct MD4 {
-  reg : FixedArray[UInt] // state 'a' 'b' 'c' 'd'
+  reg : FixedArray[UInt32] // state 'a' 'b' 'c' 'd'
   mut len : UInt64
   buf : FixedArray[Byte]
-  mut buf_index : Int
+  mut buf_index : Int32
 }
 
 ///|
-pub impl CryptoHasher for MD4 with fn size(_self : MD4) -> Int {
+pub impl CryptoHasher for MD4 with fn size(_self : MD4) -> Int32 {
   16
 }
 
 ///|
-pub impl CryptoHasher for MD4 with fn block_size(_self : MD4) -> Int {
+pub impl CryptoHasher for MD4 with fn block_size(_self : MD4) -> Int32 {
   64
 }
 
@@ -64,38 +64,62 @@ pub fn MD4::new() -> MD4 {
 //          H(X,Y,Z) = X xor Y xor Z
 
 ///|
-fn MD4::f(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD4::f(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   (x & y) | (x.lnot() & z)
 }
 
 ///|
-fn MD4::g(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD4::g(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   (x & y) | (x & z) | (y & z)
 }
 
 ///|
-fn MD4::h(x : UInt, y : UInt, z : UInt) -> UInt {
+fn MD4::h(x : UInt32, y : UInt32, z : UInt32) -> UInt32 {
   x ^ y ^ z
 }
 
 ///|
-fn MD4::ff(a : UInt, b : UInt, c : UInt, d : UInt, x : UInt, s : Int) -> UInt {
+fn MD4::ff(
+  a : UInt32,
+  b : UInt32,
+  c : UInt32,
+  d : UInt32,
+  x : UInt32,
+  s : Int32,
+) -> UInt32 {
   rotate_left_u(a + MD4::f(b, c, d) + x, s)
 }
 
 ///|
-fn MD4::gg(a : UInt, b : UInt, c : UInt, d : UInt, x : UInt, s : Int) -> UInt {
+fn MD4::gg(
+  a : UInt32,
+  b : UInt32,
+  c : UInt32,
+  d : UInt32,
+  x : UInt32,
+  s : Int32,
+) -> UInt32 {
   rotate_left_u(a + MD4::g(b, c, d) + x + 0x5a827999, s)
 }
 
 ///|
-fn MD4::hh(a : UInt, b : UInt, c : UInt, d : UInt, x : UInt, s : Int) -> UInt {
+fn MD4::hh(
+  a : UInt32,
+  b : UInt32,
+  c : UInt32,
+  d : UInt32,
+  x : UInt32,
+  s : Int32,
+) -> UInt32 {
   rotate_left_u(a + MD4::h(b, c, d) + x + 0x6ed9eba1, s)
 }
 
 ///|
 #inline
-fn MD4::transform(state : FixedArray[UInt], input : FixedArray[UInt]) -> Unit {
+fn MD4::transform(
+  state : FixedArray[UInt32],
+  input : FixedArray[UInt32],
+) -> Unit {
   // parse_le_u32x16_into always supplies exactly 16 words; every constant
   // word index used by the rounds below is therefore in bounds.
   let mut a = state[0]
@@ -224,7 +248,7 @@ pub fn MD4::finalize(self : MD4) -> FixedArray[Byte] {
 fn MD4::_finalize_into(
   self : MD4,
   buffer : FixedArray[Byte],
-  offset? : Int = 0,
+  offset~ : Int32 = 0,
 ) -> Unit {
   // Copy data
   let data = FixedArray::make(64, Byte::default())
@@ -262,7 +286,7 @@ fn MD4::_finalize_into(
 pub impl CryptoHasher for MD4 with fn finalize_into(
   self : MD4,
   buffer : FixedArray[Byte],
-  offset~ : Int,
+  offset~ : Int32,
 ) -> Unit {
   self._finalize_into(buffer, offset~)
 }

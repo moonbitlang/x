@@ -27,7 +27,7 @@ fn read_char(ctx : ParseContext) -> Char? {
         _ => ()
       }
     }
-    Some(Int::unsafe_to_char(c))
+    Some(Int32::unsafe_to_char(c))
   } else {
     None
   }

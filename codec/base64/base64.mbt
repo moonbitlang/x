@@ -17,7 +17,7 @@
 
 ///|
 /// index is between 0 and 63, inclusive.
-fn index_to_char(index : Int, url_safe : Bool) -> Char {
+fn index_to_char(index : Int32, url_safe : Bool) -> Char {
   match index {
     0..<26 => (index + 'A').unsafe_to_char()
     26..<52 => (index - 26 + 'a').unsafe_to_char()
@@ -30,11 +30,11 @@ fn index_to_char(index : Int, url_safe : Bool) -> Char {
 
 ///|
 /// assuming the character is valid, returns an index between 0 and 63, inclusive.
-fn char_to_index(char : Char, url_safe : Bool) -> Int raise DecodeError {
+fn char_to_index(char : Char, url_safe : Bool) -> Int32 raise DecodeError {
   match char {
-    'A'..='Z' => char.to_int() - 'A'
-    'a'..='z' => char.to_int() - 'a' + 26
-    '0'..='9' => char.to_int() - '0' + 52
+    'A'..<='Z' => char.to_int() - 'A'
+    'a'..<='z' => char.to_int() - 'a' + 26
+    '0'..<='9' => char.to_int() - '0' + 52
     '-' if url_safe => 62
     '+' if !url_safe => 62
     '_' if url_safe => 63
@@ -45,8 +45,8 @@ fn char_to_index(char : Char, url_safe : Bool) -> Int raise DecodeError {
 
 ///|
 struct Encoder {
-  mut i : Int
-  mut buffer : Int
+  mut i : Int32
+  mut buffer : Int32
 }
 
 ///|
@@ -60,8 +60,8 @@ pub fn Encoder::encode_to(
   self : Encoder,
   bytes : BytesView,
   cb : (Char) -> Unit,
-  url_safe? : Bool = false,
-  padding? : Bool = false,
+  url_safe~ : Bool = false,
+  padding~ : Bool = false,
 ) -> Unit {
   for byte in bytes {
     let byte = byte.to_int()
@@ -105,7 +105,7 @@ pub fn Encoder::encode_to(
 
 ///|
 /// Encode binary to ascii text following  defined in RFC 4648
-pub fn encode(bytes : BytesView, url_safe? : Bool = false) -> String {
+pub fn encode(bytes : BytesView, url_safe~ : Bool = false) -> String {
   let builder = StringBuilder()
   let encoder = Encoder::new()
   encoder.encode_to(
@@ -119,8 +119,8 @@ pub fn encode(bytes : BytesView, url_safe? : Bool = false) -> String {
 
 ///|
 struct Decoder {
-  mut i : Int
-  mut buffer : Int
+  mut i : Int32
+  mut buffer : Int32
 }
 
 ///|
@@ -134,7 +134,7 @@ pub fn Decoder::decode_to(
   self : Decoder,
   input : StringView,
   cb : (Byte) -> Unit,
-  url_safe? : Bool = false,
+  url_safe~ : Bool = false,
 ) -> Unit raise DecodeError {
   for ch in input {
     match self.i % 4 {
@@ -168,7 +168,7 @@ pub fn Decoder::decode_to(
 ///|
 pub fn decode(
   input : StringView,
-  url_safe? : Bool = false,
+  url_safe~ : Bool = false,
 ) -> Bytes raise DecodeError {
   let decoder = Decoder::new()
   let output = FixedArray::make(input.length() * 3 / 4, b'\x00')

@@ -88,7 +88,7 @@ test "decoding covers all bytes and encoding honors every ASCII member" {
     assert_eq(encoded.length(), 3)
     assert_eq(@percent.decode(encoded), @utf8.encode(input))
     assert_eq(@percent.encode(input, escape_chars="").length(), 1)
-    let expected_length = if value is ('A'..='Z' | 'a'..='z' | '0'..='9') {
+    let expected_length = if value is ('A'..<='Z' | 'a'..<='z' | '0'..<='9') {
       1
     } else {
       3

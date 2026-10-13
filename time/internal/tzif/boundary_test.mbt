@@ -17,14 +17,14 @@
 // the RFC examples. The independent reference inputs are the verbatim bytes in
 // fixtures_test.mbt (RFC 9636 Appendix B), exercised by parse_test.mbt.
 fn fixture(
-  version? : Byte = b'4',
-  transitions? : Array[(Int64, Int)] = [],
-  types? : Array[(Int, Int, Int)] = [(0, 0, 0)],
-  names? : Bytes = b"UTC\x00",
-  leaps? : Array[(Int64, Int)] = [],
-  standards? : Bytes = b"",
-  uts? : Bytes = b"",
-  footer? : Bytes = b"UTC0",
+  version~ : Byte = b'4',
+  transitions~ : Array[(Int64, Int32)] = [],
+  types~ : Array[(Int32, Int32, Int32)] = [(0, 0, 0)],
+  names~ : Bytes = b"UTC\x00",
+  leaps~ : Array[(Int64, Int32)] = [],
+  standards~ : Bytes = b"",
+  uts~ : Bytes = b"",
+  footer~ : Bytes = b"UTC0",
 ) -> Bytes {
   let out = @buffer.Buffer()
   if version != b'\x00' {

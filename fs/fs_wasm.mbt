@@ -48,7 +48,7 @@ fn begin_read_string(s : XExternString) -> XStringReadHandle = "__moonbit_fs_uns
 ///|
 /// Read one char from the string, returns -1 if the end of the string is reached.
 /// The number returned is the unicode codepoint of the character.
-fn string_read_char(handle : XStringReadHandle) -> Int = "__moonbit_fs_unstable" "string_read_char"
+fn string_read_char(handle : XStringReadHandle) -> Int32 = "__moonbit_fs_unstable" "string_read_char"
 
 ///|
 fn finish_read_string(handle : XStringReadHandle) = "__moonbit_fs_unstable" "finish_read_string"
@@ -62,7 +62,7 @@ fn string_from_extern(e : XExternString) -> String {
     if ch == -1 {
       break
     } else {
-      buf.write_char(Int::unsafe_to_char(ch))
+      buf.write_char(Int32::unsafe_to_char(ch))
     }
   }
   finish_read_string(handle)
@@ -85,7 +85,7 @@ priv type XExternByteArray
 fn begin_read_byte_array(s : XExternByteArray) -> XByteArrayReadHandle = "__moonbit_fs_unstable" "begin_read_byte_array"
 
 ///|
-fn byte_array_read_byte(handle : XByteArrayReadHandle) -> Int = "__moonbit_fs_unstable" "byte_array_read_byte"
+fn byte_array_read_byte(handle : XByteArrayReadHandle) -> Int32 = "__moonbit_fs_unstable" "byte_array_read_byte"
 
 ///|
 fn finish_read_byte_array(handle : XByteArrayReadHandle) = "__moonbit_fs_unstable" "finish_read_byte_array"
@@ -94,7 +94,7 @@ fn finish_read_byte_array(handle : XByteArrayReadHandle) = "__moonbit_fs_unstabl
 fn begin_create_byte_array() -> XByteArrayCreateHandle = "__moonbit_fs_unstable" "begin_create_byte_array"
 
 ///|
-fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int) = "__moonbit_fs_unstable" "byte_array_append_byte"
+fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int32) = "__moonbit_fs_unstable" "byte_array_append_byte"
 
 ///|
 fn finish_create_byte_array(
@@ -176,13 +176,13 @@ fn get_file_content_ffi() -> XExternByteArray = "__moonbit_fs_unstable" "get_fil
 fn get_dir_files_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "get_dir_files"
 
 ///|
-fn read_file_to_bytes_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "read_file_to_bytes_new"
+fn read_file_to_bytes_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "read_file_to_bytes_new"
 
 ///|
 fn write_bytes_to_file_ffi(
   path : XExternString,
   content : XExternByteArray,
-) -> Int = "__moonbit_fs_unstable" "write_bytes_to_file_new"
+) -> Int32 = "__moonbit_fs_unstable" "write_bytes_to_file_new"
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
@@ -194,7 +194,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
 ///|
 fn read_file_to_string_internal(
   path : String,
-  encoding? : String = "utf8",
+  encoding~ : String = "utf8",
 ) -> String raise IOError {
   guard encoding == "utf8" else {
     raise IOError(
@@ -220,7 +220,7 @@ fn write_bytes_to_file_internal(
 fn write_string_to_file_internal(
   path : String,
   content : String,
-  encoding? : String = "utf8",
+  encoding~ : String = "utf8",
 ) -> Unit raise IOError {
   guard encoding == "utf8" else {
     raise IOError(
@@ -239,7 +239,7 @@ fn path_exists_internal(path : String) -> Bool {
 }
 
 ///|
-fn create_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "create_dir_new"
+fn create_dir_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "create_dir_new"
 
 ///|
 fn create_dir_internal(path : String) -> Unit raise IOError {
@@ -248,7 +248,7 @@ fn create_dir_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
-fn read_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "read_dir_new"
+fn read_dir_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "read_dir_new"
 
 ///|
 fn read_dir_internal(path : String) -> ArrayView[String] raise IOError {
@@ -258,7 +258,7 @@ fn read_dir_internal(path : String) -> ArrayView[String] raise IOError {
 }
 
 ///|
-fn is_file_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "is_file_new"
+fn is_file_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "is_file_new"
 
 ///|
 fn is_file_internal(path : String) -> Bool raise IOError {
@@ -268,7 +268,7 @@ fn is_file_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
-fn is_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "is_dir_new"
+fn is_dir_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "is_dir_new"
 
 ///|
 fn is_dir_internal(path : String) -> Bool raise IOError {
@@ -278,7 +278,7 @@ fn is_dir_internal(path : String) -> Bool raise IOError {
 }
 
 ///|
-fn remove_file_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "remove_file_new"
+fn remove_file_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "remove_file_new"
 
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
@@ -287,7 +287,7 @@ fn remove_file_internal(path : String) -> Unit raise IOError {
 }
 
 ///|
-fn remove_dir_ffi(path : XExternString) -> Int = "__moonbit_fs_unstable" "remove_dir_new"
+fn remove_dir_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "remove_dir_new"
 
 ///|
 fn remove_dir_internal(path : String) -> Unit raise IOError {
