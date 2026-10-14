@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitlang/x/json_stream"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn parse(Iter[Char], max_nesting_depth? : Int) -> Json raise @json.ParseError
+
+pub fn valid(Iter[Char]) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) enum Event {
+  StartObject
+  EndObject
+  StartArray
+  EndArray
+  Key(String)
+  StringValue(String)
+  NumberValue(Double, String?)
+  BooleanValue(Bool)
+  NullValue
+}
+
+pub(all) enum ParseStep {
+  Event(Event)
+  NeedMoreInput
+  Done
+}
+
+pub struct Parser {
+  // private fields
+}
+pub fn Parser::feed(Self, StringView, eof? : Bool) -> Unit
+pub fn Parser::new(max_nesting_depth? : Int) -> Self
+pub fn Parser::next(Self) -> ParseStep raise @json.ParseError
+
+// Type aliases
+
+// Traits
