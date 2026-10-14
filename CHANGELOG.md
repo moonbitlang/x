@@ -4,6 +4,10 @@
 
 ### Added
 
+- Added `moonbitlang/x/json_stream` with a resumable parser for chunked JSON
+  input. The parser emits structural and value events across chunk boundaries
+  and distinguishes temporary input exhaustion from final EOF.
+
 - Published versions now receive matching Git tags automatically. (#338)
 
 - `@time.ZonedDateTime` field edits accept `offset` and `disambiguation`
