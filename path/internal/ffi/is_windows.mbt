@@ -24,5 +24,13 @@ pub extern "js" fn is_windows() -> Bool =
 pub fn is_windows() -> Bool = "__moonbit_sys_unstable" "is_windows"
 
 ///|
-#cfg(target="native")
-pub extern "C" fn is_windows() -> Bool = "moonbitlang_x_path_is_windows"
+#cfg(all(target="native", platform="windows"))
+pub fn is_windows() -> Bool {
+  true
+}
+
+///|
+#cfg(all(target="native", not(platform="windows")))
+pub fn is_windows() -> Bool {
+  false
+}
