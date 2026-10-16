@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- Random rational generation no longer overflows or produces invalid
+  denominators at fixed-width integer limits. (#345)
+
 - `@time.local_zone()` on Windows accepts independently dated or recurring
   seasonal transitions, including mixed pairs and intervals across New Year. (#340)
 
