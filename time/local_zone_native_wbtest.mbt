@@ -43,7 +43,7 @@ test "Windows local snapshot agrees with native conversion" {
       )
     }
   }
-  for (transition, _) in zone.transitions {
+  for (transition, _) in zone.stored_data().transitions {
     if transition < -11644473600L || transition > 253402300798L {
       continue
     }

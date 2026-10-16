@@ -318,14 +318,16 @@ fn Zone::from_windows_rules(
     let rule = endpoints[0]
     return {
       id,
-      offsets: rule.offsets(),
-      transitions: [],
-      past: None,
-      future: if rule is Fixed(_) {
-        None
-      } else {
-        Some((@int64.MIN_VALUE, rule))
-      },
+      rules: Stored({
+        offsets: rule.offsets(),
+        transitions: [],
+        past: None,
+        future: if rule is Fixed(_) {
+          None
+        } else {
+          Some((@int64.MIN_VALUE, rule))
+        },
+      }),
     }
   }
   let table_first = first
@@ -410,9 +412,11 @@ fn Zone::from_windows_rules(
   }
   {
     id,
-    offsets,
-    transitions,
-    past: Some((cutoff, endpoints[0])),
-    future: Some((finish, endpoints[1])),
+    rules: Stored({
+      offsets,
+      transitions,
+      past: Some((cutoff, endpoints[0])),
+      future: Some((finish, endpoints[1])),
+    }),
   }
 }

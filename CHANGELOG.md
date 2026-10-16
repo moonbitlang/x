@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- `@time.local_zone()` supports JavaScript using Temporal when available and
+  Date/Intl otherwise, including historical offsets and local-time disambiguation. (#344)
+
 ### Changed
 
 - Faster Base64 encoding and decoding on native and Wasm backends, for both

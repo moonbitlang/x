@@ -72,6 +72,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Use Node.js with Temporal
+        uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+
       - name: install
         if: ${{ matrix.os.name != 'windows-latest' }}
         run: |
@@ -98,6 +103,13 @@ jobs:
         run: |
           moon test --target all --release
           moon test --target all
+
+      - name: Test Date timezone fallback
+        env:
+          NODE_OPTIONS: "--import=data:text/javascript,globalThis.Temporal=undefined"
+        run: |
+          moon test time --target js --release
+          moon test time --target js
 
       - name: moon check
         run: moon check --deny-warn

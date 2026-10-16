@@ -18,30 +18,32 @@
 fn eastern_local_zone(recurring : Bool) -> Zone raise Error {
   {
     id: "Eastern",
-    offsets: [
-      ZoneOffset::from_seconds(-18000, abbrev="EST"),
-      ZoneOffset::from_seconds(-14400, abbrev="EDT", dst=true),
-      ZoneOffset::from_seconds(-16200, abbrev="Unused"),
-    ],
-    transitions: if recurring {
-      []
-    } else {
-      [
-        (PlainDateTime::of(2040, 3, 11, hour=7).to_unix_second(), 1),
-        (PlainDateTime::of(2040, 11, 4, hour=6).to_unix_second(), 0),
-      ]
-    },
-    past: None,
-    future: if recurring {
-      Some(
-        (
-          @int64.MIN_VALUE,
-          Recurring::from_posix(footer_fixture(eastern_footer)),
-        ),
-      )
-    } else {
-      None
-    },
+    rules: Stored({
+      offsets: [
+        ZoneOffset::from_seconds(-18000, abbrev="EST"),
+        ZoneOffset::from_seconds(-14400, abbrev="EDT", dst=true),
+        ZoneOffset::from_seconds(-16200, abbrev="Unused"),
+      ],
+      transitions: if recurring {
+        []
+      } else {
+        [
+          (PlainDateTime::of(2040, 3, 11, hour=7).to_unix_second(), 1),
+          (PlainDateTime::of(2040, 11, 4, hour=6).to_unix_second(), 0),
+        ]
+      },
+      past: None,
+      future: if recurring {
+        Some(
+          (
+            @int64.MIN_VALUE,
+            Recurring::from_posix(footer_fixture(eastern_footer)),
+          ),
+        )
+      } else {
+        None
+      },
+    }),
   }
 }
 
@@ -187,12 +189,17 @@ test "local resolution respects exact gap and overlap endpoints" {
 test "local gaps support skipped dates" {
   let zone : Zone = {
     id: "Skipped day",
-    offsets: [ZoneOffset::from_seconds(-36000), ZoneOffset::from_seconds(50400)],
-    transitions: [
-      (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
-    ],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [
+        ZoneOffset::from_seconds(-36000),
+        ZoneOffset::from_seconds(50400),
+      ],
+      transitions: [
+        (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
+      ],
+      past: None,
+      future: None,
+    }),
   }
   let value = ZonedDateTime::of(2011, 12, 30, hour=12, zone~)
   assert_eq(value.datetime, PlainDateTime::of(2011, 12, 31, hour=12))
@@ -207,12 +214,14 @@ test "known limitation: year 9999 gap retains the historical result" {
   // For now, preserve the old result; it does not round trip through Unix time.
   let zone : Zone = {
     id: "Out of range",
-    offsets: [utc_offset, ZoneOffset::from_seconds(3600)],
-    transitions: [
-      (PlainDateTime::of(9999, 12, 31, hour=23).to_unix_second(), 1),
-    ],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [utc_offset, ZoneOffset::from_seconds(3600)],
+      transitions: [
+        (PlainDateTime::of(9999, 12, 31, hour=23).to_unix_second(), 1),
+      ],
+      past: None,
+      future: None,
+    }),
   }
   let plain = PlainDateTime::of(9999, 12, 31, hour=23, minute=30)
   for
@@ -285,14 +294,16 @@ test "closely spaced jumps still resolve a gap forward" {
   // Projecting through the first jump alone would move 00:01:15 backward.
   let zone : Zone = {
     id: "Close transitions",
-    offsets: [
-      utc_offset,
-      ZoneOffset::from_seconds(100),
-      ZoneOffset::from_seconds(-100),
-    ],
-    transitions: [(0L, 1), (20L, 2), (150L, 0)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [
+        utc_offset,
+        ZoneOffset::from_seconds(100),
+        ZoneOffset::from_seconds(-100),
+      ],
+      transitions: [(0L, 1), (20L, 2), (150L, 0)],
+      past: None,
+      future: None,
+    }),
   }
   let value = ZonedDateTime::of(1970, 1, 1, minute=1, second=15, zone~)
   assert_eq(value.datetime, PlainDateTime::of(1970, 1, 1, minute=2, second=55))
@@ -544,12 +555,17 @@ test "gap policies handle half-hour, negative daylight, and whole-day jumps" {
   })
   let skipped_day : Zone = {
     id: "Skipped day",
-    offsets: [ZoneOffset::from_seconds(-36000), ZoneOffset::from_seconds(50400)],
-    transitions: [
-      (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
-    ],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [
+        ZoneOffset::from_seconds(-36000),
+        ZoneOffset::from_seconds(50400),
+      ],
+      transitions: [
+        (PlainDateTime::of(2011, 12, 30, hour=10).to_unix_second(), 1),
+      ],
+      past: None,
+      future: None,
+    }),
   }
   for
     (zone, plain, seconds) in [
@@ -584,10 +600,12 @@ test "gap policies handle half-hour, negative daylight, and whole-day jumps" {
 test "Reject counts distinct instants instead of duplicate offset types" {
   let zone : Zone = {
     id: "Duplicate types",
-    offsets: [utc_offset, ZoneOffset::from_seconds(3600), utc_offset],
-    transitions: [(0L, 2)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [utc_offset, ZoneOffset::from_seconds(3600), utc_offset],
+      transitions: [(0L, 2)],
+      past: None,
+      future: None,
+    }),
   }
   let plain = PlainDateTime::of(2040, 1, 1)
   let value = ZonedDateTime::from_plain(plain, zone~, disambiguation=Reject)
@@ -600,14 +618,16 @@ test "disambiguation handles more than two occurrences" {
   // Both backward changes affect this reading, so it occurs three times.
   let zone : Zone = {
     id: "Overlapping backward changes",
-    offsets: [
-      ZoneOffset::from_seconds(7200),
-      ZoneOffset::from_seconds(3600),
-      utc_offset,
-    ],
-    transitions: [(0L, 1), (1800L, 2)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [
+        ZoneOffset::from_seconds(7200),
+        ZoneOffset::from_seconds(3600),
+        utc_offset,
+      ],
+      transitions: [(0L, 1), (1800L, 2)],
+      past: None,
+      future: None,
+    }),
   }
   let plain = PlainDateTime::of(1970, 1, 1, hour=1, minute=15)
   for
@@ -629,14 +649,16 @@ test "disambiguation handles more than two occurrences" {
 test "Earlier resolves closely spaced jumps backward" {
   let zone : Zone = {
     id: "Close transitions",
-    offsets: [
-      utc_offset,
-      ZoneOffset::from_seconds(100),
-      ZoneOffset::from_seconds(-100),
-    ],
-    transitions: [(0L, 1), (20L, 2), (150L, 0)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [
+        utc_offset,
+        ZoneOffset::from_seconds(100),
+        ZoneOffset::from_seconds(-100),
+      ],
+      transitions: [(0L, 1), (20L, 2), (150L, 0)],
+      past: None,
+      future: None,
+    }),
   }
   let plain = PlainDateTime::of(1970, 1, 1, minute=1, second=15)
   let value = ZonedDateTime::from_plain(plain, zone~, disambiguation=Earlier)
@@ -652,10 +674,12 @@ test "known limitation: Earlier gap adjustment before year -9999 is unresolved" 
   // The same deferred boundary policy applies when shifting backward.
   let zone : Zone = {
     id: "Out of range",
-    offsets: [utc_offset, ZoneOffset::from_seconds(3600)],
-    transitions: [(PlainDateTime::of(-9999, 1, 1).to_unix_second(), 1)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [utc_offset, ZoneOffset::from_seconds(3600)],
+      transitions: [(PlainDateTime::of(-9999, 1, 1).to_unix_second(), 1)],
+      past: None,
+      future: None,
+    }),
   }
   let plain = PlainDateTime::of(-9999, 1, 1, minute=30)
   let value = ZonedDateTime::from_plain(plain, zone~, disambiguation=Earlier)
