@@ -164,35 +164,55 @@ test "from_double" {
 }
 
 ///|
-test "rational arbitrary" {
-  let samples : Array[@rational.Rational64] = @quickcheck.samples(20)
-  debug_inspect(
-    samples,
-    content=(
-      #|[
-      #|  2467231587629294344/3,
-      #|  -1/250544710133167491,
-      #|  -4611686018427387904,
-      #|  2182625540910836930/1458476607023773357,
-      #|  -1098709512523469585/72057594037927936,
-      #|  3074457345618258602/91625968981,
-      #|  -718913006279719418/299985067030714767,
-      #|  1,
-      #|  6004799503160661/2536488945490287955,
-      #|  958088139571917135/6766875639650713846,
-      #|  576460752303423489/8265242704924038619,
-      #|  1/1073741824,
-      #|  219118708816370486/1317624576693539401,
-      #|  -9223372036854775807/17592186044415,
-      #|  4194304,
-      #|  1/137293317328243004,
-      #|  -341/1084748534128233162,
-      #|  -1,
-      #|  4611686018427387903/1472872849292062886,
-      #|  1/50,
-      #|]
-    ),
+// Use unbounded arithmetic so the invariant check itself cannot overflow at
+// Int32/Int64.MIN_VALUE. Do not normalize through the constructor under test.
+fn assert_normalized(numerator : BigInt, denominator : BigInt) -> Unit raise {
+  assert_true(
+    denominator > 0N,
+    msg="Nonpositive denominator: \{numerator}/\{denominator}",
   )
+  let magnitude = if numerator < 0N { -numerator } else { numerator }
+  let gcd = for a = magnitude, b = denominator {
+    if b == 0N {
+      break a
+    }
+    continue b, a % b
+  }
+  assert_eq(gcd, 1N)
+}
+
+///|
+test "Rational64 arbitrary preserves normalized form" {
+  // Check Rational's invariants, not QuickCheck's version-dependent sample stream.
+  let samples : Array[@rational.Rational64] = @quickcheck.samples(100)
+  assert_eq(samples.length(), 100)
+  for sample in samples {
+    assert_normalized(
+      BigInt::from_int64(sample.numerator()),
+      BigInt::from_int64(sample.denominator()),
+    )
+  }
+}
+
+///|
+test "Rational32 arbitrary preserves normalized form" {
+  let samples : Array[@rational.Rational32] = @quickcheck.samples(100)
+  assert_eq(samples.length(), 100)
+  for sample in samples {
+    assert_normalized(
+      BigInt::from_int(sample.numerator()),
+      BigInt::from_int(sample.denominator()),
+    )
+  }
+}
+
+///|
+test "BigRational arbitrary preserves normalized form" {
+  let samples : Array[@rational.BigRational] = @quickcheck.samples(100)
+  assert_eq(samples.length(), 100)
+  for sample in samples {
+    assert_normalized(sample.numerator(), sample.denominator())
+  }
 }
 
 ///|
