@@ -6,6 +6,10 @@ import {
 }
 
 // Values
+pub fn append_bytes_to_file(String, Bytes) -> Unit raise IOError
+
+pub fn append_string_to_file(String, String, encoding? : String) -> Unit raise IOError
+
 pub fn create_dir(String) -> Unit raise IOError
 
 pub fn is_dir(String) -> Bool raise IOError
@@ -23,6 +27,10 @@ pub fn read_file_to_string(String, encoding? : String) -> String raise IOError
 pub fn remove_dir(String) -> Unit raise IOError
 
 pub fn remove_file(String) -> Unit raise IOError
+
+pub fn rename(String, String) -> Unit raise IOError
+
+pub fn sync_file(String) -> Unit raise IOError
 
 pub fn write_bytes_to_file(String, Bytes) -> Unit raise IOError
 

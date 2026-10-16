@@ -24,9 +24,11 @@ extern "C" {
 
 #ifdef _WIN32
 #include <direct.h>
+#include <io.h>
 #include <windows.h>
 #else
 #include <dirent.h>
+#include <fcntl.h>
 #include <unistd.h>
 #endif
 
@@ -79,6 +81,39 @@ MOONBIT_FFI_EXPORT int moonbitlang_x_fs_fflush_ffi(FILE *file) {
 
 MOONBIT_FFI_EXPORT int moonbitlang_x_fs_fclose_ffi(FILE *stream) {
   return fclose(stream);
+}
+
+MOONBIT_FFI_EXPORT int moonbitlang_x_fs_sync_ffi(moonbitlang_x_os_string_t path) {
+#ifdef _WIN32
+  FILE *file = _wfopen((const wchar_t *)path, L"r+b");
+  if (file == NULL) {
+    return -1;
+  }
+  int result = _commit(_fileno(file));
+  fclose(file);
+  return result;
+#else
+  int fd = open((const char *)path, O_RDONLY);
+  if (fd == -1) {
+    return -1;
+  }
+  int result = fsync(fd);
+  close(fd);
+  return result;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int
+moonbitlang_x_fs_rename_ffi(moonbitlang_x_os_string_t from,
+                            moonbitlang_x_os_string_t to) {
+#ifdef _WIN32
+  return MoveFileExW((const wchar_t *)from, (const wchar_t *)to,
+                     MOVEFILE_REPLACE_EXISTING)
+             ? 0
+             : -1;
+#else
+  return rename((const char *)from, (const char *)to);
+#endif
 }
 
 MOONBIT_FFI_EXPORT moonbit_bytes_t moonbitlang_x_fs_get_error_message(void) {

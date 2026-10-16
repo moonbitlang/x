@@ -118,6 +118,25 @@ extern "js" fn write_file_ffi(
   #| }
 
 ///|
+#module("node:fs")
+extern "js" fn append_file_sync(path : String, content : Bytes) -> Unit = "appendFileSync"
+
+///|
+extern "js" fn append_file_ffi(
+  append_file : (String, Bytes) -> Unit,
+  path : String,
+  content : Bytes,
+) -> FsUnitResult =
+  #| function(appendFile, path, content) {
+  #|   try {
+  #|     appendFile(path, Buffer.from(content));
+  #|     return { ok: true, content: "" };
+  #|   } catch (error) {
+  #|     return { ok: false, content: error.message };
+  #|   }
+  #| }
+
+///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let res = read_file_ffi(read_file_sync, path)
   if !res.is_ok() {
@@ -164,6 +183,32 @@ fn write_string_to_file_internal(
   }
   let bytes = @utf8.encode(content)
   write_bytes_to_file_internal(path, bytes)
+}
+
+///|
+fn append_bytes_to_file_internal(
+  path : String,
+  content : Bytes,
+) -> Unit raise IOError {
+  let res = append_file_ffi(append_file_sync, path, content)
+  if !res.is_ok() {
+    raise IOError(res.error_message())
+  }
+}
+
+///|
+fn append_string_to_file_internal(
+  path : String,
+  content : String,
+  encoding~ : String = "utf8",
+) -> Unit raise IOError {
+  guard encoding == "utf8" else {
+    raise IOError(
+      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
+    )
+  }
+  let bytes = @utf8.encode(content)
+  append_bytes_to_file_internal(path, bytes)
 }
 
 ///|
@@ -325,6 +370,74 @@ extern "js" fn remove_file_ffi(
 ///|
 fn remove_file_internal(path : String) -> Unit raise IOError {
   let res = remove_file_ffi(remove_file_sync, path)
+  if !res.is_ok() {
+    raise IOError(res.error_message())
+  }
+}
+
+///|
+#module("node:fs")
+extern "js" fn open_sync(path : String, mode : String) -> Int32 = "openSync"
+
+///|
+#module("node:fs")
+extern "js" fn fsync_sync(fd : Int32) -> Unit = "fsyncSync"
+
+///|
+#module("node:fs")
+extern "js" fn close_sync(fd : Int32) -> Unit = "closeSync"
+
+///|
+extern "js" fn sync_file_ffi(
+  open_file : (String, String) -> Int32,
+  sync : (Int32) -> Unit,
+  close : (Int32) -> Unit,
+  path : String,
+) -> FsUnitResult =
+  #| function(openFile, sync, close, path) {
+  #|   try {
+  #|     const fd = openFile(path, "r+");
+  #|     try {
+  #|       sync(fd);
+  #|     } finally {
+  #|       close(fd);
+  #|     }
+  #|     return { ok: true, content: "" };
+  #|   } catch (error) {
+  #|     return { ok: false, content: error.message };
+  #|   }
+  #| }
+
+///|
+fn sync_file_internal(path : String) -> Unit raise IOError {
+  let res = sync_file_ffi(open_sync, fsync_sync, close_sync, path)
+  if !res.is_ok() {
+    raise IOError(res.error_message())
+  }
+}
+
+///|
+#module("node:fs")
+extern "js" fn rename_sync(from : String, to : String) -> Unit = "renameSync"
+
+///|
+extern "js" fn rename_ffi(
+  rename_file : (String, String) -> Unit,
+  from : String,
+  to : String,
+) -> FsUnitResult =
+  #| function(renameFile, from, to) {
+  #|   try {
+  #|     renameFile(from, to);
+  #|     return { ok: true, content: "" };
+  #|   } catch (error) {
+  #|     return { ok: false, content: error.message };
+  #|   }
+  #| }
+
+///|
+fn rename_internal(from : String, to : String) -> Unit raise IOError {
+  let res = rename_ffi(rename_sync, from, to)
   if !res.is_ok() {
     raise IOError(res.error_message())
   }
