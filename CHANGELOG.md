@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- CI now tests the MoonBit Wasm allocator and uses the new coverage reporter. (#323)
+
 ### Added
 
 - Published versions now receive matching Git tags automatically. (#338)
