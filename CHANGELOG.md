@@ -4,6 +4,9 @@
 
 ### Added
 
+- `@time.local_zone()` supports JavaScript using Temporal when available and
+  Date/Intl otherwise, including historical offsets and local-time disambiguation. (#344)
+
 - Published versions now receive matching Git tags automatically. (#338)
 
 - Added `@time.local_zone()` to load a reusable snapshot of the system local

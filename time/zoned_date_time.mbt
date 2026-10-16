@@ -176,6 +176,27 @@ pub fn ZonedDateTime::from_plain_datetime(
 ///|
 /// Creates a ZonedDateTime from elapsed seconds since the unix epoch and a time zone.
 /// The default time zone is UTC+0.
+#cfg(target="js")
+pub fn ZonedDateTime::from_unix_second(
+  second : Int64,
+  nanosecond~ : Int32 = 0,
+  zone~ : Zone = utc_zone,
+) -> ZonedDateTime raise Error {
+  // Date and Temporal accept +/-100 million days; check before the JS FFI.
+  // Existing stored-rule zones continue to use their own conversion path.
+  if zone.rules is JavaScript(_) &&
+    (second < -8640000000000L || second > 8640000000000L) {
+    fail(invalid_date_time_err)
+  }
+  let offset = zone.lookup_offset(second)
+  let datetime = PlainDateTime::from_unix_second(second, nanosecond, offset)
+  { datetime, zone, offset, }
+}
+
+///|
+/// Creates a ZonedDateTime from elapsed seconds since the unix epoch and a time zone.
+/// The default time zone is UTC+0.
+#cfg(not(target="js"))
 pub fn ZonedDateTime::from_unix_second(
   second : Int64,
   nanosecond~ : Int32 = 0,
@@ -636,8 +657,64 @@ fn create_from_plain(
       fail("Offset is not valid for local time")
     }
   }
+  zone.resolve_local(datetime, disambiguation)
+}
+
+///|
+#cfg(target="js")
+fn Zone::resolve_local(
+  self : Zone,
+  datetime : PlainDateTime,
+  disambiguation : Disambiguation,
+) -> ZonedDateTime raise Error {
+  match self.rules {
+    Stored(data) =>
+      create_from_stored_zone(datetime, self, data, disambiguation)
+    JavaScript(host) => {
+      let instant = host.resolve(datetime, disambiguation)
+      try
+        ZonedDateTime::from_unix_second(
+          instant,
+          nanosecond=datetime.nanosecond(),
+          zone=self,
+        )
+      catch {
+        // Match the stored-rule path's deferred policy for gap adjustments
+        // beyond PlainDateTime's range, without swallowing a Reject error.
+        _ =>
+          {
+            datetime,
+            zone: self,
+            offset: self.lookup_offset(datetime.to_unix_second()),
+          }
+      } noraise {
+        value => value
+      }
+    }
+  }
+}
+
+///|
+#cfg(not(target="js"))
+fn Zone::resolve_local(
+  self : Zone,
+  datetime : PlainDateTime,
+  disambiguation : Disambiguation,
+) -> ZonedDateTime raise Error {
+  let Stored(data) = self.rules
+  create_from_stored_zone(datetime, self, data, disambiguation)
+}
+
+///|
+fn create_from_stored_zone(
+  datetime : PlainDateTime,
+  zone : Zone,
+  data : ZoneData,
+  disambiguation : Disambiguation,
+) -> ZonedDateTime raise Error {
+  let wall = datetime.to_unix_second()
   let mut chosen : ZoneOffset? = None
-  for candidate in zone.offset_candidates() {
+  for candidate in data.offset_candidates() {
     let offset = zone.lookup_offset(wall - candidate.seconds().to_int64())
     if offset.seconds() != candidate.seconds() {
       continue
@@ -673,7 +750,7 @@ fn create_from_plain(
   // lookup_offset selects the actual type before and after the whole change.
   let lower = wall - 18L * 3600L
   let upper = wall + 18L * 3600L
-  let changes = zone.transitions_near(datetime.year(), lower, upper)
+  let changes = data.transitions_near(datetime.year(), lower, upper)
   let mut shifted : (Int64, Int64)? = None
   for second in changes {
     let before = zone.lookup_offset(second - 1).seconds().to_int64()

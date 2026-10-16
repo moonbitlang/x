@@ -15,17 +15,19 @@
 ///|
 test "recurring scopes leave the intervening history intact" {
   let paris = Zone::from_tzif("Europe/Paris", paris_tzif)
-  let (_, rule) = paris.future.unwrap()
+  let (_, rule) = paris.stored_data().future.unwrap()
   let until = PlainDateTime::of(2025, 1, 1).to_unix_second()
   let from = PlainDateTime::of(2039, 1, 1).to_unix_second()
   // Synthetic scope test: Paris's real rule on both sides of a UTC interval.
   // The two cutoffs are independent of the one recorded transition.
   let zone : Zone = {
     id: "Scoped recurrence",
-    offsets: [utc_offset],
-    transitions: [(until, 0)],
-    past: Some((until, rule)),
-    future: Some((from, rule)),
+    rules: Stored({
+      offsets: [utc_offset],
+      transitions: [(until, 0)],
+      past: Some((until, rule)),
+      future: Some((from, rule)),
+    }),
   }
   for
     (instant, expected) in [
@@ -85,40 +87,48 @@ test "local resolution sees gaps and overlaps at rule cutoffs" {
     (
       {
         id: "Past gap",
-        offsets: [plus_one],
-        transitions: [],
-        past: Some((cutoff, Fixed(utc_offset))),
-        future: None,
+        rules: Stored({
+          offsets: [plus_one],
+          transitions: [],
+          past: Some((cutoff, Fixed(utc_offset))),
+          future: None,
+        }),
       },
       true,
     ),
     (
       {
         id: "Future gap",
-        offsets: [utc_offset],
-        transitions: [],
-        past: None,
-        future: Some((cutoff, Fixed(plus_one))),
+        rules: Stored({
+          offsets: [utc_offset],
+          transitions: [],
+          past: None,
+          future: Some((cutoff, Fixed(plus_one))),
+        }),
       },
       true,
     ),
     (
       {
         id: "Past overlap",
-        offsets: [utc_offset],
-        transitions: [],
-        past: Some((cutoff, Fixed(plus_one))),
-        future: None,
+        rules: Stored({
+          offsets: [utc_offset],
+          transitions: [],
+          past: Some((cutoff, Fixed(plus_one))),
+          future: None,
+        }),
       },
       false,
     ),
     (
       {
         id: "Future overlap",
-        offsets: [plus_one],
-        transitions: [],
-        past: None,
-        future: Some((cutoff, Fixed(utc_offset))),
+        rules: Stored({
+          offsets: [plus_one],
+          transitions: [],
+          past: None,
+          future: Some((cutoff, Fixed(utc_offset))),
+        }),
       },
       false,
     ),
@@ -158,10 +168,12 @@ test "fixed recurrence preserves metadata and fixed-zone detection" {
   let offset = { ..utc_offset, abbrev: "GMT", }
   let zone : Zone = {
     id: "GMT",
-    offsets: [utc_offset],
-    transitions: [],
-    past: None,
-    future: Some((@int64.MIN_VALUE, Fixed(offset))),
+    rules: Stored({
+      offsets: [utc_offset],
+      transitions: [],
+      past: None,
+      future: Some((@int64.MIN_VALUE, Fixed(offset))),
+    }),
   }
   assert_true(zone.is_fixed())
   assert_eq(zone.lookup_offset(@int64.MIN_VALUE).abbreviation(), "GMT")

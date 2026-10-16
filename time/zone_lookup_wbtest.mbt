@@ -22,17 +22,19 @@ test "transition lookup preserves table order at every boundary" {
   for count in [0, 1, 2, 3, 16, 17, 256, 257] {
     let zone : Zone = {
       id: "Lookup boundaries",
-      offsets,
-      // Leap projection can give several records the same Unix second.
-      transitions: Array::makei(count, i => ((i / 3 - 20).to_int64(), i % 3)),
-      past: None,
-      future: None,
+      rules: Stored({
+        offsets,
+        // Leap projection can give several records the same Unix second.
+        transitions: Array::makei(count, i => ((i / 3 - 20).to_int64(), i % 3)),
+        past: None,
+        future: None,
+      }),
     }
     for second in -21L..<=67L {
       // The original table-order definition serves as the oracle, including
       // the initial type, empty tables, duplicate timestamps, and metadata.
       let mut expected = offsets[0]
-      for (time, index) in zone.transitions {
+      for (time, index) in zone.stored_data().transitions {
         if time <= second {
           expected = offsets[index]
         }
@@ -60,7 +62,7 @@ test "bench local construction with many TZif types and transitions" (
       }),
     })
     let value = ZonedDateTime::of(2040, 1, 1, zone~)
-    assert_eq(value.offset, zone.offsets[1])
+    assert_eq(value.offset, zone.stored_data().offsets[1])
     it.bench(name="\{count} types and transitions", fn() {
       it.keep(ZonedDateTime::of(2040, 1, 1, zone~) catch { _ => panic() })
     })
