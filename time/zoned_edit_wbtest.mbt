@@ -232,10 +232,12 @@ test "second edits respect second-sized gaps and overlaps" {
   // Synthetic edge case: a 28-second gap and overlap only one minute apart.
   let zone : Zone = {
     id: "Seconds",
-    offsets: [utc_offset, ZoneOffset::from_seconds(28)],
-    transitions: [(0L, 1), (60L, 0)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [utc_offset, ZoneOffset::from_seconds(28)],
+      transitions: [(0L, 1), (60L, 0)],
+      past: None,
+      future: None,
+    }),
   }
   let start = ZonedDateTime::from_unix_second(5, zone~) // 00:00:33+00:00:28
   let gap = start.with_second(10)

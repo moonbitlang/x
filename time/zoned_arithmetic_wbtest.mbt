@@ -122,7 +122,9 @@ test "Paris arithmetic and edits continue through the TZif footer" {
   // pinned recurring rule, not a claim about what the law will be in 2040.
   let spring = ZonedDateTime::of(2040, 3, 25, hour=1, minute=30, zone~)
   let autumn = ZonedDateTime::of(2040, 10, 28, hour=2, minute=30, zone~)
-  assert_true(spring.to_unix_second() > zone.transitions.last().unwrap().0)
+  assert_true(
+    spring.to_unix_second() > zone.stored_data().transitions.last().unwrap().0,
+  )
   debug_inspect(
     spring.add_hours(1).to_string(),
     content="\"2040-03-25T03:30:00+02:00[CEST]\"",
@@ -161,10 +163,12 @@ test "elapsed arithmetic handles second-sized changes" {
   // Synthetic edge case: a 28-second gap and overlap only one minute apart.
   let zone : Zone = {
     id: "Seconds",
-    offsets: [utc_offset, ZoneOffset::from_seconds(28)],
-    transitions: [(0L, 1), (60L, 0)],
-    past: None,
-    future: None,
+    rules: Stored({
+      offsets: [utc_offset, ZoneOffset::from_seconds(28)],
+      transitions: [(0L, 1), (60L, 0)],
+      past: None,
+      future: None,
+    }),
   }
   for (instant, seconds) in [(-1L, 2L), (1L, -2L), (59L, 2L), (61L, -2L)] {
     let start = ZonedDateTime::from_unix_second(instant, nanosecond=123, zone~)

@@ -45,10 +45,14 @@ test "debug" {
     content=(
       #|{
       #|  id: "Asia/Shanghai",
-      #|  offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
-      #|  transitions: [],
-      #|  past: None,
-      #|  future: None,
+      #|  rules: Stored(
+      #|    {
+      #|      offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
+      #|      transitions: [],
+      #|      past: None,
+      #|      future: None,
+      #|    },
+      #|  ),
       #|}
     ),
   )
@@ -62,10 +66,14 @@ test "debug" {
       #|  },
       #|  zone: {
       #|    id: "Asia/Shanghai",
-      #|    offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
-      #|    transitions: [],
-      #|    past: None,
-      #|    future: None,
+      #|    rules: Stored(
+      #|      {
+      #|        offsets: [{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }],
+      #|        transitions: [],
+      #|        past: None,
+      #|        future: None,
+      #|      },
+      #|    ),
       #|  },
       #|  offset: { id: "+08:00", abbrev: "", seconds: 28800, dst: false },
       #|}

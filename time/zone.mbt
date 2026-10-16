@@ -16,6 +16,24 @@
 /// Time zone.
 struct Zone {
   id : String
+  rules : ZoneRules
+} derive(Eq, Debug)
+
+///|
+#cfg(target="js")
+priv enum ZoneRules {
+  Stored(ZoneData)
+  JavaScript(HostZone)
+} derive(Eq, Debug)
+
+///|
+#cfg(not(target="js"))
+priv enum ZoneRules {
+  Stored(ZoneData)
+} derive(Eq, Debug)
+
+///|
+priv struct ZoneData {
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int32)] // (timestamp, offset_index)
   // Cutoffs mark the extent of recorded history; the end of a Windows annual
@@ -29,10 +47,12 @@ struct Zone {
 /// UTC time zone.
 pub let utc_zone : Zone = {
   id: "UTC",
-  offsets: [utc_offset],
-  transitions: [],
-  past: None,
-  future: None,
+  rules: Stored({
+    offsets: [utc_offset],
+    transitions: [],
+    past: None,
+    future: None,
+  }),
 }
 
 ///|
@@ -44,19 +64,48 @@ pub fn fixed_zone(
   dst~ : Bool = false,
 ) -> Zone raise Error {
   let offset = ZoneOffset::from_seconds(offset_seconds, abbrev~, dst~)
-  { id, offsets: [offset], transitions: [], past: None, future: None, }
+  {
+    id,
+    rules: Stored({
+      offsets: [offset],
+      transitions: [],
+      past: None,
+      future: None,
+    }),
+  }
 }
 
 ///|
-/// Checks if this zone has a single offset without seasonal rules.
+/// Checks if this zone is known to have a single offset without seasonal rules.
+/// JavaScript's Date/Intl fallback cannot prove this for geographical names and
+/// conservatively returns false for them.
+#cfg(target="js")
 pub fn Zone::is_fixed(self : Zone) -> Bool {
-  self.offsets.length() == 1 &&
-  [self.past, self.future]
+  guard self.rules is Stored(data) else { return false }
+  data.offsets.length() == 1 &&
+  [data.past, data.future]
   .iter()
   .all(tail => {
     match tail {
       None => true
-      Some((_, Fixed(offset))) => self.offsets[0] == offset
+      Some((_, Fixed(offset))) => data.offsets[0] == offset
+      _ => false
+    }
+  })
+}
+
+///|
+/// Checks if this zone is known to have a single offset without seasonal rules.
+#cfg(not(target="js"))
+pub fn Zone::is_fixed(self : Zone) -> Bool {
+  let Stored(data) = self.rules
+  data.offsets.length() == 1 &&
+  [data.past, data.future]
+  .iter()
+  .all(tail => {
+    match tail {
+      None => true
+      Some((_, Fixed(offset))) => data.offsets[0] == offset
       _ => false
     }
   })
@@ -74,7 +123,23 @@ pub impl Show for Zone with fn output(self : Zone, logger : &Logger) -> Unit {
 }
 
 ///|
+#cfg(target="js")
 fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
+  match self.rules {
+    Stored(data) => data.lookup_offset(secs)
+    JavaScript(host) => host.lookup_offset(secs)
+  }
+}
+
+///|
+#cfg(not(target="js"))
+fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
+  let Stored(data) = self.rules
+  data.lookup_offset(secs)
+}
+
+///|
+fn ZoneData::lookup_offset(self : ZoneData, secs : Int64) -> ZoneOffset {
   if self.past is Some((until, past)) && secs < until {
     return past.lookup_offset(secs)
   }
@@ -105,7 +170,7 @@ fn Zone::lookup_offset(self : Zone, secs : Int64) -> ZoneOffset {
 ///|
 // Candidate metadata is refreshed by lookup_offset when resolving a local
 // time. Deduplicate seconds without merging the stored historical types.
-fn Zone::offset_candidates(self : Zone) -> Array[ZoneOffset] {
+fn ZoneData::offset_candidates(self : ZoneData) -> Array[ZoneOffset] {
   let offsets = self.offsets.copy()
   for tail in [self.past, self.future] {
     if tail is Some((_, rule)) {
@@ -128,8 +193,8 @@ fn Zone::offset_candidates(self : Zone) -> Array[ZoneOffset] {
 ///|
 // Include scope joins as well as recorded and recurring changes. A join can
 // itself skip or repeat local readings, even if neither rule changes then.
-fn Zone::transitions_near(
-  self : Zone,
+fn ZoneData::transitions_near(
+  self : ZoneData,
   year : Int32,
   lower : Int64,
   upper : Int64,
@@ -293,7 +358,15 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
   // With no history, a fixed footer describes the entire zone. Preserve the
   // ordinary fixed-zone representation, including equality with utc_zone.
   if transitions.is_empty() && future is Some(Fixed(offset)) {
-    return { id, offsets: [offset], transitions, past: None, future: None, }
+    return {
+      id,
+      rules: Stored({
+        offsets: [offset],
+        transitions,
+        past: None,
+        future: None,
+      }),
+    }
   }
   let future = future.map(rule => {
     // A rule-only file covers the entire Unix-second domain.
@@ -303,7 +376,7 @@ fn Zone::from_tzif_data(id : String, parsed : @tzif.Data) -> Zone raise Error {
     }
     (from, rule)
   })
-  { id, offsets, transitions, past: None, future, }
+  { id, rules: Stored({ offsets, transitions, past: None, future, }), }
 }
 
 ///|
