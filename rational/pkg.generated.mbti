@@ -34,11 +34,11 @@ pub fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
 #deprecated
 pub fn[T : Integral] Rational::add(Self[T], Self[T]) -> Self[T]
 #deprecated
-pub fn[T : Integral] Rational::arbitrary(Int, @splitmix.RandomState) -> Self[T]
+pub fn[T : Integral] Rational::arbitrary(Int32, @splitmix.RandomState) -> Self[T]
 #as_free_fn
 pub fn[T : Integral] Rational::ceil(Self[T]) -> T
 #deprecated
-pub fn[T : Integral] Rational::compare(Self[T], Self[T]) -> Int
+pub fn[T : Integral] Rational::compare(Self[T], Self[T]) -> Int32
 pub fn[T] Rational::denominator(Self[T]) -> T
 #deprecated
 pub fn[T : Integral] Rational::div(Self[T], Self[T]) -> Self[T]
@@ -95,12 +95,12 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T]
 // Type aliases
 pub type BigRational = Rational[@bigint.BigInt]
 
-pub type Rational32 = Rational[Int]
+pub type Rational32 = Rational[Int32]
 
 pub type Rational64 = Rational[Int64]
 
 // Traits
 trait Integral : Add + Sub + Mul + Div + Neg + Mod + Show + Eq + Compare + @quickcheck.Arbitrary
-pub impl Integral for Int
+pub impl Integral for Int32
 pub impl Integral for Int64
 pub impl Integral for @bigint.BigInt

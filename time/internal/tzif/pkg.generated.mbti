@@ -10,7 +10,7 @@ pub fn parse(BytesView) -> Data raise ParseError
 
 // Errors
 pub suberror ParseError {
-  ParseError(Int, String)
+  ParseError(Int32, String)
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn ParseError::equal(Self, Self) -> Bool
@@ -36,7 +36,7 @@ pub fn Data::to_repr(Self) -> @debug.Repr
 
 pub struct Daylight {
   designation : String
-  offset : Int
+  offset : Int32
   rules : (Rule, Rule)?
 } derive(Eq, @debug.Debug)
 #deprecated
@@ -48,7 +48,7 @@ pub fn Daylight::to_repr(Self) -> @debug.Repr
 
 pub(all) struct LeapRecord {
   time : Int64
-  correction : Int
+  correction : Int32
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn LeapRecord::equal(Self, Self) -> Bool
@@ -58,7 +58,7 @@ pub fn LeapRecord::not_equal(Self, Self) -> Bool
 pub fn LeapRecord::to_repr(Self) -> @debug.Repr
 
 pub(all) struct LocalTimeType {
-  offset : Int
+  offset : Int32
   is_dst : Bool
   designation : Bytes
   is_standard : Bool
@@ -73,7 +73,7 @@ pub fn LocalTimeType::to_repr(Self) -> @debug.Repr
 
 pub struct PosixTz {
   standard_designation : String
-  standard_offset : Int
+  standard_offset : Int32
   daylight : Daylight?
 } derive(Eq, @debug.Debug)
 #deprecated
@@ -85,7 +85,7 @@ pub fn PosixTz::to_repr(Self) -> @debug.Repr
 
 pub struct Rule {
   day : RuleDay
-  time : Int
+  time : Int32
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn Rule::equal(Self, Self) -> Bool
@@ -95,9 +95,9 @@ pub fn Rule::not_equal(Self, Self) -> Bool
 pub fn Rule::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RuleDay {
-  JulianNoLeap(Int)
-  DayOfYear(Int)
-  MonthWeekDay(month~ : Int, week~ : Int, weekday~ : Int)
+  JulianNoLeap(Int32)
+  DayOfYear(Int32)
+  MonthWeekDay(month~ : Int32, week~ : Int32, weekday~ : Int32)
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn RuleDay::equal(Self, Self) -> Bool
@@ -108,7 +108,7 @@ pub fn RuleDay::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Transition {
   time : Int64
-  type_index : Int
+  type_index : Int32
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn Transition::equal(Self, Self) -> Bool

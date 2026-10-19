@@ -2,7 +2,7 @@
 package "moonbitlang/x/unicode"
 
 // Values
-pub fn char_to_utf16_pair(Char) -> (Int, Int)?
+pub fn char_to_utf16_pair(Char) -> (Int32, Int32)?
 
 pub let non_ascii_id_continue : CharClass
 
@@ -18,14 +18,14 @@ pub fn to_utf8_bytes(String) -> Bytes
 #deprecated
 pub fn to_utf8_string(Bytes) -> String
 
-pub fn utf16_pair_to_char(Int, Int) -> Char?
+pub fn utf16_pair_to_char(Int32, Int32) -> Char?
 
 // Errors
 
 // Types and methods
 pub struct CharClass {
-  bmp : FixedArray[Int]
-  astral : FixedArray[Int]
+  bmp : FixedArray[Int32]
+  astral : FixedArray[Int32]
 }
 pub fn CharClass::contains(Self, Char) -> Bool
 pub fn CharClass::of(Array[(Char, Char)]) -> Self

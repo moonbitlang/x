@@ -27,7 +27,7 @@ pub fn[T] Stack::from_list(@list.List[T]) -> Self[T]
 pub fn[T] Stack::from_stack(Self[T]) -> Self[T]
 pub fn[T] Stack::is_empty(Self[T]) -> Bool
 pub fn[T] Stack::iter(Self[T]) -> Iter[T]
-pub fn[T] Stack::length(Self[T]) -> Int
+pub fn[T] Stack::length(Self[T]) -> Int32
 #as_free_fn
 pub fn[T] Stack::new() -> Self[T]
 #as_free_fn
