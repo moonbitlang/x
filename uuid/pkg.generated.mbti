@@ -17,12 +17,12 @@ pub fn from_hex(String) -> UUID raise
 type UUID derive(Compare, Eq)
 pub fn UUID::as_version(Self, Version) -> Self
 #deprecated
-pub fn UUID::compare(Self, Self) -> Int
+pub fn UUID::compare(Self, Self) -> Int32
 #deprecated
 pub fn UUID::equal(Self, Self) -> Bool
 #deprecated
 pub fn UUID::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn UUID::hash(Self) -> Int
+pub fn UUID::hash(Self) -> Int32
 #deprecated
 pub fn UUID::not_equal(Self, Self) -> Bool
 #deprecated
@@ -63,7 +63,7 @@ pub(all) enum Version {
   V3
   V4
   V5
-  Unknown(Int)
+  Unknown(Int32)
 } derive(@debug.Debug)
 #deprecated
 pub fn Version::to_repr(Self) -> @debug.Repr

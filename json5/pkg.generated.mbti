@@ -36,8 +36,8 @@ pub fn ParseErrorData::not_equal(Self, Self) -> Bool
 pub fn ParseErrorData::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Position {
-  line : Int
-  column : Int
+  line : Int32
+  column : Int32
 } derive(Eq, @debug.Debug)
 #deprecated
 pub fn Position::equal(Self, Self) -> Bool

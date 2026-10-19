@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn[T : @json.FromJson] decode(String, key~ : Bytes, algorithm~ : HmacAlgorithm, leeway? : Int, require_exp? : Bool, issuer? : String, audience? : String) -> T raise JwtError
+pub fn[T : @json.FromJson] decode(String, key~ : Bytes, algorithm~ : HmacAlgorithm, leeway? : Int32, require_exp? : Bool, issuer? : String, audience? : String) -> T raise JwtError
 
 pub fn[T : ToJson] encode(T, key~ : Bytes, algorithm~ : HmacAlgorithm) -> String raise JwtError
 

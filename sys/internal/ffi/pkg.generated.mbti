@@ -2,7 +2,7 @@
 package "moonbitlang/x/sys/internal/ffi"
 
 // Values
-pub fn exit(Int) -> Unit
+pub fn exit(Int32) -> Unit
 
 // Errors
 

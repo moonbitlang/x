@@ -2,7 +2,7 @@
 package "moonbitlang/x/sys"
 
 // Values
-pub fn exit(Int) -> Unit
+pub fn exit(Int32) -> Unit
 
 #deprecated
 pub fn get_cli_args() -> Array[String]

@@ -6,16 +6,16 @@ import {
 }
 
 // Values
-pub fn hash(password~ : Bytes, salt~ : Bytes, cost~ : Int) -> String raise BcryptError
+pub fn hash(password~ : Bytes, salt~ : Bytes, cost~ : Int32) -> String raise BcryptError
 
-pub let salt_length : Int
+pub let salt_length : Int32
 
 pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError
 
 // Errors
 pub suberror BcryptError {
-  InvalidCost(Int)
-  InvalidSaltLength(Int)
+  InvalidCost(Int32)
+  InvalidSaltLength(Int32)
   InvalidHashFormat
   UnsupportedVersion(String)
   InvalidBase64

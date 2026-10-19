@@ -10,7 +10,7 @@ import {
 }
 
 // Values
-pub let max_scale : Int
+pub let max_scale : Int32
 
 pub fn neg_one() -> Decimal
 
@@ -23,16 +23,16 @@ pub fn zero() -> Decimal
 // Types and methods
 pub struct Decimal {
   coefficient : @bigint.BigInt
-  scale : Int
+  scale : Int32
 } derive(@debug.Debug)
 pub fn Decimal::abs(Self) -> Self
 #deprecated
 pub fn Decimal::add(Self, Self) -> Self
 #deprecated
-pub fn Decimal::arbitrary(Int, @splitmix.RandomState) -> Self
+pub fn Decimal::arbitrary(Int32, @splitmix.RandomState) -> Self
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 #deprecated
-pub fn Decimal::compare(Self, Self) -> Int
+pub fn Decimal::compare(Self, Self) -> Int32
 #deprecated
 pub fn Decimal::default() -> Self
 #deprecated
@@ -40,13 +40,13 @@ pub fn Decimal::div(Self, Self) -> Self
 #deprecated
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
-pub fn Decimal::from_double(Double, Int) -> Self?
-pub fn Decimal::from_int(Int) -> Self
+pub fn Decimal::from_double(Double, Int32) -> Self?
+pub fn Decimal::from_int(Int32) -> Self
 #deprecated
 pub fn Decimal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn Decimal::from_string(String) -> Self?
 #deprecated
-pub fn Decimal::hash(Self) -> Int
+pub fn Decimal::hash(Self) -> Int32
 #deprecated
 pub fn Decimal::hash_combine(Self, Hasher) -> Unit
 pub fn Decimal::is_negative(Self) -> Bool
@@ -56,7 +56,7 @@ pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::mul(Self, Self) -> Self
 #deprecated
 pub fn Decimal::neg(Self) -> Self
-pub fn Decimal::new(@bigint.BigInt, Int) -> Self?
+pub fn Decimal::new(@bigint.BigInt, Int32) -> Self?
 #deprecated
 pub fn Decimal::not_equal(Self, Self) -> Bool
 #deprecated
@@ -69,21 +69,21 @@ pub fn Decimal::op_le(Self, Self) -> Bool
 pub fn Decimal::op_lt(Self, Self) -> Bool
 #deprecated
 pub fn Decimal::output(Self, &Logger) -> Unit
-pub fn Decimal::round(Self, Int) -> Self?
-pub fn Decimal::scale(Self) -> Int
-pub fn Decimal::scale_to(Self, Int) -> Self?
-pub fn Decimal::signum(Self) -> Int
+pub fn Decimal::round(Self, Int32) -> Self?
+pub fn Decimal::scale(Self) -> Int32
+pub fn Decimal::scale_to(Self, Int32) -> Self?
+pub fn Decimal::signum(Self) -> Int32
 #deprecated
 pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::to_bigint(Self) -> @bigint.BigInt
 pub fn Decimal::to_double(Self) -> Double
-pub fn Decimal::to_int(Self) -> Int?
+pub fn Decimal::to_int(Self) -> Int32?
 #deprecated
 pub fn Decimal::to_json(Self) -> Json
 #deprecated
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_string(Self) -> String
-pub fn Decimal::truncate(Self, Int) -> Self?
+pub fn Decimal::truncate(Self, Int32) -> Self?
 pub impl Add for Decimal
 pub impl Compare for Decimal
 pub impl Default for Decimal
