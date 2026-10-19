@@ -34,9 +34,9 @@ test "bcrypt base64 round trip" {
   ])
   let encoded = bcrypt_base64_encode(salt.exact_view(), 16)
   assert_eq(encoded, "abcdefghijklmnopqrstuu")
-  assert_eq(bcrypt_base64_decode(encoded, 16).unwrap(), salt)
+  assert_eq(bcrypt_base64_decode(encoded, 16), salt)
   assert_eq(
-    bcrypt_base64_decode("......................", 16).unwrap(),
+    bcrypt_base64_decode("......................", 16),
     Bytes::make(16, (0).to_byte()),
   )
 }

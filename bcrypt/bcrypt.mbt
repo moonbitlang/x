@@ -170,57 +170,50 @@ pub fn hash(
 ///
 /// Raises `BcryptError` if `hashed` cannot be parsed.
 pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError {
-  match parse_hash(hashed) {
-    Err(err) => raise err
-    Ok(parsed) => {
-      let digest = bcrypt_hash_raw(
-        password.exact_view(),
-        parsed.salt.exact_view(),
-        parsed.cost,
-      )
-      let recomputed = "$2" +
-        parsed.minor.to_string() +
-        "$" +
-        two_digit(parsed.cost) +
-        "$" +
-        parsed.salt_text +
-        bcrypt_base64_encode(digest.exact_view(), 23)
-      timing_safe_equal(hashed, recomputed)
-    }
-  }
+  let parsed = parse_hash(hashed)
+  let digest = bcrypt_hash_raw(
+    password.exact_view(),
+    parsed.salt.exact_view(),
+    parsed.cost,
+  )
+  let recomputed = "$2" +
+    parsed.minor.to_string() +
+    "$" +
+    two_digit(parsed.cost) +
+    "$" +
+    parsed.salt_text +
+    bcrypt_base64_encode(digest.exact_view(), 23)
+  timing_safe_equal(hashed, recomputed)
 }
 
 ///|
-fn parse_hash(hash : String) -> Result[ParsedHash, BcryptError] {
+fn parse_hash(hash : String) -> ParsedHash raise BcryptError {
   if hash.length() != hash_length {
-    Err(InvalidHashFormat)
+    raise InvalidHashFormat
   } else if hash[0].to_int() != '$'.to_int() ||
     hash[1].to_int() != '2'.to_int() ||
     hash[3].to_int() != '$'.to_int() ||
     hash[6].to_int() != '$'.to_int() {
-    Err(InvalidHashFormat)
+    raise InvalidHashFormat
   } else {
     let minor = hash.get_char(2).unwrap()
     if minor != 'b' && minor != 'y' {
-      Err(UnsupportedVersion("2" + minor.to_string()))
+      raise UnsupportedVersion("2" + minor.to_string())
     } else if !is_ascii_digit_code(hash[4].to_int()) ||
       !is_ascii_digit_code(hash[5].to_int()) {
-      Err(InvalidHashFormat)
+      raise InvalidHashFormat
     } else {
       let parsed_cost = (hash[4].to_int() - '0'.to_int()) * 10 +
         (hash[5].to_int() - '0'.to_int())
       if parsed_cost < min_cost || parsed_cost > max_cost {
-        Err(InvalidCost(parsed_cost))
+        raise InvalidCost(parsed_cost)
       } else {
         let salt_text = hash.unsafe_substring(start=7, end=29)
-        match bcrypt_base64_decode(salt_text, salt_length) {
-          Err(_) => Err(InvalidBase64)
-          Ok(salt) =>
-            if !bcrypt_base64_all_valid(hash.unsafe_substring(start=29, end=60)) {
-              Err(InvalidBase64)
-            } else {
-              Ok({ minor, cost: parsed_cost, salt_text, salt, })
-            }
+        let salt = bcrypt_base64_decode(salt_text, salt_length)
+        if !bcrypt_base64_all_valid(hash.unsafe_substring(start=29, end=60)) {
+          raise InvalidBase64
+        } else {
+          { minor, cost: parsed_cost, salt_text, salt, }
         }
       }
     }
