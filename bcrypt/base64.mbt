@@ -50,14 +50,14 @@ fn bcrypt_base64_encode(bytes : BytesView, length : Int32) -> String {
 fn bcrypt_base64_decode(
   text : String,
   max_length : Int32,
-) -> Result[Bytes, BcryptError] {
+) -> Bytes raise BcryptError {
   let out = Array(capacity=max_length)
   let mut offset = 0
   while offset < text.length() - 1 && out.length() < max_length {
     let c1 = bcrypt_base64_index(text[offset].to_int())
     let c2 = bcrypt_base64_index(text[offset + 1].to_int())
     if c1 < 0 || c2 < 0 {
-      return Err(InvalidBase64)
+      raise InvalidBase64
     }
     offset += 2
     out.push(((c1 << 2) | ((c2 & 0x30) >> 4)).to_byte())
@@ -66,7 +66,7 @@ fn bcrypt_base64_decode(
     }
     let c3 = bcrypt_base64_index(text[offset].to_int())
     if c3 < 0 {
-      return Err(InvalidBase64)
+      raise InvalidBase64
     }
     offset += 1
     out.push((((c2 & 0x0f) << 4) | ((c3 & 0x3c) >> 2)).to_byte())
@@ -75,15 +75,15 @@ fn bcrypt_base64_decode(
     }
     let c4 = bcrypt_base64_index(text[offset].to_int())
     if c4 < 0 {
-      return Err(InvalidBase64)
+      raise InvalidBase64
     }
     offset += 1
     out.push((((c3 & 0x03) << 6) | c4).to_byte())
   }
   if out.length() == max_length {
-    Ok(Bytes::from_array(out.exact_view()))
+    Bytes::from_array(out.exact_view())
   } else {
-    Err(InvalidBase64)
+    raise InvalidBase64
   }
 }
 

@@ -54,8 +54,12 @@ test "Go cost extraction" {
     for case in [("04", 4), ("10", 10), ("31", 31)] {
       let (cost_text, expected) = case
       let hash = "$\{version}$\{cost_text}$\{suffix}"
-      assert_eq(parse_hash(hash).unwrap().cost, expected, msg=hash)
+      assert_eq(parse_hash(hash).cost, expected, msg=hash)
     }
   }
-  assert_true(parse_hash("$a$a$" + suffix) is Err(InvalidHashFormat))
+  try parse_hash("$a$a$" + suffix) catch {
+    err => assert_true(err is InvalidHashFormat)
+  } noraise {
+    _ => fail("expected InvalidHashFormat")
+  }
 }
