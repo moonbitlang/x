@@ -2,9 +2,9 @@
 
 ## [Unreleased]
 
-### Added
+## [0.5.6] - 2026-10-20
 
-- Published versions now receive matching Git tags automatically. (#338)
+### Added
 
 - Added `@time.local_zone()` to load a reusable snapshot of the system local
   timezone on native Linux, macOS, and Windows, including stored historical
@@ -19,16 +19,6 @@
   or `Reject` to control repeated or skipped local times. (#330)
 
 - Added `@time.Zone::from_tzif(id, BytesView)` to load TZif versions 1–4. (#328)
-
-- Added an internal TZif v1–v4 parser that preserves leap-second records and
-  parses recurring-rule syntax as groundwork for timezone support. (#327)
-
-- Added `moonbitlang/x/encoding/percent` for percent encoding and
-  decoding with customizable ASCII escape characters. (#319)
-
-- Added `moonbitlang/x/jwt` for signing and verifying HS256 JWTs with explicit
-  algorithm selection, typed claims, expiration checks, and issuer/audience
-  validation. (#318)
 
 ### Changed
 
@@ -55,6 +45,10 @@
 - Random rational generation no longer overflows or produces invalid
   denominators at fixed-width integer limits. (#345)
 
+- Fixed `@time.Duration` to keep one canonical representation (floor
+  seconds, nonnegative nanos) so equal durations compare equal, and to
+  fold the nanosecond carry into `add_duration`'s overflow handling (#320)
+
 - `@time.local_zone()` on Windows accepts independently dated or recurring
   seasonal transitions, including mixed pairs and intervals across New Year. (#340)
 
@@ -76,6 +70,28 @@
   leap-bearing transition times to Unix seconds, and reports malformed input
   as errors. Zero-offset types retain their abbreviation and DST flag;
   unsupported designation characters use numeric offset abbreviations. (#328)
+
+## [0.5.5]
+
+### Added
+
+- Added `moonbitlang/x/encoding/percent` for percent encoding and
+  decoding with customizable ASCII escape characters. (#319)
+
+## [0.5.4]
+
+### Added
+
+- Added `moonbitlang/x/jwt` for signing and verifying HS256 JWTs with explicit
+  algorithm selection, typed claims, expiration checks, and issuer/audience
+  validation. (#318)
+
+## [0.5.3]
+
+### Added
+
+- Added `@bcrypt` password hashing and verification with support for `$2b$`
+  and `$2y$` hashes.
 
 ## [0.5.2]
 
@@ -122,9 +138,6 @@
 
 ### Fixed
 
-- Fixed `@time.Duration` to keep one canonical representation (floor
-  seconds, nonnegative nanos) so equal durations compare equal, and to
-  fold the nanosecond carry into `add_duration`'s overflow handling (#320)
 - Fixed deprecation warnings from trait method extension calls in
   `@rational`, `@time`, `@path`, `@uuid`, and `@decimal` (#302)
 - Hardened `@crypto` AES, ChaCha, and SHA-512 handling for side-channel,
@@ -375,3 +388,5 @@
 - Deprecated `Stack::from_list` `Stack::push_list` `Stack::to_list` since the
   `@immut/list` is deprecated (#162)
 - Updated the license headers to year 2025 (#162)
+
+[0.5.6]: https://github.com/moonbitlang/x/pull/347
