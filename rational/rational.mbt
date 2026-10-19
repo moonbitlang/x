@@ -763,16 +763,16 @@ pub impl[T : Integral] @quickcheck.Arbitrary for Rational[T] with fn arbitrary(
   size,
   rs,
 ) {
-  let numerator : T = @quickcheck.Arbitrary::arbitrary(size, rs)
-  let denominator : T = {
-    let d : T = @quickcheck.Arbitrary::arbitrary(size, rs)
-    if d.signum() <= 0 {
-      -d + T::from_int(1) // Ensure positive denominator
-    } else {
-      d
+  // Normalize through the checked constructor: negating a minimum integer or
+  // taking its absolute value in T can overflow. Retry unrepresentable pairs
+  // and zero denominators instead of producing an invalid rational.
+  for ;; {
+    let numerator : T = @quickcheck.Arbitrary::arbitrary(size, rs)
+    let denominator : T = @quickcheck.Arbitrary::arbitrary(size, rs)
+    if new(numerator, denominator) is Some(value) {
+      break value
     }
   }
-  new_unchecked(numerator, denominator)
 }
 
 ///|
