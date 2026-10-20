@@ -103,6 +103,14 @@ jobs:
       - name: moon check
         run: moon check --deny-warn
 
+      - name: check packaged module
+        if: ${{ matrix.os.name == 'ubuntu-latest' }}
+        run: |
+          moon package --target-dir _build/package-check
+          unzip -q _build/package-check/publish/*.zip -d _build/package-check/extracted
+          # Distributed modules do not run development-only fixture generation.
+          MOON_IGNORE_PREBUILD=1 moon -C _build/package-check/extracted check --target all --deny-warn
+
       - name: moon info
         run: |
           moon info

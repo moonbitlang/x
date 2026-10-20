@@ -42,6 +42,9 @@
 
 ### Fixed
 
+- Packaged module sources now pass validation without repository-only timezone
+  test fixtures. (#348)
+
 - Random rational generation no longer overflows or produces invalid
   denominators at fixed-width integer limits. (#345)
 
