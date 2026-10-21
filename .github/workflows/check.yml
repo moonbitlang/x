@@ -88,8 +88,8 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all --serial --release
-          moon test --target all --serial
+          moon test --target all --release
+          moon test --target all
 
       - name: moon test(native)
         uses: nick-fields/retry@v3
@@ -165,8 +165,8 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all --serial --release
-          moon test --target all --serial
+          moon test --target all --release
+          moon test --target all
 
       - name: moon test(native)
         uses: nick-fields/retry@v3
@@ -232,8 +232,8 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all --serial --release
-          moon test --target all --serial
+          moon test --target all --release
+          moon test --target all
 
       - name: moon test(native)
         uses: nick-fields/retry@v3
