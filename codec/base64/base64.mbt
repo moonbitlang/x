@@ -29,17 +29,17 @@ fn index_to_char(index : Int32, url_safe : Bool) -> Char {
 }
 
 ///|
-/// assuming the character is valid, returns an index between 0 and 63, inclusive.
-fn char_to_index(char : Char, url_safe : Bool) -> Int32 raise DecodeError {
-  match char {
-    'A'..<='Z' => char.to_int() - 'A'
-    'a'..<='z' => char.to_int() - 'a' + 26
-    '0'..<='9' => char.to_int() - '0' + 52
+// Return a sextet for the selected alphabet, or -1 for an invalid code unit.
+fn base64_value(code : Int32, url_safe : Bool) -> Int32 {
+  match code {
+    'A'..<='Z' => code - 'A'
+    'a'..<='z' => code - 'a' + 26
+    '0'..<='9' => code - '0' + 52
     '-' if url_safe => 62
     '+' if !url_safe => 62
     '_' if url_safe => 63
     '/' if !url_safe => 63
-    _ => raise InvalidChar(char)
+    _ => -1
   }
 }
 
@@ -136,31 +136,35 @@ pub fn Decoder::decode_to(
   cb : (Byte) -> Unit,
   url_safe~ : Bool = false,
 ) -> Unit raise DecodeError {
-  for ch in input {
-    match self.i % 4 {
+  for position, code in input.code_units() {
+    if code == '=' && self.i >= 2 {
+      break
+    }
+    let idx = base64_value(code.to_int(), url_safe)
+    guard idx >= 0 else {
+      // The preceding code units are ASCII, so position begins a character.
+      raise InvalidChar(input[position:].iter().next().unwrap())
+    }
+    match self.i {
       0 => {
-        self.buffer = char_to_index(ch, url_safe) << 2
+        self.buffer = idx << 2
         self.i = 1
       }
       1 => {
-        let idx = char_to_index(ch, url_safe)
         cb((self.buffer | (idx >> 4)).to_byte())
         self.buffer = (idx & 0b1111) << 4
         self.i = 2
       }
-      2 if ch != '=' => {
-        let idx = char_to_index(ch, url_safe)
+      2 => {
         cb((self.buffer | (idx >> 2)).to_byte())
         self.buffer = (idx & 0b11) << 6
         self.i = 3
       }
-      3 if ch != '=' => {
-        let idx = char_to_index(ch, url_safe)
+      _ => {
         cb((self.buffer | idx).to_byte())
         self.buffer = 0
         self.i = 0
       }
-      _ => break
     }
   }
 }
