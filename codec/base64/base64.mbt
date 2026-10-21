@@ -105,7 +105,7 @@ pub fn Encoder::encode_to(
 
 ///|
 /// Encode binary to ascii text following  defined in RFC 4648
-pub fn encode(bytes : BytesView, url_safe~ : Bool = false) -> String {
+fn encode_scalar(bytes : BytesView, url_safe~ : Bool = false) -> String {
   let builder = StringBuilder()
   let encoder = Encoder::new()
   encoder.encode_to(
@@ -170,7 +170,7 @@ pub fn Decoder::decode_to(
 }
 
 ///|
-pub fn decode(
+fn decode_scalar(
   input : StringView,
   url_safe~ : Bool = false,
 ) -> Bytes raise DecodeError {
@@ -196,3 +196,35 @@ pub suberror DecodeError {
 ///|
 #deprecated
 pub extend DecodeError with Debug::{to_repr}
+
+///|
+/// Encode binary as padded Base64, optionally using the URL-safe alphabet.
+#cfg(any(target="native", target="wasm"))
+pub fn encode(bytes : BytesView, url_safe~ : Bool = false) -> String {
+  encode_v128(bytes, url_safe)
+}
+
+///|
+/// Encode binary as padded Base64, optionally using the URL-safe alphabet.
+#cfg(not(any(target="native", target="wasm")))
+pub fn encode(bytes : BytesView, url_safe~ : Bool = false) -> String {
+  encode_scalar(bytes, url_safe~)
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+pub fn decode(
+  input : StringView,
+  url_safe~ : Bool = false,
+) -> Bytes raise DecodeError {
+  decode_v128(input, url_safe)
+}
+
+///|
+#cfg(not(any(target="native", target="wasm")))
+pub fn decode(
+  input : StringView,
+  url_safe~ : Bool = false,
+) -> Bytes raise DecodeError {
+  decode_scalar(input, url_safe~)
+}

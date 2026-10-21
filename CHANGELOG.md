@@ -4,6 +4,10 @@
 
 ### Changed
 
+- Faster Base64 encoding and decoding on native and Wasm backends, for both
+  standard and URL-safe Base64. Accepted inputs, streaming behavior, and error
+  reporting remain unchanged. (#350)
+
 - `@unicode` case-folding tables are now immutable read-only arrays, reducing
   the compiled size of programs that call `@unicode.to_lowercase`. (#334)
 
