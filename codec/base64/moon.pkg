@@ -1,3 +1,11 @@
+// SIMD is confined to native and Wasm; other backends retain scalar paths.
+warnings = "-alert_experimental-unused_package"
+
 import {
+  "moonbitlang/core/v128",
+}
+
+import {
+  "moonbitlang/core/bench",
   "moonbitlang/core/test",
 } for "wbtest"
