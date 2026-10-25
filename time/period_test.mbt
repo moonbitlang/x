@@ -29,6 +29,8 @@ test "from_string" {
   @test.assert_raise(() => @time.Period::from_string("10Y0M"))
   @test.assert_raise(() => @time.Period::from_string("P10YT3H"))
   @test.assert_raise(() => @time.Period::from_string("P2.5Y"))
+  @test.assert_raise(() => @time.Period::from_string("P"))
+  @test.assert_raise(() => @time.Period::from_string("P1"))
 }
 
 ///|

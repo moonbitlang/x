@@ -11,6 +11,12 @@
 - `@unicode` case-folding tables are now immutable read-only arrays, reducing
   the compiled size of programs that call `@unicode.to_lowercase`. (#334)
 
+### Fixed
+
+- `@time.Duration::from_str` and `@time.Period::from_string` now reject
+  incomplete strings such as `PT`, `PT1`, `P`, and `P1` instead of parsing
+  them as zero. (#352)
+
 ## [0.5.6] - 2026-10-20
 
 ### Added
