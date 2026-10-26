@@ -67,7 +67,9 @@ pub fn Duration::from_string(str : String) -> Duration raise Error {
 
 ///|
 fn Duration::parse_str(str : StringView) -> Duration raise Error {
-  guard str is [.. "PT", ..] else { fail(invalid_duration_err) }
+  guard str is [.. "PT", ..] && str.length() > 2 else {
+    fail(invalid_duration_err)
+  }
   let mut hours = 0L
   let mut minutes = 0L
   let mut seconds = 0L
@@ -87,6 +89,7 @@ fn Duration::parse_str(str : StringView) -> Duration raise Error {
       }
       'S' => {
         let s = buf.to_string()
+        buf.reset()
         if s.is_empty() {
           fail(invalid_duration_err)
         }
@@ -117,6 +120,9 @@ fn Duration::parse_str(str : StringView) -> Duration raise Error {
       }
       _ => fail(invalid_duration_err)
     }
+  }
+  if !buf.is_empty() {
+    fail(invalid_duration_err)
   }
   Duration::of(hours~, minutes~, seconds~, nanoseconds~)
 }

@@ -25,6 +25,12 @@
   always determine whether an offset is constant. Existing results are preserved;
   resolve offsets at the required instant instead. (#344)
 
+### Fixed
+
+- `@time.Duration::from_str` and `@time.Period::from_string` now reject
+  incomplete strings such as `PT`, `PT1`, `P`, and `P1` instead of parsing
+  them as zero. (#352)
+
 ## [0.5.6] - 2026-10-20
 
 ### Added

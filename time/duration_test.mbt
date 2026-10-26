@@ -33,6 +33,8 @@ test "from_str" {
   @test.assert_raise(() => {
     (@string.FromStr::from_str("P1Y2M3DT4H5M6S") : @time.Duration)
   })
+  @test.assert_raise(() => (@string.FromStr::from_str("PT") : @time.Duration))
+  @test.assert_raise(() => (@string.FromStr::from_str("PT1") : @time.Duration))
 }
 
 ///|
