@@ -14,7 +14,7 @@
 
 ///|
 pub fn local_zone() -> Zone raise Error {
-  fail("OS timezone loading requires the native backend")
+  fail("Local timezone loading requires the native or JavaScript backend")
 }
 
 ///|

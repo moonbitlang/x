@@ -15,13 +15,13 @@
 ///|
 test "fixed" {
   debug_inspect(
-    fixed_zone("CST", 8 * 60 * 60).offsets.map(Show::to_string),
+    fixed_zone("CST", 8 * 60 * 60).stored_data().offsets.map(Show::to_string),
     content=(
       #|["+08:00"]
     ),
   )
   debug_inspect(
-    fixed_zone("CST", 8 * 60 * 60).offsets,
+    fixed_zone("CST", 8 * 60 * 60).stored_data().offsets,
     content=(
       #|[{ id: "+08:00", abbrev: "", seconds: 28800, dst: false }]
     ),
@@ -31,9 +31,25 @@ test "fixed" {
 ///|
 test "utc" {
   debug_inspect(
-    utc_zone.offsets.map(Show::to_string),
+    utc_zone.stored_data().offsets.map(Show::to_string),
     content=(
       #|["Z"]
     ),
   )
+}
+
+///|
+#cfg(target="js")
+fn Zone::stored_data(self : Zone) -> ZoneData raise Error {
+  guard self.rules is Stored(data) else {
+    fail("Expected stored timezone rules")
+  }
+  data
+}
+
+///|
+#cfg(not(target="js"))
+fn Zone::stored_data(self : Zone) -> ZoneData {
+  let Stored(data) = self.rules
+  data
 }

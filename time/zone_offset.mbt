@@ -117,7 +117,9 @@ pub fn ZoneOffset::seconds(self : ZoneOffset) -> Int32 {
 }
 
 ///|
-/// Checks if this offset is daylight saving time.
+/// Reports the daylight-saving flag supplied by the timezone data source.
+/// JavaScript host zones do not expose this metadata and return false;
+/// for those zones, false does not establish that standard time is in effect.
 pub fn ZoneOffset::is_dst(self : ZoneOffset) -> Bool {
   self.dst
 }

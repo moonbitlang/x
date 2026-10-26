@@ -106,18 +106,21 @@ test "TZif converts Honolulu's explicit records" {
   }
   let zone = Zone::from_tzif_data("Pacific/Honolulu", honolulu)
   assert_eq(zone.to_string(), "Pacific/Honolulu")
-  assert_eq(zone.transitions[0].0, -2334101314L)
-  assert_eq(zone.transitions.length(), 7)
+  assert_eq(zone.stored_data().transitions[0].0, -2334101314L)
+  assert_eq(zone.stored_data().transitions.length(), 7)
   assert_eq(zone.lookup_offset(-2334101315L).seconds(), -37886)
   assert_eq(zone.lookup_offset(-2334101314L).seconds(), -37800)
-  assert_eq(zone.offsets[4].abbreviation(), "HPT")
-  assert_true(zone.offsets[4].is_dst())
+  assert_eq(zone.stored_data().offsets[4].abbreviation(), "HPT")
+  assert_true(zone.stored_data().offsets[4].is_dst())
 }
 
 ///|
 test "TZif retains wide transitions and zero-offset metadata" {
   let zone = Zone::from_tzif_data("test", tzif_example)
-  debug_inspect(zone.transitions, content="[(-2147483649, 1), (2147483648, 0)]")
+  debug_inspect(
+    zone.stored_data().transitions,
+    content="[(-2147483649, 1), (2147483648, 0)]",
+  )
   assert_eq(zone.lookup_offset(-2147483650L).seconds(), 3600)
   for second in [-2147483649L, 2147483647L] {
     let offset = zone.lookup_offset(second)
@@ -152,9 +155,9 @@ test "TZif designations use ASCII or fall back to the numeric offset" {
       ],
     }
     let zone = Zone::from_tzif_data("designations", data)
-    assert_eq(zone.offsets[1].abbreviation(), expected)
-    assert_eq(zone.offsets[1].seconds(), offset)
-    assert_true(zone.offsets[1].is_dst())
+    assert_eq(zone.stored_data().offsets[1].abbreviation(), expected)
+    assert_eq(zone.stored_data().offsets[1].seconds(), offset)
+    assert_true(zone.stored_data().offsets[1].is_dst())
   }
 }
 
@@ -168,8 +171,8 @@ test "TZif preserves the full Int64 range without leap corrections" {
     ],
   }
   let zone = Zone::from_tzif_data("extremes", data)
-  assert_eq(zone.transitions[0].0, @int64.MIN_VALUE)
-  assert_eq(zone.transitions[1].0, @int64.MAX_VALUE)
+  assert_eq(zone.stored_data().transitions[0].0, @int64.MIN_VALUE)
+  assert_eq(zone.stored_data().transitions[1].0, @int64.MAX_VALUE)
   assert_eq(zone.lookup_offset(@int64.MIN_VALUE).seconds(), 0)
   assert_eq(zone.lookup_offset(@int64.MAX_VALUE).seconds(), 3600)
 }
@@ -195,7 +198,7 @@ test "TZif projects leap-bearing transitions onto Unix seconds" {
   }
   let zone = Zone::from_tzif_data("leaps", data)
   debug_inspect(
-    zone.transitions,
+    zone.stored_data().transitions,
     content=(
       #|[
       #|  (78796799, 0),
@@ -226,7 +229,7 @@ test "TZif rejects unrepresentable Unix transitions after a negative leap" {
     leap_records: [{ time: 78796799L, correction: -1, }],
   }
   assert_eq(
-    Zone::from_tzif_data("last representable", data).transitions[0].0,
+    Zone::from_tzif_data("last representable", data).stored_data().transitions[0].0,
     @int64.MAX_VALUE,
   )
   let overflow = {
@@ -279,7 +282,10 @@ test "v4 truncated positive leap history projects the first occurrence" {
     leap_records: [{ time: 1483228826L, correction: 27, }],
   }
   let zone = Zone::from_tzif_data("truncated history", data)
-  debug_inspect(zone.transitions, content="[(1483228800, 1), (1483228800, 0)]")
+  debug_inspect(
+    zone.stored_data().transitions,
+    content="[(1483228800, 1), (1483228800, 0)]",
+  )
   let unknown = {
     ..data,
     transitions: [{ time: 1483228825L, type_index: 0, }],
@@ -311,14 +317,14 @@ test "v4 first leap corrections handle signs and Int bounds" {
     let zone = Zone::from_tzif_data("first leap", data)
     let expected = time - correction.to_int64()
     assert_eq(
-      zone.transitions[0].0,
+      zone.stored_data().transitions[0].0,
       if correction > 0 {
         expected + 1L
       } else {
         expected
       },
     )
-    assert_eq(zone.transitions[1].0, expected + 1L)
+    assert_eq(zone.stored_data().transitions[1].0, expected + 1L)
   }
 }
 
@@ -339,13 +345,13 @@ test "v4 expiration keeps the last known correction" {
   }
   let zone = Zone::from_tzif_data("expired history", data)
   debug_inspect(
-    zone.transitions,
+    zone.stored_data().transitions,
     content="[(1735343999, 1), (1735344000, 0), (1735344001, 1)]",
   )
   // With no transitions, no conversion needs the missing earlier history.
   let without_transitions = { ..data, transitions: [], }
   assert_eq(
-    Zone::from_tzif_data("no transitions", without_transitions).transitions.length(),
+    Zone::from_tzif_data("no transitions", without_transitions).stored_data().transitions.length(),
     0,
   )
 }

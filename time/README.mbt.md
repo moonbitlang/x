@@ -32,7 +32,23 @@ Calling `local_zone()` again reads the latest installed settings and rules.
 OS failures raise `LocalZoneError`, containing the native error code, operation
 context, and system message. Missing, malformed, or unsupported timezone data
 also raises an error.
-The function raises on JS and Wasm; caller-supplied TZif loading remains portable.
+On JavaScript, `local_zone()` uses `globalThis.Temporal` when available, with
+`Date` and `Intl.DateTimeFormat` as a fallback. No polyfill or filesystem access
+is required. Both paths resolve offsets at the requested date and support the
+same local-time and field-edit policies described below. The returned zone
+captures the runtime's local timezone identifier, so changing the default zone
+does not change its identifier. Rules remain supplied by the runtime rather
+than copied into an independent snapshot. Loading raises if neither Temporal
+nor the required Intl support is available.
+
+JavaScript host zones have empty offset abbreviations. Their `is_dst()` returns
+false because these APIs do not expose the DST flag; this does **not** mean that
+the offset is standard time. Numeric offsets and clock-change handling remain
+available, including historical offsets measured in seconds. All JS host zones,
+including UTC and `Etc/GMT` zones, query the runtime for offsets at the requested
+instant. The deprecated `is_fixed()` conservatively returns false for host zones.
+
+The function raises on Wasm; caller-supplied TZif loading remains portable.
 
 Linux and macOS read `/etc/localtime`, independently of the process's `TZ`
 environment variable. Windows uses the system's local timezone and daylight-saving
@@ -44,8 +60,22 @@ recoverable and otherwise `local`; Windows uses its registry key name, such as
 `Eastern Standard Time`, and otherwise `local`. Windows offset abbreviations
 are numeric. IDs and DST flags can differ between Windows and IANA data.
 
-Historical accuracy is limited by the OS's installed data. The returned zone
-retains that data until you explicitly load a fresh snapshot.
+Historical accuracy is limited by the data supplied by the OS or JS runtime.
+Native zones retain their data until you explicitly load a fresh snapshot.
+
+`Zone` equality (`==`, `!=`, and the `Eq` implementation) is deprecated. Existing
+comparisons retain their behavior, but compare representations rather than
+establishing equivalent timezone rules: a TZif zone and a runtime-provided zone
+can compare unequal even when their conversions agree. Compare `Zone::to_string()`
+only when you mean to compare source labels. To compare offsets at a particular
+instant, construct a `ZonedDateTime` in each zone and compare `offset().seconds()`.
+Neither comparison establishes that the zones agree at other instants.
+
+`Zone::is_fixed()` is also deprecated, with its existing results preserved.
+Host providers cannot always establish whether an offset is constant, so `false`
+can mean unknown. Resolve the offset at the required instant instead, for example
+with `ZonedDateTime::from_unix_second(..., zone~).offset()`. The `fixed_zone(...)`
+constructor remains available for intentionally constant-offset zones.
 
 TZif loading uses explicit transitions for recorded history and evaluates the
 footer's recurring rules from the last transition onward. When there are no
