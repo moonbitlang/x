@@ -213,7 +213,9 @@ pub fn ZonedDateTime::to_string(self : ZonedDateTime) -> String {
   let buf = StringBuilder(size_hint=0)
   buf.write_string(self.datetime.to_string())
   buf.write_string(self.offset.to_string())
-  if self.zone != utc_zone {
+  // Preserve the UTC formatting convention; an arbitrary "UTC" label alone
+  // does not establish that the zone has UTC rules.
+  if self.zone.id != utc_zone.id || self.zone.rules != utc_zone.rules {
     buf.write_char('[')
     let abbrev = self.offset.abbreviation()
     if abbrev == "" {

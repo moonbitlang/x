@@ -14,10 +14,22 @@
 
 ///|
 /// Time zone.
+/// Equality is deprecated: comparing representations does not establish
+/// equivalent timezone rules across different data sources.
 struct Zone {
   id : String
   rules : ZoneRules
-} derive(Eq, Debug)
+} derive(Debug)
+
+///|
+#deprecated("Zone equality cannot establish equivalent timezone rules. Compare labels or offsets at a specific instant instead, according to your intent.", skip_current_package=true)
+pub impl Eq for Zone
+
+///|
+// Preserve the former derived equality for compatibility during migration.
+pub impl Eq for Zone with fn equal(self, other) {
+  self.id == other.id && self.rules == other.rules
+}
 
 ///|
 #cfg(target="js")
@@ -77,8 +89,9 @@ pub fn fixed_zone(
 
 ///|
 /// Checks if this zone is known to have a single offset without seasonal rules.
-/// JavaScript's Date/Intl fallback cannot prove this for geographical names and
-/// conservatively returns false for them.
+/// JavaScript host zones conservatively return false; their rules are queried
+/// on demand instead of classified as fixed.
+#deprecated("Host-backed zones cannot always determine whether their offset is fixed. Resolve the offset at the required instant instead.", skip_current_package=true)
 #cfg(target="js")
 pub fn Zone::is_fixed(self : Zone) -> Bool {
   guard self.rules is Stored(data) else { return false }
@@ -96,6 +109,7 @@ pub fn Zone::is_fixed(self : Zone) -> Bool {
 
 ///|
 /// Checks if this zone is known to have a single offset without seasonal rules.
+#deprecated("Host-backed zones cannot always determine whether their offset is fixed. Resolve the offset at the required instant instead.", skip_current_package=true)
 #cfg(not(target="js"))
 pub fn Zone::is_fixed(self : Zone) -> Bool {
   let Stored(data) = self.rules
@@ -593,7 +607,7 @@ test "Zone::from_tzif loads Los Angeles" {
 }
 
 ///|
-#deprecated
+#deprecated("Zone equality cannot establish equivalent timezone rules. Compare labels or offsets at a specific instant instead, according to your intent.")
 pub extend Zone with Eq::{not_equal, equal}
 
 ///|

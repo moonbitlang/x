@@ -16,6 +16,15 @@
 - `@unicode` case-folding tables are now immutable read-only arrays, reducing
   the compiled size of programs that call `@unicode.to_lowercase`. (#334)
 
+### Deprecated
+
+- `@time.Zone` equality is deprecated because it does not establish equivalent
+  timezone rules across data sources. Existing comparison results are preserved. (#344)
+
+- `@time.Zone::is_fixed()` is deprecated because host timezone providers cannot
+  always determine whether an offset is constant. Existing results are preserved;
+  resolve offsets at the required instant instead. (#344)
+
 ## [0.5.6] - 2026-10-20
 
 ### Added
