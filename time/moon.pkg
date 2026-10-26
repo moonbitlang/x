@@ -44,7 +44,9 @@ options(
   "native-stub": [ "local_zone_native.c" ],
   targets: {
     "local_zone_native.mbt": [ "native", "llvm" ],
-    "local_zone_other.mbt": [ "js", "wasm", "wasm-gc" ],
+    "local_zone_other.mbt": [ "wasm", "wasm-gc" ],
+    "local_zone_js.mbt": [ "js" ],
+    "local_zone_js_wbtest.mbt": [ "js" ],
     "local_zone_native_wbtest.mbt": [ "native", "llvm" ],
   },
 )

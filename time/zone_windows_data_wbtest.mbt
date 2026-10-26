@@ -101,7 +101,7 @@ test "Windows fields describe biases and recurring dates" {
   let zone = Zone::from_windows_rules("Eastern Standard Time", Some(2007), [
     eastern_windows_record,
   ])
-  guard zone.future is Some((_, Windows(rule))) else {
+  guard zone.stored_data().future is Some((_, Windows(rule))) else {
     fail("Expected Windows recurrence")
   }
   assert_eq(rule.standard.seconds(), -18000)
@@ -194,9 +194,9 @@ test "annual US changes become a finite table with recurring endpoints" {
   let zone = Zone::from_windows_rules("Eastern Standard Time", Some(2006), [
     before, eastern_windows_record,
   ])
-  assert_true(zone.past is Some((_, Windows(_))))
-  assert_true(zone.future is Some((_, Windows(_))))
-  assert_true(zone.transitions.length() <= 6)
+  assert_true(zone.stored_data().past is Some((_, Windows(_))))
+  assert_true(zone.stored_data().future is Some((_, Windows(_))))
+  assert_true(zone.stored_data().transitions.length() <= 6)
   for
     (year, month, day, expected) in [
       (2005, 3, 20, -18000), // First endpoint repeats the old rule backward.
@@ -270,8 +270,8 @@ test "absolute transition dates are one-off events" {
     },
   }
   let zone = Zone::from_windows_rules("Absolute dates", None, [record])
-  assert_true(zone.past is Some((_, Fixed(_))))
-  assert_true(zone.future is Some((_, Fixed(_))))
+  assert_true(zone.stored_data().past is Some((_, Fixed(_))))
+  assert_true(zone.stored_data().future is Some((_, Fixed(_))))
   for
     (year, expected) in [
       (2023, -18000),
@@ -780,7 +780,7 @@ test "identical Windows transition dates disable daylight saving" {
       assert_true(zone.is_fixed())
       // StandardBias still applies when nonzero transition dates coincide.
       // Equal dates must not expose the unused daylight offset as a candidate.
-      assert_eq(zone.offset_candidates().length(), 1)
+      assert_eq(zone.stored_data().offset_candidates().length(), 1)
       for year in [2023, 2024, 2025] {
         for month in [1, 7, 12] {
           let instant = PlainDateTime::of(year, month, 15, hour=12).to_unix_second()
@@ -819,7 +819,7 @@ test "equal offset seconds retain distinct daylight metadata" {
     daylight_bias: 0,
   }
   let zone = Zone::from_windows_rules("Metadata", Some(2006), [record, record])
-  assert_eq(zone.offsets.length(), 2)
+  assert_eq(zone.stored_data().offsets.length(), 2)
   let winter = zone.lookup_offset(
     PlainDateTime::of(2007, 1, 15).to_unix_second(),
   )

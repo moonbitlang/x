@@ -13,8 +13,10 @@
 // limitations under the License.
 
 ///|
+#warnings("-deprecated")
 test "fixed" {
   inspect(@time.fixed_zone("CST", 8 * 60 * 60), content="CST")
+  // Retain coverage of the deprecated query's compatibility behavior.
   inspect(@time.fixed_zone("CST", 8 * 60 * 60).is_fixed(), content="true")
 }
 

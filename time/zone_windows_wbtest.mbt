@@ -95,10 +95,12 @@ test "real Windows annual rules have exact UTC transitions" {
 test "Windows recurrence uses the common local resolver" {
   let zone : Zone = {
     id: "Eastern Standard Time",
-    offsets: [],
-    transitions: [],
-    past: None,
-    future: Some((@int64.MIN_VALUE, eastern_windows_rule())),
+    rules: Stored({
+      offsets: [],
+      transitions: [],
+      past: None,
+      future: Some((@int64.MIN_VALUE, eastern_windows_rule())),
+    }),
   }
   let cases = [
     // Gap: 02:30 does not exist. Earlier moves to 01:30; compatible to 03:30.
