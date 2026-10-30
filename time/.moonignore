@@ -1,11 +1,3 @@
-# Timezone fixture inputs and generated bindings are only needed by repository tests.
-/testdata/
-/tzif_*_generated_wbtest.mbt
-
-# Keep tests that depend on those fixtures out of the archive as well.
-/local_zone_native_wbtest.mbt
-/windows_fixtures_wbtest.mbt
-/zone_recurring_wbtest.mbt
-/zone_windows_data_wbtest.mbt
-/zoned_arithmetic_wbtest.mbt
-/zoned_edit_wbtest.mbt
+# Package the pinned TZif inputs, their generated bindings, and fixture tests.
+# Direct archive checks can run dev_build; consumers that disable prebuild
+# still need the generated bindings. This overrides the source .gitignore.
