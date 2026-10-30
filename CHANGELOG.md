@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.7] - 2026-10-30
+
 ### Added
 
 - `@time.local_zone()` supports JavaScript using Temporal when available and
@@ -426,3 +428,5 @@
 - Updated the license headers to year 2025 (#162)
 
 [0.5.6]: https://github.com/moonbitlang/x/pull/347
+
+[0.5.7]: https://github.com/moonbitlang/x/pull/356
