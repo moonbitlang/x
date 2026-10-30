@@ -139,11 +139,11 @@ fn parse_decimal_string(s : String) -> Decimal? {
     return None
   }
   let (sign, s) = if s.has_prefix("-") {
-    (-1, s.view(start_offset=1))
+    (-1, s.clamped_view(start=1))
   } else if s.has_prefix("+") {
-    (1, s.view(start_offset=1))
+    (1, s.clamped_view(start=1))
   } else {
-    (1, s.view())
+    (1, s[:])
   }
   if s.is_empty() {
     return None
@@ -152,8 +152,8 @@ fn parse_decimal_string(s : String) -> Decimal? {
   // Find decimal point
   let dot_index = s.find(".")
   let (integer_part, fractional_part) = match dot_index {
-    Some(i) => (s.view(end_offset=i), s.view(start_offset=i + 1))
-    None => (s, "".view())
+    Some(i) => (s.clamped_view(end=i), s.clamped_view(start=i + 1))
+    None => (s, ""[:])
   }
 
   // Validate parts - at least one part must be non-empty
@@ -312,9 +312,9 @@ pub fn Decimal::to_string(self : Decimal) -> String {
     let coeff_str = self.coefficient.to_string()
     let is_negative = coeff_str.has_prefix("-")
     let abs_coeff = if is_negative {
-      coeff_str.view(start_offset=1)
+      coeff_str.clamped_view(start=1)
     } else {
-      coeff_str.view()
+      coeff_str[:]
     }
     if self.scale == 0 {
       coeff_str
@@ -322,11 +322,11 @@ pub fn Decimal::to_string(self : Decimal) -> String {
       // Need leading zeros
       let leading_zeros = "0".repeat(self.scale - abs_coeff.length() + 1)
       let with_zeros = leading_zeros + abs_coeff.to_owned()
-      let integer_part = with_zeros.view(
-        end_offset=with_zeros.length() - self.scale,
+      let integer_part = with_zeros.clamped_view(
+        end=with_zeros.length() - self.scale,
       )
-      let fractional_part = with_zeros.view(
-        start_offset=with_zeros.length() - self.scale,
+      let fractional_part = with_zeros.clamped_view(
+        start=with_zeros.length() - self.scale,
       )
       let result = integer_part.to_owned() + "." + fractional_part.to_owned()
       if is_negative {
@@ -336,11 +336,11 @@ pub fn Decimal::to_string(self : Decimal) -> String {
       }
     } else {
       // Insert decimal point
-      let integer_part = abs_coeff.view(
-        end_offset=abs_coeff.length() - self.scale,
+      let integer_part = abs_coeff.clamped_view(
+        end=abs_coeff.length() - self.scale,
       )
-      let fractional_part = abs_coeff.view(
-        start_offset=abs_coeff.length() - self.scale,
+      let fractional_part = abs_coeff.clamped_view(
+        start=abs_coeff.length() - self.scale,
       )
       let result = integer_part.to_owned() + "." + fractional_part.to_owned()
       if is_negative {
@@ -372,7 +372,7 @@ pub fn Decimal::to_double(self : Decimal) -> Double {
   if self.is_zero() {
     0.0
   } else {
-    let coeff_double = @string.parse_double(self.coefficient.to_string().view()) catch {
+    let coeff_double = @string.parse_double(self.coefficient.to_string()[:]) catch {
       _ => 0.0 // Fallback to 0.0 if parsing fails
     }
     let divisor = @math.pow(10.0, self.scale.to_double())
