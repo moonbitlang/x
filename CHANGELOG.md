@@ -27,6 +27,8 @@
 
 ### Fixed
 
+- Decimal parsing and formatting remain compatible with the current MoonBit string view APIs. (#354)
+
 - `@time.Duration::from_str` and `@time.Period::from_string` now reject
   incomplete strings such as `PT`, `PT1`, `P`, and `P1` instead of parsing
   them as zero. (#352)
