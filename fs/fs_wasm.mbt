@@ -294,3 +294,38 @@ fn remove_dir_internal(path : String) -> Unit raise IOError {
   let res = remove_dir_ffi(string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
 }
+
+///|
+fn append_bytes_to_file_internal(
+  path : String,
+  content : Bytes,
+) -> Unit raise IOError {
+  let _ = path
+  let _ = content
+  raise IOError("append_bytes_to_file is not supported on the wasm backend")
+}
+
+///|
+fn append_string_to_file_internal(
+  path : String,
+  content : String,
+  encoding~ : String = "utf8",
+) -> Unit raise IOError {
+  let _ = path
+  let _ = content
+  let _ = encoding
+  raise IOError("append_string_to_file is not supported on the wasm backend")
+}
+
+///|
+fn sync_file_internal(path : String) -> Unit raise IOError {
+  let _ = path
+  raise IOError("sync_file is not supported on the wasm backend")
+}
+
+///|
+fn rename_internal(from : String, to : String) -> Unit raise IOError {
+  let _ = from
+  let _ = to
+  raise IOError("rename is not supported on the wasm backend")
+}
