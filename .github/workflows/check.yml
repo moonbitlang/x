@@ -112,7 +112,7 @@ jobs:
           moon test time --target js
 
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check --target all --deny-warn --warn-list +unnecessary_annotation
 
       - name: check packaged module
         if: ${{ matrix.os.name == 'ubuntu-latest' }}

@@ -47,7 +47,7 @@ let conversion_calls : Ref[Int32] = Ref(0)
 impl @json.FromJson for ConversionProbe with fn from_json(json, path) {
   conversion_calls.val += 1
   if json is { "reject": true, .. } {
-    raise @json.JsonDecodeError(
+    raise JsonDecodeError(
       (
         path.add_key("schema-private-path"),
         "schema-private-message: caller data must not escape the decoder",
@@ -74,7 +74,7 @@ test "public decoding uses the current system clock" {
   try
     (@jwt.decode(expired, key=integration_key, algorithm=HS256) : Json)
   catch {
-    error => assert_true(error is @jwt.Expired)
+    error => assert_true(error is Expired)
   } noraise {
     _ => fail("expected the current clock to reject the expired token")
   }
@@ -143,15 +143,15 @@ test "partial application claims cannot bypass expiration issuer or audience val
         "iss": "registry",
         "aud": "api",
       },
-      error => error is @jwt.Expired,
+      error => error is Expired,
     ),
     (
       { "username": "alice", "iss": "registry", "aud": "api" },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
     (
       { "username": "alice", "exp": now + 3600.0, "iss": "other", "aud": "api" },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
     (
       {
@@ -160,7 +160,7 @@ test "partial application claims cannot bypass expiration issuer or audience val
         "iss": "registry",
         "aud": "other",
       },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
   ]
   for (claims, expected) in cases {
@@ -195,7 +195,7 @@ test "missing and mistyped application fields become invalid-token errors" {
       (@jwt.decode(token, key=integration_key, algorithm=HS256) : IdentityClaims)
     catch {
       error =>
-        assert_true(error is @jwt.InvalidToken(message) && !message.is_empty())
+        assert_true(error is InvalidToken(message) && !message.is_empty())
     } noraise {
       _ => fail("expected the application schema to reject the claims")
     }
@@ -215,17 +215,17 @@ test "application conversion runs after JWT validation and its diagnostics stay 
   let valid = @jwt.encode(claims, key=integration_key, algorithm=HS256)
   let forged = @jwt.encode(claims, key=Bytes::make(32, b'x'), algorithm=HS256)
   let rejected : Array[(String, (@jwt.JwtError) -> Bool)] = [
-    ("not-a-jwt", error => error is @jwt.InvalidToken(_)),
-    (forged, error => error is @jwt.InvalidToken(_)),
+    ("not-a-jwt", error => error is InvalidToken(_)),
+    (forged, error => error is InvalidToken(_)),
   ]
   let invalid_claims : Array[(Json, (@jwt.JwtError) -> Bool)] = [
     (
       { "username": "alice", "iss": "registry", "aud": "api" },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
     (
       { "username": "alice", "exp": now + 3600.0, "iss": "other", "aud": "api" },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
     (
       {
@@ -234,7 +234,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
         "iss": "registry",
         "aud": "other",
       },
-      error => error is @jwt.InvalidToken(_),
+      error => error is InvalidToken(_),
     ),
     (
       {
@@ -243,7 +243,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
         "iss": "registry",
         "aud": "api",
       },
-      error => error is @jwt.Expired,
+      error => error is Expired,
     ),
     (
       {
@@ -254,7 +254,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
         "aud": "api",
       },
       error => {
-        error is @jwt.NotYetValid(not_before=actual) && actual == not_before
+        error is NotYetValid(not_before=actual) && actual == not_before
       },
     ),
   ]
@@ -285,7 +285,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
   try
     (@jwt.decode(valid, key=b"short", algorithm=HS256) : ConversionProbe)
   catch {
-    error => assert_true(error is @jwt.InvalidArgument(_))
+    error => assert_true(error is InvalidArgument(_))
   } noraise {
     _ => fail("expected the decoder to reject a short key")
   }
@@ -323,7 +323,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
       ) : ConversionProbe)
   catch {
     error => {
-      guard error is @jwt.InvalidToken(message) else {
+      guard error is InvalidToken(message) else {
         fail("expected schema failure to become an invalid-token error")
       }
       assert_false(message.is_empty())
