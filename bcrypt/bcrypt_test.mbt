@@ -110,22 +110,22 @@ test "verify accepts 2b and 2y" {
 ///|
 test "invalid inputs are rejected" {
   try @bcrypt.hash(password=b"password", salt=b"short", cost=4) catch {
-    err => assert_true(err is @bcrypt.InvalidSaltLength(5))
+    err => assert_true(err is InvalidSaltLength(5))
   } noraise {
     _ => fail("expected InvalidSaltLength(5)")
   }
   try @bcrypt.hash(password=b"password", salt=reference_salt(), cost=3) catch {
-    err => assert_true(err is @bcrypt.InvalidCost(3))
+    err => assert_true(err is InvalidCost(3))
   } noraise {
     _ => fail("expected InvalidCost(3)")
   }
   try @bcrypt.hash(password=b"password", salt=reference_salt(), cost=32) catch {
-    err => assert_true(err is @bcrypt.InvalidCost(32))
+    err => assert_true(err is InvalidCost(32))
   } noraise {
     _ => fail("expected InvalidCost(32)")
   }
   try @bcrypt.verify(password=b"password", hashed="short") catch {
-    err => assert_true(err is @bcrypt.InvalidHashFormat)
+    err => assert_true(err is InvalidHashFormat)
   } noraise {
     _ => fail("expected InvalidHashFormat")
   }
@@ -135,7 +135,7 @@ test "invalid inputs are rejected" {
       hashed="$2a$05$abcdefghijklmnopqrstuuWG29KuyeAicPCJODk1zjyGvyQUU2awu",
     )
   catch {
-    err => assert_true(err is @bcrypt.UnsupportedVersion("2a"))
+    err => assert_true(err is UnsupportedVersion("2a"))
   } noraise {
     _ => fail("expected UnsupportedVersion(2a)")
   }
@@ -145,7 +145,7 @@ test "invalid inputs are rejected" {
       hashed="$2b$05$abcdefghijklmnopqrst!!WG29KuyeAicPCJODk1zjyGvyQUU2awu",
     )
   catch {
-    err => assert_true(err is @bcrypt.InvalidBase64)
+    err => assert_true(err is InvalidBase64)
   } noraise {
     _ => fail("expected InvalidBase64")
   }
@@ -177,7 +177,7 @@ test "invalid salt lengths are rejected" {
     catch {
       err =>
         assert_true(
-          err is @bcrypt.InvalidSaltLength(actual) && actual == length,
+          err is InvalidSaltLength(actual) && actual == length,
           msg="salt length \{length}",
         )
     } noraise {
@@ -195,7 +195,7 @@ test "invalid hash lengths are rejected" {
   assert_eq(long_hash.length(), 61)
   for invalid_hash in [short_hash, long_hash] {
     try @bcrypt.verify(password=b"password", hashed=invalid_hash) catch {
-      err => assert_true(err is @bcrypt.InvalidHashFormat, msg=invalid_hash)
+      err => assert_true(err is InvalidHashFormat, msg=invalid_hash)
     } noraise {
       _ => fail("expected InvalidHashFormat: \{invalid_hash}")
     }
@@ -214,7 +214,7 @@ test "invalid cost digits and separators are rejected" {
     try @bcrypt.verify(password=b"password", hashed=invalid_hash) catch {
       err =>
         assert_true(
-          err is @bcrypt.InvalidHashFormat,
+          err is InvalidHashFormat,
           msg="hash offset \{index}",
         )
     } noraise {
@@ -233,7 +233,7 @@ test "invalid digest Base64 characters are rejected" {
     assert_eq(invalid_hash.length(), 60)
     try @bcrypt.verify(password=b"password", hashed=invalid_hash) catch {
       err =>
-        assert_true(err is @bcrypt.InvalidBase64, msg="digest offset \{index}")
+        assert_true(err is InvalidBase64, msg="digest offset \{index}")
     } noraise {
       _ => fail("expected InvalidBase64 at digest offset \{index}")
     }

@@ -655,7 +655,7 @@ fn create_from_plain(
       // Refresh its designation and DST flag from the zone at the new instant.
       return { datetime, zone, offset: resolved, }
     }
-    if offset == OffsetPolicy::Reject {
+    if offset == Reject {
       fail("Offset is not valid for local time")
     }
   }

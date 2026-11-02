@@ -36,7 +36,7 @@ test "real Windows annual rules have exact UTC transitions" {
     ),
     // Southern summer: Sydney 2024 ends at 16:00 UTC on April 6.
     (
-      Recurring::Windows({
+      Windows({
         standard: ZoneOffset::from_seconds(36000),
         daylight: ZoneOffset::from_seconds(39600, dst=true),
         start: MonthWeekDay(month=10, week=1, weekday=0, second=7200),
@@ -48,7 +48,7 @@ test "real Windows annual rules have exact UTC transitions" {
     ),
     // Pyongyang 2015: the year's initial +09:00 changes to +08:30 at midnight.
     (
-      Recurring::Windows({
+      Windows({
         standard: ZoneOffset::from_seconds(30600),
         daylight: ZoneOffset::from_seconds(32400, dst=true),
         start: YearBoundary,
@@ -60,7 +60,7 @@ test "real Windows annual rules have exact UTC transitions" {
     ),
     // Pyongyang 2018: leaving its negative daylight adjustment restores +09:00.
     (
-      Recurring::Windows({
+      Windows({
         standard: ZoneOffset::from_seconds(32400),
         daylight: ZoneOffset::from_seconds(30600, dst=true),
         start: YearBoundary,
@@ -72,7 +72,7 @@ test "real Windows annual rules have exact UTC transitions" {
     ),
     // Moscow 2011: last Sunday in March, with daylight time through year end.
     (
-      Recurring::Windows({
+      Windows({
         standard: ZoneOffset::from_seconds(10800),
         daylight: ZoneOffset::from_seconds(14400, dst=true),
         start: MonthWeekDay(month=3, week=5, weekday=0, second=7200),

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Source and test builds pass strict warning checks across all supported
+  backends, including checks for unnecessary annotations. (#358)
+
 ## [0.5.7] - 2026-10-30
 
 ### Added

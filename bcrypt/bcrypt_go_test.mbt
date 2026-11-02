@@ -61,14 +61,14 @@ test "Go invalid hash errors" {
   ]
   for hash in invalid_hashes {
     try @bcrypt.verify(password=b"anything", hashed=hash) catch {
-      err => assert_true(err is @bcrypt.InvalidHashFormat, msg=hash)
+      err => assert_true(err is InvalidHashFormat, msg=hash)
     } noraise {
       _ => fail("expected InvalidHashFormat: \{hash}")
     }
   }
   let invalid_cost = "$2b$32$sssssssssssssssssssssshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh"
   try @bcrypt.verify(password=b"anything", hashed=invalid_cost) catch {
-    err => assert_true(err is @bcrypt.InvalidCost(32), msg=invalid_cost)
+    err => assert_true(err is InvalidCost(32), msg=invalid_cost)
   } noraise {
     _ => fail("expected InvalidCost(32): \{invalid_cost}")
   }
