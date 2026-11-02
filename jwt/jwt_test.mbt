@@ -253,9 +253,7 @@ test "application conversion runs after JWT validation and its diagnostics stay 
         "iss": "registry",
         "aud": "api",
       },
-      error => {
-        error is NotYetValid(not_before=actual) && actual == not_before
-      },
+      error => error is NotYetValid(not_before=actual) && actual == not_before,
     ),
   ]
   for (claims, expected) in invalid_claims {
