@@ -212,11 +212,7 @@ test "invalid cost digits and separators are rejected" {
       hash[index + 1:].to_owned()
     assert_eq(invalid_hash.length(), 60)
     try @bcrypt.verify(password=b"password", hashed=invalid_hash) catch {
-      err =>
-        assert_true(
-          err is InvalidHashFormat,
-          msg="hash offset \{index}",
-        )
+      err => assert_true(err is InvalidHashFormat, msg="hash offset \{index}")
     } noraise {
       _ => fail("expected InvalidHashFormat at hash offset \{index}")
     }
@@ -232,8 +228,7 @@ test "invalid digest Base64 characters are rejected" {
       hash[index + 1:].to_owned()
     assert_eq(invalid_hash.length(), 60)
     try @bcrypt.verify(password=b"password", hashed=invalid_hash) catch {
-      err =>
-        assert_true(err is InvalidBase64, msg="digest offset \{index}")
+      err => assert_true(err is InvalidBase64, msg="digest offset \{index}")
     } noraise {
       _ => fail("expected InvalidBase64 at digest offset \{index}")
     }
