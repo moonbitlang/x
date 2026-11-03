@@ -189,9 +189,10 @@ fn decode_scalar(
 }
 
 ///|
+#derive(Debug)
 pub suberror DecodeError {
   InvalidChar(Char)
-} derive(Debug)
+}
 
 ///|
 #deprecated

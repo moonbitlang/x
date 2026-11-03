@@ -16,10 +16,11 @@
 /// Time zone.
 /// Equality is deprecated: comparing representations does not establish
 /// equivalent timezone rules across different data sources.
+#derive(Debug)
 struct Zone {
   id : String
   rules : ZoneRules
-} derive(Debug)
+}
 
 ///|
 #deprecated("Zone equality cannot establish equivalent timezone rules. Compare labels or offsets at a specific instant instead, according to your intent.", skip_current_package=true)
@@ -32,19 +33,22 @@ pub impl Eq for Zone with fn equal(self, other) {
 }
 
 ///|
+#derive(Eq, Debug)
 #cfg(target="js")
 priv enum ZoneRules {
   Stored(ZoneData)
   JavaScript(HostZone)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 #cfg(not(target="js"))
 priv enum ZoneRules {
   Stored(ZoneData)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 priv struct ZoneData {
   offsets : Array[ZoneOffset]
   transitions : Array[(Int64, Int32)] // (timestamp, offset_index)
@@ -53,7 +57,7 @@ priv struct ZoneData {
   // Past excludes its cutoff; future includes it. Their scopes never overlap.
   past : (Int64, Recurring)?
   future : (Int64, Recurring)?
-} derive(Eq, Debug)
+}
 
 ///|
 /// UTC time zone.

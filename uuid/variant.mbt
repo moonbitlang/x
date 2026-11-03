@@ -17,18 +17,20 @@
 
 ///|
 /// The UUID variant.
+#derive(Debug)
 pub(all) enum Variant {
   ReservedNCS
   RFC4122(Version)
   ReservedMicrosoft
   ReservedFuture
-} derive(Debug)
+}
 
 ///|
 /// The UUID version number.
 ///
 /// This is only used when the variant is `RFC4122`.
 ///
+#derive(Debug)
 pub(all) enum Version {
   V1
   V2
@@ -36,7 +38,7 @@ pub(all) enum Version {
   V4
   V5
   Unknown(Int32)
-} derive(Debug)
+}
 
 ///|
 fn Version::from_int64(int : Int64) -> Version {

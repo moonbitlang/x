@@ -14,11 +14,12 @@
 
 ///|
 /// An amount of time representing by years, months and days in the ISO-8601 calendar system.
+#derive(Eq, Compare, Debug)
 struct Period {
   years : Int32
   months : Int32
   days : Int32
-} derive(Eq, Compare, Debug)
+}
 
 ///|
 /// Creates a Period from years, months, and days.

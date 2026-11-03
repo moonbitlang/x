@@ -16,14 +16,16 @@
 // One normalized annual rule, without OS handles or a multi-year database.
 // The Windows loader validates offsets and dates before constructing it.
 // Absolute SYSTEMTIME dates belong in the explicit transition history.
+#derive(Eq, Debug)
 priv struct WindowsRule {
   standard : ZoneOffset
   daylight : ZoneOffset
   start : WindowsDate
   end : WindowsDate
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 #warnings("-unused_constructor")
 priv enum WindowsDate {
   // month: 1..12, week: 1..5 (5 means last), weekday: Sunday=0..Saturday=6.
@@ -34,7 +36,7 @@ priv enum WindowsDate {
   // Semantics follow the marker predicates in .NET's AdjustmentRule:
   // https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.AdjustmentRule.cs
   YearBoundary
-} derive(Eq, Debug)
+}
 
 ///|
 fn WindowsDate::time(self : WindowsDate, year : Int32, offset : Int32) -> Int64 {

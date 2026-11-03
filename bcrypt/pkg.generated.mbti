@@ -13,13 +13,14 @@ pub let salt_length : Int32
 pub fn verify(password~ : Bytes, hashed~ : String) -> Bool raise BcryptError
 
 // Errors
+#derive(Eq, @debug.Debug)
 pub suberror BcryptError {
   InvalidCost(Int32)
   InvalidSaltLength(Int32)
   InvalidHashFormat
   UnsupportedVersion(String)
   InvalidBase64
-} derive(Eq, @debug.Debug)
+}
 pub impl Show for BcryptError
 
 // Types and methods
