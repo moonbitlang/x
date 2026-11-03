@@ -14,12 +14,13 @@
 
 ///|
 /// Time offset from UTC.
+#derive(Debug)
 struct ZoneOffset {
   id : String // e.g. "Z", "+08:00", "-05:30", etc.
   abbrev : String // e.g. "PST", "CST", "EST", "UTC", etc.
   seconds : Int32
   dst : Bool // daylight savings time
-} derive(Debug)
+}
 
 ///|
 let max_offset_hours = 18

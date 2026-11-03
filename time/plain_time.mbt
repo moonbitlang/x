@@ -14,12 +14,13 @@
 
 ///|
 /// A time without a time zone
+#derive(Eq, Compare, Debug)
 struct PlainTime {
   hour : Int32
   minute : Int32
   second : Int32
   nanosecond : Int32
-} derive(Eq, Compare, Debug)
+}
 
 ///|
 /// Creates a PlainTime from the hour, minute, second and nanosecond.

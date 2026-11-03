@@ -13,91 +13,101 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Version {
   V1
   V2
   V3
   V4
-} derive(Eq, Debug)
+}
 
 ///|
 /// The authoritative data block. For versions 2–4, the 32-bit compatibility
 /// block is skipped. An empty footer, or a version 1 file, has no future rule.
 /// This is format data: parsing does not resolve local times or apply leaps.
+#derive(Eq, Debug)
 pub(all) struct Data {
   version : Version
   transitions : Array[Transition]
   local_time_types : Array[LocalTimeType]
   leap_records : Array[LeapRecord]
   future_rule : PosixTz?
-} derive(Eq, Debug)
+}
 
 ///|
 /// `time` is a TZif UNIX leap timestamp, not necessarily a POSIX timestamp.
 /// `type_index` selects the local time type in effect from this transition.
+#derive(Eq, Debug)
 pub(all) struct Transition {
   time : Int64
   type_index : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// Offset seconds are added to universal time to obtain local time.
 /// Designations are retained as bytes: older files need not contain UTF-8.
 /// Missing standard/wall and UT/local indicators default to false.
+#derive(Eq, Debug)
 pub(all) struct LocalTimeType {
   offset : Int32
   is_dst : Bool
   designation : Bytes
   is_standard : Bool
   is_ut : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// A raw leap-table record, preserved without applying its correction.
 /// In v4, a final record repeating the preceding correction is an expiration
 /// marker. A first correction other than ±1 indicates missing earlier history.
+#derive(Eq, Debug)
 pub(all) struct LeapRecord {
   time : Int64
   correction : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// Parsed POSIX footer. Offsets use local-minus-UT seconds, consistently with
 /// `LocalTimeType`, reversing the sign used in the footer's textual syntax.
+#derive(Eq, Debug)
 pub struct PosixTz {
   standard_designation : String
   standard_offset : Int32
   daylight : Daylight?
-} derive(Eq, Debug)
+}
 
 ///|
 /// Missing rules remain unspecified; the parser never supplies host defaults.
+#derive(Eq, Debug)
 pub struct Daylight {
   designation : String
   offset : Int32
   rules : (Rule, Rule)?
-} derive(Eq, Debug)
+}
 
 ///|
 /// A recurring transition's date and wall-clock seconds from that day's start.
 /// Version 3 and 4 times can be negative or extend beyond the named day.
+#derive(Eq, Debug)
 pub struct Rule {
   day : RuleDay
   time : Int32
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RuleDay {
   JulianNoLeap(Int32) // 1–365; February 29 is not counted.
   DayOfYear(Int32) // 0–365; February 29 is counted.
   MonthWeekDay(month~ : Int32, week~ : Int32, weekday~ : Int32) // Sunday = 0; week 5 = last.
-} derive(Eq, Debug)
+}
 
 ///|
 /// The zero-based input byte offset and the reason parsing failed.
+#derive(Eq, Debug)
 pub suberror ParseError {
   ParseError(Int32, String)
-} derive(Eq, Debug)
+}
 
 ///|
 #deprecated

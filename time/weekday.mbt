@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Weekday {
   Monday
   Tuesday
@@ -21,7 +22,7 @@ pub(all) enum Weekday {
   Friday
   Saturday
   Sunday
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for Weekday with fn output(self : Weekday, logger : &Logger) -> Unit {

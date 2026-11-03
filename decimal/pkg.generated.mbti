@@ -21,10 +21,11 @@ pub fn zero() -> Decimal
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct Decimal {
   coefficient : @bigint.BigInt
   scale : Int32
-} derive(@debug.Debug)
+}
 pub fn Decimal::abs(Self) -> Self
 #deprecated
 pub fn Decimal::add(Self, Self) -> Self
@@ -43,7 +44,7 @@ pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
 pub fn Decimal::from_double(Double, Int32) -> Self?
 pub fn Decimal::from_int(Int32) -> Self
 #deprecated
-pub fn Decimal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Decimal::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn Decimal::from_string(String) -> Self?
 #deprecated
 pub fn Decimal::hash(Self) -> Int32
@@ -79,7 +80,7 @@ pub fn Decimal::to_bigint(Self) -> @bigint.BigInt
 pub fn Decimal::to_double(Self) -> Double
 pub fn Decimal::to_int(Self) -> Int32?
 #deprecated
-pub fn Decimal::to_json(Self) -> Json
+pub fn Decimal::to_json(Self) -> @json.Json
 #deprecated
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_string(Self) -> String
@@ -94,8 +95,8 @@ pub impl Mul for Decimal
 pub impl Neg for Decimal
 pub impl Show for Decimal
 pub impl Sub for Decimal
-pub impl ToJson for Decimal
 pub impl @json.FromJson for Decimal
+pub impl @json.ToJson for Decimal
 pub impl @quickcheck.Arbitrary for Decimal
 
 // Type aliases

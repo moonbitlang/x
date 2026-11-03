@@ -11,7 +11,8 @@ import {
 // Errors
 
 // Types and methods
-type Stack[T] derive(Default)
+#derive(Default)
+type Stack[T]
 pub fn[T] Stack::clear(Self[T]) -> Unit
 #deprecated
 pub fn[T : Default] Stack::default() -> Self[T]

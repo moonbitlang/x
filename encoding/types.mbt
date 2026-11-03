@@ -13,22 +13,25 @@
 // limitations under the License.
 
 ///|
+#derive(Debug)
 pub suberror MalformedError {
   MalformedError(Bytes)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub suberror TruncatedError {
   TruncatedError(Bytes)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) enum Encoding {
   UTF8
   UTF16 // alias for UTF16LE
   UTF16LE
   UTF16BE
-} derive(Debug)
+}
 
 // Decoder
 
@@ -61,12 +64,13 @@ struct Decoder {
 }
 
 ///|
+#derive(Debug)
 priv enum Decode {
   End
   Refill(Bytes)
   Malformed(Bytes)
   Uchar(Char)
-} derive(Debug)
+}
 
 ///|
 fn Decode::_use_decode_debug(self : Decode) -> Repr {
