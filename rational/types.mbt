@@ -18,10 +18,11 @@
 /// Invariants:
 /// - The denominator is always positive.
 /// - The numerator and denominator are always coprime.
+#derive(Eq)
 struct Rational[T] {
   numerator : T
   denominator : T
-} derive(Eq)
+}
 
 ///|
 /// Returns the numerator of this rational number.

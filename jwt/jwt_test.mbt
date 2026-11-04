@@ -16,29 +16,33 @@
 let integration_key : Bytes = b"0123456789abcdef0123456789abcdef"
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 struct TypedClaims {
   username : String
   exp : Double
   iss : String
   aud : Array[String]
   roles : Array[String]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(ToJson)
 struct OutboundClaims {
   username : String
   exp : Double
-} derive(ToJson)
+}
 
 ///|
+#derive(FromJson, Eq, Debug)
 struct IdentityClaims {
   username : String
-} derive(FromJson, Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 struct ConversionProbe {
   username : String
-} derive(Eq, Debug)
+}
 
 ///|
 let conversion_calls : Ref[Int32] = Ref(0)

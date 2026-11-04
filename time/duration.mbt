@@ -14,10 +14,11 @@
 
 ///|
 /// An amount of time with nanosecond precision.
+#derive(Eq, Compare, Debug)
 struct Duration {
   secs : Int64
   nanos : Int32
-} derive(Eq, Compare, Debug)
+}
 
 ///|
 /// Creates a Duration from hours, minutes, seconds and nanoseconds.

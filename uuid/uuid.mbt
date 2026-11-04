@@ -42,12 +42,13 @@
 /// }
 /// ```
 ///
+#derive(Eq, Compare)
 struct UUID {
   // XXX: replace with an 128-bit data structure when there is one
   // use the derived hash
   hi : Int64
   lo : Int64
-} derive(Eq, Compare)
+}
 
 ///|
 /// Constructs a UUID with the given big-endian bytes.

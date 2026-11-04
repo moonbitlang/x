@@ -40,15 +40,17 @@ pub fn write_utf16le_char(@buffer.Buffer, Char) -> Unit
 pub fn write_utf8_char(@buffer.Buffer, Char) -> Unit
 
 // Errors
+#derive(@debug.Debug)
 pub suberror MalformedError {
   MalformedError(Bytes)
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn MalformedError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub suberror TruncatedError {
   TruncatedError(Bytes)
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn TruncatedError::to_repr(Self) -> @debug.Repr
 
@@ -63,12 +65,13 @@ pub fn Decoder::finish(Self) -> String raise
 pub fn Decoder::lossy_consume(Self, BytesView) -> String
 pub fn Decoder::lossy_finish(Self) -> String
 
+#derive(@debug.Debug)
 pub(all) enum Encoding {
   UTF8
   UTF16
   UTF16LE
   UTF16BE
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn Encoding::to_repr(Self) -> @debug.Repr
 

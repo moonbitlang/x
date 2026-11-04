@@ -14,9 +14,10 @@
 
 ///|
 /// Algorithms supported for HMAC-signed JWTs.
+#derive(Eq, Debug)
 pub(all) enum HmacAlgorithm {
   HS256
-} derive(Eq, Debug)
+}
 
 ///|
 #doc(hidden)
@@ -40,12 +41,13 @@ pub extend HmacAlgorithm with Debug::{to_repr}
 ///
 /// Time errors follow signature and other JWT checks, but precede type conversion.
 /// String messages are diagnostics, not stable error codes.
+#derive(Debug)
 pub suberror JwtError {
   InvalidArgument(String)
   InvalidToken(String)
   Expired
   NotYetValid(not_before~ : Double)
-} derive(Debug)
+}
 
 ///|
 #doc(hidden)

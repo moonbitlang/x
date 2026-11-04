@@ -4,6 +4,7 @@ package "moonbitlang/x/rational"
 import {
   "moonbitlang/core/bigint",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/quickcheck/splitmix",
 }
@@ -14,21 +15,23 @@ pub fn from_double(Double) -> Rational[Int64] raise RationalError
 pub fn[T : Integral] new(T, T) -> Rational[T]?
 
 // Errors
+#derive(@debug.Debug, @json.ToJson)
 pub(all) suberror RationalError {
   RationalError(String)
-} derive(ToJson, @debug.Debug)
+}
 #deprecated
 pub fn RationalError::equal(Self, Self) -> Bool
 #deprecated
 pub fn RationalError::not_equal(Self, Self) -> Bool
 #deprecated
-pub fn RationalError::to_json(Self) -> Json
+pub fn RationalError::to_json(Self) -> @json.Json
 #deprecated
 pub fn RationalError::to_repr(Self) -> @debug.Repr
 pub impl Eq for RationalError
 
 // Types and methods
-type Rational[T] derive(Eq)
+#derive(Eq)
+type Rational[T]
 #as_free_fn
 pub fn[T : Integral] Rational::abs(Self[T]) -> Self[T]
 #deprecated

@@ -50,11 +50,12 @@ priv enum WindowsRecord {
 }
 
 ///|
+#derive(Eq)
 priv enum WindowsTransition {
   Annual(WindowsDate)
   // Local wall-clock seconds, including the actual year and day of month.
   Once(Int64)
-} derive(Eq)
+}
 
 ///|
 fn WindowsRecord::lookup_offset(

@@ -45,10 +45,11 @@
 /// }
 /// ```
 ///
+#derive(Debug)
 pub struct Decimal {
   coefficient : @bigint.BigInt
   scale : Int32
-} derive(Debug)
+}
 
 ///|
 /// Maximum number of decimal places (scale) allowed.

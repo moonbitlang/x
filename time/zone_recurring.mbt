@@ -17,6 +17,7 @@
 // queries. Explicit dated transitions belong to Zone's historical table.
 // Offsets are checked once when loading. Lookup then needs only portable,
 // non-throwing calendar arithmetic, including for timestamps outside Int years.
+#derive(Eq, Debug)
 priv enum Recurring {
   Fixed(ZoneOffset)
   Tzif(
@@ -26,7 +27,7 @@ priv enum Recurring {
     end~ : @tzif.Rule
   )
   Windows(WindowsRule)
-} derive(Eq, Debug)
+}
 
 ///|
 fn Recurring::from_posix(tz : @tzif.PosixTz) -> Recurring raise Error {

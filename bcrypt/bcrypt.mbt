@@ -74,13 +74,14 @@ pub let salt_length = 16
 let hash_length = 60
 
 ///|
+#derive(Eq, Debug)
 pub suberror BcryptError {
   InvalidCost(Int32)
   InvalidSaltLength(Int32)
   InvalidHashFormat
   UnsupportedVersion(String)
   InvalidBase64
-} derive(Eq, Debug)
+}
 
 ///|
 #doc(hidden)

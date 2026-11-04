@@ -6,15 +6,21 @@ import {
 }
 
 // Values
+pub fn create(StringView, allow_existing? : Bool, permission? : Int32, sync? : SyncMode) -> File raise IOError
+
 pub fn create_dir(String) -> Unit raise IOError
 
 pub fn is_dir(String) -> Bool raise IOError
 
 pub fn is_file(String) -> Bool raise IOError
 
+pub fn open(StringView, mode~ : Mode, create_mode? : CreateMode, append? : Bool, permission? : Int32, sync? : SyncMode) -> File raise IOError
+
 pub fn path_exists(String) -> Bool
 
 pub fn read_dir(String) -> ArrayView[String] raise IOError
+
+pub fn read_file(StringView, sync_timestamp? : Bool) -> Bytes raise IOError
 
 pub fn read_file_to_bytes(String) -> Bytes raise IOError
 
@@ -26,16 +32,50 @@ pub fn remove_file(String) -> Unit raise IOError
 
 pub fn write_bytes_to_file(String, Bytes) -> Unit raise IOError
 
+pub fn write_file(StringView, BytesView, create_mode? : CreateMode, permission? : Int32, sync? : SyncMode, append? : Bool) -> Unit raise IOError
+
 pub fn write_string_to_file(String, String, encoding? : String) -> Unit raise IOError
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror IOError {
   IOError(String)
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn IOError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
+pub(all) enum CreateMode {
+  OpenExisting
+  TruncateExisting
+  OpenOrCreate
+  CreateOrTruncate
+  CreateNew
+}
+
+type File
+pub fn File::close(Self) -> Unit
+pub fn File::read(Self, FixedArray[Byte], offset? : Int32, max_len? : Int32) -> Int32 raise IOError
+pub fn File::read_all(Self) -> Bytes raise IOError
+pub fn File::read_at(Self, FixedArray[Byte], position~ : Int64, offset? : Int32, len? : Int32) -> Int32 raise IOError
+pub fn File::read_exactly(Self, Int32) -> Bytes raise IOError
+pub fn File::size(Self) -> Int64 raise IOError
+pub fn File::sync(Self, only_data? : Bool) -> Unit raise IOError
+pub fn File::write(Self, BytesView) -> Unit raise IOError
+pub fn File::write_at(Self, BytesView, position~ : Int64) -> Unit raise IOError
+pub fn File::write_once(Self, Bytes, offset~ : Int32, len~ : Int32) -> Int32 raise IOError
+
+pub(all) enum Mode {
+  ReadOnly
+  WriteOnly
+  ReadWrite
+}
+
+pub(all) enum SyncMode {
+  NoSync
+  Data
+  Full
+}
 
 // Type aliases
 

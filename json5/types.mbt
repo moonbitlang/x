@@ -13,19 +13,21 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Position {
   line : Int32 // 1-based
   column : Int32 // 0-based
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum ParseErrorData {
   NoValidToken(Position)
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) suberror ParseError {

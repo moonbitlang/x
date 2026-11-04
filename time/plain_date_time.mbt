@@ -14,10 +14,11 @@
 
 ///|
 /// A datetime without a time zone in the ISO 8601 calendar system.
+#derive(Eq, Compare, Debug, ToJson, FromJson)
 struct PlainDateTime {
   date : PlainDate
   time : PlainTime
-} derive(Eq, Compare, Debug, ToJson, FromJson)
+}
 
 ///|
 /// Creates a PlainDateTime from the year, month, day, hour, minute, second and nanosecond.
