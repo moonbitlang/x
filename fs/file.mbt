@@ -401,6 +401,10 @@ pub fn write_file(
   )
   defer file.close()
   file.write(data)
+  // Opening may create or truncate the file even when no bytes are written.
+  if data.is_empty() && sync is (Data | Full) {
+    file.sync(only_data=sync is Data)
+  }
   if file.close_result() is Some(message) {
     raise IOError(message)
   }

@@ -57,8 +57,10 @@ test "path views Unicode names and sync modes" {
   let path = wrapped[2:wrapped.length() - 2]
   defer (@fs.remove_file(owned_path) catch { _ => () })
   for sync in [@fs.SyncMode::NoSync, Data, Full] {
-    @fs.write_file(path, b"\x00\xff", permission=0o600, sync~)
-    assert_eq(@fs.read_file(path), b"\x00\xff")
+    for data in [b"\x00\xff", b""] {
+      @fs.write_file(path, data, permission=0o600, sync~)
+      assert_eq(@fs.read_file(path), data)
+    }
   }
 }
 

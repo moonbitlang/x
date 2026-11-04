@@ -238,3 +238,104 @@ test "Windows truncation failure closes once and preserves the error" {
   assert_eq(result.message(), "open unused: injected truncate failure")
   assert_eq(truncate_close_count(fs), 1)
 }
+
+///|
+#external
+priv type SyncProbe
+
+///|
+extern "js" fn observe_sync(fail : Bool) -> SyncProbe =
+  #| fail => {
+  #|   const fs = process.getBuiltinModule("fs");
+  #|   const saved = {data: fs.fdatasyncSync, full: fs.fsyncSync, close: fs.closeSync};
+  #|   const calls = [];
+  #|   fs.fdatasyncSync = fd => {
+  #|     calls.push("data");
+  #|     if (fail) throw Error("injected sync failure");
+  #|     saved.data(fd);
+  #|   };
+  #|   fs.fsyncSync = fd => {
+  #|     calls.push("full");
+  #|     if (fail) throw Error("injected sync failure");
+  #|     saved.full(fd);
+  #|   };
+  #|   fs.closeSync = fd => {
+  #|     calls.push("close");
+  #|     saved.close(fd);
+  #|     if (fail) throw Error("injected close failure");
+  #|   };
+  #|   return {fs, saved, calls};
+  #| }
+
+///|
+extern "js" fn SyncProbe::restore(self : SyncProbe) -> Unit =
+  #| ({fs, saved}) => {
+  #|   fs.fdatasyncSync = saved.data;
+  #|   fs.fsyncSync = saved.full;
+  #|   fs.closeSync = saved.close;
+  #| }
+
+///|
+extern "js" fn SyncProbe::calls(self : SyncProbe) -> FixedArray[String] =
+  #| probe => probe.calls
+
+///|
+test "empty whole-file writes synchronize before closing" {
+  for sync in [None, Some(NoSync), Some(Data), Some(Full)] {
+    let path = close_test_path()
+    write_file(path, b"seed", sync=NoSync)
+    defer (remove_file(path) catch { _ => () })
+    let probe = observe_sync(false)
+    defer probe.restore()
+    match sync {
+      None => write_file(path, b"")
+      Some(sync) => write_file(path, b"-"[1:], sync~)
+    }
+    match sync {
+      Some(NoSync) =>
+        debug_inspect(probe.calls(), content="<FixedArray: [\"close\"]>")
+      None | Some(Data) =>
+        debug_inspect(
+          probe.calls(),
+          content="<FixedArray: [\"data\", \"close\"]>",
+        )
+      Some(Full) =>
+        debug_inspect(
+          probe.calls(),
+          content="<FixedArray: [\"full\", \"close\"]>",
+        )
+    }
+    assert_eq(read_file(path), b"")
+  }
+}
+
+///|
+test "empty whole-file sync errors take precedence over close errors" {
+  for sync in [Data, Full] {
+    let path = close_test_path()
+    write_file(path, b"seed", sync=NoSync)
+    defer (remove_file(path) catch { _ => () })
+    let probe = observe_sync(true)
+    defer probe.restore()
+    let error = try {
+      write_file(path, b"", sync~)
+      "no error"
+    } catch {
+      IOError(message) => message
+    }
+    assert_eq(error, "sync: injected sync failure")
+    match sync {
+      Data =>
+        debug_inspect(
+          probe.calls(),
+          content="<FixedArray: [\"data\", \"close\"]>",
+        )
+      Full =>
+        debug_inspect(
+          probe.calls(),
+          content="<FixedArray: [\"full\", \"close\"]>",
+        )
+      NoSync => fail("expected a synchronization mode")
+    }
+  }
+}
