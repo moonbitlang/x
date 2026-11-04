@@ -21,7 +21,8 @@ pub(all) enum Mode {
 }
 
 ///|
-/// Creation and truncation are performed atomically by the operating system.
+/// File creation and truncation behavior. On Node.js for Windows,
+/// TruncateExisting opens the existing file and then truncates the same handle.
 pub(all) enum CreateMode {
   /// Fail if the file does not exist.
   OpenExisting = 0

@@ -118,6 +118,29 @@ test "creation modes preserve or truncate contents" {
 }
 
 ///|
+test "truncate existing preserves the missing-file requirement" {
+  for mode in [@fs.Mode::WriteOnly, ReadWrite] {
+    for append in [false, true] {
+      let path = file_test_path()
+      defer (@fs.remove_file(path) catch { _ => () })
+      @test.assert_raise(() => {
+        let file = @fs.open(path, mode~, create_mode=TruncateExisting, append~)
+        file.close()
+      })
+      assert_false(@fs.path_exists(path))
+      @fs.write_file(path, b"seed", sync=NoSync)
+      let file = @fs.open(path, mode~, create_mode=TruncateExisting, append~) catch {
+        @fs.IOError(message) => fail(message)
+      }
+      defer file.close()
+      assert_eq(@fs.read_file(path), b"")
+      file.write(b"new")
+      assert_eq(@fs.read_file(path), b"new")
+    }
+  }
+}
+
+///|
 test "append is independent of read cursor and sees external writes" {
   let path = file_test_path()
   @fs.write_file(path, b"start", sync=NoSync)

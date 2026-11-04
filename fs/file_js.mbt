@@ -64,14 +64,21 @@ extern "js" fn node_open(
   sync : SyncMode,
 ) -> FileJsResult =
   #| (fs, path, mode, createMode, append, permission, sync) => {
+  #|   let fd;
   #|   try {
   #|     const c = fs.constants;
+  #|     // Node/libuv rejects O_TRUNC without O_CREAT on Windows.
+  #|     const truncateExisting = process.platform === "win32" && createMode === 1;
   #|     let flags = [c.O_RDONLY, c.O_WRONLY, c.O_RDWR][mode];
-  #|     flags |= [0, c.O_TRUNC, c.O_CREAT, c.O_CREAT | c.O_TRUNC, c.O_CREAT | c.O_EXCL][createMode];
+  #|     flags |= [0, truncateExisting ? 0 : c.O_TRUNC, c.O_CREAT, c.O_CREAT | c.O_TRUNC, c.O_CREAT | c.O_EXCL][createMode];
   #|     if (append) flags |= c.O_APPEND;
-  #|     const fd = fs.openSync(path, flags, permission);
+  #|     fd = fs.openSync(path, flags, permission);
+  #|     if (truncateExisting) fs.ftruncateSync(fd, 0);
   #|     return {ok: true, value: {fs, fd, sync}};
-  #|   } catch (error) { return {ok: false, error: `open ${path}: ${error.message}`}; }
+  #|   } catch (error) {
+  #|     if (fd !== undefined) { try { fs.closeSync(fd); } catch {} }
+  #|     return {ok: false, error: `open ${path}: ${error.message}`};
+  #|   }
   #| }
 
 ///|

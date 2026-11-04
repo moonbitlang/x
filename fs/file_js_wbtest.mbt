@@ -194,3 +194,40 @@ test "whole file helper reports close errors and preserves primary errors" {
   assert_eq(primary_error, "read: injected read failure")
   assert_eq(fault.count(), 3)
 }
+
+///|
+#cfg(platform="windows")
+extern "js" fn failing_truncate_fs() -> NodeFs =
+  #| () => ({
+  #|   constants: process.getBuiltinModule("fs").constants,
+  #|   closes: 0,
+  #|   openSync(_path, flags) {
+  #|     if (flags & this.constants.O_TRUNC) throw Error("unexpected O_TRUNC");
+  #|     return 0;
+  #|   },
+  #|   ftruncateSync() { throw Error("injected truncate failure"); },
+  #|   closeSync() { this.closes++; throw Error("injected close failure"); }
+  #| })
+
+///|
+#cfg(platform="windows")
+extern "js" fn truncate_close_count(fs : NodeFs) -> Int32 =
+  #| fs => fs.closes
+
+///|
+#cfg(platform="windows")
+test "Windows truncation failure closes once and preserves the error" {
+  let fs = failing_truncate_fs()
+  let result = node_open(
+    fs,
+    "unused",
+    WriteOnly,
+    TruncateExisting,
+    false,
+    0o644,
+    NoSync,
+  )
+  assert_false(result.is_ok())
+  assert_eq(result.message(), "open unused: injected truncate failure")
+  assert_eq(truncate_close_count(fs), 1)
+}
