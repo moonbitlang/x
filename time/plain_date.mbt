@@ -14,11 +14,12 @@
 
 ///|
 /// A date without a time zone in the ISO 8601 calendar system.
+#derive(Debug)
 struct PlainDate {
   year : Int32
   month : Int32
   day : Int32
-} derive(Debug)
+}
 
 ///|
 /// Creates a PlainDate from the year, month and day.

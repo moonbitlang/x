@@ -11,9 +11,10 @@ pub fn decode(StringView, url_safe? : Bool) -> Bytes raise DecodeError
 pub fn encode(BytesView, url_safe? : Bool) -> String
 
 // Errors
+#derive(@debug.Debug)
 pub suberror DecodeError {
   InvalidChar(Char)
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn DecodeError::to_repr(Self) -> @debug.Repr
 

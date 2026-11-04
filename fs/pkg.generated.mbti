@@ -37,9 +37,10 @@ pub fn write_file(StringView, BytesView, create_mode? : CreateMode, permission? 
 pub fn write_string_to_file(String, String, encoding? : String) -> Unit raise IOError
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror IOError {
   IOError(String)
-} derive(@debug.Debug)
+}
 #deprecated
 pub fn IOError::to_repr(Self) -> @debug.Repr
 

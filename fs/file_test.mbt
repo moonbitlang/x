@@ -129,7 +129,7 @@ test "truncate existing preserves the missing-file requirement" {
     assert_false(@fs.path_exists(path))
     @fs.write_file(path, b"seed", sync=NoSync)
     let file = @fs.open(path, mode~, create_mode=TruncateExisting) catch {
-      @fs.IOError(message) => fail(message)
+      IOError(message) => fail(message)
     }
     defer file.close()
     assert_eq(@fs.read_file(path), b"")

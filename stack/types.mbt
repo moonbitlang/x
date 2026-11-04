@@ -13,10 +13,11 @@
 // limitations under the License.
 
 ///|
+#derive(Default)
 struct Stack[T] {
   mut elements : @list.List[T]
   mut len : Int32
-} derive(Default)
+}
 
 ///|
 #deprecated

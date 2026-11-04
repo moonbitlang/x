@@ -3,10 +3,11 @@ package "moonbitlang/x/json5"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
-pub fn parse(String) -> Json raise ParseError
+pub fn parse(String) -> @json.Json raise ParseError
 
 // Errors
 pub(all) suberror ParseError {
@@ -21,13 +22,14 @@ pub impl Show for ParseError
 pub impl @debug.Debug for ParseError
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) enum ParseErrorData {
   NoValidToken(Position)
   InvalidChar(Position, Char)
   InvalidEof
   InvalidNumber(Position, String)
   InvalidIdentEscape(Position)
-} derive(Eq, @debug.Debug)
+}
 #deprecated
 pub fn ParseErrorData::equal(Self, Self) -> Bool
 #deprecated
@@ -35,10 +37,11 @@ pub fn ParseErrorData::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn ParseErrorData::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Position {
   line : Int32
   column : Int32
-} derive(Eq, @debug.Debug)
+}
 #deprecated
 pub fn Position::equal(Self, Self) -> Bool
 #deprecated

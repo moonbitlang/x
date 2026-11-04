@@ -16,15 +16,17 @@
 /// A datetime with a time zone and offset in the ISO 8601 calendar system.
 /// By default, local construction chooses the earlier instant in an overlap
 /// and moves forward across a gap. Edits retain a still-valid offset.
+#derive(Debug)
 struct ZonedDateTime {
   datetime : PlainDateTime
   zone : Zone
   offset : ZoneOffset
-} derive(Debug)
+}
 
 ///|
 /// How to resolve a local clock reading when a zone's offset changes.
 /// Unambiguous readings are unchanged by every policy.
+#derive(Eq, Debug)
 pub(all) enum Disambiguation {
   /// Choose the earlier instant in an overlap; shift forward across a gap.
   Compatible
@@ -34,12 +36,13 @@ pub(all) enum Disambiguation {
   Later
   /// Raise an error for either an overlap or a gap.
   Reject
-} derive(Eq, Debug)
+}
 
 ///|
 /// How field edits interpret the original UTC offset, following Temporal.
 /// An accepted offset determines the instant before `Disambiguation` is used.
 /// When resolving from the zone instead, `Disambiguation` handles gaps and overlaps.
+#derive(Eq, Debug)
 pub(all) enum OffsetPolicy {
   /// Use the original offset if valid for the new local time; otherwise resolve
   /// from the zone using the disambiguation policy. This is the default.
@@ -52,7 +55,7 @@ pub(all) enum OffsetPolicy {
   /// Use the original offset if valid; otherwise raise an error, even when the
   /// new local time is unambiguous. This is distinct from Disambiguation::Reject.
   Reject
-} derive(Eq, Debug)
+}
 
 ///|
 #deprecated

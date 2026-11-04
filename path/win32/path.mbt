@@ -14,7 +14,8 @@
 
 ///|
 /// A newtype wrapper provide path operation methods.
-pub(all) struct Path(String) derive(Eq, Debug)
+#derive(Eq, Debug)
+pub(all) struct Path(String)
 
 ///|
 fn is_win_sep(ch : Char) -> Bool {

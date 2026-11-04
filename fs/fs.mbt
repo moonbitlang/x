@@ -13,9 +13,10 @@
 // limitations under the License.
 
 ///|
+#derive(Debug)
 pub(all) suberror IOError {
   IOError(String)
-} derive(Debug)
+}
 
 ///|
 /// Reads the content of a file specified by the given path and returns its

@@ -8,10 +8,11 @@ describes how the token is signed.
 
 ```mbt check
 ///|
+#derive(ToJson, @json.FromJson, Eq, Debug)
 struct LoginClaims {
   username : String
   exp : Double
-} derive(ToJson, @json.FromJson, Eq, Debug)
+}
 
 ///|
 test "encode and decode a JWT" {
