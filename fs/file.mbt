@@ -23,6 +23,8 @@ pub(all) enum Mode {
 ///|
 /// File creation and truncation behavior. On Node.js for Windows,
 /// TruncateExisting opens the existing file and then truncates the same handle.
+/// On Windows, Node.js and the Wasm host do not support TruncateExisting
+/// combined with append mode.
 pub(all) enum CreateMode {
   /// Fail if the file does not exist.
   OpenExisting = 0

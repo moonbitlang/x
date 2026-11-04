@@ -196,28 +196,35 @@ test "whole file helper reports close errors and preserves primary errors" {
 }
 
 ///|
-#cfg(platform="windows")
 extern "js" fn failing_truncate_fs() -> NodeFs =
-  #| () => ({
-  #|   constants: process.getBuiltinModule("fs").constants,
-  #|   closes: 0,
-  #|   openSync(_path, flags) {
-  #|     if (flags & this.constants.O_TRUNC) throw Error("unexpected O_TRUNC");
-  #|     return 0;
-  #|   },
-  #|   ftruncateSync() { throw Error("injected truncate failure"); },
-  #|   closeSync() { this.closes++; throw Error("injected close failure"); }
-  #| })
+  #| () => {
+  #|   const platform = Object.getOwnPropertyDescriptor(process, "platform");
+  #|   Object.defineProperty(process, "platform", {value: "win32"});
+  #|   return {
+  #|     platform,
+  #|     constants: process.getBuiltinModule("fs").constants,
+  #|     closes: 0,
+  #|     openSync(_path, flags) {
+  #|       if (flags & this.constants.O_TRUNC) throw Error("unexpected O_TRUNC");
+  #|       return 0;
+  #|     },
+  #|     ftruncateSync() { throw Error("injected truncate failure"); },
+  #|     closeSync() { this.closes++; throw Error("injected close failure"); }
+  #|   };
+  #| }
 
 ///|
-#cfg(platform="windows")
 extern "js" fn truncate_close_count(fs : NodeFs) -> Int32 =
   #| fs => fs.closes
 
 ///|
-#cfg(platform="windows")
+extern "js" fn restore_truncate_platform(fs : NodeFs) -> Unit =
+  #| fs => { Object.defineProperty(process, "platform", fs.platform); }
+
+///|
 test "Windows truncation failure closes once and preserves the error" {
   let fs = failing_truncate_fs()
+  defer restore_truncate_platform(fs)
   let result = node_open(
     fs,
     "unused",
