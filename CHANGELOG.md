@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Synchronous `@fs.File` APIs for native, Wasm, and Node.js, including
+  configurable file creation, independent read/write positions, positional I/O,
+  append mode, and file synchronization. Existing filesystem APIs remain available.
+
 ### Fixed
 
 - Source and test builds pass strict warning checks across all supported

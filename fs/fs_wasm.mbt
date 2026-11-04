@@ -70,38 +70,48 @@ fn string_from_extern(e : XExternString) -> String {
 }
 
 ///|
+#cfg(target="wasm-gc")
 #external
 priv type XByteArrayCreateHandle
 
 ///|
+#cfg(target="wasm-gc")
 #external
 priv type XByteArrayReadHandle
 
 ///|
+#cfg(target="wasm-gc")
 #external
 priv type XExternByteArray
 
 ///|
+#cfg(target="wasm-gc")
 fn begin_read_byte_array(s : XExternByteArray) -> XByteArrayReadHandle = "__moonbit_fs_unstable" "begin_read_byte_array"
 
 ///|
+#cfg(target="wasm-gc")
 fn byte_array_read_byte(handle : XByteArrayReadHandle) -> Int32 = "__moonbit_fs_unstable" "byte_array_read_byte"
 
 ///|
+#cfg(target="wasm-gc")
 fn finish_read_byte_array(handle : XByteArrayReadHandle) = "__moonbit_fs_unstable" "finish_read_byte_array"
 
 ///|
+#cfg(target="wasm-gc")
 fn begin_create_byte_array() -> XByteArrayCreateHandle = "__moonbit_fs_unstable" "begin_create_byte_array"
 
 ///|
+#cfg(target="wasm-gc")
 fn byte_array_append_byte(handle : XByteArrayCreateHandle, ch : Int32) = "__moonbit_fs_unstable" "byte_array_append_byte"
 
 ///|
+#cfg(target="wasm-gc")
 fn finish_create_byte_array(
   handle : XByteArrayCreateHandle,
 ) -> XExternByteArray = "__moonbit_fs_unstable" "finish_create_byte_array"
 
 ///|
+#cfg(target="wasm-gc")
 fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
   let handle = begin_create_byte_array()
   for i = 0; i < s.length(); i = i + 1 {
@@ -111,6 +121,7 @@ fn byte_array_to_extern(s : Bytes) -> XExternByteArray {
 }
 
 ///|
+#cfg(target="wasm-gc")
 fn byte_array_from_extern(e : XExternByteArray) -> Bytes {
   let buf = []
   let handle = begin_read_byte_array(e)
@@ -170,21 +181,25 @@ fn get_error_message() -> String {
 }
 
 ///|
+#cfg(target="wasm-gc")
 fn get_file_content_ffi() -> XExternByteArray = "__moonbit_fs_unstable" "get_file_content"
 
 ///|
 fn get_dir_files_ffi() -> XExternStringArray = "__moonbit_fs_unstable" "get_dir_files"
 
 ///|
+#cfg(target="wasm-gc")
 fn read_file_to_bytes_ffi(path : XExternString) -> Int32 = "__moonbit_fs_unstable" "read_file_to_bytes_new"
 
 ///|
+#cfg(target="wasm-gc")
 fn write_bytes_to_file_ffi(
   path : XExternString,
   content : XExternByteArray,
 ) -> Int32 = "__moonbit_fs_unstable" "write_bytes_to_file_new"
 
 ///|
+#cfg(target="wasm-gc")
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let res = read_file_to_bytes_ffi(string_to_extern(path))
   guard res != -1 else { raise IOError(get_error_message()) }
@@ -205,6 +220,7 @@ fn read_file_to_string_internal(
 }
 
 ///|
+#cfg(target="wasm-gc")
 fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,

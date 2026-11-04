@@ -49,48 +49,13 @@ fn OsString::to_string(self : OsString) -> String {
 }
 
 ///|
-#borrow(path, mode)
-extern "C" fn fopen_ffi(path : OsString, mode : OsString) -> Handler = "moonbitlang_x_fs_fopen_ffi"
-
-///|
 extern "C" fn is_null(ptr : Handler) -> Int32 = "moonbitlang_x_fs_is_null"
-
-///|
-#borrow(ptr)
-extern "C" fn fread_ffi(
-  ptr : Bytes,
-  size : Int32,
-  nitems : Int32,
-  stream : Handler,
-) -> Int32 = "moonbitlang_x_fs_fread_ffi"
-
-///|
-#borrow(ptr)
-extern "C" fn fwrite_ffi(
-  ptr : Bytes,
-  size : Int32,
-  nitems : Int32,
-  stream : Handler,
-) -> Int32 = "moonbitlang_x_fs_fwrite_ffi"
 
 ///|
 extern "C" fn get_error_message_ffi() -> Bytes = "moonbitlang_x_fs_get_error_message"
 
 ///|
-extern "C" fn fseek_ffi(
-  file : Handler,
-  offset : Int32,
-  whence : Int32,
-) -> Int32 = "moonbitlang_x_fs_fseek_ffi"
-
-///|
-extern "C" fn ftell_ffi(file : Handler) -> Int32 = "moonbitlang_x_fs_ftell_ffi"
-
-///|
-extern "C" fn fflush_ffi(stream : Handler) -> Int32 = "moonbitlang_x_fs_fflush_ffi"
-
-///|
-extern "C" fn fclose_ffi(file : Handler) -> Int32 = "moonbitlang_x_fs_fclose_ffi"
+extern "C" fn legacy_file_length(handle : FileHandle) -> Int64 = "moonbitlang_x_file_legacy_length"
 
 ///|
 fn get_error_message() -> String {
@@ -99,16 +64,18 @@ fn get_error_message() -> String {
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("rb"))
-  guard is_null(file) == 0 else { raise IOError(get_error_message()) }
-  guard fseek_ffi(file, 0, 2) == 0 else { raise IOError(get_error_message()) }
-  let size = ftell_ffi(file)
-  guard size != -1 else { raise IOError(get_error_message()) }
-  guard fseek_ffi(file, 0, 0) == 0 else { raise IOError(get_error_message()) }
-  let bytes = Bytes::make(size, 0)
-  let bytes_read = fread_ffi(bytes, 1, size, file)
-  guard bytes_read == size else { raise IOError(get_error_message()) }
-  guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
+  let file = open_file(path, ReadOnly, OpenExisting, false, 0o666, NoSync)
+  defer file.close()
+  // Preserve the legacy seek-to-end/sized-read contract, including /dev/null.
+  let size = native_file_result(
+    legacy_file_length(file.handle.unwrap()),
+    "read \{path}",
+  )
+  guard size <= 0x7fffffff else { raise IOError("file too large for Bytes") }
+  let bytes = file.read_exactly(size.to_int())
+  if file.close_result() is Some(message) {
+    raise IOError(message)
+  }
   bytes
 }
 
@@ -130,14 +97,18 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("wb"))
-  guard is_null(file) == 0 else { raise IOError(get_error_message()) }
-  let bytes_written = fwrite_ffi(content, 1, content.length(), file)
-  guard bytes_written == content.length() else {
-    raise IOError(get_error_message())
+  let file = open_file(path, WriteOnly, CreateOrTruncate, false, 0o666, NoSync)
+  defer file.close()
+  let handle = file.handle.unwrap()
+  // Sequential OS writes preserve the old support for devices and pipes.
+  for total = 0; total < content.length(); {
+    let n = handle.write(content, total, content.length() - total, -2)
+    guard n > 0 else { raise IOError("write made no progress") }
+    continue total + n
   }
-  guard fflush_ffi(file) == 0 else { raise IOError(get_error_message()) }
-  guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
+  if file.close_result() is Some(message) {
+    raise IOError(message)
+  }
 }
 
 ///|
