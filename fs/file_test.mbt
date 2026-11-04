@@ -77,39 +77,44 @@ test "each creating mode handles a missing file" {
 
 ///|
 test "creation modes preserve or truncate contents" {
-  let path = file_test_path()
-  defer (@fs.remove_file(path) catch { _ => () })
-  @test.assert_raise(() => {
-    let f = @fs.open(path, mode=ReadWrite)
-    f.close()
-  })
-  @test.assert_raise(() => {
-    let f = @fs.open(path, mode=ReadWrite, create_mode=TruncateExisting)
-    f.close()
-  })
-  for
-    mode in [
-      @fs.CreateMode::CreateNew,
-      OpenExisting,
-      OpenOrCreate,
-      TruncateExisting,
-      CreateOrTruncate,
-    ] {
-    let file = @fs.open(path, mode=ReadWrite, create_mode=mode)
-    defer file.close()
-    match mode {
-      OpenExisting | OpenOrCreate => assert_eq(file.read_all(), b"seed")
-      _ => assert_eq(file.size(), 0L)
+  try {
+    let path = file_test_path()
+    defer (@fs.remove_file(path) catch { _ => () })
+    @test.assert_raise(() => {
+      let f = @fs.open(path, mode=ReadWrite)
+      f.close()
+    })
+    @test.assert_raise(() => {
+      let f = @fs.open(path, mode=ReadWrite, create_mode=TruncateExisting)
+      f.close()
+    })
+    for
+      mode in [
+        @fs.CreateMode::CreateNew,
+        OpenExisting,
+        OpenOrCreate,
+        TruncateExisting,
+        CreateOrTruncate,
+      ] {
+      let file = @fs.open(path, mode=ReadWrite, create_mode=mode)
+      defer file.close()
+      match mode {
+        OpenExisting | OpenOrCreate => assert_eq(file.read_all(), b"seed")
+        _ => assert_eq(file.size(), 0L)
+      }
+      file.write(b"seed")
     }
-    file.write(b"seed")
+    @test.assert_raise(() => {
+      let f = @fs.create(path, allow_existing=false)
+      f.close()
+    })
+    let file = @fs.create(path)
+    defer file.close()
+    assert_eq(file.size(), 0L)
+  } catch {
+    @fs.IOError(message) => fail(message)
+    error => raise error
   }
-  @test.assert_raise(() => {
-    let f = @fs.create(path, allow_existing=false)
-    f.close()
-  })
-  let file = @fs.create(path)
-  defer file.close()
-  assert_eq(file.size(), 0L)
 }
 
 ///|
