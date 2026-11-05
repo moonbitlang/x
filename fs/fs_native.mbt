@@ -49,48 +49,47 @@ fn OsString::to_string(self : OsString) -> String {
 }
 
 ///|
-#borrow(path, mode)
-extern "C" fn fopen_ffi(path : OsString, mode : OsString) -> Handler = "moonbitlang_x_fs_fopen_ffi"
+#borrow(path)
+extern "C" fn file_open_ffi(path : OsString, write : Bool) -> Int64 = "moonbitlang_x_file_open"
 
 ///|
 extern "C" fn is_null(ptr : Handler) -> Int32 = "moonbitlang_x_fs_is_null"
 
 ///|
-#borrow(ptr)
-extern "C" fn fread_ffi(
-  ptr : Bytes,
-  size : Int32,
-  nitems : Int32,
-  stream : Handler,
-) -> Int32 = "moonbitlang_x_fs_fread_ffi"
+#borrow(buffer)
+extern "C" fn file_read_ffi(
+  handle : Int64,
+  buffer : Bytes,
+  offset : Int32,
+  len : Int32,
+) -> Int64 = "moonbitlang_x_file_read"
 
 ///|
-#borrow(ptr)
-extern "C" fn fwrite_ffi(
-  ptr : Bytes,
-  size : Int32,
-  nitems : Int32,
-  stream : Handler,
-) -> Int32 = "moonbitlang_x_fs_fwrite_ffi"
+#borrow(buffer)
+extern "C" fn file_write_ffi(
+  handle : Int64,
+  buffer : Bytes,
+  offset : Int32,
+  len : Int32,
+) -> Int64 = "moonbitlang_x_file_write"
 
 ///|
 extern "C" fn get_error_message_ffi() -> Bytes = "moonbitlang_x_fs_get_error_message"
 
 ///|
-extern "C" fn fseek_ffi(
-  file : Handler,
-  offset : Int32,
-  whence : Int32,
-) -> Int32 = "moonbitlang_x_fs_fseek_ffi"
+extern "C" fn file_length_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_length"
 
 ///|
-extern "C" fn ftell_ffi(file : Handler) -> Int32 = "moonbitlang_x_fs_ftell_ffi"
+extern "C" fn file_close_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_close"
 
 ///|
-extern "C" fn fflush_ffi(stream : Handler) -> Int32 = "moonbitlang_x_fs_fflush_ffi"
-
-///|
-extern "C" fn fclose_ffi(file : Handler) -> Int32 = "moonbitlang_x_fs_fclose_ffi"
+fn native_file_result(
+  result : Int64,
+  operation : String,
+) -> Int64 raise IOError {
+  guard result >= 0 else { raise IOError("\{operation}: OS error \{-result}") }
+  result
+}
 
 ///|
 fn get_error_message() -> String {
@@ -99,16 +98,27 @@ fn get_error_message() -> String {
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("rb"))
-  guard is_null(file) == 0 else { raise IOError(get_error_message()) }
-  guard fseek_ffi(file, 0, 2) == 0 else { raise IOError(get_error_message()) }
-  let size = ftell_ffi(file)
-  guard size != -1 else { raise IOError(get_error_message()) }
-  guard fseek_ffi(file, 0, 0) == 0 else { raise IOError(get_error_message()) }
+  let file = native_file_result(
+    file_open_ffi(OsString::from_string(path), false),
+    "open \{path}",
+  )
+  let mut closed = false
+  defer (if !closed { ignore(file_close_ffi(file)) })
+  // Preserve the existing seek-based length, including special-file behavior.
+  let length = native_file_result(file_length_ffi(file), "seek")
+  guard length <= 0x7fffffff else { raise IOError("file too large for Bytes") }
+  let size = length.to_int()
   let bytes = Bytes::make(size, 0)
-  let bytes_read = fread_ffi(bytes, 1, size, file)
-  guard bytes_read == size else { raise IOError(get_error_message()) }
-  guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
+  for total = 0; total < size; {
+    let n = native_file_result(
+      file_read_ffi(file, bytes, total, size - total),
+      "read",
+    ).to_int()
+    guard n > 0 else { raise IOError("unexpected end of file") }
+    continue total + n
+  }
+  closed = true
+  ignore(native_file_result(file_close_ffi(file), "close"))
   bytes
 }
 
@@ -130,14 +140,22 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let file = fopen_ffi(OsString::from_string(path), OsString::from_string("wb"))
-  guard is_null(file) == 0 else { raise IOError(get_error_message()) }
-  let bytes_written = fwrite_ffi(content, 1, content.length(), file)
-  guard bytes_written == content.length() else {
-    raise IOError(get_error_message())
+  let file = native_file_result(
+    file_open_ffi(OsString::from_string(path), true),
+    "open \{path}",
+  )
+  let mut closed = false
+  defer (if !closed { ignore(file_close_ffi(file)) })
+  for total = 0; total < content.length(); {
+    let n = native_file_result(
+      file_write_ffi(file, content, total, content.length() - total),
+      "write",
+    ).to_int()
+    guard n > 0 else { raise IOError("write made no progress") }
+    continue total + n
   }
-  guard fflush_ffi(file) == 0 else { raise IOError(get_error_message()) }
-  guard fclose_ffi(file) == 0 else { raise IOError(get_error_message()) }
+  closed = true
+  ignore(native_file_result(file_close_ffi(file), "close"))
 }
 
 ///|

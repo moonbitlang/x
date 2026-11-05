@@ -38,47 +38,8 @@ typedef moonbit_string_t moonbitlang_x_os_string_t;
 typedef moonbit_bytes_t moonbitlang_x_os_string_t;
 #endif
 
-MOONBIT_FFI_EXPORT FILE *
-moonbitlang_x_fs_fopen_ffi(moonbitlang_x_os_string_t path,
-                           moonbitlang_x_os_string_t mode) {
-#ifdef _WIN32
-  return _wfopen((const wchar_t *)path, (const wchar_t *)mode);
-#else
-  return fopen((const char *)path, (const char *)mode);
-#endif
-}
-
 MOONBIT_FFI_EXPORT int moonbitlang_x_fs_is_null(void *ptr) {
   return ptr == NULL;
-}
-
-MOONBIT_FFI_EXPORT size_t moonbitlang_x_fs_fread_ffi(moonbit_bytes_t ptr,
-                                                     int size, int nitems,
-                                                     FILE *stream) {
-  return fread(ptr, size, nitems, stream);
-}
-
-MOONBIT_FFI_EXPORT size_t moonbitlang_x_fs_fwrite_ffi(moonbit_bytes_t ptr,
-                                                      int size, int nitems,
-                                                      FILE *stream) {
-  return fwrite(ptr, size, nitems, stream);
-}
-
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_fseek_ffi(FILE *stream, long offset,
-                                                  int whence) {
-  return fseek(stream, offset, whence);
-}
-
-MOONBIT_FFI_EXPORT long moonbitlang_x_fs_ftell_ffi(FILE *stream) {
-  return ftell(stream);
-}
-
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_fflush_ffi(FILE *file) {
-  return fflush(file);
-}
-
-MOONBIT_FFI_EXPORT int moonbitlang_x_fs_fclose_ffi(FILE *stream) {
-  return fclose(stream);
 }
 
 MOONBIT_FFI_EXPORT moonbit_bytes_t moonbitlang_x_fs_get_error_message(void) {
