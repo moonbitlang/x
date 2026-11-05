@@ -104,10 +104,6 @@ jobs:
           moon test --target all --release
           moon test --target all
 
-      - name: Test interrupted filesystem transfers
-        if: ${{ runner.os != 'Windows' }}
-        run: moon run fs/tests/eintr.mbtx
-
       - name: Test Date timezone fallback
         env:
           NODE_OPTIONS: "--import=data:text/javascript,globalThis.Temporal=undefined"

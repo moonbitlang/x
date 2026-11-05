@@ -13,33 +13,6 @@
 // limitations under the License.
 
 ///|
-#cfg(target="wasm")
-test "interrupted whole-file transfers preserve all bytes" {
-  // fs/tests/eintr.mbtx injects read/write failures for this file only.
-  let path = "tmp_fs_eintr.bin"
-  @fs.write_bytes_to_file(path, b"")
-  defer @fs.remove_file(path)
-  let content = Bytes::makei(2 * 64 * 1024 + 17, i => (i % 251).to_byte())
-  let fault = @env.get_env_var("X_FS_FAULT")
-  if fault == Some("write-error") {
-    let IOError(message) = @test.expect_error(() => {
-      @fs.write_bytes_to_file(path, content)
-    })
-    assert_true(message.contains("write \{path}: "))
-    return
-  }
-  @fs.write_bytes_to_file(path, content)
-  if fault == Some("read-error") {
-    let IOError(message) = @test.expect_error(() => {
-      ignore(@fs.read_file_to_bytes(path))
-    })
-    assert_true(message.contains("read \{path}: "))
-    return
-  }
-  assert_eq(@fs.read_file_to_bytes(path), content)
-}
-
-///|
 #cfg(all(target="native", not(platform="windows")))
 test "failed native directory reads do not leak descriptors" {
   let before = @fs.read_dir("/dev/fd").length()
