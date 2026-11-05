@@ -5,7 +5,7 @@
 ### Fixed
 
 - Native whole-file reads and writes retry opening a file when interrupted
-  by a signal.
+  by a signal. (#362)
 
 - Native whole-file reads and writes release file handles when an
   I/O operation fails. (#361)
