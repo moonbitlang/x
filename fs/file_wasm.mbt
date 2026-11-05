@@ -221,23 +221,28 @@ fn file_error(error : Int32, operation : String) -> IOError {
 
 ///|
 fn open_handle(path : String, writing : Bool) -> FileHandle raise IOError {
-  let job = make_open_job(
-    path,
-    path_len=path.length(),
-    access=if writing { ACCESS_WRITE_ONLY } else { ACCESS_READ_ONLY },
-    create=if writing { CREATE_OR_TRUNCATE } else { OPEN_EXISTING },
-    append=false,
-    sync=NO_SYNC,
-    permission=0o666, // Preserve x/fs's creation permissions, subject to umask.
-    stat_request=NO_STAT,
-    stat_buf_len=STAT_HEADER_SIZE,
-  )
-  defer job.free()
-  job.run()
-  let error = job.err()
-  guard error == 0 else { raise file_error(error, "open \{path}") }
-  // Claim the descriptor before freeing the job. It has a separate lifetime.
-  job.fd()
+  for ;; {
+    let job = make_open_job(
+      path,
+      path_len=path.length(),
+      access=if writing { ACCESS_WRITE_ONLY } else { ACCESS_READ_ONLY },
+      create=if writing { CREATE_OR_TRUNCATE } else { OPEN_EXISTING },
+      append=false,
+      sync=NO_SYNC,
+      permission=0o666, // Preserve x/fs's creation permissions, subject to umask.
+      stat_request=NO_STAT,
+      stat_buf_len=STAT_HEADER_SIZE,
+    )
+    defer job.free()
+    job.run()
+    let error = job.err()
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
+    guard error == 0 else { raise file_error(error, "open \{path}") }
+    // Claim the descriptor before freeing the job. It has a separate lifetime.
+    break job.fd()
+  }
 }
 
 ///|
