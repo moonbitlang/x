@@ -47,7 +47,10 @@ MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_open(
   return (int64_t)(intptr_t)handle;
 #else
   int flags = (writing ? O_WRONLY | O_CREAT | O_TRUNC : O_RDONLY) | O_CLOEXEC;
-  int fd = open((const char *)path, flags, 0666);
+  int fd;
+  do {
+    fd = open((const char *)path, flags, 0666);
+  } while (fd < 0 && errno == EINTR);
   return fd < 0 ? -(int64_t)errno : fd;
 #endif
 }
