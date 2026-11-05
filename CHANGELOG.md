@@ -4,6 +4,9 @@
 
 ### Fixed
 
+- Native whole-file reads and writes release file handles when an
+  I/O operation fails. (#361)
+
 - Source and test builds pass strict warning checks across all supported
   backends, including checks for unnecessary annotations. (#358)
 
