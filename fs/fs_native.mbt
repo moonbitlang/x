@@ -83,11 +83,20 @@ extern "C" fn file_length_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_len
 extern "C" fn file_close_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_close"
 
 ///|
+extern "C" fn file_error_message_ffi(error : Int32) -> OsString = "moonbitlang_x_file_error_message"
+
+///|
 fn native_file_result(
   result : Int64,
   operation : String,
 ) -> Int64 raise IOError {
-  guard result >= 0 else { raise IOError("\{operation}: OS error \{-result}") }
+  guard result >= 0 else {
+    let error = (-result).to_int()
+    let message = file_error_message_ffi(error)
+      .to_string()
+      .trim_end(chars="\r\n")
+    raise IOError("\{operation}: \{message} (\{error})")
+  }
   result
 }
 
@@ -105,20 +114,22 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(file)) })
   // Preserve the existing seek-based length, including special-file behavior.
-  let length = native_file_result(file_length_ffi(file), "seek")
-  guard length <= 0x7fffffff else { raise IOError("file too large for Bytes") }
+  let length = native_file_result(file_length_ffi(file), "seek \{path}")
+  guard length <= MAX_FILE_BYTES.to_int64() else {
+    raise IOError("read \{path}: file too large for Bytes")
+  }
   let size = length.to_int()
   let bytes = Bytes::make(size, 0)
   for total = 0; total < size; {
     let n = native_file_result(
       file_read_ffi(file, bytes, total, size - total),
-      "read",
+      "read \{path}",
     ).to_int()
-    guard n > 0 else { raise IOError("unexpected end of file") }
+    guard n > 0 else { raise IOError("read \{path}: unexpected end of file") }
     continue total + n
   }
   closed = true
-  ignore(native_file_result(file_close_ffi(file), "close"))
+  ignore(native_file_result(file_close_ffi(file), "close \{path}"))
   bytes
 }
 
@@ -149,13 +160,13 @@ fn write_bytes_to_file_internal(
   for total = 0; total < content.length(); {
     let n = native_file_result(
       file_write_ffi(file, content, total, content.length() - total),
-      "write",
+      "write \{path}",
     ).to_int()
-    guard n > 0 else { raise IOError("write made no progress") }
+    guard n > 0 else { raise IOError("write \{path}: made no progress") }
     continue total + n
   }
   closed = true
-  ignore(native_file_result(file_close_ffi(file), "close"))
+  ignore(native_file_result(file_close_ffi(file), "close \{path}"))
 }
 
 ///|

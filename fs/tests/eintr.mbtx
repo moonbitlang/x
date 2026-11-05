@@ -1,0 +1,65 @@
+----
+import {
+  "moonbitlang/core/async",
+  "moonbitlang/core/async/process",
+  "moonbitlang/core/env",
+}
+----
+
+// Run from the repository root on macOS/Linux:
+// moon run fs/tests/eintr.mbtx
+// The interposer affects only the named regression fixture, not production FFI.
+
+async fn main {
+  if @async.platform is Windows {
+    println("Skipped: EINTR injection requires macOS or Linux")
+    return
+  }
+  let root = @env.current_dir().unwrap()
+  let directory = "\{root}/_build/fs-eintr"
+  let mkdir = @process.run("mkdir", ["-p", directory])
+  assert_eq(mkdir.exit_code, 0)
+  let library = "\{directory}/eintr.so"
+  let flags = if @async.platform is MacOS {
+    ["-dynamiclib"]
+  } else {
+    ["-shared", "-fPIC"]
+  }
+  let compile = @process.run(
+    "cc",
+    flags + [
+      "-Wall", "-Wextra", "-Werror", "fs/tests/eintr.c", "-ldl", "-o", library,
+    ],
+  )
+  assert_eq(compile.exit_code, 0)
+  let preload = if @async.platform is MacOS {
+    "DYLD_INSERT_LIBRARIES"
+  } else {
+    "LD_PRELOAD"
+  }
+  let mut failures = 0
+  for mode in ["read", "write", "read-after", "write-after", "read-error", "write-error"] {
+    let result = @process.run(
+      "moon",
+      [
+        "test", "fs", "--target", "wasm", "--target-dir", "\{directory}/build",
+        "--filter", "interrupted whole-file transfers preserve all bytes",
+      ],
+      extra_env=Map::from_array([(preload, library), ("X_FS_FAULT", mode)]),
+      stdout=@process.read_from_process(),
+      stderr=@process.read_from_process(),
+    )
+    let stderr = result.stderr_text()
+    guard stderr.contains("X_FS_INJECTED \{mode}") else {
+      fail("No syscall fault was injected: \{mode} (exit \{result.exit_code})\n\{result.stdout_text()}\n\{stderr}")
+    }
+    // Negative modes assert IOError and operation context inside the fixture.
+    if result.exit_code != 0 {
+      failures += 1
+      println("Unexpected result for \{mode}:\n\{result.stdout_text()}\n\{stderr}")
+    } else {
+      println("\{mode}: passed")
+    }
+  }
+  assert_eq(failures, 0)
+}

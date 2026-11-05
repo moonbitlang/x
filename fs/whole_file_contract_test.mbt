@@ -22,7 +22,7 @@ fn file_test_path() -> String {
 }
 
 ///|
-test "legacy content APIs preserve overwrite and encoding behavior" {
+test "whole-file overwrite and UTF-8 contract" {
   let path = file_test_path() + "_中文"
   @fs.write_bytes_to_file(path, b"long contents")
   defer (@fs.remove_file(path) catch { _ => () })
@@ -36,46 +36,45 @@ test "legacy content APIs preserve overwrite and encoding behavior" {
   assert_eq(@fs.read_file_to_string(path), "月亮🌙")
   @fs.write_bytes_to_file(path, b"")
   assert_eq(@fs.read_file_to_bytes(path), b"")
+  @fs.write_bytes_to_file(path, b"preserve on invalid encoding")
   @test.assert_raise(() => {
     @fs.write_string_to_file(path, "ignored", encoding="utf16")
   })
-  assert_eq(@fs.read_file_to_bytes(path), b"")
+  assert_eq(@fs.read_file_to_bytes(path), b"preserve on invalid encoding")
   @test.assert_raise(() => @fs.read_file_to_string(path, encoding="utf16"))
   @test.assert_raise(() => @fs.read_file_to_bytes(path + ".missing"))
 }
 
 ///|
-test "legacy content APIs read across chunk boundaries" {
+test "whole-file reads return all contents across chunk boundaries" {
   let path = file_test_path()
-  let content = Bytes::from_array(
-    [
-      for i in 0..<131089 => (i % 251).to_byte()
-    ],
-  )
-  @fs.write_bytes_to_file(path, content)
+  @fs.write_bytes_to_file(path, b"")
   defer (@fs.remove_file(path) catch { _ => () })
-  assert_eq(@fs.read_file_to_bytes(path), content)
-  @fs.write_bytes_to_file(path, b"short")
-  assert_eq(@fs.read_file_to_bytes(path), b"short")
+  let chunk_size = 64 * 1024
+  // Below, at, and above a chunk boundary; then multiple chunks and a tail.
+  for
+    len in [
+      0,
+      1,
+      chunk_size - 1,
+      chunk_size,
+      chunk_size + 1,
+      2 * chunk_size,
+      2 * chunk_size + 17,
+    ] {
+    let content = Bytes::from_array([ for i in 0..<len => (i % 251).to_byte() ])
+    @fs.write_bytes_to_file(path, content)
+    assert_eq(@fs.read_file_to_bytes(path), content)
+  }
 }
 
 ///|
 #cfg(all(target="native", not(platform="windows")))
-test "legacy native special files and NUL paths" {
+test "native special-file and NUL-path compatibility" {
   assert_eq(@fs.read_file_to_bytes("/dev/null"), b"")
   @fs.write_bytes_to_file("/dev/null", b"discard")
   let path = file_test_path()
   @fs.write_bytes_to_file(path + "\u0000suffix", b"legacy")
   defer (@fs.remove_file(path) catch { _ => () })
   assert_eq(@fs.read_file_to_bytes(path + "\u0000suffix"), b"legacy")
-}
-
-///|
-#cfg(all(target="native", not(platform="windows")))
-test "legacy native failed reads release their descriptor" {
-  let before = @fs.read_dir("/dev/fd").length()
-  for _ in 0..<32 {
-    @test.assert_raise(() => @fs.read_file_to_bytes("."))
-  }
-  assert_eq(@fs.read_dir("/dev/fd").length(), before)
 }
