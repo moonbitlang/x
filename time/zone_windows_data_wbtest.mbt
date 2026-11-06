@@ -794,20 +794,54 @@ test "identical Windows transition dates disable daylight saving" {
 }
 
 ///|
-test "distinct January markers still represent all-year daylight time" {
-  // Synthetic edge: both dates normalize to YearBoundary, but their native
-  // fields differ. They must not be mistaken for the disabled-DST sentinel.
+test "Windows daylight time starts on the first Sunday in January" {
+  let record : WindowsTimeZoneInfo = {
+    ..eastern_windows_record,
+    daylight_date: { ..windows_no_date, month: 1, day: 1, weekday: 0, },
+  }
+  // Both the rule without a year range and the rule for 2025 select January 5.
+  let at = PlainDateTime::of(2025, 1, 5, hour=5).to_unix_second()
+  for (first, rules) in [(None, [record]), (Some(2024), [record, record])] {
+    let zone = Zone::from_windows_rules("January start", first, rules)
+    assert_eq(zone.lookup_offset(at - 1).seconds(), -18000)
+    assert_eq(zone.lookup_offset(at).seconds(), -14400)
+  }
+}
+
+///|
+test "Windows daylight time ends on the first Sunday in January" {
+  let record : WindowsTimeZoneInfo = {
+    ..eastern_windows_record,
+    standard_date: { ..windows_no_date, month: 1, day: 1, weekday: 0, },
+  }
+  let zone = Zone::from_windows_rules("January end", None, [record])
+  // With no year range, DST ends on the first Sunday even if it is January 1.
+  for (year, day) in [(2023, 1), (2025, 5)] {
+    let at = PlainDateTime::of(year, 1, day, hour=4).to_unix_second()
+    assert_eq(zone.lookup_offset(at - 1).seconds(), -14400)
+    assert_eq(zone.lookup_offset(at).seconds(), -18000)
+  }
+}
+
+///|
+test "distinct January weekdays with no year range bound a real interval" {
   let record : WindowsTimeZoneInfo = {
     ..eastern_windows_record,
     standard_date: { ..windows_no_date, month: 1, day: 1, weekday: 1, },
     daylight_date: { ..windows_no_date, month: 1, day: 1, weekday: 2, },
   }
-  let zone = Zone::from_windows_rules("Year boundaries", None, [record])
-  for month in [1, 7, 12] {
-    let instant = PlainDateTime::of(2024, month, 15, hour=12).to_unix_second()
-    let offset = zone.lookup_offset(instant)
-    assert_eq(offset.seconds(), -14400)
-    assert_true(offset.is_dst())
+  let zone = Zone::from_windows_rules("January weekdays", None, [record])
+  // Standard time from the first Monday until the first Tuesday in 2025.
+  let leave = PlainDateTime::of(2025, 1, 6, hour=4).to_unix_second()
+  let enter = PlainDateTime::of(2025, 1, 7, hour=5).to_unix_second()
+  for
+    (at, expected) in [
+      (leave - 1, -14400),
+      (leave, -18000),
+      (enter - 1, -18000),
+      (enter, -14400),
+    ] {
+    assert_eq(zone.lookup_offset(at).seconds(), expected)
   }
 }
 
