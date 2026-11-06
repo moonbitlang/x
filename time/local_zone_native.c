@@ -25,30 +25,6 @@
 #pragma comment(lib, "advapi32.lib")
 #endif
 
-/* Independent Win32 conversion oracle for the native integration test. */
-MOONBIT_FFI_EXPORT int32_t moonbitlang_x_time_windows_local_offset(int64_t second, int32_t year) {
-  DYNAMIC_TIME_ZONE_INFORMATION zone;
-  SYSTEMTIME utc, local;
-  FILETIME file;
-  ULARGE_INTEGER ticks, local_ticks;
-  /* FILETIME's supported range; this helper is only used by bounded tests. */
-  if (second < -11644473600LL || second > 253402300799LL) return INT32_MIN;
-  ticks.QuadPart = (uint64_t)(second + 11644473600LL) * 10000000;
-  file.dwLowDateTime = ticks.LowPart;
-  file.dwHighDateTime = ticks.HighPart;
-  if (GetDynamicTimeZoneInformation(&zone) == TIME_ZONE_ID_INVALID ||
-      !FileTimeToSystemTime(&file, &utc)) return INT32_MIN;
-  /* Tests supply the local year so dates straddling New Year use the right
-   * rule. This converter is also available on Windows 7. */
-  TIME_ZONE_INFORMATION rule;
-  if (!GetTimeZoneInformationForYear((USHORT)year, &zone, &rule) ||
-      !SystemTimeToTzSpecificLocalTime(&rule, &utc, &local)) return INT32_MIN;
-  if (!SystemTimeToFileTime(&local, &file)) return INT32_MIN;
-  local_ticks.LowPart = file.dwLowDateTime;
-  local_ticks.HighPart = file.dwHighDateTime;
-  return (int32_t)(((int64_t)local_ticks.QuadPart - (int64_t)ticks.QuadPart) / 10000000);
-}
-
 /* Owned by MoonBit. Accessors keep native layout and alignment in C.
  * The current zone stays captured while each annual API result is read out. */
 typedef struct {

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Windows local timezones honor recurring January weekday transitions. (#363)
+
 - Native whole-file reads and writes retry opening a file when interrupted
   by a signal. (#362)
 

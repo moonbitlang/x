@@ -175,9 +175,8 @@ fn WindowsSystemTime::to_transition(
 }
 
 ///|
-// A missing first year denotes a single current rule. Otherwise, the array
-// contains consecutive annual rules starting at first_year. Only the native
-// Windows loader calls this outside white-box tests.
+// GetDynamicTimeZoneInformation supplies one rule without a year range.
+// GetTimeZoneInformationForYear supplies one rule per year starting at first_year.
 #warnings("-unused_value")
 fn Zone::from_windows_rules(
   id : String,
@@ -203,7 +202,7 @@ fn Zone::from_windows_rules(
   }
   let last = first + rules.length() - 1
   let records : Array[WindowsRecord] = []
-  for info in rules {
+  for i, info in rules {
     let end = info.standard_date.to_transition()
     let start = info.daylight_date.to_transition()
     guard (start is None) == (end is None) else {
@@ -229,19 +228,29 @@ fn Zone::from_windows_rules(
       }
     })
     // Equal dates disable DST; absolute dates ignore the weekday field.
-    // Compare before distinct January dates can become YearBoundary.
     match (start, end) {
       (Some(start), Some(end)) if start != end => {
         if start is Annual(start) && end is Annual(end) {
-          // Preserve the established annual-rule boundary convention. Mixed
-          // pairs keep the literal relative dates from TIME_ZONE_INFORMATION.
-          let start = match start {
-            MonthWeekDay(month=1, week=1, second=0, ..) => YearBoundary
-            _ => start
-          }
-          let end = match end {
-            MonthWeekDay(month=1, week=1, second=0, ..) => YearBoundary
-            _ => end
+          // A rule fetched for a specific year can use midnight on January 1
+          // of that year as a state marker. With no year range, a weekday
+          // such as January's first Sunday is evaluated afresh each year.
+          let (start, end) = if first_year is Some(first) {
+            let year = first + i
+            let jan1 = WindowsDate::YearBoundary.time(year, 0)
+            (
+              if start.time(year, 0) == jan1 {
+                YearBoundary
+              } else {
+                start
+              },
+              if end.time(year, 0) == jan1 {
+                YearBoundary
+              } else {
+                end
+              },
+            )
+          } else {
+            (start, end)
           }
           records.push(
             Annual({ standard: offsets[0], daylight: offsets[1], start, end, }),
