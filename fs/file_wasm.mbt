@@ -83,10 +83,7 @@ const REGULAR_FILE : Int64 = 1
 const SEQUENTIAL_POSITION : Int64 = -1
 
 ///|
-const STREAM_CHUNK_SIZE : Int32 = 4096
-
-///|
-const GROWING_FILE_CHUNK_SIZE : Int32 = 65536
+let max_file_position : Int64 = 0x7fffffffffffffff
 
 ///|
 #unsafe_skip_stub_check
@@ -209,14 +206,19 @@ fn OsErrorText::decode(
 
 ///|
 /// Decode the host-native error string (UTF-16 on Windows, UTF-8 on Unix).
-fn file_error(error : Int32, operation : String) -> IOError {
+fn os_error_message(error : Int32) -> String {
   let text = errno_to_string(error)
   defer text.free()
   let nul_terminated = -1
   let len = text.decoded_length(0, nul_terminated)
   let message = String::make(len, '\u{0}')
   text.decode(0, nul_terminated, message, len)
-  IOError("\{operation}: \{message.trim_end(chars="\r\n")} (\{error})")
+  message.trim_end(chars="\r\n").to_owned()
+}
+
+///|
+fn file_error(error : Int32, operation : String) -> IOError {
+  IOError("\{operation}: \{os_error_message(error)} (\{error})")
 }
 
 ///|
@@ -273,23 +275,9 @@ fn FileHandle::read(
   path : String,
   offset~ : Int32 = 0,
 ) -> Int32 raise IOError {
-  for ;; {
-    let job = make_read_job(
-      self,
-      buffer.length() - offset,
-      position=SEQUENTIAL_POSITION,
-    )
-    defer job.free()
-    job.run()
-    let error = job.err()
-    // A job is single-use. EINTR makes no progress, so recreate it unchanged.
-    if file_host_is_unix && error == UNIX_EINTR {
-      continue
-    }
-    guard error == 0 else { raise file_error(error, "read \{path}") }
-    let n = job.ret()
-    job.copy_read(buffer, offset, n)
-    break n
+  self.read_once(buffer, offset, buffer.length() - offset, SEQUENTIAL_POSITION) catch {
+    OSError(error, ..) => raise file_error(error, "read \{path}")
+    error => raise IOError("read \{path}: \{error}")
   }
 }
 
@@ -300,52 +288,148 @@ fn FileHandle::read_all(
   path : String,
   size_hint : Int32?,
 ) -> Bytes raise IOError {
-  let chunks : Array[(FixedArray[Byte], Int32)] = []
-  let mut total = 0
-  if size_hint is Some(size) {
-    let buffer : FixedArray[Byte] = FixedArray::make(size, 0)
-    let n = self.read(buffer, path)
-    if n == 0 {
-      return b""
-    }
-    // A size hint cannot establish EOF, even for a regular file.
-    let probe : FixedArray[Byte] = FixedArray::make(1, 0)
-    if self.read(probe, path) == 0 {
-      // No mutable alias escapes; full-buffer results transfer ownership.
-      return buffer.unsafe_reinterpret_as_bytes()[:n].to_owned()
-    }
-    chunks.push((buffer, n))
-    chunks.push((probe, 1))
-    total = n + 1
+  read_all_with_hint(
+    (buffer, offset) => self.read(buffer, path, offset~),
+    size_hint,
+  ) catch {
+    IOError(message) => raise IOError(message)
+    Failure::Failure(message) => raise IOError("read \{path}: \{message}")
+    error => raise IOError("read \{path}: \{error}")
   }
-  let chunk_size = if size_hint is Some(_) {
-    GROWING_FILE_CHUNK_SIZE
+}
+
+///|
+fn open_file_handle(
+  path : String,
+  mode : Mode,
+  create_mode : CreateMode,
+  append : Bool,
+  permission : Int32,
+  sync : SyncMode,
+) -> FileHandle raise {
+  let job = make_open_job(
+    path,
+    path_len=path.length(),
+    access=match mode {
+      ReadOnly => 0
+      WriteOnly => 1
+      ReadWrite => 2
+    },
+    create=match create_mode {
+      OpenExisting => 0
+      TruncateExisting => 1
+      OpenOrCreate => 2
+      CreateOrTruncate => 3
+      CreateNew => 4
+    },
+    append~,
+    sync=match sync {
+      NoSync => 0
+      Data => 1
+      Full => 2
+    },
+    permission~,
+    stat_request=NO_STAT,
+    stat_buf_len=STAT_HEADER_SIZE,
+  )
+  defer job.free()
+  // This job combines open and stat. Retrying the whole job could repeat a
+  // successful truncation after a metadata failure; raw-open retry belongs
+  // in the host. New APIs therefore propagate an interrupted open job.
+  job.run()
+  let error = job.err()
+  guard error == 0 else { raise OSError(error, context="open \{path}") }
+  job.fd()
+}
+
+///|
+fn FileHandle::read_once(
+  self : FileHandle,
+  buffer : FixedArray[Byte],
+  offset : Int32,
+  len : Int32,
+  position : Int64,
+) -> Int32 raise {
+  for ;; {
+    let job = make_read_job(self, len, position~)
+    defer job.free()
+    job.run()
+    let error = job.err()
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
+    guard error == 0 else { raise OSError(error, context="read") }
+    let n = job.ret()
+    job.copy_read(buffer, offset, n)
+    break n
+  }
+}
+
+///|
+fn FileHandle::write(
+  self : FileHandle,
+  buffer : Bytes,
+  offset : Int32,
+  len : Int32,
+  position : Int64,
+) -> Int32 raise {
+  for ;; {
+    let job = make_write_job(self, buffer, offset, len, position~)
+    defer job.free()
+    job.run()
+    let error = job.err()
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
+    guard error == 0 else { raise OSError(error, context="write") }
+    break job.ret()
+  }
+}
+
+///|
+fn FileHandle::size(self : FileHandle) -> Int64 raise {
+  let request = STAT_KIND | STAT_SIZE
+  let job = make_stat_job(self, request~, len=STAT_KIND_SIZE_LENGTH)
+  defer job.free()
+  job.run()
+  let error = job.err()
+  guard error == 0 else { raise OSError(error, context="size") }
+  let stat : FixedArray[Byte] = FixedArray::make(STAT_KIND_SIZE_LENGTH, 0)
+  job.copy_stat(stat, stat.length())
+  guard stat is [u32le(_), u32le(mask), i64le(kind), i64le(size)] &&
+    (mask & request) == request &&
+    kind == REGULAR_FILE else {
+    raise Failure::Failure("size: not a regular file")
+  }
+  size
+}
+
+///|
+#unsafe_skip_stub_check
+fn make_sync_job(handle : FileHandle, only_data : Bool) -> FileJob = "moonbitlang/async" "thread_pool/make_fsync_job"
+
+///|
+fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise {
+  let job = make_sync_job(self, only_data)
+  defer job.free()
+  job.run()
+  let error = job.err()
+  guard error == 0 else { raise OSError(error, context="sync") }
+}
+
+///|
+fn FileHandle::close(self : FileHandle) -> Error? {
+  if file_close_ffi(self) < 0 {
+    Some(OSError(file_errno(), context="close"))
   } else {
-    STREAM_CHUNK_SIZE
+    None
   }
-  let mut buffer : FixedArray[Byte] = FixedArray::make(chunk_size, 0)
-  let mut offset = 0
-  while self.read(buffer, path, offset~) is n && n > 0 {
-    guard n <= MAX_FILE_BYTES - total else {
-      raise IOError("read \{path}: file too large for Bytes")
-    }
-    offset += n
-    total += n
-    if offset == chunk_size {
-      chunks.push((buffer, offset))
-      buffer = FixedArray::make(chunk_size, 0)
-      offset = 0
-    }
-  }
-  if offset > 0 {
-    chunks.push((buffer, offset))
-  }
-  let result : FixedArray[Byte] = FixedArray::make(total, 0)
-  for (chunk, len) in chunks; offset = 0 {
-    result.unsafe_blit(offset, chunk, 0, len)
-    continue offset + len
-  }
-  result.unsafe_reinterpret_as_bytes()
+}
+
+///|
+// The host applies sync flags when opening the file.
+fn FileHandle::finish_write(_self : FileHandle) -> Unit {
+  ()
 }
 
 ///|
@@ -371,21 +455,15 @@ fn write_bytes_to_file_internal(
   defer (if !closed { ignore(file_close_ffi(handle)) })
   for total = 0; total < content.length(); {
     // Like async's write loop, pass the remaining region without slicing/copying it.
-    let job = make_write_job(
-      handle,
+    let n = handle.write(
       content,
       total,
       content.length() - total,
-      position=SEQUENTIAL_POSITION,
-    )
-    defer job.free()
-    job.run()
-    let error = job.err()
-    if file_host_is_unix && error == UNIX_EINTR {
-      continue total
+      SEQUENTIAL_POSITION,
+    ) catch {
+      OSError(error, ..) => raise file_error(error, "write \{path}")
+      error => raise IOError("write \{path}: \{error}")
     }
-    guard error == 0 else { raise file_error(error, "write \{path}") }
-    let n = job.ret()
     guard n > 0 else { raise IOError("write \{path}: made no progress") }
     continue total + n
   }

@@ -50,7 +50,14 @@ fn OsString::to_string(self : OsString) -> String {
 
 ///|
 #borrow(path)
-extern "C" fn file_open_ffi(path : OsString, write : Bool) -> Int64 = "moonbitlang_x_file_open"
+extern "C" fn file_open_ffi(
+  path : OsString,
+  mode : Mode,
+  create : CreateMode,
+  append : Bool,
+  permission : Int32,
+  sync : SyncMode,
+) -> Int64 = "moonbitlang_x_file_open"
 
 ///|
 extern "C" fn is_null(ptr : Handler) -> Int32 = "moonbitlang_x_fs_is_null"
@@ -62,6 +69,7 @@ extern "C" fn file_read_ffi(
   buffer : Bytes,
   offset : Int32,
   len : Int32,
+  position : Int64,
 ) -> Int64 = "moonbitlang_x_file_read"
 
 ///|
@@ -71,13 +79,18 @@ extern "C" fn file_write_ffi(
   buffer : Bytes,
   offset : Int32,
   len : Int32,
+  position : Int64,
 ) -> Int64 = "moonbitlang_x_file_write"
+
+///|
+/// Keep the legacy Windows WriteFile call on the handle's current position.
+const LEGACY_WRITE_POSITION : Int64 = -2
 
 ///|
 extern "C" fn get_error_message_ffi() -> Bytes = "moonbitlang_x_fs_get_error_message"
 
 ///|
-extern "C" fn file_length_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_length"
+extern "C" fn file_length_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_legacy_length"
 
 ///|
 extern "C" fn file_close_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_close"
@@ -108,7 +121,14 @@ fn get_error_message() -> String {
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let file = native_file_result(
-    file_open_ffi(OsString::from_string(path), false),
+    file_open_ffi(
+      OsString::from_string(path),
+      ReadOnly,
+      OpenExisting,
+      false,
+      0o666,
+      NoSync,
+    ),
     "open \{path}",
   )
   let mut closed = false
@@ -122,7 +142,7 @@ fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let bytes = Bytes::make(size, 0)
   for total = 0; total < size; {
     let n = native_file_result(
-      file_read_ffi(file, bytes, total, size - total),
+      file_read_ffi(file, bytes, total, size - total, total.to_int64()),
       "read \{path}",
     ).to_int()
     guard n > 0 else { raise IOError("read \{path}: unexpected end of file") }
@@ -152,14 +172,27 @@ fn write_bytes_to_file_internal(
   content : Bytes,
 ) -> Unit raise IOError {
   let file = native_file_result(
-    file_open_ffi(OsString::from_string(path), true),
+    file_open_ffi(
+      OsString::from_string(path),
+      WriteOnly,
+      CreateOrTruncate,
+      false,
+      0o666,
+      NoSync,
+    ),
     "open \{path}",
   )
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(file)) })
   for total = 0; total < content.length(); {
     let n = native_file_result(
-      file_write_ffi(file, content, total, content.length() - total),
+      file_write_ffi(
+        file,
+        content,
+        total,
+        content.length() - total,
+        LEGACY_WRITE_POSITION,
+      ),
       "write \{path}",
     ).to_int()
     guard n > 0 else { raise IOError("write \{path}: made no progress") }
