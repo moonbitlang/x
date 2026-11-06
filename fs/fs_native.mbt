@@ -121,7 +121,14 @@ fn get_error_message() -> String {
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let file = native_file_result(
-    file_open_ffi(OsString::from_string(path), ReadOnly, OpenExisting, false, 0o666, NoSync),
+    file_open_ffi(
+      OsString::from_string(path),
+      ReadOnly,
+      OpenExisting,
+      false,
+      0o666,
+      NoSync,
+    ),
     "open \{path}",
   )
   let mut closed = false
@@ -165,14 +172,27 @@ fn write_bytes_to_file_internal(
   content : Bytes,
 ) -> Unit raise IOError {
   let file = native_file_result(
-    file_open_ffi(OsString::from_string(path), WriteOnly, CreateOrTruncate, false, 0o666, NoSync),
+    file_open_ffi(
+      OsString::from_string(path),
+      WriteOnly,
+      CreateOrTruncate,
+      false,
+      0o666,
+      NoSync,
+    ),
     "open \{path}",
   )
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(file)) })
   for total = 0; total < content.length(); {
     let n = native_file_result(
-      file_write_ffi(file, content, total, content.length() - total, LEGACY_WRITE_POSITION),
+      file_write_ffi(
+        file,
+        content,
+        total,
+        content.length() - total,
+        LEGACY_WRITE_POSITION,
+      ),
       "write \{path}",
     ).to_int()
     guard n > 0 else { raise IOError("write \{path}: made no progress") }

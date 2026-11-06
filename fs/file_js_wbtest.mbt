@@ -47,7 +47,11 @@ extern "js" fn scripted_counts(handle : FileHandle) -> FixedArray[Int32] =
   #| h => [h.reads, h.writes, h.syncs, h.closes]
 
 ///|
-extern "js" fn sized_reader(hint : Int32, input : Bytes, max_read : Int32) -> FileHandle =
+extern "js" fn sized_reader(
+  hint : Int32,
+  input : Bytes,
+  max_read : Int32,
+) -> FileHandle =
   #| (hint, input, maxRead) => {
   #|   const h = {fd: 0, sync: 0, requests: []};
   #|   h.fs = {
@@ -158,7 +162,8 @@ test "close errors are available internally and never retried" {
   let handle = scripted_handle("close_error")
   let file = scripted_file(handle)
   match file.close_result() {
-    Some(Failure::Failure(message)) => assert_eq(message, "close: injected close failure")
+    Some(Failure::Failure(message)) =>
+      assert_eq(message, "close: injected close failure")
     _ => fail("expected the injected close error")
   }
   file.close()

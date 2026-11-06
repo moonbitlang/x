@@ -288,7 +288,10 @@ fn FileHandle::read_all(
   path : String,
   size_hint : Int32?,
 ) -> Bytes raise IOError {
-  read_all_with_hint((buffer, offset) => self.read(buffer, path, offset~), size_hint) catch {
+  read_all_with_hint(
+    (buffer, offset) => self.read(buffer, path, offset~),
+    size_hint,
+  ) catch {
     IOError(message) => raise IOError(message)
     Failure::Failure(message) => raise IOError("read \{path}: \{message}")
     error => raise IOError("read \{path}: \{error}")
@@ -352,7 +355,9 @@ fn FileHandle::read_once(
     defer job.free()
     job.run()
     let error = job.err()
-    if file_host_is_unix && error == UNIX_EINTR { continue }
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
     guard error == 0 else { raise OSError(error, context="read") }
     let n = job.ret()
     job.copy_read(buffer, offset, n)
@@ -373,7 +378,9 @@ fn FileHandle::write(
     defer job.free()
     job.run()
     let error = job.err()
-    if file_host_is_unix && error == UNIX_EINTR { continue }
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
     guard error == 0 else { raise OSError(error, context="write") }
     break job.ret()
   }
@@ -390,7 +397,8 @@ fn FileHandle::size(self : FileHandle) -> Int64 raise {
   let stat : FixedArray[Byte] = FixedArray::make(STAT_KIND_SIZE_LENGTH, 0)
   job.copy_stat(stat, stat.length())
   guard stat is [u32le(_), u32le(mask), i64le(kind), i64le(size)] &&
-    (mask & request) == request && kind == REGULAR_FILE else {
+    (mask & request) == request &&
+    kind == REGULAR_FILE else {
     raise Failure::Failure("size: not a regular file")
   }
   size

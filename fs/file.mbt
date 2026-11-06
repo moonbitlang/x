@@ -91,12 +91,21 @@ pub fn open(
   permission~ : Int32 = 0o644,
   sync~ : SyncMode = NoSync,
 ) -> File raise {
-  guard !path.contains("\u0000") else { raise Failure::Failure("open: NUL in path") }
+  guard !path.contains("\u0000") else {
+    raise Failure::Failure("open: NUL in path")
+  }
   guard !(mode is ReadOnly &&
     (append || create_mode is (TruncateExisting | CreateOrTruncate))) else {
     raise Failure::Failure("open: append and truncation require write access")
   }
-  let handle = open_file_handle(path.to_owned(), mode, create_mode, append, permission, sync)
+  let handle = open_file_handle(
+    path.to_owned(),
+    mode,
+    create_mode,
+    append,
+    permission,
+    sync,
+  )
   { handle: Some(handle), mode, append, read_position: 0, write_position: 0, }
 }
 
@@ -119,7 +128,9 @@ pub fn create(
 
 ///|
 fn File::get_handle(self : File) -> FileHandle raise {
-  guard self.handle is Some(handle) else { raise Failure::Failure("file is closed") }
+  guard self.handle is Some(handle) else {
+    raise Failure::Failure("file is closed")
+  }
   handle
 }
 
@@ -139,11 +150,7 @@ fn File::check_access(self : File, write~ : Bool) -> FileHandle raise {
 }
 
 ///|
-fn check_range(
-  capacity : Int32,
-  offset : Int32,
-  len : Int32,
-) -> Unit raise {
+fn check_range(capacity : Int32, offset : Int32, len : Int32) -> Unit raise {
   guard offset >= 0 &&
     offset <= capacity &&
     len >= 0 &&
@@ -392,7 +399,13 @@ pub fn write_file(
   let file = open(
     path,
     mode=WriteOnly,
-    create_mode=create_mode.unwrap_or(if append { OpenOrCreate } else { CreateOrTruncate }),
+    create_mode=create_mode.unwrap_or(
+      if append {
+        OpenOrCreate
+      } else {
+        CreateOrTruncate
+      },
+    ),
     permission~,
     sync~,
     append~,

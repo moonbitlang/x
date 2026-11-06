@@ -19,7 +19,10 @@ test "write_file appends without an explicit creation mode" {
   @fs.write_file(path, b"old", sync=NoSync)
   defer @fs.remove_file(path)
   @fs.write_file(path, b"new", append=true, sync=NoSync)
-  debug_inspect(@fs.read_file(path), content="<Bytes: [0x6f, 0x6c, 0x64, 0x6e, 0x65, 0x77]>")
+  debug_inspect(
+    @fs.read_file(path),
+    content="<Bytes: [0x6f, 0x6c, 0x64, 0x6e, 0x65, 0x77]>",
+  )
 }
 
 ///|
@@ -63,16 +66,27 @@ test "write_file append creates missing files and honors explicit creation modes
   }
   let path = file_test_path()
   defer (@fs.remove_file(path) catch { _ => () })
-  @test.assert_raise(() => @fs.write_file(path, b"new", append=true, create_mode=OpenExisting))
+  @test.assert_raise(() => {
+    @fs.write_file(path, b"new", append=true, create_mode=OpenExisting)
+  })
   assert_false(@fs.path_exists(path))
   for mode in [@fs.OpenExisting, OpenOrCreate, CreateOrTruncate, CreateNew] {
     @fs.write_file(path, b"old", sync=NoSync)
     if mode is CreateNew {
-      @test.assert_raise(() => @fs.write_file(path, b"new", append=true, create_mode=mode))
+      @test.assert_raise(() => {
+        @fs.write_file(path, b"new", append=true, create_mode=mode)
+      })
       assert_eq(@fs.read_file(path), b"old")
     } else {
       @fs.write_file(path, b"new", append=true, create_mode=mode, sync=NoSync)
-      assert_eq(@fs.read_file(path), if mode is CreateOrTruncate { b"new" } else { b"oldnew" })
+      assert_eq(
+        @fs.read_file(path),
+        if mode is CreateOrTruncate {
+          b"new"
+        } else {
+          b"oldnew"
+        },
+      )
     }
   }
 }

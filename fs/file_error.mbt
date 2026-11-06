@@ -31,7 +31,10 @@ pub impl Show for OSError with fn output(self, logger) {
 ///|
 pub impl Debug for OSError with fn to_repr(self) {
   let OSError(code, context~) = self
-  Repr::opaque_("@fs.OSError", Repr::string("\{context}: \{os_error_message(code)}"))
+  Repr::opaque_(
+    "@fs.OSError",
+    Repr::string("\{context}: \{os_error_message(code)}"),
+  )
 }
 
 ///|

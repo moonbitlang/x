@@ -60,11 +60,10 @@ extern "C" fn sync_file_close_ffi(handle : FileHandle) -> Int64 = "moonbitlang_x
 
 ///|
 // Stubs capture errno/GetLastError before any cleanup or MoonBit allocation.
-fn sync_file_result(
-  result : Int64,
-  operation : String,
-) -> Int64 raise {
-  guard result >= 0 else { raise OSError((-result).to_int(), context=operation) }
+fn sync_file_result(result : Int64, operation : String) -> Int64 raise {
+  guard result >= 0 else {
+    raise OSError((-result).to_int(), context=operation)
+  }
   result
 }
 
@@ -100,7 +99,10 @@ fn FileHandle::read_once(
   len : Int32,
   position : Int64,
 ) -> Int32 raise {
-  sync_file_result(sync_file_read_ffi(self, buffer, offset, len, position), "read").to_int()
+  sync_file_result(
+    sync_file_read_ffi(self, buffer, offset, len, position),
+    "read",
+  ).to_int()
 }
 
 ///|
