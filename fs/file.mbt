@@ -49,13 +49,17 @@ pub(all) enum SyncMode {
 }
 
 ///|
+/// Request the operating system's append position instead of a file offset.
+const APPEND_POSITION : Int64 = -1
+
+///|
 /// A synchronous file with independent read and write positions, initially zero.
 /// Aliases share positions and closure state. Close explicitly (usually in defer).
 /// Intended for seekable files; concurrent access to this object is not supported.
 /// JS positions must fit in an exact Number (at most 9007199254740991).
 ///
 /// ```mbt nocheck
-/// fn read_header(path : String) -> Bytes raise @fs.IOError {
+/// fn read_header(path : String) -> Bytes raise {
 ///   let file = @fs.open(path, mode=ReadOnly)
 ///   defer file.close()
 ///   file.read_exactly(16)
@@ -76,6 +80,9 @@ struct File {
 /// `permission` applies only when creating a file, is filtered by the Unix umask,
 /// and is ignored on Windows. Paths are not normalized. Append applies only to
 /// sequential writes; it does not override the selected creation mode.
+/// OS failures raise OSError; invalid arguments raise Failure. On Wasm an
+/// interrupted open job is reported to the caller: the host also queries
+/// metadata, so blindly repeating the job could truncate an opened file twice.
 pub fn open(
   path : StringView,
   mode~ : Mode,
@@ -83,27 +90,13 @@ pub fn open(
   append~ : Bool = false,
   permission~ : Int32 = 0o644,
   sync~ : SyncMode = NoSync,
-) -> File raise IOError {
-  guard !path.contains("\u0000") else { raise IOError("open: NUL in path") }
+) -> File raise {
+  guard !path.contains("\u0000") else { raise Failure::Failure("open: NUL in path") }
   guard !(mode is ReadOnly &&
     (append || create_mode is (TruncateExisting | CreateOrTruncate))) else {
-    raise IOError("open: append and truncation require write access")
+    raise Failure::Failure("open: append and truncation require write access")
   }
-  open_file(path.to_owned(), mode, create_mode, append, permission, sync)
-}
-
-///|
-// Options and paths are checked by open. Legacy adapters supply their original
-// defaults and retain their backend's historical path handling.
-fn open_file(
-  path : String,
-  mode : Mode,
-  create_mode : CreateMode,
-  append : Bool,
-  permission : Int32,
-  sync : SyncMode,
-) -> File raise IOError {
-  let handle = open_handle(path, mode, create_mode, append, permission, sync)
+  let handle = open_file_handle(path.to_owned(), mode, create_mode, append, permission, sync)
   { handle: Some(handle), mode, append, read_position: 0, write_position: 0, }
 }
 
@@ -114,7 +107,7 @@ pub fn create(
   allow_existing~ : Bool = true,
   permission~ : Int32 = 0o644,
   sync~ : SyncMode = NoSync,
-) -> File raise IOError {
+) -> File raise {
   open(
     path,
     mode=WriteOnly,
@@ -125,16 +118,16 @@ pub fn create(
 }
 
 ///|
-fn File::get_handle(self : File) -> FileHandle raise IOError {
-  guard self.handle is Some(handle) else { raise IOError("file is closed") }
+fn File::get_handle(self : File) -> FileHandle raise {
+  guard self.handle is Some(handle) else { raise Failure::Failure("file is closed") }
   handle
 }
 
 ///|
-fn File::check_access(self : File, write~ : Bool) -> FileHandle raise IOError {
+fn File::check_access(self : File, write~ : Bool) -> FileHandle raise {
   let handle = self.get_handle()
   guard !(if write { self.mode is ReadOnly } else { self.mode is WriteOnly }) else {
-    raise IOError(
+    raise Failure::Failure(
       if write {
         "file is not writable"
       } else {
@@ -150,19 +143,19 @@ fn check_range(
   capacity : Int32,
   offset : Int32,
   len : Int32,
-) -> Unit raise IOError {
+) -> Unit raise {
   guard offset >= 0 &&
     offset <= capacity &&
     len >= 0 &&
     len <= capacity - offset else {
-    raise IOError("invalid buffer range")
+    raise Failure::Failure("invalid buffer range")
   }
 }
 
 ///|
-fn check_position(position : Int64, len : Int32) -> Unit raise IOError {
+fn check_position(position : Int64, len : Int32) -> Unit raise {
   guard position >= 0 && position <= max_file_position - len.to_int64() else {
-    raise IOError("file position out of range")
+    raise Failure::Failure("file position out of range")
   }
 }
 
@@ -174,14 +167,14 @@ pub fn File::read(
   buffer : FixedArray[Byte],
   offset~ : Int32 = 0,
   max_len~ : Int32 = buffer.length() - offset,
-) -> Int32 raise IOError {
+) -> Int32 raise {
   let handle = self.check_access(write=false)
   check_range(buffer.length(), offset, max_len)
   check_position(self.read_position, max_len)
   if max_len == 0 {
     return 0
   }
-  let n = handle.read(buffer, offset, max_len, self.read_position)
+  let n = handle.read_once(buffer, offset, max_len, self.read_position)
   self.read_position += n.to_int64()
   n
 }
@@ -194,12 +187,12 @@ pub fn File::read_at(
   position~ : Int64,
   offset~ : Int32 = 0,
   len~ : Int32 = buffer.length() - offset,
-) -> Int32 raise IOError {
+) -> Int32 raise {
   let handle = self.check_access(write=false)
   check_range(buffer.length(), offset, len)
   check_position(position, len)
   for total = 0; total < len; {
-    let n = handle.read(
+    let n = handle.read_once(
       buffer,
       offset + total,
       len - total,
@@ -217,40 +210,32 @@ pub fn File::read_at(
 ///|
 /// Reads until EOF from the current read position. File size is not assumed
 /// stable. The returned bytes own their storage.
-pub fn File::read_all(self : File) -> Bytes raise IOError {
+pub fn File::read_all(self : File) -> Bytes raise {
   let handle = self.check_access(write=false)
-  let buffer : FixedArray[Byte] = FixedArray::make(65536, 0)
-  let output = Buffer()
-  for ;; {
-    check_position(self.read_position, buffer.length())
-    let n = handle.read(buffer, 0, buffer.length(), self.read_position)
-    if n == 0 {
-      break
-    }
-    self.read_position += n.to_int64()
-    guard n <= 0x7fffffff - output.length() else {
-      raise IOError("file too large for Bytes")
-    }
-    output.write_bytes(Bytes::from_array(buffer[:n]))
+  let size = (handle.size() - self.read_position) catch { _ => 0L }
+  let hint = if size > 0 && size < MAX_FILE_BYTES.to_int64() {
+    Some(size.to_int())
+  } else {
+    None
   }
-  output.to_bytes()
+  read_all_with_hint((buffer, offset) => self.read(buffer, offset~), hint)
 }
 
 ///|
-/// Reads exactly `len` bytes or raises IOError on premature EOF. Bytes already
+/// Reads exactly `len` bytes or raises ReaderClosed on premature EOF. Bytes already
 /// read advance the read position even when a later read fails.
-pub fn File::read_exactly(self : File, len : Int32) -> Bytes raise IOError {
+pub fn File::read_exactly(self : File, len : Int32) -> Bytes raise {
   let handle = self.check_access(write=false)
-  guard len >= 0 else { raise IOError("negative read length") }
+  guard len >= 0 else { raise Failure::Failure("negative read length") }
   check_position(self.read_position, len)
   let buffer : FixedArray[Byte] = FixedArray::make(len, 0)
   for total = 0; total < len; {
-    let n = handle.read(buffer, total, len - total, self.read_position)
-    guard n > 0 else { raise IOError("unexpected end of file") }
+    let n = handle.read_once(buffer, total, len - total, self.read_position)
+    guard n > 0 else { raise ReaderClosed }
     self.read_position += n.to_int64()
     continue total + n
   }
-  Bytes::from_array(buffer[:])
+  buffer.unsafe_reinterpret_as_bytes()
 }
 
 ///|
@@ -260,7 +245,7 @@ pub fn File::write_once(
   buffer : Bytes,
   offset~ : Int32,
   len~ : Int32,
-) -> Int32 raise IOError {
+) -> Int32 raise {
   let handle = self.check_access(write=true)
   check_range(buffer.length(), offset, len)
   check_position(self.write_position, len)
@@ -272,7 +257,7 @@ pub fn File::write_once(
     offset,
     len,
     if self.append {
-      -1
+      APPEND_POSITION
     } else {
       self.write_position
     },
@@ -286,7 +271,7 @@ pub fn File::write_once(
 /// Writes all bytes, advancing only the write position. Append writes use the
 /// operating system's append mode. A multi-call write is not atomic; errors may
 /// leave a written prefix and do not roll back the file or cursor.
-pub fn File::write(self : File, data : BytesView) -> Unit raise IOError {
+pub fn File::write(self : File, data : BytesView) -> Unit raise {
   let handle = self.check_access(write=true)
   check_position(self.write_position, data.length())
   for total = 0; total < data.length(); {
@@ -295,12 +280,12 @@ pub fn File::write(self : File, data : BytesView) -> Unit raise IOError {
       data.start_offset() + total,
       data.length() - total,
       if self.append {
-        -1
+        APPEND_POSITION
       } else {
         self.write_position
       },
     )
-    guard n > 0 else { raise IOError("write made no progress") }
+    guard n > 0 else { raise Failure::Failure("write made no progress") }
     self.write_position += n.to_int64()
     handle.finish_write()
     continue total + n
@@ -314,10 +299,10 @@ pub fn File::write_at(
   self : File,
   data : BytesView,
   position~ : Int64,
-) -> Unit raise IOError {
+) -> Unit raise {
   let handle = self.check_access(write=true)
   guard !self.append else {
-    raise IOError("write_at is unavailable in append mode")
+    raise Failure::Failure("write_at is unavailable in append mode")
   }
   check_position(position, data.length())
   for total = 0; total < data.length(); {
@@ -327,7 +312,7 @@ pub fn File::write_at(
       data.length() - total,
       position + total.to_int64(),
     )
-    guard n > 0 else { raise IOError("write made no progress") }
+    guard n > 0 else { raise Failure::Failure("write made no progress") }
     handle.finish_write()
     continue total + n
   }
@@ -335,19 +320,19 @@ pub fn File::write_at(
 
 ///|
 /// Queries the current size without moving either cursor.
-pub fn File::size(self : File) -> Int64 raise IOError {
+pub fn File::size(self : File) -> Int64 raise {
   self.get_handle().size()
 }
 
 ///|
 /// Synchronizes data and metadata, or only data and necessary metadata when
 /// `only_data=true`. Does not synchronize the parent directory.
-pub fn File::sync(self : File, only_data~ : Bool = false) -> Unit raise IOError {
+pub fn File::sync(self : File, only_data~ : Bool = false) -> Unit raise {
   self.get_handle().sync(only_data)
 }
 
 ///|
-fn File::close_result(self : File) -> String? {
+fn File::close_result(self : File) -> Error? {
   guard self.handle is Some(handle) else { return None }
   self.handle = None
   handle.close()
@@ -366,35 +351,48 @@ pub fn File::close(self : File) -> Unit {
 pub fn read_file(
   path : StringView,
   sync_timestamp~ : Bool = false,
-) -> Bytes raise IOError {
+) -> Bytes raise {
   let file = open(path, mode=ReadOnly)
   defer file.close()
   let result = file.read_all()
   if sync_timestamp {
     file.sync()
   }
-  if file.close_result() is Some(message) {
-    raise IOError(message)
+  if file.close_result() is Some(error) {
+    raise error
   }
   result
 }
 
 ///|
-/// Writes the whole byte view. Defaults to create-or-truncate, permission 0644,
-/// and Data synchronization. Does not create parents or replace the file atomically.
+/// Writes the whole byte view. Without an explicit creation mode, append opens
+/// or creates without truncation; other writes create or truncate. An explicit
+/// creation mode is always honored, including truncation combined with append.
+/// Defaults to permission 0644 and Data synchronization.
+/// Does not create parents or replace the file atomically.
 /// A close error is reported if writing succeeded.
+///
+/// ```mbt check
+/// test {
+///   let path = "tmp_fs_write_file_example"
+///   @fs.write_file(path, b"old", sync=NoSync)
+///   defer @fs.remove_file(path)
+///   @fs.write_file(path, b"new", append=true, sync=NoSync)
+///   assert_eq(@fs.read_file(path), b"oldnew")
+/// }
+/// ```
 pub fn write_file(
   path : StringView,
   data : BytesView,
-  create_mode~ : CreateMode = CreateOrTruncate,
+  create_mode? : CreateMode,
   permission~ : Int32 = 0o644,
   sync~ : SyncMode = Data,
   append~ : Bool = false,
-) -> Unit raise IOError {
+) -> Unit raise {
   let file = open(
     path,
     mode=WriteOnly,
-    create_mode~,
+    create_mode=create_mode.unwrap_or(if append { OpenOrCreate } else { CreateOrTruncate }),
     permission~,
     sync~,
     append~,
@@ -405,7 +403,7 @@ pub fn write_file(
   if data.is_empty() && sync is (Data | Full) {
     file.sync(only_data=sync is Data)
   }
-  if file.close_result() is Some(message) {
-    raise IOError(message)
+  if file.close_result() is Some(error) {
+    raise error
   }
 }

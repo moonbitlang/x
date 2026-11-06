@@ -12,13 +12,15 @@ options(
   "native-stub": [ "fs_native.c", "file_native.c" ],
   targets: {
     "file.mbt": [ "native", "llvm", "wasm", "js" ],
+    "file_error.mbt": [ "native", "llvm", "wasm", "js" ],
+    "file_read.mbt": [ "native", "llvm", "wasm", "js" ],
     "file_native.mbt": [ "native", "llvm" ],
-    "file_wasm.mbt": [ "wasm" ],
     "file_js.mbt": [ "js" ],
     "file_test.mbt": [ "native", "llvm", "wasm", "js" ],
     "file_js_wbtest.mbt": [ "js" ],
     "fs_js.mbt": [ "js" ],
     "fs_native.mbt": [ "native", "llvm" ],
+    "file_wasm.mbt": [ "wasm" ],
     "fs_wasm.mbt": [ "wasm", "wasm-gc" ],
   },
 )

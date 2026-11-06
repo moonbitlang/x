@@ -49,13 +49,69 @@ fn OsString::to_string(self : OsString) -> String {
 }
 
 ///|
+#borrow(path)
+extern "C" fn file_open_ffi(
+  path : OsString,
+  mode : Mode,
+  create : CreateMode,
+  append : Bool,
+  permission : Int32,
+  sync : SyncMode,
+) -> Int64 = "moonbitlang_x_file_open"
+
+///|
 extern "C" fn is_null(ptr : Handler) -> Int32 = "moonbitlang_x_fs_is_null"
+
+///|
+#borrow(buffer)
+extern "C" fn file_read_ffi(
+  handle : Int64,
+  buffer : Bytes,
+  offset : Int32,
+  len : Int32,
+  position : Int64,
+) -> Int64 = "moonbitlang_x_file_read"
+
+///|
+#borrow(buffer)
+extern "C" fn file_write_ffi(
+  handle : Int64,
+  buffer : Bytes,
+  offset : Int32,
+  len : Int32,
+  position : Int64,
+) -> Int64 = "moonbitlang_x_file_write"
+
+///|
+/// Keep the legacy Windows WriteFile call on the handle's current position.
+const LEGACY_WRITE_POSITION : Int64 = -2
 
 ///|
 extern "C" fn get_error_message_ffi() -> Bytes = "moonbitlang_x_fs_get_error_message"
 
 ///|
-extern "C" fn legacy_file_length(handle : FileHandle) -> Int64 = "moonbitlang_x_file_legacy_length"
+extern "C" fn file_length_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_legacy_length"
+
+///|
+extern "C" fn file_close_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_close"
+
+///|
+extern "C" fn file_error_message_ffi(error : Int32) -> OsString = "moonbitlang_x_file_error_message"
+
+///|
+fn native_file_result(
+  result : Int64,
+  operation : String,
+) -> Int64 raise IOError {
+  guard result >= 0 else {
+    let error = (-result).to_int()
+    let message = file_error_message_ffi(error)
+      .to_string()
+      .trim_end(chars="\r\n")
+    raise IOError("\{operation}: \{message} (\{error})")
+  }
+  result
+}
 
 ///|
 fn get_error_message() -> String {
@@ -64,18 +120,29 @@ fn get_error_message() -> String {
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let file = open_file(path, ReadOnly, OpenExisting, false, 0o666, NoSync)
-  defer file.close()
-  // Preserve the legacy seek-to-end/sized-read contract, including /dev/null.
-  let size = native_file_result(
-    legacy_file_length(file.handle.unwrap()),
-    "read \{path}",
+  let file = native_file_result(
+    file_open_ffi(OsString::from_string(path), ReadOnly, OpenExisting, false, 0o666, NoSync),
+    "open \{path}",
   )
-  guard size <= 0x7fffffff else { raise IOError("file too large for Bytes") }
-  let bytes = file.read_exactly(size.to_int())
-  if file.close_result() is Some(message) {
-    raise IOError(message)
+  let mut closed = false
+  defer (if !closed { ignore(file_close_ffi(file)) })
+  // Preserve the existing seek-based length, including special-file behavior.
+  let length = native_file_result(file_length_ffi(file), "seek \{path}")
+  guard length <= MAX_FILE_BYTES.to_int64() else {
+    raise IOError("read \{path}: file too large for Bytes")
   }
+  let size = length.to_int()
+  let bytes = Bytes::make(size, 0)
+  for total = 0; total < size; {
+    let n = native_file_result(
+      file_read_ffi(file, bytes, total, size - total, total.to_int64()),
+      "read \{path}",
+    ).to_int()
+    guard n > 0 else { raise IOError("read \{path}: unexpected end of file") }
+    continue total + n
+  }
+  closed = true
+  ignore(native_file_result(file_close_ffi(file), "close \{path}"))
   bytes
 }
 
@@ -97,18 +164,22 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let file = open_file(path, WriteOnly, CreateOrTruncate, false, 0o666, NoSync)
-  defer file.close()
-  let handle = file.handle.unwrap()
-  // Sequential OS writes preserve the old support for devices and pipes.
+  let file = native_file_result(
+    file_open_ffi(OsString::from_string(path), WriteOnly, CreateOrTruncate, false, 0o666, NoSync),
+    "open \{path}",
+  )
+  let mut closed = false
+  defer (if !closed { ignore(file_close_ffi(file)) })
   for total = 0; total < content.length(); {
-    let n = handle.write(content, total, content.length() - total, -2)
-    guard n > 0 else { raise IOError("write made no progress") }
+    let n = native_file_result(
+      file_write_ffi(file, content, total, content.length() - total, LEGACY_WRITE_POSITION),
+      "write \{path}",
+    ).to_int()
+    guard n > 0 else { raise IOError("write \{path}: made no progress") }
     continue total + n
   }
-  if file.close_result() is Some(message) {
-    raise IOError(message)
-  }
+  closed = true
+  ignore(native_file_result(file_close_ffi(file), "close \{path}"))
 }
 
 ///|

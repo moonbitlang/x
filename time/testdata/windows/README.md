@@ -23,8 +23,9 @@ The native reader captures the current zone once, then uses
 for annual rules. FFI accessors read the native fields into MoonBit records
 before the next annual API call replaces the working result. MoonBit validates
 and converts those records into the zone's transitions and recurring endpoints.
-When dynamic DST is disabled, or no historical year range exists, the current
-rule is retained instead.
+When dynamic DST is disabled, the timezone key name is empty, or Windows
+reports no year range, the loader uses the transition fields returned by
+`GetDynamicTimeZoneInformation` as a single rule that applies across years.
 
 Year-range discovery detects
 [`GetDynamicTimeZoneInformationEffectiveYears`](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-getdynamictimezoneinformationeffectiveyears)
@@ -59,8 +60,12 @@ The end-of-day `23:59:59.999` convention is
 [documented by Microsoft](https://devblogs.microsoft.com/oldnewthing/20180309-00/?p=98195).
 We normalize it to midnight, as
 [Noda Time does](https://nodatime.org/3.3.x/api/NodaTime.TimeZones.BclDateTimeZone.html).
-January 1 at midnight also acts as a year-boundary marker, as explained in
+In a rule fetched for a specific year with `GetTimeZoneInformationForYear`,
+a relative date that falls on January 1 at midnight in that year acts as a
+year-boundary marker, as explained in
 [.NET's adjustment-rule implementation](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.AdjustmentRule.cs).
+For a rule without a year range, the weekday determines the transition
+each year, even when the first Sunday in January falls on New Year's Day.
 
 The synthetic cases in `zone_windows_data_wbtest.mbt` cover combinations absent
 from these historical fixtures. The `TIME_ZONE_INFORMATION` contract above

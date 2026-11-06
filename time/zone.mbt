@@ -48,6 +48,8 @@ priv enum ZoneRules {
 }
 
 ///|
+// The offset types and indexed transitions follow the representation in Go's
+// time.Location: https://github.com/golang/go/blob/go1.25.0/src/time/zoneinfo.go#L23-L35
 #derive(Eq, Debug)
 priv struct ZoneData {
   offsets : Array[ZoneOffset]

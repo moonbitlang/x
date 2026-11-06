@@ -130,9 +130,7 @@ test "truncate existing preserves the missing-file requirement" {
     })
     assert_false(@fs.path_exists(path))
     @fs.write_file(path, b"seed", sync=NoSync)
-    let file = @fs.open(path, mode~, create_mode=TruncateExisting) catch {
-      IOError(message) => fail(message)
-    }
+    let file = @fs.open(path, mode~, create_mode=TruncateExisting)
     defer file.close()
     assert_eq(@fs.read_file(path), b"")
     file.write(b"new")
@@ -174,7 +172,7 @@ test "append is independent of read cursor and sees external writes" {
   assert_eq(file.read_all(), b"ABC")
   @test.assert_raise(() => file.write_at(b"!", position=0))
   @fs.write_file(path, b"new", append=true, sync=NoSync)
-  assert_eq(@fs.read_file(path), b"new")
+  assert_eq(@fs.read_file(path), b"startABCnew")
 }
 
 ///|

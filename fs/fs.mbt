@@ -19,6 +19,11 @@ pub(all) suberror IOError {
 }
 
 ///|
+/// MoonBit byte buffers have signed 32-bit lengths.
+#cfg(any(target="native", target="llvm", target="wasm", target="js"))
+const MAX_FILE_BYTES : Int32 = 0x7fffffff
+
+///|
 /// Reads the content of a file specified by the given path and returns its
 /// content as `Bytes`
 ///

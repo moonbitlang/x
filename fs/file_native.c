@@ -22,8 +22,10 @@
 #include "moonbit.h"
 #include <stdint.h>
 #include <errno.h>
+#include <string.h>
 #ifdef _WIN32
 #include <windows.h>
+#include <wchar.h>
 #else
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -67,7 +69,10 @@ MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_open(
   if (sync == 1) flags |= O_DSYNC;
   if (sync == 2) flags |= O_SYNC;
 #endif
-  int fd = open((const char *)path, flags, (mode_t)permission);
+  int fd;
+  do {
+    fd = open((const char *)path, flags, (mode_t)permission);
+  } while (fd < 0 && errno == EINTR);
   return fd < 0 ? -(int64_t)errno : fd;
 #endif
 }
@@ -171,3 +176,27 @@ MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_close(int64_t handle) {
   return close((int)handle) < 0 ? -(int64_t)errno : 0;
 #endif
 }
+
+#ifdef _WIN32
+MOONBIT_FFI_EXPORT moonbit_string_t moonbitlang_x_file_error_message(int32_t error) {
+  LPWSTR text = NULL;
+  DWORD len = FormatMessageW(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+          FORMAT_MESSAGE_IGNORE_INSERTS,
+      NULL, (DWORD)error, 0, (LPWSTR)&text, 0, NULL);
+  const wchar_t *message = len ? text : L"Unknown system error";
+  if (!len) len = (DWORD)wcslen(message);
+  moonbit_string_t result = moonbit_make_string((int32_t)len, 0);
+  memcpy(result, message, len * sizeof(wchar_t));
+  if (text) LocalFree(text);
+  return result;
+}
+#else
+MOONBIT_FFI_EXPORT moonbit_bytes_t moonbitlang_x_file_error_message(int32_t error) {
+  const char *message = strerror(error);
+  size_t len = strlen(message);
+  moonbit_bytes_t result = moonbit_make_bytes((int32_t)len, 0);
+  memcpy(result, message, len);
+  return result;
+}
+#endif

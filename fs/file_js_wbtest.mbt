@@ -47,6 +47,54 @@ extern "js" fn scripted_counts(handle : FileHandle) -> FixedArray[Int32] =
   #| h => [h.reads, h.writes, h.syncs, h.closes]
 
 ///|
+extern "js" fn sized_reader(hint : Int32, input : Bytes, max_read : Int32) -> FileHandle =
+  #| (hint, input, maxRead) => {
+  #|   const h = {fd: 0, sync: 0, requests: []};
+  #|   h.fs = {
+  #|     fstatSync() {
+  #|       if (hint < 0) throw Error("metadata unavailable");
+  #|       return {size: BigInt(hint), isFile: () => true};
+  #|     },
+  #|     readSync(_fd, buffer, offset, len, position) {
+  #|       h.requests.push(len);
+  #|       const n = Math.min(maxRead, len, Math.max(0, input.length - position));
+  #|       buffer.set(input.subarray(position, position + n), offset);
+  #|       return n;
+  #|     },
+  #|     closeSync() {}
+  #|   };
+  #|   return h;
+  #| }
+
+///|
+extern "js" fn read_requests(handle : FileHandle) -> FixedArray[Int32] =
+  #| h => h.requests
+
+///|
+test "read_all uses the remaining size hint and probes EOF" {
+  let handle = sized_reader(6, b"abcdef", 6)
+  let file = scripted_file(handle)
+  defer file.close()
+  assert_eq(file.read_exactly(2), b"ab")
+  assert_eq(file.read_all(), b"cdef")
+  debug_inspect(read_requests(handle), content="<FixedArray: [2, 4, 1]>")
+}
+
+///|
+test "read_all handles stale size hints short reads and streaming fallback" {
+  for len in [0, 1, 4095, 4096, 4097, 65536, 65537] {
+    let input = Bytes::makei(len, i => (i % 251).to_byte())
+    for hint in [-1, 0, 1, 4096, len, len + 17] {
+      let handle = sized_reader(hint, input, 997)
+      let file = scripted_file(handle)
+      defer file.close()
+      assert_eq(file.read_all(), input)
+      assert_eq(file.read_position, len.to_int64())
+    }
+  }
+}
+
+///|
 extern "js" fn scripted_output(handle : FileHandle) -> Bytes =
   #| h => Uint8Array.from(h.output)
 
@@ -89,7 +137,8 @@ test "partial failures preserve cursor progress and close once" {
       }
       false
     } catch {
-      IOError(_) => true
+      Failure::Failure(_) => true
+      error => raise error
     }
     assert_true(failed)
     match scenario {
@@ -108,7 +157,10 @@ test "partial failures preserve cursor progress and close once" {
 test "close errors are available internally and never retried" {
   let handle = scripted_handle("close_error")
   let file = scripted_file(handle)
-  assert_eq(file.close_result(), Some("close: injected close failure"))
+  match file.close_result() {
+    Some(Failure::Failure(message)) => assert_eq(message, "close: injected close failure")
+    _ => fail("expected the injected close error")
+  }
   file.close()
   assert_eq(scripted_counts(handle)[3], 1)
   assert_true(file.handle is None)
@@ -126,7 +178,8 @@ test "JS rejects inexact positions before calling the host" {
     file.write_at(b"a", position=9007199254740992)
     false
   } catch {
-    IOError(_) => true
+    Failure::Failure(_) => true
+    error => raise error
   }
   assert_true(failed)
   assert_eq(scripted_counts(handle)[1], 0)
@@ -172,7 +225,8 @@ test "whole file helper reports close errors and preserves primary errors" {
     write_file(path, b"written", sync=NoSync)
     "no error"
   } catch {
-    IOError(message) => message
+    Failure::Failure(message) => message
+    error => raise error
   }
   assert_eq(write_error, "close: injected close failure")
   assert_eq(fault.count(), 1)
@@ -180,7 +234,8 @@ test "whole file helper reports close errors and preserves primary errors" {
     ignore(read_file(path))
     "no error"
   } catch {
-    IOError(message) => message
+    Failure::Failure(message) => message
+    error => raise error
   }
   assert_eq(read_error, "close: injected close failure")
   assert_eq(fault.count(), 2)
@@ -189,7 +244,8 @@ test "whole file helper reports close errors and preserves primary errors" {
     ignore(read_file(path))
     "no error"
   } catch {
-    IOError(message) => message
+    Failure::Failure(message) => message
+    error => raise error
   }
   assert_eq(primary_error, "read: injected read failure")
   assert_eq(fault.count(), 3)
@@ -321,7 +377,8 @@ test "empty whole-file sync errors take precedence over close errors" {
       write_file(path, b"", sync~)
       "no error"
     } catch {
-      IOError(message) => message
+      Failure::Failure(message) => message
+      error => raise error
     }
     assert_eq(error, "sync: injected sync failure")
     match sync {

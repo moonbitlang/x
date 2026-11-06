@@ -41,7 +41,7 @@ dev_build(
 )
 
 options(
-  "native-stub": [ "local_zone_native.c" ],
+  "native-stub": [ "local_zone_native.c", "local_zone_native_wbtest.c" ],
   targets: {
     "local_zone_native.mbt": [ "native", "llvm" ],
     "local_zone_other.mbt": [ "wasm", "wasm-gc" ],

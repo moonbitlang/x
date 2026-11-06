@@ -20,7 +20,7 @@ let max_file_position : Int64 = 0x7fffffffffffffff
 
 ///|
 #borrow(path)
-extern "C" fn file_open_ffi(
+extern "C" fn sync_file_open_ffi(
   path : OsString,
   mode : Mode,
   create_mode : CreateMode,
@@ -31,7 +31,7 @@ extern "C" fn file_open_ffi(
 
 ///|
 #borrow(buffer)
-extern "C" fn file_read_ffi(
+extern "C" fn sync_file_read_ffi(
   handle : FileHandle,
   buffer : FixedArray[Byte],
   offset : Int32,
@@ -41,7 +41,7 @@ extern "C" fn file_read_ffi(
 
 ///|
 #borrow(buffer)
-extern "C" fn file_write_ffi(
+extern "C" fn sync_file_write_ffi(
   handle : FileHandle,
   buffer : Bytes,
   offset : Int32,
@@ -56,30 +56,30 @@ extern "C" fn file_size_ffi(handle : FileHandle) -> Int64 = "moonbitlang_x_file_
 extern "C" fn file_sync_ffi(handle : FileHandle, only_data : Bool) -> Int64 = "moonbitlang_x_file_sync"
 
 ///|
-extern "C" fn file_close_ffi(handle : FileHandle) -> Int64 = "moonbitlang_x_file_close"
+extern "C" fn sync_file_close_ffi(handle : FileHandle) -> Int64 = "moonbitlang_x_file_close"
 
 ///|
 // Stubs capture errno/GetLastError before any cleanup or MoonBit allocation.
-fn native_file_result(
+fn sync_file_result(
   result : Int64,
   operation : String,
-) -> Int64 raise IOError {
-  guard result >= 0 else { raise IOError("\{operation}: OS error \{-result}") }
+) -> Int64 raise {
+  guard result >= 0 else { raise OSError((-result).to_int(), context=operation) }
   result
 }
 
 ///|
-fn open_handle(
+fn open_file_handle(
   path : String,
   mode : Mode,
   create_mode : CreateMode,
   append : Bool,
   permission : Int32,
   sync : SyncMode,
-) -> FileHandle raise IOError {
+) -> FileHandle raise {
   FileHandle(
-    native_file_result(
-      file_open_ffi(
+    sync_file_result(
+      sync_file_open_ffi(
         OsString::from_string(path),
         mode,
         create_mode,
@@ -93,14 +93,14 @@ fn open_handle(
 }
 
 ///|
-fn FileHandle::read(
+fn FileHandle::read_once(
   self : FileHandle,
   buffer : FixedArray[Byte],
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise IOError {
-  native_file_result(file_read_ffi(self, buffer, offset, len, position), "read").to_int()
+) -> Int32 raise {
+  sync_file_result(sync_file_read_ffi(self, buffer, offset, len, position), "read").to_int()
 }
 
 ///|
@@ -110,28 +110,28 @@ fn FileHandle::write(
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise IOError {
-  native_file_result(
-    file_write_ffi(self, buffer, offset, len, position),
+) -> Int32 raise {
+  sync_file_result(
+    sync_file_write_ffi(self, buffer, offset, len, position),
     "write",
   ).to_int()
 }
 
 ///|
-fn FileHandle::size(self : FileHandle) -> Int64 raise IOError {
-  native_file_result(file_size_ffi(self), "size")
+fn FileHandle::size(self : FileHandle) -> Int64 raise {
+  sync_file_result(file_size_ffi(self), "size")
 }
 
 ///|
-fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise IOError {
-  ignore(native_file_result(file_sync_ffi(self, only_data), "sync"))
+fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise {
+  ignore(sync_file_result(file_sync_ffi(self, only_data), "sync"))
 }
 
 ///|
-fn FileHandle::close(self : FileHandle) -> String? {
-  let result = file_close_ffi(self)
+fn FileHandle::close(self : FileHandle) -> Error? {
+  let result = sync_file_close_ffi(self)
   if result < 0 {
-    Some("close: OS error \{-result}")
+    Some(OSError((-result).to_int(), context="close"))
   } else {
     None
   }
@@ -141,4 +141,9 @@ fn FileHandle::close(self : FileHandle) -> String? {
 // O_SYNC/O_DSYNC or FILE_FLAG_WRITE_THROUGH already synchronize each write.
 fn FileHandle::finish_write(_self : FileHandle) -> Unit {
   ()
+}
+
+///|
+fn os_error_message(error : Int32) -> String {
+  file_error_message_ffi(error).to_string().trim_end(chars="\r\n").to_owned()
 }

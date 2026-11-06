@@ -49,9 +49,27 @@ extern "js" fn FileJsResult::handle(self : FileJsResult) -> FileHandle =
   #| result => result.value
 
 ///|
-fn FileJsResult::check(self : FileJsResult) -> Unit raise IOError {
-  guard self.is_ok() else { raise IOError(self.message()) }
+fn FileJsResult::check(self : FileJsResult) -> Unit raise {
+  guard self.is_ok() else {
+    let code = self.errno()
+    if code != 0 {
+      raise OSError(code, context=self.context())
+    }
+    raise Failure::Failure(self.message())
+  }
 }
+
+///|
+extern "js" fn FileJsResult::errno(self : FileJsResult) -> Int32 =
+  #| result => result.errno ?? 0
+
+///|
+extern "js" fn FileJsResult::context(self : FileJsResult) -> String =
+  #| result => result.context
+
+///|
+extern "js" fn os_error_message(error : Int32) -> String =
+  #| error => process.getBuiltinModule("util").getSystemErrorMessage(error)
 
 ///|
 extern "js" fn node_open(
@@ -77,19 +95,19 @@ extern "js" fn node_open(
   #|     return {ok: true, value: {fs, fd, sync}};
   #|   } catch (error) {
   #|     if (fd !== undefined) { try { fs.closeSync(fd); } catch {} }
-  #|     return {ok: false, error: `open ${path}: ${error.message}`};
+  #|     return {ok: false, errno: error.errno, context: `open ${path}`, error: `open ${path}: ${error.message}`};
   #|   }
   #| }
 
 ///|
-fn open_handle(
+fn open_file_handle(
   path : String,
   mode : Mode,
   create_mode : CreateMode,
   append : Bool,
   permission : Int32,
   sync : SyncMode,
-) -> FileHandle raise IOError {
+) -> FileHandle raise {
   let result = node_open(
     get_builtin_module("fs"),
     path,
@@ -113,17 +131,17 @@ extern "js" fn node_read(
 ) -> FileJsResult =
   #| (h, buffer, offset, len, position) => {
   #|   try { return {ok: true, value: BigInt(h.fs.readSync(h.fd, buffer, offset, len, Number(position)))}; }
-  #|   catch (error) { return {ok: false, error: `read: ${error.message}`}; }
+  #|   catch (error) { return {ok: false, errno: error.errno, context: "read", error: `read: ${error.message}`}; }
   #| }
 
 ///|
-fn FileHandle::read(
+fn FileHandle::read_once(
   self : FileHandle,
   buffer : FixedArray[Byte],
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise IOError {
+) -> Int32 raise {
   let result = node_read(self, buffer, offset, len, position)
   result.check()
   result.number().to_int()
@@ -139,7 +157,7 @@ extern "js" fn node_write(
 ) -> FileJsResult =
   #| (h, buffer, offset, len, position) => {
   #|   try { return {ok: true, value: BigInt(h.fs.writeSync(h.fd, buffer, offset, len, position < 0n ? null : Number(position)))}; }
-  #|   catch (error) { return {ok: false, error: `write: ${error.message}`}; }
+  #|   catch (error) { return {ok: false, errno: error.errno, context: "write", error: `write: ${error.message}`}; }
   #| }
 
 ///|
@@ -149,7 +167,7 @@ fn FileHandle::write(
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise IOError {
+) -> Int32 raise {
   let result = node_write(self, buffer, offset, len, position)
   result.check()
   result.number().to_int()
@@ -163,11 +181,11 @@ extern "js" fn node_size(handle : FileHandle) -> FileJsResult =
   #|     if (!stat.isFile()) return {ok: false, error: "size: not a regular file"};
   #|     if (stat.size > 9223372036854775807n) return {ok: false, error: "size: exceeds Int64"};
   #|     return {ok: true, value: stat.size};
-  #|   } catch (error) { return {ok: false, error: `size: ${error.message}`}; }
+  #|   } catch (error) { return {ok: false, errno: error.errno, context: "size", error: `size: ${error.message}`}; }
   #| }
 
 ///|
-fn FileHandle::size(self : FileHandle) -> Int64 raise IOError {
+fn FileHandle::size(self : FileHandle) -> Int64 raise {
   let result = node_size(self)
   result.check()
   result.number()
@@ -179,11 +197,11 @@ extern "js" fn node_sync(handle : FileHandle, only_data : Bool) -> FileJsResult 
   #|   try {
   #|     if (onlyData) h.fs.fdatasyncSync(h.fd); else h.fs.fsyncSync(h.fd);
   #|     return {ok: true};
-  #|   } catch (error) { return {ok: false, error: `sync: ${error.message}`}; }
+  #|   } catch (error) { return {ok: false, errno: error.errno, context: "sync", error: `sync: ${error.message}`}; }
   #| }
 
 ///|
-fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise IOError {
+fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise {
   node_sync(self, only_data).check()
 }
 
@@ -192,7 +210,7 @@ extern "js" fn FileHandle::sync_mode(self : FileHandle) -> SyncMode =
   #| h => h.sync
 
 ///|
-fn FileHandle::finish_write(self : FileHandle) -> Unit raise IOError {
+fn FileHandle::finish_write(self : FileHandle) -> Unit raise {
   match self.sync_mode() {
     NoSync => ()
     Data => self.sync(true)
@@ -204,15 +222,14 @@ fn FileHandle::finish_write(self : FileHandle) -> Unit raise IOError {
 extern "js" fn node_close(handle : FileHandle) -> FileJsResult =
   #| h => {
   #|   try { h.fs.closeSync(h.fd); return {ok: true}; }
-  #|   catch (error) { return {ok: false, error: `close: ${error.message}`}; }
+  #|   catch (error) { return {ok: false, errno: error.errno, context: "close", error: `close: ${error.message}`}; }
   #| }
 
 ///|
-fn FileHandle::close(self : FileHandle) -> String? {
+fn FileHandle::close(self : FileHandle) -> Error? {
   let result = node_close(self)
-  if result.is_ok() {
-    None
-  } else {
-    Some(result.message())
+  result.check() catch {
+    error => return Some(error)
   }
+  None
 }
