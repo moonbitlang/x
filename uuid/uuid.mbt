@@ -42,10 +42,9 @@
 /// }
 /// ```
 ///
-#derive(Eq, Compare)
+#derive(Eq, Compare, Hash)
 struct UUID {
   // XXX: replace with an 128-bit data structure when there is one
-  // use the derived hash
   hi : Int64
   lo : Int64
 }
@@ -304,3 +303,7 @@ pub extend UUID with ToJson::{to_json}
 ///|
 #deprecated
 pub extend UUID with FromJson::{from_json}
+
+///|
+#deprecated
+pub extend UUID with Hash::{hash_combine}

@@ -14,7 +14,7 @@ pub fn from_hex(String) -> UUID raise
 // Errors
 
 // Types and methods
-#derive(Compare, Eq)
+#derive(Compare, Eq, Hash)
 type UUID
 pub fn UUID::as_version(Self, Version) -> Self
 #deprecated
@@ -24,6 +24,8 @@ pub fn UUID::equal(Self, Self) -> Bool
 #deprecated
 pub fn UUID::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn UUID::hash(Self) -> Int32
+#deprecated
+pub fn UUID::hash_combine(Self, Hasher) -> Unit
 #deprecated
 pub fn UUID::not_equal(Self, Self) -> Bool
 #deprecated

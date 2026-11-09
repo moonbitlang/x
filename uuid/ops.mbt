@@ -14,5 +14,5 @@
 
 ///|
 pub fn UUID::hash(self : UUID) -> Int32 {
-  Hash::hash(self.lo) ^ Hash::hash(self.hi)
+  Hash::hash(self)
 }
