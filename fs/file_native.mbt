@@ -19,17 +19,6 @@ priv struct FileHandle(Int64)
 let max_file_position : Int64 = 0x7fffffffffffffff
 
 ///|
-#borrow(path)
-extern "C" fn sync_file_open_ffi(
-  path : OsString,
-  mode : Mode,
-  create_mode : CreateMode,
-  append : Bool,
-  permission : Int32,
-  sync : SyncMode,
-) -> Int64 = "moonbitlang_x_file_open"
-
-///|
 #borrow(buffer)
 extern "C" fn sync_file_read_ffi(
   handle : FileHandle,
@@ -78,7 +67,7 @@ fn open_file_handle(
 ) -> FileHandle raise {
   FileHandle(
     sync_file_result(
-      sync_file_open_ffi(
+      file_open_ffi(
         OsString::from_string(path),
         mode,
         create_mode,
