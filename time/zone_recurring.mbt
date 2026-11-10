@@ -24,7 +24,7 @@ priv enum Recurring {
     standard~ : ZoneOffset,
     daylight~ : ZoneOffset,
     start~ : @tzif.Rule,
-    end~ : @tzif.Rule
+    end~ : @tzif.Rule,
   )
   Windows(WindowsRule)
 }

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `@time.local_zone()` supports linear Wasm on Linux, macOS, and Windows with Moonrun’s timezone imports. (#365)
+
 ### Fixed
 
 - Windows local timezones honor recurring January weekday transitions. (#363)

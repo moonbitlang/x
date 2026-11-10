@@ -209,18 +209,18 @@ fn OsErrorText::decode(
 
 ///|
 /// Decode the host-native error string (UTF-16 on Windows, UTF-8 on Unix).
-fn file_error(error : Int32, operation : String) -> IOError {
+pub fn error_message(error : Int32) -> String {
   let text = errno_to_string(error)
   defer text.free()
   let nul_terminated = -1
   let len = text.decoded_length(0, nul_terminated)
   let message = String::make(len, '\u{0}')
   text.decode(0, nul_terminated, message, len)
-  IOError("\{operation}: \{message.trim_end(chars="\r\n")} (\{error})")
+  message.trim_end(chars="\r\n").to_owned()
 }
 
 ///|
-fn open_handle(path : String, writing : Bool) -> FileHandle raise IOError {
+fn open_handle(path : String, writing : Bool) -> FileHandle raise FileError {
   for ;; {
     let job = make_open_job(
       path,
@@ -239,7 +239,7 @@ fn open_handle(path : String, writing : Bool) -> FileHandle raise IOError {
     if file_host_is_unix && error == UNIX_EINTR {
       continue
     }
-    guard error == 0 else { raise file_error(error, "open \{path}") }
+    guard error == 0 else { raise Os(error, "open \{path}") }
     // Claim the descriptor before freeing the job. It has a separate lifetime.
     break job.fd()
   }
@@ -259,7 +259,7 @@ fn FileHandle::size_hint(self : FileHandle) -> Int32? {
     (mask & request) == request &&
     kind == REGULAR_FILE &&
     size > 0 &&
-    size < MAX_FILE_BYTES.to_int64() else {
+    size < 0x7fff_ffffL else {
     return None
   }
   Some(size.to_int())
@@ -272,7 +272,7 @@ fn FileHandle::read(
   buffer : FixedArray[Byte],
   path : String,
   offset~ : Int32 = 0,
-) -> Int32 raise IOError {
+) -> Int32 raise FileError {
   for ;; {
     let job = make_read_job(
       self,
@@ -286,7 +286,7 @@ fn FileHandle::read(
     if file_host_is_unix && error == UNIX_EINTR {
       continue
     }
-    guard error == 0 else { raise file_error(error, "read \{path}") }
+    guard error == 0 else { raise Os(error, "read \{path}") }
     let n = job.ret()
     job.copy_read(buffer, offset, n)
     break n
@@ -299,7 +299,7 @@ fn FileHandle::read_all(
   self : FileHandle,
   path : String,
   size_hint : Int32?,
-) -> Bytes raise IOError {
+) -> Bytes raise FileError {
   let chunks : Array[(FixedArray[Byte], Int32)] = []
   let mut total = 0
   if size_hint is Some(size) {
@@ -326,8 +326,8 @@ fn FileHandle::read_all(
   let mut buffer : FixedArray[Byte] = FixedArray::make(chunk_size, 0)
   let mut offset = 0
   while self.read(buffer, path, offset~) is n && n > 0 {
-    guard n <= MAX_FILE_BYTES - total else {
-      raise IOError("read \{path}: file too large for Bytes")
+    guard n <= 0x7fff_ffff - total else {
+      raise Other("read \{path}: file too large for Bytes")
     }
     offset += n
     total += n
@@ -349,23 +349,20 @@ fn FileHandle::read_all(
 }
 
 ///|
-fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
+pub fn read_file(path : String) -> Bytes raise FileError {
   let handle = open_handle(path, false)
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(handle)) })
   let contents = handle.read_all(path, handle.size_hint())
   closed = true
   guard file_close_ffi(handle) == 0 else {
-    raise file_error(file_errno(), "close \{path}")
+    raise Os(file_errno(), "close \{path}")
   }
   contents
 }
 
 ///|
-fn write_bytes_to_file_internal(
-  path : String,
-  content : Bytes,
-) -> Unit raise IOError {
+pub fn write_file(path : String, content : Bytes) -> Unit raise FileError {
   let handle = open_handle(path, true)
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(handle)) })
@@ -384,13 +381,85 @@ fn write_bytes_to_file_internal(
     if file_host_is_unix && error == UNIX_EINTR {
       continue total
     }
-    guard error == 0 else { raise file_error(error, "write \{path}") }
+    guard error == 0 else { raise Os(error, "write \{path}") }
     let n = job.ret()
-    guard n > 0 else { raise IOError("write \{path}: made no progress") }
+    guard n > 0 else { raise Other("write \{path}: made no progress") }
     continue total + n
   }
   closed = true
   guard file_close_ffi(handle) == 0 else {
-    raise file_error(file_errno(), "close \{path}")
+    raise Os(file_errno(), "close \{path}")
   }
 }
+
+///|
+pub(all) suberror FileError {
+  Os(Int32, String)
+  Other(String)
+}
+
+///|
+pub impl Show for FileError with fn output(self, logger) {
+  match self {
+    Os(code, operation) =>
+      logger.write_string("\{operation}: \{error_message(code)} (\{code})")
+    Other(message) => logger.write_string(message)
+  }
+}
+
+///|
+pub fn is_windows() -> Bool {
+  !file_host_is_unix
+}
+
+///|
+#unsafe_skip_stub_check
+#borrow(path)
+fn make_realpath_job(path : String, len : Int32) -> FileJob = "moonbitlang/async" "thread_pool/make_realpath_job"
+
+///|
+#unsafe_skip_stub_check
+fn FileJob::realpath_result(self : FileJob) -> UInt64 = "moonbitlang/async" "thread_pool/get_realpath_result"
+
+///|
+#unsafe_skip_stub_check
+fn buffer_length(handle : UInt64) -> UInt32 = "moonbitlang/async" "c_buffer/length"
+
+///|
+#unsafe_skip_stub_check
+#borrow(output)
+fn buffer_copy(
+  handle : UInt64,
+  start : Int32,
+  output : Bytes,
+  offset : Int32,
+  count : Int32,
+) -> Unit = "moonbitlang/async" "c_buffer/blit_from_c"
+
+///|
+/// Copy the native pathname bytes, excluding the platform's NUL terminator.
+/// The job owns the source buffer until job.free().
+pub fn realpath_bytes(path : String) -> Bytes raise FileError {
+  for ;; {
+    let job = make_realpath_job(path, path.length())
+    defer job.free()
+    job.run()
+    let code = job.err()
+    if file_host_is_unix && code == UNIX_EINTR {
+      continue
+    }
+    guard code == 0 else { raise Os(code, "resolve \{path}") }
+    let handle = job.realpath_result()
+    let size = buffer_length(handle)
+    let unit_size = if file_host_is_unix { 1U } else { 2U }
+    guard size >= unit_size && size <= 0x7fff_ffffU && size % unit_size == 0U else {
+      raise Other("invalid realpath result length")
+    }
+    let result = Bytes::make((size - unit_size).reinterpret_as_int(), 0)
+    buffer_copy(handle, 0, result, 0, result.length())
+    break result
+  }
+}
+
+///|
+pub extend FileError with Show::{to_string, output}
