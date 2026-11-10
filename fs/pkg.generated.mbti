@@ -55,10 +55,10 @@ pub(all) enum CreateMode {
 
 type File
 pub fn File::close(Self) -> Unit
-pub fn File::read(Self, FixedArray[Byte], offset? : Int32, max_len? : Int32) -> Int32 raise
 pub fn File::read_all(Self) -> Bytes raise
-pub fn File::read_at(Self, FixedArray[Byte], position~ : Int64, offset? : Int32, len? : Int32) -> Int32 raise
 pub fn File::read_exactly(Self, Int32) -> Bytes raise
+pub fn File::read_into(Self, MutArrayView[Byte]) -> Int32 raise
+pub fn File::read_into_at(Self, MutArrayView[Byte], position~ : Int64) -> Int32 raise
 pub fn File::size(Self) -> Int64 raise
 pub fn File::sync(Self, only_data? : Bool) -> Unit raise
 pub fn File::write(Self, BytesView) -> Unit raise

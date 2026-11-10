@@ -181,7 +181,9 @@ test "bounds access checks EOF and closure aliases" {
   let file = @fs.open(path, mode=ReadWrite)
   defer file.close()
   let buffer : FixedArray[Byte] = FixedArray::make(4, 0xee)
-  @test.assert_raise(() => ignore(file.read_into_at(buffer.mut_view(), position=-1)))
+  @test.assert_raise(() => {
+    ignore(file.read_into_at(buffer.mut_view(), position=-1))
+  })
   @test.assert_raise(() => {
     ignore(file.read_into_at(buffer.mut_view(), position=0x7fffffffffffffff))
   })
