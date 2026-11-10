@@ -1,3 +1,8 @@
+#cfg(target="wasm")
+import {
+  "moonbitlang/x/internal/wasm_file",
+}
+
 import {
   "moonbitlang/core/encoding/utf8",
 }
@@ -13,7 +18,6 @@ options(
   targets: {
     "fs_js.mbt": [ "js" ],
     "fs_native.mbt": [ "native", "llvm" ],
-    "file_wasm.mbt": [ "wasm" ],
     "fs_wasm.mbt": [ "wasm", "wasm-gc" ],
   },
 )

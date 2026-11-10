@@ -199,6 +199,25 @@ fn write_bytes_to_file_ffi(
 ) -> Int32 = "__moonbit_fs_unstable" "write_bytes_to_file_new"
 
 ///|
+#cfg(target="wasm")
+fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
+  @wasm_file.read_file(path) catch {
+    err => raise IOError(err.to_string())
+  }
+}
+
+///|
+#cfg(target="wasm")
+fn write_bytes_to_file_internal(
+  path : String,
+  content : Bytes,
+) -> Unit raise IOError {
+  @wasm_file.write_file(path, content) catch {
+    err => raise IOError(err.to_string())
+  }
+}
+
+///|
 #cfg(target="wasm-gc")
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
   let res = read_file_to_bytes_ffi(string_to_extern(path))

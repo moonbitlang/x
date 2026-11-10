@@ -14,10 +14,28 @@
 
 ///|
 #cfg(target="wasm")
+test "realpath copies native bytes without the terminator" {
+  let path = "tmp_fs_wasm_realpath"
+  write_file(path, b"timezone")
+  defer @fs.remove_file(path)
+  let raw = realpath_bytes(path)
+  let suffix = if is_windows() {
+    let bytes : FixedArray[Byte] = FixedArray::make(path.length() * 2, 0)
+    bytes.blit_from_string(0, path, 0, path.length())
+    Bytes::from_array(bytes[:])
+  } else {
+    b"tmp_fs_wasm_realpath"
+  }
+  assert_true(raw.length() > suffix.length())
+  assert_eq(raw[raw.length() - suffix.length():], suffix[:])
+}
+
+///|
+#cfg(target="wasm")
 test "read_all tolerates growth shrinkage and an empty size hint" {
   let path = "tmp_fs_wasm_size_hint"
-  write_bytes_to_file_internal(path, b"")
-  defer remove_file_internal(path)
+  write_file(path, b"")
+  defer @fs.remove_file(path)
   let chunk = GROWING_FILE_CHUNK_SIZE
   for
     (before, after) in [
@@ -28,14 +46,14 @@ test "read_all tolerates growth shrinkage and an empty size hint" {
       (chunk, 0),
       (0, chunk + 1),
     ] {
-    write_bytes_to_file_internal(path, Bytes::make(before, 0))
+    write_file(path, Bytes::make(before, 0))
     let handle = open_handle(path, false)
     defer ignore(file_close_ffi(handle))
     let hint = handle.size_hint()
     assert_eq(hint, if before > 0 { Some(before) } else { None })
     // Mutate through another handle after stat, before reading.
     let contents = Bytes::makei(after, i => (i % 251).to_byte())
-    write_bytes_to_file_internal(path, contents)
+    write_file(path, contents)
     assert_eq(handle.read_all(path, hint), contents)
   }
 }
@@ -44,12 +62,12 @@ test "read_all tolerates growth shrinkage and an empty size hint" {
 #cfg(target="wasm")
 test "read_all streams without metadata and combines chunks in order" {
   let path = "tmp_fs_wasm_no_size_hint"
-  write_bytes_to_file_internal(path, b"")
-  defer remove_file_internal(path)
+  write_file(path, b"")
+  defer @fs.remove_file(path)
   let chunk = STREAM_CHUNK_SIZE
   for len in [0, 1, chunk - 1, chunk, chunk + 1, 2 * chunk, 2 * chunk + 17] {
     let contents = Bytes::makei(len, i => (i % 251).to_byte())
-    write_bytes_to_file_internal(path, contents)
+    write_file(path, contents)
     let handle = open_handle(path, false)
     defer ignore(file_close_ffi(handle))
     assert_eq(handle.read_all(path, None), contents)
@@ -61,14 +79,14 @@ test "read_all streams without metadata and combines chunks in order" {
 test "read failures include the path and decoded OS error" {
   let path = "tmp_fs_wasm_read_error"
   let handle = open_handle(path, true)
-  defer remove_file_internal(path)
+  defer @fs.remove_file(path)
   defer ignore(file_close_ffi(handle))
   // Reading a write-only handle fails at read on every supported host.
   let message = try {
     ignore(handle.read_all(path, None))
     fail("reading a write-only file should fail")
   } catch {
-    IOError(message) => message
+    Os(_, _) as err => err.to_string()
     error => raise error
   }
   assert_true(message.contains("read \{path}: "))

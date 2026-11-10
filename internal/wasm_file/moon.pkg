@@ -1,0 +1,8 @@
+#cfg(target="wasm")
+import {
+  "moonbitlang/x/fs",
+} for "wbtest"
+
+options(
+  targets: { "file_wasm.mbt": [ "wasm" ], "file_wasm_wbtest.mbt": [ "wasm" ] },
+)
