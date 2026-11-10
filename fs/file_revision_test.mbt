@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm", target="js"))
+#cfg(any(target="native", target="llvm", target="wasm"))
 test "write_file appends without an explicit creation mode" {
   let path = file_test_path()
   @fs.write_file(path, b"old", sync=NoSync)
@@ -28,7 +28,7 @@ test "write_file appends without an explicit creation mode" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm", target="js"))
+#cfg(any(target="native", target="llvm", target="wasm"))
 test "new file API does not expose legacy IOError" {
   let path = file_test_path() + ".missing"
   try ignore(@fs.read_file(path)) catch {
@@ -48,7 +48,7 @@ test "new file API does not expose legacy IOError" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm", target="js"))
+#cfg(any(target="native", target="llvm", target="wasm"))
 test "write_file append creates missing files and honors explicit truncation" {
   let path = file_test_path()
   @fs.write_file(path, b"", append=true, sync=NoSync)
@@ -66,7 +66,7 @@ test "write_file append creates missing files and honors explicit truncation" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm", target="js"))
+#cfg(any(target="native", target="llvm", target="wasm"))
 test "exact reads report ReaderClosed and retain partial progress" {
   let path = file_test_path()
   @fs.write_file(path, b"abc", sync=NoSync)

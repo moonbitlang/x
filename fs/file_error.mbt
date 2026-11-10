@@ -14,8 +14,8 @@
 
 ///|
 /// An operating-system failure, following async's error-code/context model.
-/// The code is errno on Unix, GetLastError on native Windows, and the signed
-/// libuv errno returned by Node.js on JS. Codes are backend/platform specific.
+/// Native uses errno on Unix and GetLastError on Windows; Wasm uses host error
+/// codes. Codes are backend/platform specific.
 /// The legacy whole-file APIs continue to raise IOError.
 pub(all) suberror OSError {
   OSError(Int32, context~ : String)
