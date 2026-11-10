@@ -2,6 +2,12 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
+#cfg(any(target="native", target="wasm"))
+import {
+  "moonbitlang/core/async/os_error",
+  "moonbitlang/core/async/io",
+}
+
 import {
   "moonbitlang/x/encoding",
   "moonbitlang/core/env",
@@ -9,15 +15,15 @@ import {
 } for "test"
 
 options(
+  "allow-experimental-packages": true,
   "native-stub": [ "fs_native.c", "file_native.c" ],
   targets: {
-    "file.mbt": [ "native", "llvm", "wasm" ],
-    "file_error.mbt": [ "native", "llvm", "wasm" ],
-    "file_read.mbt": [ "native", "llvm", "wasm" ],
-    "file_native.mbt": [ "native", "llvm" ],
-    "file_test.mbt": [ "native", "llvm", "wasm" ],
+    "file.mbt": [ "native", "wasm" ],
+    "file_read.mbt": [ "native", "wasm" ],
+    "file_native.mbt": [ "native" ],
+    "file_test.mbt": [ "native", "wasm" ],
     "fs_js.mbt": [ "js" ],
-    "fs_native.mbt": [ "native", "llvm" ],
+    "fs_native.mbt": [ "native" ],
     "file_wasm.mbt": [ "wasm" ],
     "fs_wasm.mbt": [ "wasm", "wasm-gc" ],
   },

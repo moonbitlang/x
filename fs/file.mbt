@@ -77,7 +77,7 @@ struct File {
 /// `permission` applies only when creating a file, is filtered by the Unix umask,
 /// and is ignored on Windows. Paths are not normalized. Append applies only to
 /// sequential writes; it does not override the selected creation mode.
-/// OS failures raise OSError; invalid arguments raise Failure. On Wasm an
+/// OS failures raise @os_error.OsError; invalid arguments raise Failure. On Wasm an
 /// interrupted open job is reported to the caller: the host also queries
 /// metadata, so blindly repeating the job could truncate an opened file twice.
 pub fn open(
@@ -226,7 +226,7 @@ pub fn File::read_all(self : File) -> Bytes raise {
 }
 
 ///|
-/// Reads exactly `len` bytes or raises ReaderClosed on premature EOF. Bytes already
+/// Reads exactly `len` bytes or raises @io.ReaderClosed on premature EOF. Bytes already
 /// read advance the read position even when a later read fails.
 pub fn File::read_exactly(self : File, len : Int32) -> Bytes raise {
   let handle = self.check_access(write=false)
@@ -235,7 +235,7 @@ pub fn File::read_exactly(self : File, len : Int32) -> Bytes raise {
   let buffer : FixedArray[Byte] = FixedArray::make(len, 0)
   for total = 0; total < len; {
     let n = handle.read_once(buffer, total, len - total, self.read_position)
-    guard n > 0 else { raise ReaderClosed }
+    guard n > 0 else { raise @io.ReaderClosed }
     self.read_position += n.to_int64()
     continue total + n
   }

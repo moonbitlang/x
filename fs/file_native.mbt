@@ -51,7 +51,7 @@ extern "C" fn sync_file_close_ffi(handle : FileHandle) -> Int64 = "moonbitlang_x
 // Stubs capture errno/GetLastError before any cleanup or MoonBit allocation.
 fn sync_file_result(result : Int64, operation : String) -> Int64 raise {
   guard result >= 0 else {
-    raise OSError((-result).to_int(), context=operation)
+    raise @os_error.from_errno((-result).to_int(), context=operation)
   }
   result
 }
@@ -122,7 +122,7 @@ fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise {
 fn FileHandle::close(self : FileHandle) -> Error? {
   let result = sync_file_close_ffi(self)
   if result < 0 {
-    Some(OSError((-result).to_int(), context="close"))
+    Some(@os_error.from_errno((-result).to_int(), context="close"))
   } else {
     None
   }
@@ -132,9 +132,4 @@ fn FileHandle::close(self : FileHandle) -> Error? {
 // O_SYNC/O_DSYNC or FILE_FLAG_WRITE_THROUGH already synchronize each write.
 fn FileHandle::finish_write(_self : FileHandle) -> Unit {
   ()
-}
-
-///|
-fn os_error_message(error : Int32) -> String {
-  file_error_message_ffi(error).to_string().trim_end(chars="\r\n").to_owned()
 }

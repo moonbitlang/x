@@ -276,7 +276,8 @@ fn FileHandle::read(
   offset~ : Int32 = 0,
 ) -> Int32 raise IOError {
   self.read_once(buffer, offset, buffer.length() - offset, SEQUENTIAL_POSITION) catch {
-    OSError(error, ..) => raise file_error(error, "read \{path}")
+    @os_error.OsError(_, raw_code=error, ..) =>
+      raise file_error(error, "read \{path}")
     error => raise IOError("read \{path}: \{error}")
   }
 }
@@ -338,7 +339,9 @@ fn open_file_handle(
   // in the host. New APIs therefore propagate an interrupted open job.
   job.run()
   let error = job.err()
-  guard error == 0 else { raise OSError(error, context="open \{path}") }
+  guard error == 0 else {
+    raise @os_error.from_errno(error, context="open \{path}")
+  }
   job.fd()
 }
 
@@ -358,7 +361,7 @@ fn FileHandle::read_once(
     if file_host_is_unix && error == UNIX_EINTR {
       continue
     }
-    guard error == 0 else { raise OSError(error, context="read") }
+    guard error == 0 else { raise @os_error.from_errno(error, context="read") }
     let n = job.ret()
     job.copy_read(buffer, offset, n)
     break n
@@ -381,7 +384,7 @@ fn FileHandle::write(
     if file_host_is_unix && error == UNIX_EINTR {
       continue
     }
-    guard error == 0 else { raise OSError(error, context="write") }
+    guard error == 0 else { raise @os_error.from_errno(error, context="write") }
     break job.ret()
   }
 }
@@ -393,7 +396,7 @@ fn FileHandle::size(self : FileHandle) -> Int64 raise {
   defer job.free()
   job.run()
   let error = job.err()
-  guard error == 0 else { raise OSError(error, context="size") }
+  guard error == 0 else { raise @os_error.from_errno(error, context="size") }
   let stat : FixedArray[Byte] = FixedArray::make(STAT_KIND_SIZE_LENGTH, 0)
   job.copy_stat(stat, stat.length())
   guard stat is [u32le(_), u32le(mask), i64le(kind), i64le(size)] &&
@@ -414,13 +417,13 @@ fn FileHandle::sync(self : FileHandle, only_data : Bool) -> Unit raise {
   defer job.free()
   job.run()
   let error = job.err()
-  guard error == 0 else { raise OSError(error, context="sync") }
+  guard error == 0 else { raise @os_error.from_errno(error, context="sync") }
 }
 
 ///|
 fn FileHandle::close(self : FileHandle) -> Error? {
   if file_close_ffi(self) < 0 {
-    Some(OSError(file_errno(), context="close"))
+    Some(@os_error.from_errno(file_errno(), context="close"))
   } else {
     None
   }
@@ -461,7 +464,8 @@ fn write_bytes_to_file_internal(
       content.length() - total,
       SEQUENTIAL_POSITION,
     ) catch {
-      OSError(error, ..) => raise file_error(error, "write \{path}")
+      @os_error.OsError(_, raw_code=error, ..) =>
+        raise file_error(error, "write \{path}")
       error => raise IOError("write \{path}: \{error}")
     }
     guard n > 0 else { raise IOError("write \{path}: made no progress") }

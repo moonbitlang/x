@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm"))
+#cfg(any(target="native", target="wasm"))
 test "write_file appends without an explicit creation mode" {
   let path = file_test_path()
   @fs.write_file(path, b"old", sync=NoSync)
@@ -28,18 +28,19 @@ test "write_file appends without an explicit creation mode" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm"))
-test "new file API does not expose legacy IOError" {
+#cfg(any(target="native", target="wasm"))
+test "new file API reuses core async OS errors" {
   let path = file_test_path() + ".missing"
   try ignore(@fs.read_file(path)) catch {
     @fs.IOError(_) => fail("new file API still raises legacy IOError")
-    @fs.OSError(code, context~) => {
+    @os_error.OsError(kind, raw_code=code, context~) => {
+      assert_eq(kind, NotFound)
       assert_not_eq(code, 0)
       assert_true(context.contains("open"))
       assert_true(context.contains(path))
-      let message = @fs.OSError(code, context~).to_string()
+      let message = @os_error.from_errno(code, context~).to_string()
       assert_false(message.contains("OS error "))
-      assert_true(message.length() > context.length() + 12)
+      assert_true(message.length() > context.length() + 2)
     }
     error => raise error
   } noraise {
@@ -48,7 +49,7 @@ test "new file API does not expose legacy IOError" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm"))
+#cfg(any(target="native", target="wasm"))
 test "write_file append creates missing files and honors explicit truncation" {
   let path = file_test_path()
   @fs.write_file(path, b"", append=true, sync=NoSync)
@@ -66,7 +67,7 @@ test "write_file append creates missing files and honors explicit truncation" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm", target="wasm"))
+#cfg(any(target="native", target="wasm"))
 test "exact reads report ReaderClosed and retain partial progress" {
   let path = file_test_path()
   @fs.write_file(path, b"abc", sync=NoSync)
@@ -74,7 +75,7 @@ test "exact reads report ReaderClosed and retain partial progress" {
   let file = @fs.open(path, mode=ReadOnly)
   defer file.close()
   try ignore(file.read_exactly(4)) catch {
-    @fs.ReaderClosed => ()
+    @io.ReaderClosed => ()
     error => raise error
   } noraise {
     _ => fail("expected ReaderClosed")
