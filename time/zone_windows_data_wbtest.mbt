@@ -13,6 +13,131 @@
 // limitations under the License.
 
 ///|
+test "Windows absolute dates cross Y2K and 32-bit timestamp boundaries" {
+  for
+    (year, month, day, hour, minute, second, expected) in [
+      (1969, 12, 31, 23, 59, 59, -1L),
+      (1999, 12, 31, 23, 59, 59, 946684799L),
+      (2000, 1, 1, 0, 0, 0, 946684800L),
+      (2038, 1, 19, 3, 14, 7, 2147483647L),
+      (2038, 1, 19, 3, 14, 8, 2147483648L),
+      (2106, 2, 7, 6, 28, 16, 4294967296L),
+    ] {
+    let date : WindowsSystemTime = {
+      year,
+      month,
+      weekday: 0,
+      day,
+      hour,
+      minute,
+      second,
+      millisecond: 0,
+    }
+    assert_true(date.to_transition() == Some(Once(expected)))
+  }
+}
+
+///|
+test "Windows offset lookup crosses the signed 32-bit timestamp boundary" {
+  let start : WindowsSystemTime = {
+    year: 2038,
+    month: 1,
+    weekday: 0,
+    day: 19,
+    hour: 3,
+    minute: 14,
+    second: 8,
+    millisecond: 0,
+  }
+  let record : WindowsTimeZoneInfo = {
+    bias: 0,
+    standard_bias: 0,
+    daylight_bias: -60,
+    daylight_date: start,
+    standard_date: { ..start, day: 20, hour: 4, },
+  }
+  let zone = Zone::from_windows_rules("2038 boundary", None, [record])
+  assert_eq(zone.lookup_offset(2147483647L).seconds(), 0)
+  assert_eq(zone.lookup_offset(2147483648L).seconds(), 3600)
+  assert_eq(zone.lookup_offset(2147570047L).seconds(), 3600)
+  assert_eq(zone.lookup_offset(2147570048L).seconds(), 0)
+}
+
+///|
+test "Windows absolute leap dates follow Gregorian century rules" {
+  for (year, leap) in [(1900, false), (2000, true), (2100, false), (2400, true)] {
+    let date : WindowsSystemTime = {
+      year,
+      month: 2,
+      weekday: 0,
+      day: 29,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    }
+    if leap {
+      assert_true(date.to_transition() is Some(Once(_)))
+    } else {
+      @test.assert_raise(() => ignore(date.to_transition()))
+    }
+  }
+}
+
+///|
+test "Windows absolute years retain all sixteen unsigned bits" {
+  // These test the decoder's representation, not Win32 support for these years.
+  for
+    (year, expected) in [
+      (9999, 253370764800L),
+      (10000, 253402300800L),
+      (32767, 971859427200L),
+      (32768, 971890963200L),
+      (65535, 2005917609600L),
+    ] {
+    let date : WindowsSystemTime = {
+      year,
+      month: 1,
+      weekday: 0,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    }
+    assert_true(date.to_transition() == Some(Once(expected)))
+  }
+  for year in [-1, 65536, 2147483647] {
+    let date : WindowsSystemTime = {
+      year,
+      month: 1,
+      weekday: 0,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    }
+    @test.assert_raise(() => ignore(date.to_transition()))
+  }
+}
+
+///|
+test "Windows bias arithmetic rejects values that would wrap to valid offsets" {
+  for (bias, seasonal) in [(2147483647, 2147483647), (-2147483648, -2147483648)] {
+    let record : WindowsTimeZoneInfo = {
+      ..eastern_windows_record,
+      bias,
+      standard_bias: seasonal,
+      daylight_bias: seasonal,
+    }
+    @test.assert_raise(() => {
+      ignore(Zone::from_windows_rules("overflow", None, [record]))
+    })
+  }
+}
+
+///|
 test "Windows Pyongyang snapshot agrees with TZif at its real offset changes" {
   let windows = Zone::from_windows_rules(
     "North Korea Standard Time",

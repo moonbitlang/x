@@ -14,7 +14,7 @@
 
 ///|
 pub fn local_zone() -> Zone raise Error {
-  fail("Local timezone loading requires the native or JavaScript backend")
+  fail("Local timezone loading is unavailable on wasm-gc")
 }
 
 ///|

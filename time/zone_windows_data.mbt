@@ -13,9 +13,8 @@
 // limitations under the License.
 
 ///|
-// Values copied through FFI accessors. These types describe Windows fields,
-// without depending on the C struct's layout or introducing a binary format.
-// Constructed only by Windows-native code and white-box tests.
+// Values copied from native FFI accessors or decoded from Moonrun's Wasm
+// records. The rule interpreter is independent of either transport's layout.
 #warnings("-struct_never_constructed")
 priv struct WindowsSystemTime {
   year : Int32

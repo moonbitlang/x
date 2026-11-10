@@ -25,7 +25,7 @@ Use `@time.Zone::from_tzif(id, data)` to load a caller-supplied TZif v1–v4 fil
 labels the zone; the constructor does not look up timezone database files.
 `Zone::from_tzif2` is deprecated in favor of this interface.
 
-On the native backend, `@time.local_zone()` loads a snapshot of the
+On native and Moonrun’s linear Wasm backend, `@time.local_zone()` loads a snapshot of the
 system-configured local timezone on Linux, macOS, and Windows. Retain the
 returned `Zone` for repeated conversions; those conversions do no OS I/O.
 Calling `local_zone()` again reads the latest installed settings and rules.
@@ -48,12 +48,16 @@ available, including historical offsets measured in seconds. All JS host zones,
 including UTC and `Etc/GMT` zones, query the runtime for offsets at the requested
 instant. The deprecated `is_fixed()` conservatively returns false for host zones.
 
-The function raises on Wasm; caller-supplied TZif loading remains portable.
+Linear Wasm requires a Moonrun release containing the timezone imports added in
+[moon#2473](https://github.com/moonbitlang/moon/pull/2473). Older runtimes cannot
+link a binary that uses `local_zone()`. A portable binary requires those imports
+on Unix as well. Wasm-GC reports that system timezone loading is unavailable.
+Caller-supplied TZif loading remains portable.
 
 Linux and macOS read `/etc/localtime`, independently of the process's `TZ`
 environment variable. Windows uses the system's local timezone and daylight-saving
-settings without requiring ICU. The loader detects the Windows 8 year-range API
-at runtime and uses a registry fallback on Windows 7.
+settings without requiring ICU. The native backend detects the Windows 8
+year-range API at runtime and uses a registry fallback on Windows 7.
 
 The returned ID is a source label. Unix uses the zoneinfo symlink's name when
 recoverable and otherwise `local`; Windows uses its registry key name, such as
@@ -61,7 +65,7 @@ recoverable and otherwise `local`; Windows uses its registry key name, such as
 are numeric. IDs and DST flags can differ between Windows and IANA data.
 
 Historical accuracy is limited by the data supplied by the OS or JS runtime.
-Native zones retain their data until you explicitly load a fresh snapshot.
+Native and linear Wasm zones retain their data until you explicitly load a fresh snapshot.
 
 `Zone` equality (`==`, `!=`, and the `Eq` implementation) is deprecated. Existing
 comparisons retain their behavior, but compare representations rather than
