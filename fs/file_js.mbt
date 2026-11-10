@@ -69,7 +69,7 @@ extern "js" fn FileJsResult::context(self : FileJsResult) -> String =
 
 ///|
 extern "js" fn os_error_message(error : Int32) -> String =
-  #| error => process.getBuiltinModule("util").getSystemErrorMessage(error)
+  #| error => process.getBuiltinModule("util").getSystemErrorMap().get(error)?.[1] ?? `Unknown system error ${error}`
 
 ///|
 extern "js" fn node_open(

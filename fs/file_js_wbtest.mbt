@@ -13,6 +13,54 @@
 // limitations under the License.
 
 ///|
+extern "js" fn disable_system_error_message() -> () -> Unit =
+  #| () => {
+  #|   const util = process.getBuiltinModule("util");
+  #|   const original = Object.getOwnPropertyDescriptor(util, "getSystemErrorMessage");
+  #|   Object.defineProperty(util, "getSystemErrorMessage", {value: undefined, configurable: true});
+  #|   return () => {
+  #|     if (original) Object.defineProperty(util, "getSystemErrorMessage", original);
+  #|     else delete util.getSystemErrorMessage;
+  #|   };
+  #| }
+
+///|
+test "OS errors format without getSystemErrorMessage" {
+  let restore = disable_system_error_message()
+  defer restore()
+  let path = close_test_path() + ".missing"
+  let error : OSError = try {
+    ignore(read_file(path))
+    fail("reading a missing file must fail")
+  } catch {
+    OSError(code, context~) => OSError(code, context~)
+    error => raise error
+  }
+  let OSError(code, context~) = error
+  assert_not_eq(code, 0)
+  assert_true(context.contains("open"))
+  assert_true(context.contains(path))
+  let formatted = [error.to_string(), "\{Repr(error)}"]
+  let explanation = os_error_message(code)
+  assert_false(explanation.has_prefix("Unknown system error"))
+  assert_true(
+    explanation
+    .iter()
+    .any(ch => {
+      (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch > '\u{7f}'
+    }),
+  )
+  for message in formatted {
+    assert_true(message.contains(context))
+    assert_true(message.contains(explanation))
+  }
+  debug_inspect(
+    OSError(0x7fffffff, context="test"),
+    content="<@fs.OSError: \"test: Unknown system error 2147483647\">",
+  )
+}
+
+///|
 // A local fake handle exercises common loops without changing the real fs
 // module or adding test hooks to production code.
 extern "js" fn scripted_handle(scenario : String) -> FileHandle =
