@@ -255,10 +255,7 @@ jobs:
           moon info
           git diff --exit-code
 
-      - name: format diff
-        run: |
-          moon fmt
-          git diff --exit-code
+      # Stable builds enforce formatting; nightly formatter output can differ.
 
   coverage-check-nightly:
     runs-on: macos-latest
