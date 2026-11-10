@@ -372,9 +372,8 @@ pub fn read_file(
 }
 
 ///|
-/// Writes the whole byte view. Without an explicit creation mode, append opens
-/// or creates without truncation; other writes create or truncate. An explicit
-/// creation mode is always honored, including truncation combined with append.
+/// Writes the whole byte view. `create_mode` defaults to `OpenOrCreate` when
+/// `append=true`, and `CreateOrTruncate` otherwise. Explicit modes take precedence.
 /// Defaults to permission 0644 and Data synchronization.
 /// Does not create parents or replace the file atomically.
 /// A close error is reported if writing succeeded.
@@ -391,21 +390,19 @@ pub fn read_file(
 pub fn write_file(
   path : StringView,
   data : BytesView,
-  create_mode? : CreateMode,
+  append~ : Bool = false,
+  create_mode~ : CreateMode = if append {
+    OpenOrCreate
+  } else {
+    CreateOrTruncate
+  },
   permission~ : Int32 = 0o644,
   sync~ : SyncMode = Data,
-  append~ : Bool = false,
 ) -> Unit raise {
   let file = open(
     path,
     mode=WriteOnly,
-    create_mode=create_mode.unwrap_or(
-      if append {
-        OpenOrCreate
-      } else {
-        CreateOrTruncate
-      },
-    ),
+    create_mode~,
     permission~,
     sync~,
     append~,

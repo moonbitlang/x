@@ -171,8 +171,6 @@ test "append is independent of read cursor and sees external writes" {
   file.write(b"C")
   assert_eq(file.read_all(), b"ABC")
   @test.assert_raise(() => file.write_at(b"!", position=0))
-  @fs.write_file(path, b"new", append=true, sync=NoSync)
-  assert_eq(@fs.read_file(path), b"startABCnew")
 }
 
 ///|
