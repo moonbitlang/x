@@ -44,17 +44,6 @@ pub(all) suberror IOError {
 #deprecated
 pub fn IOError::to_repr(Self) -> @debug.Repr
 
-pub(all) suberror OSError {
-  OSError(Int32, context~ : String)
-}
-pub fn OSError::output(Self, &Logger) -> Unit
-pub fn OSError::to_repr(Self) -> @debug.Repr
-pub fn OSError::to_string(Self) -> String
-pub impl Show for OSError
-pub impl @debug.Debug for OSError
-
-pub(all) suberror ReaderClosed
-
 // Types and methods
 pub(all) enum CreateMode {
   OpenExisting
