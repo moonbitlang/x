@@ -6,8 +6,10 @@
 
 - Synchronous `@fs.File` APIs for native and Wasm, including
   configurable file creation, independent read/write positions, positional I/O,
-  append mode, and file synchronization. Appending preserves existing contents
-  unless truncation is explicitly requested. Existing filesystem APIs remain available. (#360)
+  append mode, and file synchronization. `read_into` and `read_into_at` accept
+  mutable views to select the destination buffer range. Appending preserves
+  existing contents unless truncation is explicitly requested. Existing filesystem
+  APIs remain available. (#360)
 
 ### Fixed
 

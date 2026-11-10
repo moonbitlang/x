@@ -147,6 +147,11 @@ fn File::check_access(self : File, write~ : Bool) -> FileHandle raise {
 }
 
 ///|
+// Follow core/compress/flate's output_storage to borrow the backing array.
+// Only access the initialized range described by the view, never spare capacity.
+fn read_buffer_storage(buffer : MutArrayView[Byte]) -> FixedArray[Byte] = "%arrayview.buf"
+
+///|
 fn check_range(capacity : Int32, offset : Int32, len : Int32) -> Unit raise {
   guard offset >= 0 &&
     offset <= capacity &&
@@ -164,40 +169,41 @@ fn check_position(position : Int64, len : Int32) -> Unit raise {
 }
 
 ///|
-/// Reads at most `max_len` bytes, returning the count (zero means EOF for a
+/// Reads at most `buffer.length()` bytes, returning the count (zero means EOF for a
 /// nonempty request). Short reads are allowed. Advances only the read position.
-pub fn File::read(
-  self : File,
-  buffer : FixedArray[Byte],
-  offset~ : Int32 = 0,
-  max_len~ : Int32 = buffer.length() - offset,
-) -> Int32 raise {
+/// Pass `array.mut_view(start~, end~)` to select the destination range.
+pub fn File::read_into(self : File, buffer : MutArrayView[Byte]) -> Int32 raise {
   let handle = self.check_access(write=false)
-  check_range(buffer.length(), offset, max_len)
+  let max_len = buffer.length()
   check_position(self.read_position, max_len)
   if max_len == 0 {
     return 0
   }
-  let n = handle.read_once(buffer, offset, max_len, self.read_position)
+  let n = handle.read_once(
+    read_buffer_storage(buffer),
+    buffer.start_offset(),
+    max_len,
+    self.read_position,
+  )
   self.read_position += n.to_int64()
   n
 }
 
 ///|
-/// Fills the requested range or stops at EOF. Does not change either cursor.
-pub fn File::read_at(
+/// Reads from `position` into `buffer` until the view is full or EOF is reached,
+/// returning the number of bytes read. Does not change either cursor.
+pub fn File::read_into_at(
   self : File,
-  buffer : FixedArray[Byte],
+  buffer : MutArrayView[Byte],
   position~ : Int64,
-  offset~ : Int32 = 0,
-  len~ : Int32 = buffer.length() - offset,
 ) -> Int32 raise {
   let handle = self.check_access(write=false)
-  check_range(buffer.length(), offset, len)
+  let len = buffer.length()
+  let offset = buffer.start_offset()
   check_position(position, len)
   for total = 0; total < len; {
     let n = handle.read_once(
-      buffer,
+      read_buffer_storage(buffer),
       offset + total,
       len - total,
       position + total.to_int64(),
@@ -222,7 +228,10 @@ pub fn File::read_all(self : File) -> Bytes raise {
   } else {
     None
   }
-  read_all_with_hint((buffer, offset) => self.read(buffer, offset~), hint)
+  read_all_with_hint(
+    (buffer, offset) => self.read_into(buffer.mut_view(start=offset)),
+    hint,
+  )
 }
 
 ///|

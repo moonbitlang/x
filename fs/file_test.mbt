@@ -23,12 +23,12 @@ test "file cursors and positional IO" {
   assert_eq(file.read_exactly(2), b"ab")
   file.write_at(b"X", position=4)
   let buffer : FixedArray[Byte] = FixedArray::make(5, 0xee)
-  assert_eq(file.read_at(buffer, position=4, offset=1, len=4), 2)
+  assert_eq(file.read_into_at(buffer.mut_view(start=1), position=4), 2)
   debug_inspect(buffer, content="<FixedArray: [0xee, 0x58, 0x66, 0xee, 0xee]>")
   assert_eq(file.read_exactly(2), b"cd")
   file.write(b"g")
   assert_eq(file.read_all(), b"Xfg")
-  assert_eq(file.read(buffer), 0)
+  assert_eq(file.read_into(buffer.mut_view()), 0)
   file.sync(only_data=true)
   file.sync()
 }
@@ -181,26 +181,25 @@ test "bounds access checks EOF and closure aliases" {
   let file = @fs.open(path, mode=ReadWrite)
   defer file.close()
   let buffer : FixedArray[Byte] = FixedArray::make(4, 0xee)
-  @test.assert_raise(() => ignore(file.read(buffer, offset=-1)))
-  @test.assert_raise(() => ignore(file.read(buffer, offset=5)))
-  @test.assert_raise(() => ignore(file.read(buffer, max_len=-1)))
-  @test.assert_raise(() => ignore(file.read(buffer, offset=3, max_len=2)))
-  @test.assert_raise(() => ignore(file.read_at(buffer, position=-1)))
+  @test.assert_raise(() => ignore(file.read_into_at(buffer.mut_view(), position=-1)))
   @test.assert_raise(() => {
-    ignore(file.read_at(buffer, position=0x7fffffffffffffff))
+    ignore(file.read_into_at(buffer.mut_view(), position=0x7fffffffffffffff))
   })
   @test.assert_raise(() => ignore(file.read_exactly(-1)))
   @test.assert_raise(() => ignore(file.write_once(b"a", offset=0, len=2)))
   @test.assert_raise(() => file.write_at(b"a", position=-1))
-  assert_eq(file.read(buffer, offset=4), 0)
+  assert_eq(file.read_into(buffer.mut_view(start=4)), 0)
   assert_eq(file.write_once(b"", offset=0, len=0), 0)
   file.write(b"")
   @test.assert_raise(() => ignore(file.read_exactly(5)))
-  assert_eq(file.read(buffer), 0)
+  assert_eq(file.read_into(buffer.mut_view()), 0)
   let shared = file
   file.close()
   shared.close()
-  @test.assert_raise(() => ignore(shared.read(buffer, max_len=0)))
+  @test.assert_raise(() => ignore(shared.read_into(buffer.mut_view(end=0))))
+  @test.assert_raise(() => {
+    ignore(shared.read_into_at(buffer.mut_view(end=0), position=0))
+  })
   @test.assert_raise(() => shared.write(b""))
   @test.assert_raise(() => ignore(shared.size()))
   @test.assert_raise(() => shared.sync())
@@ -209,7 +208,11 @@ test "bounds access checks EOF and closure aliases" {
   @test.assert_raise(() => reader.write(b"x"))
   let writer = @fs.open(path, mode=WriteOnly)
   defer writer.close()
-  @test.assert_raise(() => ignore(writer.read(buffer)))
+  @test.assert_raise(() => ignore(writer.read_into(buffer.mut_view())))
+  @test.assert_raise(() => ignore(writer.read_into(buffer.mut_view(end=0))))
+  @test.assert_raise(() => {
+    ignore(writer.read_into_at(buffer.mut_view(end=0), position=0))
+  })
   @test.assert_raise(() => {
     let f = @fs.open(path, mode=ReadOnly, append=true)
     f.close()
@@ -235,8 +238,55 @@ test "64 bit sparse positional IO and sliced write_once" {
   file.write_at(b"-tail-"[1:5], position~)
   assert_eq(file.size(), position + 4)
   let buffer : FixedArray[Byte] = FixedArray::make(4, 0)
-  assert_eq(file.read_at(buffer, position~), 4)
+  assert_eq(file.read_into_at(buffer.mut_view(), position~), 4)
   assert_eq(Bytes::from_array(buffer[:]), b"tail")
   assert_eq(file.write_once(b"-head-", offset=1, len=4), 4)
   assert_eq(file.read_exactly(4), b"head")
+}
+
+///|
+test "MutArrayView public reads preserve nested view boundaries and cursors" {
+  let path = file_test_path()
+  @fs.write_file(path, b"abcdef", sync=NoSync)
+  defer @fs.remove_file(path)
+  let fixed : FixedArray[Byte] = FixedArray::make(10, 0xee)
+  let dynamic : Array[Byte] = Array::make(10, 0xee)
+  for whole in [fixed.mut_view(), dynamic.mut_view()] {
+    let file = @fs.open(path, mode=ReadOnly)
+    defer file.close()
+    let nested = whole.mut_view(start=1, end=9).mut_view(start=2, end=6)
+    assert_eq(file.read_into_at(nested, position=4), 2)
+    // Nonzero source and destination offsets, short read, untouched suffix.
+    assert_eq(
+      Bytes::from_array(whole[:]),
+      b"\xee\xee\xeeef\xee\xee\xee\xee\xee",
+    )
+    assert_eq(file.read_into(whole.mut_view(end=0)), 0)
+    assert_eq(file.read_into(whole.mut_view(start=10)), 0)
+    assert_eq(file.read_into_at(whole.mut_view(start=10), position=0), 0)
+    assert_eq(file.read_exactly(2), b"ab")
+    assert_eq(file.read_into(nested), 4)
+    assert_eq(Bytes::from_array(whole[:]), b"\xee\xee\xeecdef\xee\xee\xee")
+    assert_eq(file.read_into(nested), 0)
+    assert_eq(Bytes::from_array(whole[:]), b"\xee\xee\xeecdef\xee\xee\xee")
+  }
+}
+
+///|
+test "MutArrayView full reads accept fixed and growable arrays" {
+  let path = file_test_path()
+  @fs.write_file(path, b"abcdefgh", sync=NoSync)
+  defer @fs.remove_file(path)
+  let fixed : FixedArray[Byte] = FixedArray::make(4, 0)
+  let dynamic : Array[Byte] = Array::make(4, 0)
+  dynamic.reserve_capacity(32)
+  assert_true(dynamic.capacity() > dynamic.length())
+  for view in [fixed.mut_view(), dynamic.mut_view()] {
+    let file = @fs.open(path, mode=ReadOnly)
+    defer file.close()
+    assert_eq(file.read_into(view), 4)
+    assert_eq(file.read_all(), b"efgh")
+  }
+  debug_inspect(fixed, content="<FixedArray: [0x61, 0x62, 0x63, 0x64]>")
+  debug_inspect(dynamic, content="[0x61, 0x62, 0x63, 0x64]")
 }
