@@ -32,7 +32,7 @@ pub fn remove_file(String) -> Unit raise IOError
 
 pub fn write_bytes_to_file(String, Bytes) -> Unit raise IOError
 
-pub fn write_file(StringView, BytesView, create_mode? : CreateMode, permission? : Int32, sync? : SyncMode, append? : Bool) -> Unit raise
+pub fn write_file(StringView, BytesView, append? : Bool, create_mode? : CreateMode, permission? : Int32, sync? : SyncMode) -> Unit raise
 
 pub fn write_string_to_file(String, String, encoding? : String) -> Unit raise IOError
 
