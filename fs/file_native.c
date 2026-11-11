@@ -101,14 +101,15 @@ MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_read(int64_t handle,
 MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_write(int64_t handle,
     const uint8_t *buffer, int32_t offset, int32_t len, int64_t position) {
 #ifdef _WIN32
+  const int64_t sequential_write_position = -2;
   OVERLAPPED at = {0};
-  // -1 requests atomic append; -2 preserves legacy sequential writes.
+  // -1 requests atomic append; sequential writes use the handle's current position.
   // Neither sentinel is accepted as a caller-supplied file offset.
   at.Offset = (DWORD)position;
   at.OffsetHigh = (DWORD)((uint64_t)position >> 32);
   DWORD count;
   if (!WriteFile((HANDLE)(intptr_t)handle, buffer + offset, (DWORD)len, &count,
-                position == -2 ? NULL : &at)) {
+                position == sequential_write_position ? NULL : &at)) {
     return -(int64_t)GetLastError();
   }
   return count;

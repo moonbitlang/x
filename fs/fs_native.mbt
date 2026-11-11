@@ -83,8 +83,8 @@ extern "C" fn file_write_ffi(
 ) -> Int64 = "moonbitlang_x_file_write"
 
 ///|
-/// Keep the legacy Windows WriteFile call on the handle's current position.
-const LEGACY_WRITE_POSITION : Int64 = -2
+/// Write sequentially at the handle's current file position.
+const SEQUENTIAL_WRITE_POSITION : Int64 = -2
 
 ///|
 extern "C" fn get_error_message_ffi() -> Bytes = "moonbitlang_x_fs_get_error_message"
@@ -191,7 +191,7 @@ fn write_bytes_to_file_internal(
         content,
         total,
         content.length() - total,
-        LEGACY_WRITE_POSITION,
+        SEQUENTIAL_WRITE_POSITION,
       ),
       "write \{path}",
     ).to_int()
