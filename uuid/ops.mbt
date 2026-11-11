@@ -13,6 +13,4 @@
 // limitations under the License.
 
 ///|
-pub fn UUID::hash(self : UUID) -> Int32 {
-  Hash::hash(self.lo) ^ Hash::hash(self.hi)
-}
+pub extend UUID with Hash::{hash}

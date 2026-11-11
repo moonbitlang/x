@@ -77,3 +77,21 @@ test "json_errors" {
     _ => fail("unexpected error")
   }
 }
+
+///|
+test "usable as a Map key" {
+  let u = @uuid.from_hex("72212911-64d1-c441-e87d-de89b955ea34")
+  let m : Map[@uuid.UUID, Int32] = Map([])
+  m[u] = 1
+  debug_inspect(
+    m.get(@uuid.from_hex("72212911-64d1-c441-e87d-de89b955ea34")),
+    content="Some(1)",
+  )
+}
+
+///|
+test "equal UUIDs hash equally" {
+  let a = @uuid.from_hex("72212911-64d1-c441-e87d-de89b955ea34")
+  let b = @uuid.from_hex("72212911-64d1-c441-e87d-de89b955ea34")
+  assert_eq(a.hash(), b.hash())
+}

@@ -13,6 +13,10 @@
 
 ### Fixed
 
+- `@uuid.UUID` now implements `Hash`, so it works as a `Map` key as documented.
+  `UUID::hash` delegates to it, so hash values differ from the previous
+  `hi ^ lo`. (#364)
+
 - Windows local timezones honor recurring January weekday transitions. (#363)
 
 - Native whole-file reads and writes retry opening a file when interrupted
