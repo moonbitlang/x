@@ -2,7 +2,6 @@ import {
   "moonbitlang/core/int64",
   "moonbitlang/core/int",
   "moonbitlang/core/string",
-  "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/x/time/internal/tzif",
 }
@@ -16,6 +15,7 @@ import {
 import {
   "moonbitlang/core/test",
   "moonbitlang/core/buffer",
+  "moonbitlang/core/json",
 } for "test"
 
 rule(

@@ -78,7 +78,8 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
 ///   let buf = Buffer()
 ///   let text = "Hello, world"
 ///   buf.write_string_utf16le(text)
-///   inspect(buf.to_string(), content="Hello, world")
+///   let decoded = @encoding.decoder(UTF16LE).decode(buf.to_bytes())
+///   inspect(decoded, content="Hello, world")
 /// }
 /// ```
 #deprecated("Use `buffer.write_string_utf8/utf16le/utf16be` instead")
