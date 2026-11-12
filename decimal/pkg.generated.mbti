@@ -44,7 +44,7 @@ pub fn Decimal::from_bigint(@bigint.BigInt) -> Self
 pub fn Decimal::from_double(Double, Int32) -> Self?
 pub fn Decimal::from_int(Int32) -> Self
 #deprecated
-pub fn Decimal::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Decimal::from_json(@json.Json, @json.DecodeContext) -> Self raise @json.JsonDecodeError
 pub fn Decimal::from_string(String) -> Self?
 #deprecated
 pub fn Decimal::hash(Self) -> Int32
