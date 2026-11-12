@@ -22,7 +22,7 @@ let hex_digits : FixedArray[String] = [
 /// print a sequence of byte in hex representation
 pub fn[D : ByteSource] bytes_to_hex_string(input : D) -> String {
   let length = input.length()
-  let buffer = StringBuilder(size_hint=length * 2)
+  let buffer = StringBuilder(capacity=length * 2)
   for i in 0..<length {
     let byte = input[i]
     let high = (byte.to_uint() >> 4) & 0xf

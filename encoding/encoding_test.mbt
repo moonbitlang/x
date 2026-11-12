@@ -33,7 +33,7 @@ test "debug encoding" {
 ///|
 test "write_string_utf8" {
   let src = "你好👀"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   inspect(
     buf.to_bytes(),
@@ -58,7 +58,7 @@ test "encoding String to UTF16 (alias of UTF16LE)" {
 ///|
 test "write_string_utf16le" {
   let src = "LISP programmers know the value of everything"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   inspect(
     buf.to_bytes(),
@@ -95,7 +95,7 @@ test "encoding String to UTF16BE" {
 ///|
 test "write_string_utf16be" {
   let src = "λf.(λx.f(x x))(λx.f(x x))"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16be(src)
   inspect(
     buf.to_bytes(),
@@ -191,7 +191,7 @@ test "to_utf16be_bytes" {
 
 ///|
 test "write_char_utf8" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_char_utf8('A')
   buf.write_char_utf8('α')
   buf.write_char_utf8('啊')
@@ -206,7 +206,7 @@ test "write_char_utf8" {
 
 ///|
 test "write_char_utf16le" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_char_utf16le('A')
   buf.write_char_utf16le('α')
   buf.write_char_utf16le('啊')
@@ -221,7 +221,7 @@ test "write_char_utf16le" {
 
 ///|
 test "write_char_utf16be" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_char_utf16be('A')
   buf.write_char_utf16be('α')
   buf.write_char_utf16be('啊')

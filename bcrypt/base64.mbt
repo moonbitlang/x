@@ -17,7 +17,7 @@ let bcrypt_alphabet : Bytes = b"./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst
 
 ///|
 fn bcrypt_base64_encode(bytes : BytesView, length : Int32) -> String {
-  let builder = StringBuilder(size_hint=(length * 4 + 2) / 3)
+  let builder = StringBuilder(capacity=(length * 4 + 2) / 3)
   let mut offset = 0
   while offset < length {
     let c1 = bytes[offset].to_int()

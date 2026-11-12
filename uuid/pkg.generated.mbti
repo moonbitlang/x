@@ -22,7 +22,7 @@ pub fn UUID::compare(Self, Self) -> Int32
 #deprecated
 pub fn UUID::equal(Self, Self) -> Bool
 #deprecated
-pub fn UUID::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn UUID::from_json(@json.Json, @json.DecodeContext) -> Self raise @json.JsonDecodeError
 pub fn UUID::hash(Self) -> Int32
 #deprecated
 pub fn UUID::hash_combine(Self, Hasher) -> Unit

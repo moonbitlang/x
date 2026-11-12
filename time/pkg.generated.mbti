@@ -162,7 +162,7 @@ pub fn PlainDate::equal(Self, Self) -> Bool
 pub fn PlainDate::era(Self) -> String
 pub fn PlainDate::era_year(Self) -> Int32
 #deprecated
-pub fn PlainDate::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PlainDate::from_json(@json.Json, @json.DecodeContext) -> Self raise @json.JsonDecodeError
 #deprecated
 pub fn PlainDate::from_str(StringView) -> Self raise
 #deprecated
@@ -229,7 +229,7 @@ pub fn PlainDateTime::equal(Self, Self) -> Bool
 pub fn PlainDateTime::era(Self) -> String
 pub fn PlainDateTime::era_year(Self) -> Int32
 #deprecated
-pub fn PlainDateTime::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PlainDateTime::from_json(@json.Json, @json.DecodeContext) -> Self raise @json.JsonDecodeError
 #deprecated
 pub fn PlainDateTime::from_str(StringView) -> Self raise
 #deprecated
@@ -290,7 +290,7 @@ pub fn PlainTime::compare(Self, Self) -> Int32
 #deprecated
 pub fn PlainTime::equal(Self, Self) -> Bool
 #deprecated
-pub fn PlainTime::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PlainTime::from_json(@json.Json, @json.DecodeContext) -> Self raise @json.JsonDecodeError
 pub fn PlainTime::from_nanosecond_of_day(Int64) -> Self raise
 pub fn PlainTime::from_second_of_day(Int32) -> Self raise
 #deprecated
