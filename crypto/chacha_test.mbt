@@ -67,8 +67,8 @@ test "chacha rejects counter exhaustion before writing output" {
     cipher.transform_checked(FixedArray::make(65, b'\x00'), output)
   })
   inspect(error is CounterExhausted, content="true")
-  inspect(output[0], content="b'\\xAA'")
-  inspect(output[64], content="b'\\xAA'")
+  assert_eq(output[0], b'\xaa')
+  assert_eq(output[64], b'\xaa')
   let last_block = @crypto.ChaCha::chacha20(
     Bytes::make(32, b'\x00'),
     Bytes::make(12, b'\x00'),
