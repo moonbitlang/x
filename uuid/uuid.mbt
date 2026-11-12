@@ -100,14 +100,14 @@ test "bytes" {
     ),
   )
   assert_true(
-    try from_bytes(Bytes::new(15)) catch {
+    try from_bytes(Bytes::make(15, b'\x00')) catch {
       _ => true
     } noraise {
       _ => false
     },
   )
   assert_true(
-    try from_bytes(Bytes::new(17)) catch {
+    try from_bytes(Bytes::make(17, b'\x00')) catch {
       _ => true
     } noraise {
       _ => false
