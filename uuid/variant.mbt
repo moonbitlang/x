@@ -104,7 +104,7 @@ pub fn UUID::as_version(self : UUID, version : Version) -> UUID {
     // Set the version number.
       hi & 0xf000L.lnot()
     ) |
-    (version.to_int64() << 12)
+    ((version.to_int64() & 0xfL) << 12)
   { hi, lo, }
 }
 
