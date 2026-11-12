@@ -174,7 +174,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
   let coefficient = if integer_part.is_empty() {
     0N
   } else {
-    @bigint.BigInt::from_string(integer_part.to_owned())
+    try! @string.parse_bigint(integer_part)
   }
 
   // Parse fractional part
@@ -185,7 +185,7 @@ fn parse_decimal_string(s : String) -> Decimal? {
   let fractional_coefficient = if fractional_part.is_empty() {
     0N
   } else {
-    @bigint.BigInt::from_string(fractional_part.to_owned())
+    try! @string.parse_bigint(fractional_part)
   }
 
   // Combine parts
