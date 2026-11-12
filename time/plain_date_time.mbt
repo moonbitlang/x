@@ -101,7 +101,7 @@ pub impl @string.FromStr for PlainDateTime with fn from_str(str) {
 ///|
 /// Returns a string representing the datetime.
 pub fn PlainDateTime::to_string(self : PlainDateTime) -> String {
-  let buf = StringBuilder(size_hint=18)
+  let buf = StringBuilder(capacity=18)
   buf.write_string(self.date.to_string())
   buf.write_char('T')
   buf.write_string(self.time.to_string())

@@ -132,7 +132,7 @@ test "streaming decoding UTF8 Emoji" {
   let art_bytes = @encoding.encode(UTF8, art)
   let from_array = Bytes::from_array
   let decoder = @encoding.decoder(UTF8)
-  let buf = Buffer(size_hint=art_bytes.length())
+  let buf = Buffer(capacity=art_bytes.length())
   buf.write_bytes(art_bytes)
   let chunks = buf.contents().to_array().chunks(13)
   assert_eq(chunks.length(), 4)
@@ -176,7 +176,7 @@ test "streaming decoding UTF16BE Tao71" {
   let tao71_bytes = @encoding.encode(UTF16BE, tao71)
   let from_array = Bytes::from_array
   let decoder = @encoding.decoder(UTF16BE)
-  let buf = Buffer(size_hint=tao71_bytes.length())
+  let buf = Buffer(capacity=tao71_bytes.length())
   buf.write_bytes(tao71_bytes)
   let chunks = buf.contents().to_array().chunks(17)
   assert_eq(chunks.length(), 4)
@@ -231,7 +231,7 @@ test "streaming decoding UTF16BE Tao71" {
 ///|
 test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
   let src = "你好👀"
-  let buf = Buffer(size_hint=@encoding.encode(UTF16, src).length())
+  let buf = Buffer(capacity=@encoding.encode(UTF16, src).length())
   buf.write_bytes(@encoding.encode(UTF16, src))
   assert_eq(buf.to_bytes(), b"\x60\x4f\x7d\x59\x3d\xd8\x40\xdc")
   let decoder = @encoding.decoder(UTF16LE)
@@ -242,7 +242,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_bytes)" {
 ///|
 test "decode_to/UTF16LE" {
   let src = "你好👀"
-  let buf = Buffer(size_hint=@encoding.encode(UTF16, src).length())
+  let buf = Buffer(capacity=@encoding.encode(UTF16, src).length())
   buf.write_bytes(@encoding.encode(UTF16, src))
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder()
@@ -253,7 +253,7 @@ test "decode_to/UTF16LE" {
 ///|
 test "decoding String (UTF16LE encoded) to String (buffer.write_char_utf16le)" {
   let src = "👋再见"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   for s in src {
     buf.write_char_utf16le(s)
   }
@@ -265,7 +265,7 @@ test "decoding String (UTF16LE encoded) to String (buffer.write_char_utf16le)" {
 
 ///|
 test "decoding UTF16LE encoded data to String" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\x60\x4f") // 你
   buf.write_bytes(b"\x7d\x59") // 好
   buf.write_bytes(b"\x3d\xd8\x40\xdc") // 👀
@@ -277,7 +277,7 @@ test "decoding UTF16LE encoded data to String" {
 
 ///|
 test "decoding UTF16 (alias for UTF16LE) encoded data to String" {
-  let buf = Buffer(size_hint=20)
+  let buf = Buffer(capacity=20)
   buf.write_bytes(b"\x65\x18")
   buf.write_bytes(b"\x20\x18")
   buf.write_bytes(b"\x73\x18")
@@ -296,7 +296,7 @@ test "decoding UTF16 (alias for UTF16LE) encoded data to String" {
 
 ///|
 test "decode_to/UTF16" {
-  let buf = Buffer(size_hint=20)
+  let buf = Buffer(capacity=20)
   buf.write_bytes(b"\x65\x18")
   buf.write_bytes(b"\x20\x18")
   buf.write_bytes(b"\x73\x18")
@@ -312,7 +312,7 @@ test "decode_to/UTF16" {
 
 ///|
 test "decoding UTF16BE encoded data to String" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
   buf.write_bytes(b"\xd8\x3d\xdc\x31")
   buf.write_bytes(b"\xd8\x3d\xdc\x07")
@@ -328,7 +328,7 @@ test "decoding UTF16BE encoded data to String" {
 
 ///|
 test "decode_to/UTF16BE" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xd8\x3d\xdc\x08")
   buf.write_bytes(b"\xd8\x3d\xdc\x31")
   buf.write_bytes(b"\xd8\x3d\xdc\x07")
@@ -341,7 +341,7 @@ test "decode_to/UTF16BE" {
 
 ///|
 test "decoding UTF8 encoded data to String" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xe4\xbd\xa0") // 你
   buf.write_bytes(b"\xe5\xa5\xbd") // 好
   buf.write_bytes(b"\xf0\x9f\x91\x80") // 👀
@@ -353,7 +353,7 @@ test "decoding UTF8 encoded data to String" {
 
 ///|
 test "decode_to/UTF8" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xe4\xbd\xa0") // 你
   buf.write_bytes(b"\xe5\xa5\xbd") // 好
   buf.write_bytes(b"\xf0\x9f\x91\x80") // 👀
@@ -366,7 +366,7 @@ test "decode_to/UTF8" {
 ///|
 test "decoding UTF8 encoded bytes to String" {
   let src = "👋再见"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   assert_eq(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
@@ -377,7 +377,7 @@ test "decoding UTF8 encoded bytes to String" {
 ///|
 test "decoding UTF8 encoded data" {
   let src = "👋再见"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   assert_eq(buf.to_bytes(), b"\xf0\x9f\x91\x8b\xe5\x86\x8d\xe8\xa7\x81")
   let decoder = @encoding.decoder(UTF8)
@@ -388,7 +388,7 @@ test "decoding UTF8 encoded data" {
 ///|
 test "decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   assert_eq(
     buf.to_bytes(),
@@ -403,7 +403,7 @@ test "decoding UTF16LE encoded data with UTF8" {
 ///|
 test "decode_to/UTF16LE-UTF8/MalformedError" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder()
@@ -416,7 +416,7 @@ test "decode_to/UTF16LE-UTF8/MalformedError" {
 ///|
 test "decode_to/UTF16LE-UTF8/TruncatedError" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   let bytes = buf.to_bytes()
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
@@ -432,7 +432,7 @@ test "decode_to/UTF16LE-UTF8/TruncatedError" {
 ///|
 test "decode_to/UTF16LE-UTF8/stream" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   let bytes = buf.to_bytes()
   let bytes_view : Bytes = [..bytes[:bytes.length() - 1]]
@@ -457,7 +457,7 @@ test "decode_to/empty" {
 ///|
 test "decoding UTF8 encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   assert_eq(
     buf.to_bytes(),
@@ -475,7 +475,7 @@ test "decoding UTF8 encoded data with UTF16LE" {
 ///|
 test "decode_to/UTF8-UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder()
@@ -487,7 +487,7 @@ test "decode_to/UTF8-UTF16LE" {
 ///|
 test "decoding UTF16BE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16be(src)
   assert_eq(
     buf.to_bytes(),
@@ -502,7 +502,7 @@ test "decoding UTF16BE encoded data with UTF8" {
 ///|
 test "decode_to/UTF16BE-UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16be(src)
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder()
@@ -515,7 +515,7 @@ test "decode_to/UTF16BE-UTF8" {
 ///|
 test "decoding UTF8 encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   assert_eq(
     buf.to_bytes(),
@@ -546,7 +546,7 @@ test "decoding UTF8 encoded data with UTF16BE" {
 ///|
 test "decode_to/UTF8-UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf8(src)
   let decoder = @encoding.decoder(UTF16BE)
   let acc = StringBuilder()
@@ -558,7 +558,7 @@ test "decode_to/UTF8-UTF16BE" {
 ///|
 test "decoding UTF16LE encoded data with UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   assert_eq(
     buf.to_bytes(),
@@ -576,7 +576,7 @@ test "decoding UTF16LE encoded data with UTF16BE" {
 ///|
 test "decode_to/UTF16LE-UTF16BE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   let decoder = @encoding.decoder(UTF16BE)
   let acc = StringBuilder()
@@ -588,7 +588,7 @@ test "decode_to/UTF16LE-UTF16BE" {
 ///|
 test "decoding UTF16BE encoded data with UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16be(src)
   assert_eq(
     buf.to_bytes(),
@@ -606,7 +606,7 @@ test "decoding UTF16BE encoded data with UTF16LE" {
 ///|
 test "decode_to/UTF16BE-UTF16LE" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16be(src)
   let decoder = @encoding.decoder(UTF16LE)
   let acc = StringBuilder()
@@ -618,7 +618,7 @@ test "decode_to/UTF16BE-UTF16LE" {
 ///|
 test "lossy decoding UTF16LE encoded data with UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   assert_eq(
     buf.to_bytes(),
@@ -635,7 +635,7 @@ test "lossy decoding UTF16LE encoded data with UTF8" {
 ///|
 test "decode_lossy_to/UTF16LE-UTF8" {
   let src = "跑步🏃游泳🏊"
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_string_utf16le(src)
   let decoder = @encoding.decoder(UTF8)
   let acc = StringBuilder()
@@ -748,7 +748,7 @@ test "decode_lossy_to/UTF16BE_2" {
 /// Well-Formed UTF-8 Byte Sequences
 /// https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G27506
 test "lossy decoding UTF8 incorrectly encoded data to String" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xE0\x9F\x80")
   assert_eq(buf.to_bytes(), b"\xe0\x9f\x80")
   let decoder = @encoding.decoder(UTF8)
@@ -762,7 +762,7 @@ test "lossy decoding UTF8 incorrectly encoded data to String" {
 
 ///|
 test "decode_lossy_to/UTF8" {
-  let buf = Buffer(size_hint=10)
+  let buf = Buffer(capacity=10)
   buf.write_bytes(b"\xE0\x9F\x80")
   assert_eq(buf.to_bytes(), b"\xe0\x9f\x80")
   let decoder = @encoding.decoder(UTF8)

@@ -113,7 +113,7 @@ pub fn Decoder::decode(
   }
 
   // TODO: Estimate size_hint based on input and encoding more accurately
-  let builder = StringBuilder(size_hint=input.length())
+  let builder = StringBuilder(capacity=input.length())
 
   // drive decoder to decode
   for state = self.decode_() {

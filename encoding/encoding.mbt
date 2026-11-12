@@ -48,7 +48,7 @@ pub fn encode(encoding : Encoding, src : String) -> Bytes {
     }
     _ => ()
   }
-  let new_buf = Buffer(size_hint=src.length() * 4)
+  let new_buf = Buffer(capacity=src.length() * 4)
   let write = match encoding {
     UTF8 => Buffer::write_char_utf8
     UTF16BE => Buffer::write_char_utf16be
@@ -101,7 +101,7 @@ pub fn encode_to(
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf8_bytes(value : Char) -> Bytes {
-  let buf = Buffer(size_hint=4)
+  let buf = Buffer(capacity=4)
   buf.write_char_utf8(value)
   buf.to_bytes()
 }
@@ -124,7 +124,7 @@ pub fn to_utf16_bytes(value : Char) -> Bytes {
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16le_bytes(value : Char) -> Bytes {
-  let buf = Buffer(size_hint=4)
+  let buf = Buffer(capacity=4)
   buf.write_char_utf16le(value)
   buf.to_bytes()
 }
@@ -135,7 +135,7 @@ pub fn to_utf16le_bytes(value : Char) -> Bytes {
 /// Note that this function incurs allocation overhead
 /// due to the intermediate creation of new buffers.
 pub fn to_utf16be_bytes(value : Char) -> Bytes {
-  let buf = Buffer(size_hint=4)
+  let buf = Buffer(capacity=4)
   buf.write_char_utf16be(value)
   buf.to_bytes()
 }

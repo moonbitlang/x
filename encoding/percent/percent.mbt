@@ -32,7 +32,7 @@ pub fn encode(
       upper = upper | (1UL << (value - 64))
     }
   }
-  let output = StringBuilder(size_hint=input.length())
+  let output = StringBuilder(capacity=input.length())
   let hex = b"0123456789ABCDEF"
   for byte in @utf8.encode(input) {
     let value = byte.to_int()
@@ -60,7 +60,7 @@ pub fn encode(
 /// decoding is a separate operation.
 pub fn decode(input : StringView) -> Bytes {
   let input = @utf8.encode(input)
-  let output = @buffer.Buffer(size_hint=input.length())
+  let output = @buffer.Buffer(capacity=input.length())
   for i = 0; i < input.length(); {
     let byte = input[i]
     if byte == b'%' && input.length() - i >= 3 {
