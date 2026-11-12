@@ -68,17 +68,22 @@ test "write_file append creates missing files and honors explicit truncation" {
 
 ///|
 #cfg(any(target="native", target="wasm"))
-test "exact reads report ReaderClosed and retain partial progress" {
+test "exact reads report UnexpectedEof and retain partial progress" {
   let path = file_test_path()
   @fs.write_file(path, b"abc", sync=NoSync)
   defer @fs.remove_file(path)
   let file = @fs.open(path, mode=ReadOnly)
   defer file.close()
-  try ignore(file.read_exactly(4)) catch {
-    @io.ReaderClosed => ()
-    error => raise error
-  } noraise {
-    _ => fail("expected ReaderClosed")
+  assert_eq(file.read_exactly(0), b"")
+  for len in [4, 1] {
+    try ignore(file.read_exactly(len)) catch {
+      @io.UnexpectedEof as error =>
+        debug_inspect(error, content="UnexpectedEof")
+      error => raise error
+    } noraise {
+      _ => fail("expected UnexpectedEof")
+    }
+    assert_eq(file.read_all(), b"")
   }
-  assert_eq(file.read_all(), b"")
+  assert_eq(file.read_exactly(0), b"")
 }

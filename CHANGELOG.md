@@ -13,6 +13,9 @@
 
 ### Fixed
 
+- `@fs.File::read_exactly` is compatible with the current MoonBit core library
+  and reports `@io.UnexpectedEof` on premature EOF, retaining partial read progress. (#368)
+
 - `@uuid.UUID` now implements `Hash`, so it works as a `Map` key as documented.
   `UUID::hash` delegates to it, so hash values differ from the previous
   `hi ^ lo`. (#364)
