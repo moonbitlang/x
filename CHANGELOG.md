@@ -13,6 +13,10 @@
 
 ### Fixed
 
+- `@uuid.UUID::as_version` now keeps only the low four bits of an `Unknown`
+  version, so out-of-range values no longer overwrite neighbouring bits of the
+  UUID. (#369)
+
 - `@uuid.UUID` now implements `Hash`, so it works as a `Map` key as documented.
   `UUID::hash` delegates to it, so hash values differ from the previous
   `hi ^ lo`. (#364)

@@ -95,3 +95,12 @@ test "equal UUIDs hash equally" {
   let b = @uuid.from_hex("72212911-64d1-c441-e87d-de89b955ea34")
   assert_eq(a.hash(), b.hash())
 }
+
+///|
+test "as_version only touches the version nibble" {
+  let u = @uuid.from_hex("907976bf-6784-5a4f-5d7d-33c04dd8fa1a")
+  inspect(
+    u.as_version(Unknown(0x1f)).to_string(),
+    content="907976bf-6784-fa4f-9d7d-33c04dd8fa1a",
+  )
+}
