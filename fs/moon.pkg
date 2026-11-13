@@ -5,6 +5,10 @@ import {
 #cfg(any(target="native", target="wasm"))
 import {
   "moonbitlang/core/async/os_error",
+}
+
+#cfg(any(target="native", target="wasm", target="js"))
+import {
   "moonbitlang/core/async/io",
 }
 
@@ -18,10 +22,12 @@ options(
   "allow-experimental-packages": true,
   "native-stub": [ "fs_native.c", "file_native.c" ],
   targets: {
-    "file.mbt": [ "native", "wasm" ],
-    "file_read.mbt": [ "native", "wasm" ],
+    "file.mbt": [ "native", "wasm", "js" ],
+    "file_read.mbt": [ "native", "wasm", "js" ],
     "file_native.mbt": [ "native" ],
-    "file_test.mbt": [ "native", "wasm" ],
+    "file_js.mbt": [ "js" ],
+    "file_test.mbt": [ "native", "wasm", "js" ],
+    "file_js_wbtest.mbt": [ "js" ],
     "fs_js.mbt": [ "js" ],
     "fs_native.mbt": [ "native" ],
     "file_wasm.mbt": [ "wasm" ],

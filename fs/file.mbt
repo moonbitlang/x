@@ -21,8 +21,10 @@ pub(all) enum Mode {
 }
 
 ///|
-/// File creation and truncation behavior. On Windows, the Wasm host does not
-/// support TruncateExisting combined with append mode.
+/// File creation and truncation behavior. On Node.js for Windows,
+/// TruncateExisting opens the existing file and then truncates the same handle.
+/// On Windows, Node.js and the Wasm host do not support TruncateExisting
+/// combined with append mode.
 pub(all) enum CreateMode {
   /// Fail if the file does not exist.
   OpenExisting = 0
@@ -54,6 +56,7 @@ const APPEND_POSITION : Int64 = -1
 /// A synchronous file with independent read and write positions, initially zero.
 /// Aliases share positions and closure state. Close explicitly (usually in defer).
 /// Intended for seekable files; concurrent access to this object is not supported.
+/// JS positions must fit in an exact Number (at most 9007199254740991).
 ///
 /// ```mbt nocheck
 /// fn read_header(path : String) -> Bytes raise {
@@ -71,14 +74,17 @@ struct File {
 }
 
 ///|
-/// Opens a file on Native or Wasm. WasmGC is not supported.
+/// Opens a file on Native, Wasm or Node.js. WasmGC is not supported.
 /// Wasm requires the host's `moonbitlang/async` file-job ABI, including
-/// `thread_pool/run_job`.
+/// `thread_pool/run_job`. JS requires Node.js 20.16+ on the 20.x release line,
+/// or Node.js 22.3+, for `process.getBuiltinModule`.
 /// `permission` applies only when creating a file, is filtered by the Unix umask,
 /// and is ignored on Windows. Paths are not normalized. Append applies only to
 /// sequential writes; it does not override the selected creation mode.
-/// OS failures raise @os_error.OsError; invalid arguments raise Failure. On Wasm an
-/// interrupted open job is reported to the caller: the host also queries
+/// OS failures raise @os_error.OsError on Native/Wasm. On Node.js, OS errors
+/// have a private type with an operation context and system error message.
+/// Invalid arguments raise Failure. On Wasm an interrupted open job is reported
+/// to the caller: the host also queries
 /// metadata, so blindly repeating the job could truncate an opened file twice.
 pub fn open(
   path : StringView,
