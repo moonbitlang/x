@@ -2,6 +2,7 @@
 package "moonbitlang/x/sys"
 
 // Values
+#deprecated
 pub fn exit(Int32) -> Unit
 
 #deprecated
