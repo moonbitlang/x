@@ -84,6 +84,7 @@ pub fn unset_env_var(key : String) -> Unit {
 
 ///|
 /// Exits the program immediately with the given exit code.
+#deprecated("Use `@env.exit()` from `moonbitlang/core/env` instead.")
 pub fn exit(code : Int32) -> Unit {
   @ffi.exit(code)
 }
