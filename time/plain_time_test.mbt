@@ -148,6 +148,7 @@ test "add_hours" {
   inspect(time.add_hours(40L), content="02:00:00")
   inspect(time.add_hours(@int64.MIN_VALUE), content="02:00:00")
   inspect(time.add_hours(@int64.MAX_VALUE), content="17:00:00")
+  inspect(@time.PlainTime::of(0, 0, 0, 0).add_hours(-1L), content="23:00:00")
 }
 
 ///|
