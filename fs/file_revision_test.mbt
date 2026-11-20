@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-#cfg(any(target="native", target="wasm"))
+#cfg(any(target="native", target="wasm", target="js"))
 test "write_file appends without an explicit creation mode" {
   let path = file_test_path()
   @fs.write_file(path, b"old", sync=NoSync)
@@ -28,19 +28,21 @@ test "write_file appends without an explicit creation mode" {
 }
 
 ///|
-#cfg(any(target="native", target="wasm"))
+#cfg(any(target="native", target="wasm", target="js"))
 test "new file API reuses core async OS errors" {
   let path = file_test_path() + ".missing"
   try ignore(@fs.read_file(path)) catch {
     @fs.IOError(_) => fail("new file API still raises legacy IOError")
-    @os_error.OsError(kind, raw_code=code, context~) => {
+    @os_error.OsError(kind, raw_code=code, context~) as error => {
       assert_eq(kind, NotFound)
       assert_not_eq(code, 0)
       assert_true(context.contains("open"))
       assert_true(context.contains(path))
-      let message = @os_error.from_errno(code, context~).to_string()
-      assert_false(message.contains("OS error "))
-      assert_true(message.length() > context.length() + 2)
+      for message in [error.to_string(), "\{Repr(error)}"] {
+        assert_true(message.contains(context))
+        assert_false(message.contains("OS error "))
+        assert_true(message.length() > context.length() + 2)
+      }
     }
     error => raise error
   } noraise {
@@ -49,7 +51,7 @@ test "new file API reuses core async OS errors" {
 }
 
 ///|
-#cfg(any(target="native", target="wasm"))
+#cfg(any(target="native", target="wasm", target="js"))
 test "write_file append creates missing files and honors explicit truncation" {
   let path = file_test_path()
   @fs.write_file(path, b"", append=true, sync=NoSync)
@@ -67,7 +69,7 @@ test "write_file append creates missing files and honors explicit truncation" {
 }
 
 ///|
-#cfg(any(target="native", target="wasm"))
+#cfg(any(target="native", target="wasm", target="js"))
 test "exact reads report UnexpectedEof and retain partial progress" {
   let path = file_test_path()
   @fs.write_file(path, b"abc", sync=NoSync)
