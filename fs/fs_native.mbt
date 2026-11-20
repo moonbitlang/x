@@ -26,14 +26,15 @@ priv struct OsString(Bytes)
 
 ///|
 #cfg(platform="windows")
-fn OsString::from_string(str : String) -> OsString {
-  OsString(str)
+fn OsString::from_string(str : StringView) -> OsString {
+  OsString(str.to_owned())
 }
 
 ///|
 #cfg(not(platform="windows"))
-fn OsString::from_string(str : String) -> OsString {
-  OsString(@utf8.encode(str) + Bytes::make(1, (0).to_byte()))
+fn OsString::from_string(str : StringView) -> OsString {
+  // Native MoonBit Bytes already carry a trailing NUL for C calls.
+  OsString(@utf8.encode(str))
 }
 
 ///|
@@ -99,16 +100,18 @@ extern "C" fn file_close_ffi(handle : Int64) -> Int64 = "moonbitlang_x_file_clos
 extern "C" fn file_error_message_ffi(error : Int32) -> OsString = "moonbitlang_x_file_error_message"
 
 ///|
+fn native_file_error(error : Int32, operation : String) -> IOError {
+  let message = file_error_message_ffi(error).to_string().trim_end(chars="\r\n")
+  IOError("\{operation}: \{message} (\{error})")
+}
+
+///|
 fn native_file_result(
   result : Int64,
   operation : String,
 ) -> Int64 raise IOError {
   guard result >= 0 else {
-    let error = (-result).to_int()
-    let message = file_error_message_ffi(error)
-      .to_string()
-      .trim_end(chars="\r\n")
-    raise IOError("\{operation}: \{message} (\{error})")
+    raise native_file_error((-result).to_int(), operation)
   }
   result
 }
