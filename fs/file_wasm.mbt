@@ -40,10 +40,6 @@ let file_host_is_unix : Bool = match file_host_platform() {
 }
 
 ///|
-/// EINTR is 4 on both Linux and macOS; Windows error 4 is not EINTR.
-const UNIX_EINTR : Int32 = 4
-
-///|
 const ACCESS_READ_ONLY : Int32 = 0
 
 ///|
@@ -62,21 +58,12 @@ const NO_SYNC : Int32 = 0
 const NO_STAT : UInt32 = 0
 
 ///|
-const STAT_KIND : UInt32 = 1
-
-///|
-const STAT_SIZE : UInt32 = 2
-
-///|
 /// Every stat result starts with length(u32) and returned-field mask(u32).
 const STAT_HEADER_SIZE : Int32 = 8
 
 ///|
 /// The header followed by kind(i64) and size(i64), in little-endian order.
 const STAT_KIND_SIZE_LENGTH : Int32 = 24
-
-///|
-const REGULAR_FILE : Int64 = 1
 
 ///|
 /// Use the current file position, rather than a positional read/write.
