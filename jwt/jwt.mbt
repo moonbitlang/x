@@ -88,6 +88,7 @@ pub fn[T : ToJson] encode(
   }
   let payload_bytes = try {
     // Validate the serialized claims because Json numbers may override their repr.
+    check_json_depth(text)
     validate_claim_types(@json.parse(text))
     @utf8.encode(text)
   } catch {
