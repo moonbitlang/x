@@ -18,8 +18,8 @@
 fn footer_fixture(footer : Bytes) -> @tzif.PosixTz raise Error {
   let file = @buffer.Buffer()
   for _ in 0..<2 {
-    file.write_bytes(b"TZif3")
-    file.write_bytes(Bytes::make(15, b'\x00')) // Reserved header bytes.
+    file.write_bytesview(b"TZif3")
+    file.write_bytesview(Bytes::make(15, b'\x00')) // Reserved header bytes.
     file.write_int_be(0) // UT/local indicators.
     file.write_int_be(0) // Standard/wall indicators.
     file.write_int_be(0) // Leap records.
@@ -29,10 +29,10 @@ fn footer_fixture(footer : Bytes) -> @tzif.PosixTz raise Error {
     file.write_int_be(0) // UTC offset in seconds.
     file.write_byte(b'\x00') // Standard time.
     file.write_byte(b'\x00') // Designation index.
-    file.write_bytes(b"UTC\x00")
+    file.write_bytesview(b"UTC\x00")
   }
   file.write_byte(b'\n')
-  file.write_bytes(footer)
+  file.write_bytesview(footer)
   file.write_byte(b'\n')
   @tzif.parse(file.to_bytes()).future_rule.unwrap()
 }

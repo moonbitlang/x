@@ -20,4 +20,4 @@ pub let _unused_implementation : Unit = ()
 ///|
 #cfg(not(any(target="native", target="wasm")))
 #doc(hidden)
-pub let _unused_implementation : Unit = ignore(@v128.i32x4_const)
+pub let _unused_implementation : Unit = ignore(@simd.i32x4_const)

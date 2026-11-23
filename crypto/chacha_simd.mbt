@@ -68,92 +68,92 @@ fn chachaBlock(
 ) -> Unit {
   guard! key.length() == 8
   guard! nonce.length() == 3
-  let initial_a = @v128.i32x4_const(
+  let initial_a = @simd.i32x4_const(
     0X61707865, 0X3320646e, 0X79622d32, 0X6b206574,
   )
-  let initial_b = @v128.i32x4_const(key[0], key[1], key[2], key[3])
-  let initial_c = @v128.i32x4_const(key[4], key[5], key[6], key[7])
-  let initial_d = @v128.i32x4_const(count, nonce[0], nonce[1], nonce[2])
+  let initial_b = @simd.i32x4_const(key[0], key[1], key[2], key[3])
+  let initial_c = @simd.i32x4_const(key[4], key[5], key[6], key[7])
+  let initial_d = @simd.i32x4_const(count, nonce[0], nonce[1], nonce[2])
   let mut a = initial_a
   let mut b = initial_b
   let mut c = initial_c
   let mut d = initial_d
   for _ in 0U..<round {
     // Four column quarter-rounds in parallel.
-    a = @v128.i32x4_add(a, b)
-    let d_xor_a = @v128.v128_xor(d, a)
-    d = @v128.i8x16_shuffle(
+    a = @simd.i32x4_add(a, b)
+    let d_xor_a = @simd.v128_xor(d, a)
+    d = @simd.i8x16_shuffle(
       d_xor_a, d_xor_a, 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13,
     )
-    c = @v128.i32x4_add(c, d)
-    let b_xor_c = @v128.v128_xor(b, c)
-    b = @v128.v128_or_(
-      @v128.i32x4_shl(b_xor_c, 12),
-      @v128.i32x4_shr_u(b_xor_c, 20),
+    c = @simd.i32x4_add(c, d)
+    let b_xor_c = @simd.v128_xor(b, c)
+    b = @simd.v128_or_(
+      @simd.i32x4_shl(b_xor_c, 12),
+      @simd.i32x4_shr_u(b_xor_c, 20),
     )
-    a = @v128.i32x4_add(a, b)
-    let d_xor_a = @v128.v128_xor(d, a)
-    d = @v128.i8x16_shuffle(
+    a = @simd.i32x4_add(a, b)
+    let d_xor_a = @simd.v128_xor(d, a)
+    d = @simd.i8x16_shuffle(
       d_xor_a, d_xor_a, 3, 0, 1, 2, 7, 4, 5, 6, 11, 8, 9, 10, 15, 12, 13, 14,
     )
-    c = @v128.i32x4_add(c, d)
-    let b_xor_c = @v128.v128_xor(b, c)
-    b = @v128.v128_or_(
-      @v128.i32x4_shl(b_xor_c, 7),
-      @v128.i32x4_shr_u(b_xor_c, 25),
+    c = @simd.i32x4_add(c, d)
+    let b_xor_c = @simd.v128_xor(b, c)
+    b = @simd.v128_or_(
+      @simd.i32x4_shl(b_xor_c, 7),
+      @simd.i32x4_shr_u(b_xor_c, 25),
     )
 
     // Rotate rows to align the same lanes for four diagonal quarter-rounds.
-    b = @v128.i8x16_shuffle(
+    b = @simd.i8x16_shuffle(
       b, b, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
     )
-    c = @v128.i8x16_shuffle(
+    c = @simd.i8x16_shuffle(
       c, c, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
     )
-    d = @v128.i8x16_shuffle(
+    d = @simd.i8x16_shuffle(
       d, d, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     )
-    a = @v128.i32x4_add(a, b)
-    let d_xor_a = @v128.v128_xor(d, a)
-    d = @v128.i8x16_shuffle(
+    a = @simd.i32x4_add(a, b)
+    let d_xor_a = @simd.v128_xor(d, a)
+    d = @simd.i8x16_shuffle(
       d_xor_a, d_xor_a, 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13,
     )
-    c = @v128.i32x4_add(c, d)
-    let b_xor_c = @v128.v128_xor(b, c)
-    b = @v128.v128_or_(
-      @v128.i32x4_shl(b_xor_c, 12),
-      @v128.i32x4_shr_u(b_xor_c, 20),
+    c = @simd.i32x4_add(c, d)
+    let b_xor_c = @simd.v128_xor(b, c)
+    b = @simd.v128_or_(
+      @simd.i32x4_shl(b_xor_c, 12),
+      @simd.i32x4_shr_u(b_xor_c, 20),
     )
-    a = @v128.i32x4_add(a, b)
-    let d_xor_a = @v128.v128_xor(d, a)
-    d = @v128.i8x16_shuffle(
+    a = @simd.i32x4_add(a, b)
+    let d_xor_a = @simd.v128_xor(d, a)
+    d = @simd.i8x16_shuffle(
       d_xor_a, d_xor_a, 3, 0, 1, 2, 7, 4, 5, 6, 11, 8, 9, 10, 15, 12, 13, 14,
     )
-    c = @v128.i32x4_add(c, d)
-    let b_xor_c = @v128.v128_xor(b, c)
-    b = @v128.v128_or_(
-      @v128.i32x4_shl(b_xor_c, 7),
-      @v128.i32x4_shr_u(b_xor_c, 25),
+    c = @simd.i32x4_add(c, d)
+    let b_xor_c = @simd.v128_xor(b, c)
+    b = @simd.v128_or_(
+      @simd.i32x4_shl(b_xor_c, 7),
+      @simd.i32x4_shr_u(b_xor_c, 25),
     )
     // Restore the row layout before the next column round.
-    b = @v128.i8x16_shuffle(
+    b = @simd.i8x16_shuffle(
       b, b, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     )
-    c = @v128.i8x16_shuffle(
+    c = @simd.i8x16_shuffle(
       c, c, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
     )
-    d = @v128.i8x16_shuffle(
+    d = @simd.i8x16_shuffle(
       d, d, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
     )
   }
-  a = @v128.i32x4_add(a, initial_a)
-  b = @v128.i32x4_add(b, initial_b)
-  c = @v128.i32x4_add(c, initial_c)
-  d = @v128.i32x4_add(d, initial_d)
-  @v128.v128_store(output, 0, a)
-  @v128.v128_store(output, 16, b)
-  @v128.v128_store(output, 32, c)
-  @v128.v128_store(output, 48, d)
+  a = @simd.i32x4_add(a, initial_a)
+  b = @simd.i32x4_add(b, initial_b)
+  c = @simd.i32x4_add(c, initial_c)
+  d = @simd.i32x4_add(d, initial_d)
+  @simd.v128_store(output, 0, a)
+  @simd.v128_store(output, 16, b)
+  @simd.v128_store(output, 32, c)
+  @simd.v128_store(output, 48, d)
 }
 
 ///|
@@ -198,12 +198,12 @@ fn[Data : ByteSource] chacha_xor_into(
   for relative_offset = 0
       relative_offset < simd_end
       relative_offset = relative_offset + 16 {
-    @v128.v128_store(
+    @simd.v128_store(
       target,
       target_offset + relative_offset,
-      @v128.v128_xor(
-        @v128.v128_load(target, target_offset + relative_offset),
-        @v128.v128_load(key_stream, key_stream_offset + relative_offset),
+      @simd.v128_xor(
+        @simd.v128_load(target, target_offset + relative_offset),
+        @simd.v128_load(key_stream, key_stream_offset + relative_offset),
       ),
     )
   }

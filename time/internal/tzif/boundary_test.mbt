@@ -29,13 +29,13 @@ fn fixture(
   let out = @buffer.Buffer()
   if version != b'\x00' {
     // The RFC's placeholder compatibility block has no transitions or leaps.
-    out.write_bytes(
+    out.write_bytesview(
       Bytes::makei(51, i => if i == 4 { version } else { rfc_b5[i] }),
     )
   }
-  out.write_bytes(b"TZif")
+  out.write_bytesview(b"TZif")
   out.write_byte(version)
-  out.write_bytes(Bytes::makei(15, _ => b'\x00'))
+  out.write_bytesview(Bytes::makei(15, _ => b'\x00'))
   for
     count in [
       uts.length(),
@@ -62,7 +62,7 @@ fn fixture(
     out.write_byte(dst.to_byte())
     out.write_byte(index.to_byte())
   }
-  out.write_bytes(names)
+  out.write_bytesview(names)
   for (time, correction) in leaps {
     if version == b'\x00' {
       out.write_int_be(time.to_int())
@@ -71,11 +71,11 @@ fn fixture(
     }
     out.write_int_be(correction)
   }
-  out.write_bytes(standards)
-  out.write_bytes(uts)
+  out.write_bytesview(standards)
+  out.write_bytesview(uts)
   if version != b'\x00' {
     out.write_byte(b'\n')
-    out.write_bytes(footer)
+    out.write_bytesview(footer)
     out.write_byte(b'\n')
   }
   out.to_bytes()

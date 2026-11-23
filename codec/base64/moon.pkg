@@ -2,8 +2,12 @@
 warnings = "-alert_experimental-unused_package"
 
 import {
-  "moonbitlang/core/v128",
+  "moonbitlang/core/simd",
 }
+
+options(
+  "allow-experimental-packages": [ "moonbitlang/core/simd" ],
+)
 
 import {
   "moonbitlang/core/bench",
