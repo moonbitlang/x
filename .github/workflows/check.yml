@@ -8,6 +8,7 @@ on:
 
 env:
   MOON_WASM_NEW_ALLOCATOR: "1"
+  MOON_SEPARATE_COMPILATION: "1"
 
 jobs:
   pre-release-version-check:
