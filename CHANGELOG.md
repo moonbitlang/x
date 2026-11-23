@@ -2,14 +2,31 @@
 
 ## [Unreleased]
 
+## [0.5.9] - 2026-11-23
+
 ### Added
 
-- Open files expose their kind, timestamps, and identity through the file handle.
+- Query file kind, size, timestamps, and identity by path on Native, Wasm,
+  and Node.js. (#373)
+
+- Open files expose their kind, timestamps, and identity through the file handle. (#375)
 
 - Node.js support for the synchronous `@fs.File` APIs, including positional I/O,
   append mode, file synchronization, and core `OsError` classification and
   diagnostics. These APIs require Node.js 20.16+ on the 20.x release line,
   or Node.js 22.3+. (#366)
+
+### Fixed
+
+- JWT encoding and decoding enforce the 1024-level JSON nesting limit for
+  headers and claims across MoonBit toolchain versions. (#376)
+
+- Unused Node.js file APIs no longer initialize a module loader when removed by
+  JavaScript bundlers. (#366)
+
+## [0.5.8] - 2026-11-20
+
+### Added
 
 - Synchronous `@fs.File` APIs for native and Wasm, including
   configurable file creation, independent read/write positions, positional I/O,
@@ -20,14 +37,8 @@
 
 ### Fixed
 
-- JWT encoding and decoding enforce the 1024-level JSON nesting limit for
-  headers and claims across MoonBit toolchain versions.
-
 - `@fs.File::read_exactly` is compatible with the current MoonBit core library
   and reports `@io.UnexpectedEof` on premature EOF, retaining partial read progress. (#368)
-
-- Unused Node.js file APIs no longer initialize a module loader when removed by
-  JavaScript bundlers. (#366)
 
 - `@uuid.UUID` now implements `Hash`, so it works as a `Map` key as documented.
   `UUID::hash` delegates to it, so hash values differ from the previous
@@ -472,3 +483,7 @@
 [0.5.6]: https://github.com/moonbitlang/x/pull/347
 
 [0.5.7]: https://github.com/moonbitlang/x/pull/356
+
+[0.5.8]: https://github.com/moonbitlang/x/pull/372
+
+[0.5.9]: https://github.com/moonbitlang/x/pull/377
