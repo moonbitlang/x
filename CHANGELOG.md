@@ -4,6 +4,8 @@
 
 ### Added
 
+- Open files expose their kind, timestamps, and identity through the file handle.
+
 - Node.js support for the synchronous `@fs.File` APIs, including positional I/O,
   append mode, file synchronization, and core `OsError` classification and
   diagnostics. These APIs require Node.js 20.16+ on the 20.x release line,

@@ -17,6 +17,26 @@
 priv type FileJob
 
 ///|
+#borrow(fields)
+extern "C" fn file_stat_ffi(
+  handle : FileHandle,
+  request : UInt32,
+  fields : FixedArray[Int64],
+  len : Int32,
+) -> Int32 = "moonbitlang_x_file_stat"
+
+///|
+fn FileHandle::stat(
+  self : FileHandle,
+  request : UInt32,
+  fields : FixedArray[Int64],
+) -> UInt32 raise {
+  let error = file_stat_ffi(self, request, fields, fields.length() * 8)
+  guard error == 0 else { raise @os_error.from_errno(error, context="fstat") }
+  (fields[0] >> 32).to_uint()
+}
+
+///|
 #cfg(platform="windows")
 #external
 priv type StatParent
