@@ -69,10 +69,40 @@ fn stat_by_path(
       continue
     }
     guard error == 0 else { raise file_error(error, "stat \{path}") }
-    job.copy_stat_words(fields, len)
-    guard fields[0].to_int() == len else {
-      raise IOError("stat: invalid result length")
-    }
-    break (fields[0] >> 32).to_uint()
+    break job.stat_result(fields, len)
   }
+}
+
+///|
+fn FileHandle::stat(
+  self : FileHandle,
+  request : UInt32,
+  fields : FixedArray[Int64],
+  context~ : String = "fstat",
+) -> UInt32 raise {
+  let len = fields.length() * 8
+  for ;; {
+    let job = make_stat_job(self, request~, len~)
+    defer job.free()
+    job.run()
+    let error = job.err()
+    if file_host_is_unix && error == UNIX_EINTR {
+      continue
+    }
+    guard error == 0 else { raise @os_error.from_errno(error, context~) }
+    break job.stat_result(fields, len)
+  }
+}
+
+///|
+fn FileJob::stat_result(
+  self : FileJob,
+  fields : FixedArray[Int64],
+  len : Int32,
+) -> UInt32 raise IOError {
+  self.copy_stat_words(fields, len)
+  guard fields[0].to_int() == len else {
+    raise IOError("stat: invalid result length")
+  }
+  (fields[0] >> 32).to_uint()
 }

@@ -62,10 +62,6 @@ const NO_STAT : UInt32 = 0
 const STAT_HEADER_SIZE : Int32 = 8
 
 ///|
-/// The header followed by kind(i64) and size(i64), in little-endian order.
-const STAT_KIND_SIZE_LENGTH : Int32 = 24
-
-///|
 /// Use the current file position, rather than a positional read/write.
 const SEQUENTIAL_POSITION : Int64 = -1
 
@@ -114,15 +110,6 @@ fn make_stat_job(
   request~ : UInt32,
   len~ : Int32,
 ) -> FileJob = "moonbitlang/async" "thread_pool/make_fstatx_job"
-
-///|
-#unsafe_skip_stub_check
-#borrow(buffer)
-fn FileJob::copy_stat(
-  self : FileJob,
-  buffer : FixedArray[Byte],
-  len : Int32,
-) -> Unit = "moonbitlang/async" "thread_pool/get_stat_result"
 
 ///|
 #unsafe_skip_stub_check
@@ -237,20 +224,8 @@ fn open_handle(path : String, writing : Bool) -> FileHandle raise IOError {
 ///|
 /// Query the opened handle; unsupported metadata must not prevent streaming.
 fn FileHandle::size_hint(self : FileHandle) -> Int32? {
-  let request = STAT_KIND | STAT_SIZE
-  let job = make_stat_job(self, request~, len=STAT_KIND_SIZE_LENGTH)
-  defer job.free()
-  job.run()
-  guard job.err() == 0 else { return None }
-  let stat : FixedArray[Byte] = FixedArray::make(STAT_KIND_SIZE_LENGTH, 0)
-  job.copy_stat(stat, stat.length())
-  guard stat is [u32le(_), u32le(mask), i64le(kind), i64le(size)] &&
-    (mask & request) == request &&
-    kind == REGULAR_FILE &&
-    size > 0 &&
-    size < MAX_FILE_BYTES.to_int64() else {
-    return None
-  }
+  let size = self.size() catch { _ => return None }
+  guard size > 0 && size < MAX_FILE_BYTES.to_int64() else { return None }
   Some(size.to_int())
 }
 
@@ -379,19 +354,12 @@ fn FileHandle::write(
 ///|
 fn FileHandle::size(self : FileHandle) -> Int64 raise {
   let request = STAT_KIND | STAT_SIZE
-  let job = make_stat_job(self, request~, len=STAT_KIND_SIZE_LENGTH)
-  defer job.free()
-  job.run()
-  let error = job.err()
-  guard error == 0 else { raise @os_error.from_errno(error, context="size") }
-  let stat : FixedArray[Byte] = FixedArray::make(STAT_KIND_SIZE_LENGTH, 0)
-  job.copy_stat(stat, stat.length())
-  guard stat is [u32le(_), u32le(mask), i64le(kind), i64le(size)] &&
-    (mask & request) == request &&
-    kind == REGULAR_FILE else {
+  let fields = FixedArray::make(3, 0L)
+  let mask = self.stat(request, fields, context="size")
+  guard (mask & request) == request && fields[1] == REGULAR_FILE else {
     raise Failure::Failure("size: not a regular file")
   }
-  size
+  fields[2]
 }
 
 ///|

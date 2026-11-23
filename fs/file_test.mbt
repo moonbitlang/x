@@ -204,6 +204,7 @@ test "bounds access checks EOF and closure aliases" {
   })
   @test.assert_raise(() => shared.write(b""))
   @test.assert_raise(() => ignore(shared.size()))
+  @test.assert_raise(() => ignore(shared.identity()))
   @test.assert_raise(() => shared.sync())
   let reader = @fs.open(path, mode=ReadOnly)
   defer reader.close()

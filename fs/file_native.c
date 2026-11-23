@@ -143,6 +143,27 @@ MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_size(int64_t handle) {
 #endif
 }
 
+// x/fs stores both POSIX descriptors and Windows handles in an Int64.
+#ifdef _WIN32
+MOONBIT_EXPORT int32_t moonbit_rt_fstatx_sync(HANDLE, uint32_t, void *, int32_t);
+#else
+MOONBIT_EXPORT int32_t moonbit_rt_fstatx_sync(int, uint32_t, void *, int32_t);
+#endif
+
+MOONBIT_FFI_EXPORT int32_t moonbitlang_x_file_stat(
+    int64_t handle, uint32_t request, int64_t *fields, int32_t len) {
+#ifdef _WIN32
+  if (moonbit_rt_fstatx_sync((HANDLE)(intptr_t)handle, request, fields, len) < 0) {
+    return (int32_t)GetLastError();
+  }
+#else
+  while (moonbit_rt_fstatx_sync((int)handle, request, fields, len) < 0) {
+    if (errno != EINTR) return errno;
+  }
+#endif
+  return 0;
+}
+
 MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_legacy_length(int64_t handle) {
 #ifdef _WIN32
   LARGE_INTEGER zero = {0}, end;

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-/// The kind of object found by a path lookup.
+/// The kind of a filesystem object.
 #derive(Eq, Debug)
 #non_exhaustive
 pub(all) enum FileKind {
@@ -91,9 +91,29 @@ fn stat_property(
   follow_symlink : Bool,
 ) -> FixedArray[Int64]? raise IOError {
   guard !path.contains("\u0000") else { raise IOError("stat: NUL in path") }
+  query_stat_property(request, fields => {
+    stat_by_path(path, request, follow_symlink, fields)
+  })
+}
+
+///|
+fn File::stat_property(
+  self : File,
+  request : UInt32,
+) -> FixedArray[Int64]? raise {
+  let handle = self.get_handle()
+  query_stat_property(request, fields => handle.stat(request, fields))
+}
+
+///|
+#locals(query)
+fn query_stat_property(
+  request : UInt32,
+  query : (FixedArray[Int64]) -> UInt32 raise?,
+) -> FixedArray[Int64]? raise? {
   // One header word, then one word for kind or two for each other query.
   let fields = FixedArray::make(if request == STAT_KIND { 2 } else { 3 }, 0L)
-  let mask = stat_by_path(path, request, follow_symlink, fields)
+  let mask = query(fields)
   if (mask & request) == request {
     Some(fields)
   } else {
@@ -117,7 +137,21 @@ pub fn kind(
   guard stat_property(path, STAT_KIND, follow_symlink) is Some(fields) else {
     raise IOError("kind: unavailable for \{path}")
   }
-  match fields[1] {
+  FileKind::from_stat(fields[1])
+}
+
+///|
+/// Returns the kind of the open file.
+pub fn File::kind(self : File) -> FileKind raise {
+  guard self.stat_property(STAT_KIND) is Some(fields) else {
+    raise Failure::Failure("kind: unavailable for open file")
+  }
+  FileKind::from_stat(fields[1])
+}
+
+///|
+fn FileKind::from_stat(value : Int64) -> FileKind {
+  match value {
     1 => Regular
     2 => Directory
     3 => SymLink
@@ -154,12 +188,26 @@ fn stat_time(
 }
 
 ///|
+fn File::stat_time(self : File, request : UInt32) -> Timestamp raise {
+  guard self.stat_property(request) is Some(fields) else {
+    raise Failure::Failure("stat: timestamp unavailable for open file")
+  }
+  { sec: fields[1], nsec: fields[2].to_int(), }
+}
+
+///|
 /// Returns the last access time, following the final symbolic link by default.
 pub fn atime(
   path : StringView,
   follow_symlink~ : Bool = true,
 ) -> Timestamp raise IOError {
   stat_time(path, STAT_ATIME, follow_symlink)
+}
+
+///|
+/// Returns the last access time of the open file.
+pub fn File::atime(self : File) -> Timestamp raise {
+  self.stat_time(STAT_ATIME)
 }
 
 ///|
@@ -172,12 +220,32 @@ pub fn mtime(
 }
 
 ///|
+/// Returns the last data modification time of the open file.
+///
+/// ```mbt nocheck
+/// fn read_with_mtime(path : String) -> (@fs.Timestamp, Bytes) raise {
+///   let file = @fs.open(path, mode=ReadOnly)
+///   defer file.close()
+///   (file.mtime(), file.read_all())
+/// }
+/// ```
+pub fn File::mtime(self : File) -> Timestamp raise {
+  self.stat_time(STAT_MTIME)
+}
+
+///|
 /// Returns the last status change time, following the final symbolic link by default.
 pub fn ctime(
   path : StringView,
   follow_symlink~ : Bool = true,
 ) -> Timestamp raise IOError {
   stat_time(path, STAT_CTIME, follow_symlink)
+}
+
+///|
+/// Returns the last status change time of the open file.
+pub fn File::ctime(self : File) -> Timestamp raise {
+  self.stat_time(STAT_CTIME)
 }
 
 ///|
@@ -191,6 +259,14 @@ pub fn identity(
   guard stat_property(path, STAT_IDENTITY, follow_symlink) is Some(fields) else {
     return None
   }
+  FileIdentity::from_stat(fields[1], fields[2], windows=is_windows())
+}
+
+///|
+/// Returns the open file's identity if available. On Windows, comparison is
+/// supported only on NTFS, as with the path-based `identity` query.
+pub fn File::identity(self : File) -> FileIdentity? raise {
+  guard self.stat_property(STAT_IDENTITY) is Some(fields) else { return None }
   FileIdentity::from_stat(fields[1], fields[2], windows=is_windows())
 }
 

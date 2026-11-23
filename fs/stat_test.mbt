@@ -41,6 +41,23 @@ test "path metadata queries" {
 }
 
 ///|
+test "metadata of an open file survives removal of its path" {
+  let path = file_test_path()
+  @fs.write_file(path, b"data")
+  defer (if @fs.path_exists(path) { @fs.remove_file(path) })
+  let file = @fs.open(path, mode=ReadOnly)
+  defer file.close()
+  let id = @fs.identity(path)
+  let mtime = @fs.mtime(path)
+  assert_true(file.atime() == @fs.atime(path))
+  assert_true(file.ctime() == @fs.ctime(path))
+  @fs.remove_file(path)
+  debug_inspect(file.kind(), content="Regular")
+  assert_true(file.identity() == id)
+  assert_true(file.mtime() == mtime)
+}
+
+///|
 test "metadata queries reject missing paths and embedded NULs" {
   let path = file_test_path()
   @test.assert_raise(() => @fs.identity(path))

@@ -66,7 +66,12 @@ pub(all) enum CreateMode {
 }
 
 type File
+pub fn File::atime(Self) -> Timestamp raise
 pub fn File::close(Self) -> Unit
+pub fn File::ctime(Self) -> Timestamp raise
+pub fn File::identity(Self) -> FileIdentity? raise
+pub fn File::kind(Self) -> FileKind raise
+pub fn File::mtime(Self) -> Timestamp raise
 pub fn File::read_all(Self) -> Bytes raise
 pub fn File::read_exactly(Self, Int32) -> Bytes raise
 pub fn File::read_into(Self, MutArrayView[Byte]) -> Int32 raise

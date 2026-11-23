@@ -25,15 +25,14 @@ extern "js" fn is_windows() -> Bool =
   #| () => process.platform === 'win32'
 
 ///|
-extern "js" fn node_path_stat(
-  query : (String, FsOptions) -> FsStats,
-  path : String,
+extern "js" fn node_stat(
+  query : (FsOptions) -> FsStats,
   request : UInt32,
   fields : FixedArray[Int64],
-) -> FsUnitResult =
-  #| (query, path, request, fields) => {
+) -> FileJsResult =
+  #| (query, request, fields) => {
   #|   try {
-  #|     const s = query(path, { bigint: true });
+  #|     const s = query({ bigint: true });
   #|     if (request === 1) { // kind
   #|       if (s.isFile()) fields[1] = 1n;
   #|       else if (s.isDirectory()) fields[1] = 2n;
@@ -56,7 +55,7 @@ extern "js" fn node_path_stat(
   #|       fields[2] = fraction;
   #|     }
   #|     return { ok: true };
-  #|   } catch (error) { return { ok: false, content: error.message }; }
+  #|   } catch (error) { return { ok: false, errno: error.errno, context: error.syscall, error: error.message }; }
   #| }
 
 ///|
@@ -67,9 +66,23 @@ fn stat_by_path(
   fields : FixedArray[Int64],
 ) -> UInt32 raise IOError {
   let query = if follow_symlink { stat_sync_bigint } else { lstat_sync_bigint }
-  let result = node_path_stat(query, path.to_owned(), request, fields)
+  let result = node_stat(
+    options => query(path.to_owned(), options),
+    request,
+    fields,
+  )
   guard result.is_ok() else {
-    raise IOError("stat \{path}: \{result.error_message()}")
+    raise IOError("stat \{path}: \{result.message()}")
   }
+  request
+}
+
+///|
+fn FileHandle::stat(
+  self : FileHandle,
+  request : UInt32,
+  fields : FixedArray[Int64],
+) -> UInt32 raise {
+  node_stat(options => fstat_sync(self.fd, options), request, fields).check()
   request
 }
