@@ -46,10 +46,42 @@ fn is_valid_utf16(text : String) -> Bool {
 }
 
 ///|
+const MAX_JSON_DEPTH : Int32 = 1024
+
+///|
+fn check_json_depth(text : String) -> Unit raise JwtError {
+  if text.length() <= MAX_JSON_DEPTH {
+    return
+  }
+  // Count containers in the serialized input, including duplicate members
+  // that the JSON parser may discard. The parser checks the JSON syntax.
+  let mut depth = 0
+  let mut in_string = false
+  for i = 0; i < text.length(); {
+    match text[i] {
+      '\\' if in_string => continue i + 2
+      '"' => in_string = !in_string
+      '[' | '{' if !in_string => {
+        depth += 1
+        guard depth <= MAX_JSON_DEPTH else {
+          raise InvalidToken(
+            "JWT JSON exceeds the nesting limit of \{MAX_JSON_DEPTH}",
+          )
+        }
+      }
+      ']' | '}' if !in_string => depth -= 1
+      _ => ()
+    }
+    continue i + 1
+  }
+}
+
+///|
 fn parse_jwt_json(bytes : Bytes) -> Json raise JwtError {
   let text = @utf8.decode(bytes, ignore_bom=false) catch {
     _ => raise InvalidToken("JWT JSON is not valid UTF-8")
   }
+  check_json_depth(text)
   @json.parse(text) catch {
     _ => raise InvalidToken("JWT contains invalid JSON")
   }

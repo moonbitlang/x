@@ -18,6 +18,9 @@
 
 ### Fixed
 
+- JWT encoding and decoding enforce the 1024-level JSON nesting limit for
+  headers and claims across MoonBit toolchain versions.
+
 - `@fs.File::read_exactly` is compatible with the current MoonBit core library
   and reports `@io.UnexpectedEof` on premature EOF, retaining partial read progress. (#368)
 

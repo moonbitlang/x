@@ -750,10 +750,11 @@ test "compact token length limit includes header payload separators and signatur
 
 ///|
 test "JSON nesting limit applies to signed headers claims and encoding input" {
+  // The outer object counts as one level. Brackets inside a string do not.
   let allowed_payload = "{\"exp\":1001,\"data\":" +
-    "[".repeat(64) +
-    "0" +
-    "]".repeat(64) +
+    "[".repeat(1023) +
+    Json::string("\"[{\\").stringify() +
+    "]".repeat(1023) +
     "}"
   let allowed = raw_token("{\"alg\":\"HS256\"}", allowed_payload)
   ignore((decode_at(allowed, key=test_key, algorithm=HS256, now=1000) : Json))
@@ -764,10 +765,10 @@ test "JSON nesting limit applies to signed headers claims and encoding input" {
     "}"
   expect_decode_error(raw_token("{\"alg\":\"HS256\"}", deep_payload))
   let deep_header = "{\"alg\":\"HS256\",\"data\":" +
-    "[".repeat(1024) +
+    "{\"x\":".repeat(1024) +
     "0" +
-    "]".repeat(1024) +
-    "}"
+    "}".repeat(1024) +
+    ",\"data\":null}"
   expect_decode_error(raw_token(deep_header, "{\"exp\":1001}"))
   let mut nested = Json::number(0)
   for _ in 0..<1024 {
