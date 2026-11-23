@@ -111,9 +111,9 @@ fn malformed_pair(
   bs0[j1] = hi.land(0xFF).to_byte()
   let bs = Buffer(capacity=bs0.length() + bs1.length())
   // specify a known length to skip call method `bs0.length()`
-  bs.write_bytes(Bytes::from_array(bs0[0:2]))
+  bs.write_bytesview(Bytes::from_array(bs0[0:2]))
   // ditto
-  bs.write_bytes(Bytes::from_array(bs1[0:length]))
+  bs.write_bytesview(Bytes::from_array(bs1[0:length]))
   Malformed(slice(bs.to_bytes().to_fixedarray(), 0, bs.length()))
 }
 

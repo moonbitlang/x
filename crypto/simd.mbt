@@ -21,15 +21,15 @@ fn parse_be_u32x16_into(
   words : FixedArray[UInt32],
 ) -> Unit {
   for group in 0..<4 {
-    let value = @v128.v128_load(bytes, byte_offset + group * 16)
-    let value = @v128.i8x16_shuffle(
+    let value = @simd.v128_load(bytes, byte_offset + group * 16)
+    let value = @simd.i8x16_shuffle(
       value, value, 3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12,
     )
     let word_offset = group * 4
-    words.unsafe_set(word_offset, @v128.i32x4_extract_lane(value, 0))
-    words.unsafe_set(word_offset + 1, @v128.i32x4_extract_lane(value, 1))
-    words.unsafe_set(word_offset + 2, @v128.i32x4_extract_lane(value, 2))
-    words.unsafe_set(word_offset + 3, @v128.i32x4_extract_lane(value, 3))
+    words.unsafe_set(word_offset, @simd.i32x4_extract_lane(value, 0))
+    words.unsafe_set(word_offset + 1, @simd.i32x4_extract_lane(value, 1))
+    words.unsafe_set(word_offset + 2, @simd.i32x4_extract_lane(value, 2))
+    words.unsafe_set(word_offset + 3, @simd.i32x4_extract_lane(value, 3))
   }
 }
 
@@ -62,12 +62,12 @@ fn parse_le_u32x16_into(
   words : FixedArray[UInt32],
 ) -> Unit {
   for group in 0..<4 {
-    let value = @v128.v128_load(bytes, byte_offset + group * 16)
+    let value = @simd.v128_load(bytes, byte_offset + group * 16)
     let word_offset = group * 4
-    words.unsafe_set(word_offset, @v128.i32x4_extract_lane(value, 0))
-    words.unsafe_set(word_offset + 1, @v128.i32x4_extract_lane(value, 1))
-    words.unsafe_set(word_offset + 2, @v128.i32x4_extract_lane(value, 2))
-    words.unsafe_set(word_offset + 3, @v128.i32x4_extract_lane(value, 3))
+    words.unsafe_set(word_offset, @simd.i32x4_extract_lane(value, 0))
+    words.unsafe_set(word_offset + 1, @simd.i32x4_extract_lane(value, 1))
+    words.unsafe_set(word_offset + 2, @simd.i32x4_extract_lane(value, 2))
+    words.unsafe_set(word_offset + 3, @simd.i32x4_extract_lane(value, 3))
   }
 }
 
@@ -100,13 +100,13 @@ fn parse_be_u64x16_into(
   words : FixedArray[UInt64],
 ) -> Unit {
   for group in 0..<8 {
-    let value = @v128.v128_load(bytes, byte_offset + group * 16)
-    let value = @v128.i8x16_shuffle(
+    let value = @simd.v128_load(bytes, byte_offset + group * 16)
+    let value = @simd.i8x16_shuffle(
       value, value, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8,
     )
     let word_offset = group * 2
-    words.unsafe_set(word_offset, @v128.i64x2_extract_lane(value, 0))
-    words.unsafe_set(word_offset + 1, @v128.i64x2_extract_lane(value, 1))
+    words.unsafe_set(word_offset, @simd.i64x2_extract_lane(value, 0))
+    words.unsafe_set(word_offset + 1, @simd.i64x2_extract_lane(value, 1))
   }
 }
 
@@ -142,11 +142,11 @@ fn xor_bytes_with_splat_in_place(
   mask : Byte,
 ) -> Unit {
   let simd_end = length / 16 * 16
-  let vector_mask = @v128.i8x16_splat(mask)
+  let vector_mask = @simd.i8x16_splat(mask)
   for offset = 0; offset < simd_end; offset = offset + 16 {
-    @v128.v128_load(bytes, offset)
-    |> @v128.v128_xor(vector_mask)
-    |> value => { @v128.v128_store(bytes, offset, value) }
+    @simd.v128_load(bytes, offset)
+    |> @simd.v128_xor(vector_mask)
+    |> value => { @simd.v128_store(bytes, offset, value) }
   }
   for offset in simd_end..<length {
     bytes.unsafe_set(offset, bytes.unsafe_get(offset) ^ mask)
