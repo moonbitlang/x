@@ -29,7 +29,7 @@ test "read_all tolerates growth shrinkage and an empty size hint" {
       (0, chunk + 1),
     ] {
     write_bytes_to_file_internal(path, Bytes::make(before, 0))
-    let handle = open_handle(path, false)
+    let handle = open_legacy_handle(path, ACCESS_READ_ONLY)
     defer ignore(file_close_ffi(handle))
     let hint = handle.size_hint()
     assert_eq(hint, if before > 0 { Some(before) } else { None })
@@ -50,7 +50,7 @@ test "read_all streams without metadata and combines chunks in order" {
   for len in [0, 1, chunk - 1, chunk, chunk + 1, 2 * chunk, 2 * chunk + 17] {
     let contents = Bytes::makei(len, i => (i % 251).to_byte())
     write_bytes_to_file_internal(path, contents)
-    let handle = open_handle(path, false)
+    let handle = open_legacy_handle(path, ACCESS_READ_ONLY)
     defer ignore(file_close_ffi(handle))
     assert_eq(handle.read_all(path, None), contents)
   }
@@ -60,7 +60,11 @@ test "read_all streams without metadata and combines chunks in order" {
 #cfg(target="wasm")
 test "read failures include the path and decoded OS error" {
   let path = "tmp_fs_wasm_read_error"
-  let handle = open_handle(path, true)
+  let handle = open_legacy_handle(
+    path,
+    ACCESS_WRITE_ONLY,
+    create=CreateOrTruncate,
+  )
   defer remove_file_internal(path)
   defer ignore(file_close_ffi(handle))
   // Reading a write-only handle fails at read on every supported host.

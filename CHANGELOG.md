@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- On the `wasm` target, `@fs.remove_dir` requires an empty directory and
+  `@fs.remove_file` also accepts an empty directory. (#378)
+- On the `wasm` target, `@fs.read_dir` includes filenames with invalid encoding
+  and replaces each invalid sequence with U+FFFD. (#378)
+
 ## [0.5.9] - 2026-11-23
 
 ### Added
