@@ -12,213 +12,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Mode and positioned-I/O conventions follow moonbitlang/async's fs.c and thread_pool.c
-// at 6c3c4c886f63318e15450d15a4cd5d3016f09449.
-// No worker, cancellation, or private runtime job layout is used here.
-
 #ifndef _WIN32
 #define _FILE_OFFSET_BITS 64
 #endif
 #include "moonbit.h"
 #include <stdint.h>
-#include <errno.h>
-#include <string.h>
+
 #ifdef _WIN32
 #include <windows.h>
-#include <wchar.h>
-#else
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
+typedef HANDLE file_handle_t;
 
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_open(
-#ifdef _WIN32
-    moonbit_string_t path,
-#else
-    moonbit_bytes_t path,
-#endif
-    int32_t mode, int32_t create_mode, int32_t append, int32_t permission,
-    int32_t sync) {
-#ifdef _WIN32
+// Use full write access even for an append handle: the caller can also request
+// truncation or FlushFileBuffers. The append itself selects EOF atomically.
+MOONBIT_FFI_EXPORT HANDLE moonbitlang_x_open_windows_file(
+    moonbit_string_t path, int32_t mode, int32_t create_mode, int32_t sync,
+    int32_t *error) {
   static const DWORD access[] = {
       GENERIC_READ, GENERIC_WRITE, GENERIC_READ | GENERIC_WRITE};
   static const DWORD creation[] = {
       OPEN_EXISTING, TRUNCATE_EXISTING, OPEN_ALWAYS, CREATE_ALWAYS, CREATE_NEW};
-  DWORD desired = access[mode];
-  // Keep GENERIC_WRITE for TRUNCATE_EXISTING/CREATE_ALWAYS. Appending uses
-  // WriteFile's atomic end-of-file offset instead of a seek followed by write.
-  HANDLE handle = CreateFileW(
-      (LPCWSTR)path, desired,
+  HANDLE handle = CreateFileW((LPCWSTR)path, access[mode],
       FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
-      creation[create_mode],
-      FILE_ATTRIBUTE_NORMAL | (sync ? FILE_FLAG_WRITE_THROUGH : 0), NULL);
-  if (handle == INVALID_HANDLE_VALUE) {
-    return -(int64_t)GetLastError();
-  }
-  return (int64_t)(intptr_t)handle;
-#else
-  static const int access[] = {O_RDONLY, O_WRONLY, O_RDWR};
-  static const int creation[] = {
-      0, O_TRUNC, O_CREAT, O_CREAT | O_TRUNC, O_CREAT | O_EXCL};
-  int flags = access[mode] | creation[create_mode] | O_CLOEXEC;
-  if (append) flags |= O_APPEND;
-#ifdef __APPLE__
-  if (sync) flags |= O_SYNC;
-#else
-  if (sync == 1) flags |= O_DSYNC;
-  if (sync == 2) flags |= O_SYNC;
-#endif
-  int fd;
-  do {
-    fd = open((const char *)path, flags, (mode_t)permission);
-  } while (fd < 0 && errno == EINTR);
-  return fd < 0 ? -(int64_t)errno : fd;
-#endif
+      creation[create_mode], FILE_ATTRIBUTE_NORMAL | (sync ? FILE_FLAG_WRITE_THROUGH : 0),
+      NULL);
+  if (handle == INVALID_HANDLE_VALUE) *error = (int32_t)GetLastError();
+  return handle;
 }
 
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_read(int64_t handle,
-    uint8_t *buffer, int32_t offset, int32_t len, int64_t position) {
-#ifdef _WIN32
+MOONBIT_FFI_EXPORT int64_t moonbitlang_x_append_windows_file(
+    HANDLE handle, const uint8_t *buffer, int32_t offset, int32_t len) {
   OVERLAPPED at = {0};
-  at.Offset = (DWORD)position;
-  at.OffsetHigh = (DWORD)((uint64_t)position >> 32);
+  at.Offset = at.OffsetHigh = 0xffffffff;
   DWORD count;
-  if (!ReadFile((HANDLE)(intptr_t)handle, buffer + offset, (DWORD)len, &count, &at)) {
-    DWORD error = GetLastError();
-    return error == ERROR_HANDLE_EOF ? 0 : -(int64_t)error;
-  }
-  return count;
-#else
-  ssize_t count;
-  do {
-    count = pread((int)handle, buffer + offset, (size_t)len, (off_t)position);
-  } while (count < 0 && errno == EINTR);
-  return count < 0 ? -(int64_t)errno : (int64_t)count;
-#endif
-}
-
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_write(int64_t handle,
-    const uint8_t *buffer, int32_t offset, int32_t len, int64_t position) {
-#ifdef _WIN32
-  const int64_t sequential_write_position = -2;
-  OVERLAPPED at = {0};
-  // -1 requests atomic append; sequential writes use the handle's current position.
-  // Neither sentinel is accepted as a caller-supplied file offset.
-  at.Offset = (DWORD)position;
-  at.OffsetHigh = (DWORD)((uint64_t)position >> 32);
-  DWORD count;
-  if (!WriteFile((HANDLE)(intptr_t)handle, buffer + offset, (DWORD)len, &count,
-                position == sequential_write_position ? NULL : &at)) {
+  if (!WriteFile(handle, buffer + offset, (DWORD)len, &count, &at))
     return -(int64_t)GetLastError();
-  }
   return count;
-#else
-  ssize_t count;
-  do {
-    count = position < 0
-        ? write((int)handle, buffer + offset, (size_t)len)
-        : pwrite((int)handle, buffer + offset, (size_t)len, (off_t)position);
-  } while (count < 0 && errno == EINTR);
-  return count < 0 ? -(int64_t)errno : (int64_t)count;
-#endif
 }
 
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_size(int64_t handle) {
-#ifdef _WIN32
+MOONBIT_FFI_EXPORT int64_t moonbitlang_x_windows_file_size(HANDLE handle) {
   LARGE_INTEGER size;
-  if (!GetFileSizeEx((HANDLE)(intptr_t)handle, &size)) {
-    return -(int64_t)GetLastError();
-  }
-  return size.QuadPart;
-#else
-  struct stat info;
-  if (fstat((int)handle, &info) < 0) {
-    return -(int64_t)errno;
-  }
-  if (!S_ISREG(info.st_mode)) {
-    return -(int64_t)EINVAL;
-  }
-  return (int64_t)info.st_size;
-#endif
+  return GetFileSizeEx(handle, &size) ? size.QuadPart : -(int64_t)GetLastError();
 }
-
-// x/fs stores both POSIX descriptors and Windows handles in an Int64.
-#ifdef _WIN32
-MOONBIT_EXPORT int32_t moonbit_rt_fstatx_sync(HANDLE, uint32_t, void *, int32_t);
 #else
-MOONBIT_EXPORT int32_t moonbit_rt_fstatx_sync(int, uint32_t, void *, int32_t);
+#include <errno.h>
+#include <unistd.h>
+typedef int file_handle_t;
 #endif
 
-MOONBIT_FFI_EXPORT int32_t moonbitlang_x_file_stat(
-    int64_t handle, uint32_t request, int64_t *fields, int32_t len) {
-#ifdef _WIN32
-  if (moonbit_rt_fstatx_sync((HANDLE)(intptr_t)handle, request, fields, len) < 0) {
-    return (int32_t)GetLastError();
-  }
-#else
-  while (moonbit_rt_fstatx_sync((int)handle, request, fields, len) < 0) {
-    if (errno != EINTR) return errno;
-  }
-#endif
-  return 0;
-}
-
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_legacy_length(int64_t handle) {
+// The legacy whole-file reader uses SEEK_END, including for special files.
+MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_legacy_length(file_handle_t handle) {
 #ifdef _WIN32
   LARGE_INTEGER zero = {0}, end;
-  if (!SetFilePointerEx((HANDLE)(intptr_t)handle, zero, &end, FILE_END)) {
-    return -(int64_t)GetLastError();
-  }
-  return end.QuadPart;
+  return SetFilePointerEx(handle, zero, &end, FILE_END) ? end.QuadPart : -(int64_t)GetLastError();
 #else
-  off_t end = lseek((int)handle, 0, SEEK_END);
+  off_t end = lseek(handle, 0, SEEK_END);
   return end < 0 ? -(int64_t)errno : (int64_t)end;
 #endif
 }
 
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_sync(int64_t handle, int32_t only_data) {
-#ifdef _WIN32
-  return FlushFileBuffers((HANDLE)(intptr_t)handle) ? 0 : -(int64_t)GetLastError();
-#else
-#ifdef __APPLE__
-  int result = fsync((int)handle);
-#else
-  int result = only_data ? fdatasync((int)handle) : fsync((int)handle);
-#endif
-  return result < 0 ? -(int64_t)errno : 0;
-#endif
-}
-
-MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_close(int64_t handle) {
+MOONBIT_FFI_EXPORT int64_t moonbitlang_x_file_close(file_handle_t handle) {
   // Never retry close: the descriptor may already have been released.
 #ifdef _WIN32
-  return CloseHandle((HANDLE)(intptr_t)handle) ? 0 : -(int64_t)GetLastError();
+  return CloseHandle(handle) ? 0 : -(int64_t)GetLastError();
 #else
-  return close((int)handle) < 0 ? -(int64_t)errno : 0;
+  return close(handle) < 0 ? -(int64_t)errno : 0;
 #endif
 }
-
-#ifdef _WIN32
-MOONBIT_FFI_EXPORT moonbit_string_t moonbitlang_x_file_error_message(int32_t error) {
-  LPWSTR text = NULL;
-  DWORD len = FormatMessageW(
-      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL, (DWORD)error, 0, (LPWSTR)&text, 0, NULL);
-  const wchar_t *message = len ? text : L"Unknown system error";
-  if (!len) len = (DWORD)wcslen(message);
-  moonbit_string_t result = moonbit_make_string((int32_t)len, 0);
-  memcpy(result, message, len * sizeof(wchar_t));
-  if (text) LocalFree(text);
-  return result;
-}
-#else
-MOONBIT_FFI_EXPORT moonbit_bytes_t moonbitlang_x_file_error_message(int32_t error) {
-  const char *message = strerror(error);
-  size_t len = strlen(message);
-  moonbit_bytes_t result = moonbit_make_bytes((int32_t)len, 0);
-  memcpy(result, message, len);
-  return result;
-}
-#endif

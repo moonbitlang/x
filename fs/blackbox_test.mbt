@@ -32,6 +32,8 @@ test "write_and_read" {
   let content_1 = "Hello, World"
   let content_2 = "Hello, MoonBit"
   @fs.write_bytes_to_file(path_1, @encoding.encode(UTF16, content_1))
+  assert_true(@fs.is_file(path_1))
+  assert_false(@fs.is_dir(path_1))
   let res_1 = @fs.read_file_to_bytes(path_1)
   inspect(res_1.to_unchecked_string(), content=content_1)
   @fs.write_string_to_file(path_2, content_2)
@@ -88,6 +90,32 @@ test "read_dir" {
 }
 
 ///|
+#cfg(any(target="native", target="wasm"))
+test "read_dir returns every entry across directory batches" {
+  let dir = file_test_path()
+  @fs.create_dir(dir)
+  let names = []
+  defer {
+    for name in names {
+      @fs.remove_file(dir + "/" + name)
+    }
+    @fs.remove_dir(dir)
+  }
+  let prefix = String::make(80, 'x')
+  for i in 0..<200 {
+    let name = ".月🌙" + prefix + i.to_string()
+    @fs.write_bytes_to_file(dir + "/" + name, b"")
+    names.push(name)
+  }
+  let listed = @fs.read_dir(dir).to_owned()
+  listed.sort()
+  names.sort()
+  assert_eq(listed, names)
+  @test.assert_raise(() => @fs.read_dir(dir + "/" + names[0]))
+  @test.assert_raise(() => @fs.remove_dir(dir))
+}
+
+///|
 test "create_dir_and_remove_dir" {
   let dir = "tmp_fs_create_dir"
   if @fs.path_exists(dir) {
@@ -101,5 +129,24 @@ test "create_dir_and_remove_dir" {
   assert_true(@fs.is_dir(dir))
   assert_false(@fs.is_file(dir))
   @fs.remove_dir(dir)
+  assert_false(@fs.path_exists(dir))
+}
+
+///|
+#cfg(target="wasm")
+test "Wasm remove_dir rejects a non-empty directory and remove_file removes an empty one" {
+  let dir = file_test_path()
+  @fs.create_dir(dir)
+  defer (@fs.remove_dir(dir) catch { _ => () })
+  let file = dir + "/月🌙"
+  @fs.write_bytes_to_file(file, b"keep")
+  defer (@fs.remove_file(file) catch { _ => () })
+  assert_true(@fs.path_exists(file))
+  assert_false(@fs.path_exists(file + "\u0000suffix"))
+  assert_false(@fs.path_exists(file + "/child"))
+  @test.assert_raise(() => @fs.remove_dir(dir))
+  assert_eq(@fs.read_file_to_bytes(file), b"keep")
+  @fs.remove_file(file)
+  @fs.remove_file(dir)
   assert_false(@fs.path_exists(dir))
 }

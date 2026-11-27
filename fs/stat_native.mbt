@@ -13,46 +13,42 @@
 // limitations under the License.
 
 ///|
-#external
-priv type FileJob
-
-///|
-#borrow(fields)
-extern "C" fn file_stat_ffi(
+#borrow(handle, fields)
+extern "C" fn fstatx_sync(
   handle : FileHandle,
   request : UInt32,
   fields : FixedArray[Int64],
   len : Int32,
-) -> Int32 = "moonbitlang_x_file_stat"
+) -> Int32 = "moonbit_rt_fstatx_sync"
+
+///|
+extern "C" fn file_errno() -> Int32 = "moonbit_rt_get_errno"
 
 ///|
 fn FileHandle::stat(
   self : FileHandle,
   request : UInt32,
   fields : FixedArray[Int64],
-) -> UInt32 raise {
-  let error = file_stat_ffi(self, request, fields, fields.length() * 8)
-  guard error == 0 else { raise @os_error.from_errno(error, context="fstat") }
+  context~ : String = "fstat",
+) -> UInt32 raise @os_error.OsError {
+  while fstatx_sync(self, request, fields, fields.length() * 8) < 0 {
+    let error = file_errno()
+    if !is_windows() && error == UNIX_EINTR {
+      continue
+    }
+    raise @os_error.from_errno(error, context~)
+  }
   (fields[0] >> 32).to_uint()
 }
 
 ///|
 #cfg(platform="windows")
-#external
-priv type StatParent
+extern "C" fn invalid_parent_fd() -> FileHandle = "moonbit_rt_get_invalid_handle"
 
 ///|
 #cfg(not(platform="windows"))
-type StatParent = Int32
-
-///|
-#cfg(platform="windows")
-extern "C" fn invalid_parent_fd() -> StatParent = "moonbit_rt_get_invalid_handle"
-
-///|
-#cfg(not(platform="windows"))
-fn invalid_parent_fd() -> StatParent {
-  -1
+fn invalid_parent_fd() -> FileHandle {
+  FileHandle(-1)
 }
 
 ///|
@@ -62,18 +58,9 @@ extern "C" fn make_path_stat_job(
   request : UInt32,
   fields : FixedArray[Int64],
   buf_len : Int32,
-  parent : StatParent,
+  parent : FileHandle,
   follow_symlink : Bool,
 ) -> FileJob = "moonbit_rt_make_statx_job"
-
-///|
-extern "C" fn FileJob::run(self : FileJob) -> Unit = "moonbit_rt_run_job"
-
-///|
-extern "C" fn FileJob::err(self : FileJob) -> Int32 = "moonbit_rt_job_get_err"
-
-///|
-extern "C" fn FileJob::free(self : FileJob) -> Unit = "moonbit_rt_free_job"
 
 ///|
 #cfg(platform="windows")
@@ -102,14 +89,6 @@ fn stat_by_path(
     invalid_parent_fd(),
     follow_symlink,
   )
-  defer job.free()
-  for ;; {
-    job.run()
-    let error = job.err()
-    if !is_windows() && error == UNIX_EINTR {
-      continue
-    }
-    guard error == 0 else { raise native_file_error(error, "stat \{path}") }
-    break (fields[0] >> 32).to_uint()
-  }
+  ignore(job.execute_io("stat \{path}", retry_eintr=true))
+  (fields[0] >> 32).to_uint()
 }

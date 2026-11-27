@@ -2,6 +2,11 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
+#cfg(any(target="native", target="wasm"))
+import {
+  "moonbitlang/core/async/types",
+}
+
 #cfg(any(target="native", target="wasm", target="js"))
 import {
   "moonbitlang/core/async/os_error",
@@ -19,7 +24,6 @@ options(
   "native-stub": [ "fs_native.c", "file_native.c" ],
   targets: {
     "file.mbt": [ "native", "wasm", "js" ],
-    "file_read.mbt": [ "native", "wasm", "js" ],
     "file_native.mbt": [ "native" ],
     "file_js.mbt": [ "js" ],
     "file_test.mbt": [ "native", "wasm", "js" ],
@@ -32,6 +36,8 @@ options(
     "fs_js.mbt": [ "js" ],
     "fs_native.mbt": [ "native" ],
     "file_wasm.mbt": [ "wasm" ],
-    "fs_wasm.mbt": [ "wasm", "wasm-gc" ],
+    "fs_wasm.mbt": [ "wasm" ],
+    "fs_wasmgc.mbt": [ "wasm-gc" ],
+    "fs_wasm_shared.mbt": [ "wasm", "wasm-gc" ],
   },
 )

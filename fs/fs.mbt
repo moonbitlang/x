@@ -19,6 +19,13 @@ pub(all) suberror IOError {
 }
 
 ///|
+#cfg(any(target="native", target="wasm"))
+fn IOError::from_os_error(err : @os_error.OsError) -> IOError {
+  let OsError(_, raw_code~, ..) = err
+  IOError("\{err} (\{raw_code})")
+}
+
+///|
 /// MoonBit byte buffers have signed 32-bit lengths.
 #cfg(any(target="native", target="wasm", target="js"))
 const MAX_FILE_BYTES : Int32 = 0x7fffffff
@@ -54,7 +61,12 @@ pub fn read_file_to_string(
   path : String,
   encoding~ : String = "utf8",
 ) -> String raise IOError {
-  read_file_to_string_internal(path, encoding~)
+  guard encoding == "utf8" else {
+    raise IOError(
+      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
+    )
+  }
+  @utf8.decode_lossy(read_file_to_bytes(path))
 }
 
 ///|
@@ -84,7 +96,12 @@ pub fn write_string_to_file(
   content : String,
   encoding~ : String = "utf8",
 ) -> Unit raise IOError {
-  write_string_to_file_internal(path, content, encoding~)
+  guard encoding == "utf8" else {
+    raise IOError(
+      "Unsupported encoding: \{encoding}, only utf8 is supported for now",
+    )
+  }
+  write_bytes_to_file(path, @utf8.encode(content))
 }
 
 ///|
@@ -101,6 +118,7 @@ pub fn path_exists(path : String) -> Bool {
 
 ///|
 /// Reads the contents of a directory and returns a read-only view of filenames.
+/// On the `wasm` target, invalid sequences in filenames are decoded as U+FFFD.
 ///
 /// # Parameters
 ///
@@ -112,6 +130,46 @@ pub fn path_exists(path : String) -> Bool {
 ///   Use `to_owned()` to copy the view into a mutable array.
 pub fn read_dir(path : String) -> ArrayView[String] raise IOError {
   read_dir_internal(path)
+}
+
+///|
+#cfg(any(target="native", target="wasm"))
+const ACCESS_LIST_DIRECTORY : Int32 = 3
+
+///|
+#cfg(any(target="native", target="wasm"))
+const DIR_BUFFER_SIZE : Int32 = 8192
+
+///|
+#cfg(any(target="native", target="wasm"))
+fn append_dir_entries(
+  names : Array[String],
+  buffer : DirectoryBuffer,
+  batch_result : Int32,
+  platform : @types.Platform,
+) -> Unit raise IOError {
+  for offset = 0, count = 1 {
+    let length = entry_length(buffer, offset)
+    let name = entry_name(
+      buffer,
+      offset + entry_name_offset(buffer, offset),
+      entry_name_length(buffer, offset),
+    )
+    if name != "." && name != ".." {
+      names.push(name)
+    }
+    let next = offset + length
+    let last = match platform {
+      Linux => next >= batch_result // getdents64 returns bytes
+      MacOS => count >= batch_result // getattrlistbulk returns entries
+      Windows => length == 0 // the last entry has no successor
+      @types.Platform::.. => raise IOError("unsupported directory entry format")
+    }
+    if last {
+      break
+    }
+    continue next, count + 1
+  }
 }
 
 ///|
@@ -156,6 +214,7 @@ pub fn is_file(path : String) -> Bool raise IOError {
 
 ///|
 /// Removes a directory at the specified path.
+/// On the `wasm` target, the directory must be empty.
 ///
 /// # Parameters
 ///
@@ -166,6 +225,7 @@ pub fn remove_dir(path : String) -> Unit raise IOError {
 
 ///|
 /// Removes a file at the specified path.
+/// On the `wasm` target, this also accepts an empty directory.
 ///
 /// # Parameters
 ///

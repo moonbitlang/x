@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ABI declarations follow moonbitlang/async at 6c3c4c886f63318e15450d15a4cd5d3016f09449.
-// "moonbitlang/async" is a host import module, not a MoonBit dependency.
-
 ///|
 priv struct FileHandle(UInt64)
 
@@ -22,37 +19,17 @@ priv struct FileHandle(UInt64)
 priv struct FileJob(UInt64)
 
 ///|
-/// runtime/get_platform uses the same tags as async's Platform.
-priv enum FileHostPlatform {
-  Linux = 0
-  MacOS = 1
-  Windows = 2
-}
-
-///|
 #unsafe_skip_stub_check
-fn file_host_platform() -> FileHostPlatform = "moonbitlang/async" "runtime/get_platform"
+fn file_host_platform() -> @types.Platform = "moonbitlang/async" "runtime/get_platform"
 
 ///|
-let file_host_is_unix : Bool = match file_host_platform() {
-  Linux | MacOS => true
-  Windows => false
-}
+let file_host_is_unix : Bool = file_host_platform() is (Linux | MacOS)
 
 ///|
 const ACCESS_READ_ONLY : Int32 = 0
 
 ///|
 const ACCESS_WRITE_ONLY : Int32 = 1
-
-///|
-const OPEN_EXISTING : Int32 = 0
-
-///|
-const CREATE_OR_TRUNCATE : Int32 = 3
-
-///|
-const NO_SYNC : Int32 = 0
 
 ///|
 const NO_STAT : UInt32 = 0
@@ -87,17 +64,18 @@ fn FileJob::ret(self : FileJob) -> Int32 = "moonbitlang/async" "thread_pool/job_
 ///|
 #unsafe_skip_stub_check
 #borrow(path)
-fn make_open_job(
+fn make_openat_job(
+  parent : FileHandle,
   path : String,
   path_len~ : Int32,
   access~ : Int32,
-  create~ : Int32,
+  create~ : CreateMode,
   append~ : Bool,
-  sync~ : Int32,
+  sync~ : SyncMode,
   permission~ : Int32,
   stat_request~ : UInt32,
   stat_buf_len~ : Int32,
-) -> FileJob = "moonbitlang/async" "thread_pool/make_open_stat_job"
+) -> FileJob = "moonbitlang/async" "thread_pool/make_openat_job"
 
 ///|
 #unsafe_skip_stub_check
@@ -149,75 +127,60 @@ fn file_close_ffi(handle : FileHandle) -> Int32 = "moonbitlang/async" "fd_util/c
 fn file_errno() -> Int32 = "moonbitlang/async" "os_error/get_errno"
 
 ///|
-priv struct OsErrorText(UInt64)
-
-///|
-#unsafe_skip_stub_check
-fn errno_to_string(error : Int32) -> OsErrorText = "moonbitlang/async" "os_error/errno_to_string"
-
-///|
-#unsafe_skip_stub_check
-fn OsErrorText::free(self : OsErrorText) -> Unit = "moonbitlang/async" "os_error/free_errno_str"
-
-///|
-#unsafe_skip_stub_check
-fn OsErrorText::decoded_length(
-  self : OsErrorText,
-  offset : Int32,
-  len : Int32,
-) -> Int32 = "moonbitlang/async" "os_string/decode_len"
-
-///|
-#unsafe_skip_stub_check
-#borrow(output)
-fn OsErrorText::decode(
-  self : OsErrorText,
-  offset : Int32,
-  len : Int32,
-  output : String,
-  output_len : Int32,
-) -> Unit = "moonbitlang/async" "os_string/decode"
-
-///|
-/// Decode the host-native error string (UTF-16 on Windows, UTF-8 on Unix).
-fn os_error_message(error : Int32) -> String {
-  let text = errno_to_string(error)
-  defer text.free()
-  let nul_terminated = -1
-  let len = text.decoded_length(0, nul_terminated)
-  let message = String::make(len, '\u{0}')
-  text.decode(0, nul_terminated, message, len)
-  message.trim_end(chars="\r\n").to_owned()
-}
-
-///|
 fn file_error(error : Int32, operation : String) -> IOError {
-  IOError("\{operation}: \{os_error_message(error)} (\{error})")
+  IOError::from_os_error(@os_error.from_errno(error, context=operation))
 }
 
 ///|
-fn open_handle(path : String, writing : Bool) -> FileHandle raise IOError {
+fn open_wasm_handle(
+  path : String,
+  access : Int32,
+  create~ : CreateMode,
+  append~ : Bool,
+  sync~ : SyncMode,
+  permission~ : Int32,
+) -> FileHandle raise @os_error.OsError {
+  // A zero stat request skips the post-open metadata query in moonrun.
+  let job = make_openat_job(
+    invalid_parent_fd(),
+    path,
+    path_len=path.length(),
+    access~,
+    create~,
+    append~,
+    sync~,
+    permission~,
+    stat_request=NO_STAT,
+    stat_buf_len=STAT_HEADER_SIZE,
+  )
+  defer job.free()
+  job.run()
+  let error = job.err()
+  guard error == 0 else {
+    raise @os_error.from_errno(error, context="open \{path}")
+  }
+  job.fd()
+}
+
+///|
+fn open_legacy_handle(
+  path : String,
+  access : Int32,
+  create~ : CreateMode = OpenExisting,
+) -> FileHandle raise IOError {
   for ;; {
-    let job = make_open_job(
+    let handle = open_wasm_handle(
       path,
-      path_len=path.length(),
-      access=if writing { ACCESS_WRITE_ONLY } else { ACCESS_READ_ONLY },
-      create=if writing { CREATE_OR_TRUNCATE } else { OPEN_EXISTING },
+      access,
+      create~,
       append=false,
-      sync=NO_SYNC,
-      permission=0o666, // Preserve x/fs's creation permissions, subject to umask.
-      stat_request=NO_STAT,
-      stat_buf_len=STAT_HEADER_SIZE,
-    )
-    defer job.free()
-    job.run()
-    let error = job.err()
-    if file_host_is_unix && error == UNIX_EINTR {
-      continue
+      sync=NoSync,
+      permission=0o666,
+    ) catch {
+      OsError(_, raw_code=UNIX_EINTR, ..) if file_host_is_unix => continue
+      err => raise IOError::from_os_error(err)
     }
-    guard error == 0 else { raise file_error(error, "open \{path}") }
-    // Claim the descriptor before freeing the job. It has a separate lifetime.
-    break job.fd()
+    break handle
   }
 }
 
@@ -230,21 +193,6 @@ fn FileHandle::size_hint(self : FileHandle) -> Int32? {
 }
 
 ///|
-/// Like Reader.read, a single read may return fewer bytes than requested.
-fn FileHandle::read(
-  self : FileHandle,
-  buffer : FixedArray[Byte],
-  path : String,
-  offset~ : Int32 = 0,
-) -> Int32 raise IOError {
-  self.read_once(buffer, offset, buffer.length() - offset, SEQUENTIAL_POSITION) catch {
-    @os_error.OsError(_, raw_code=error, ..) =>
-      raise file_error(error, "read \{path}")
-    error => raise IOError("read \{path}: \{error}")
-  }
-}
-
-///|
 /// Adapt File.read_all's size hint, EOF probe, and retained-chunk fallback.
 fn FileHandle::read_all(
   self : FileHandle,
@@ -252,10 +200,18 @@ fn FileHandle::read_all(
   size_hint : Int32?,
 ) -> Bytes raise IOError {
   read_all_with_hint(
-    (buffer, offset) => self.read(buffer, path, offset~),
+    (buffer, offset) => {
+      self.read_once(
+        buffer,
+        offset,
+        buffer.length() - offset,
+        SEQUENTIAL_POSITION,
+      )
+    },
     size_hint,
   ) catch {
-    IOError(message) => raise IOError(message)
+    @os_error.OsError(_) as err =>
+      raise IOError::from_os_error(err.wrap_context(op => "\{op} \{path}"))
     Failure::Failure(message) => raise IOError("read \{path}: \{message}")
     error => raise IOError("read \{path}: \{error}")
   }
@@ -269,42 +225,20 @@ fn open_file_handle(
   append : Bool,
   permission : Int32,
   sync : SyncMode,
-) -> FileHandle raise {
-  let job = make_open_job(
-    path,
-    path_len=path.length(),
-    access=match mode {
-      ReadOnly => 0
-      WriteOnly => 1
-      ReadWrite => 2
-    },
-    create=match create_mode {
-      OpenExisting => 0
-      TruncateExisting => 1
-      OpenOrCreate => 2
-      CreateOrTruncate => 3
-      CreateNew => 4
-    },
-    append~,
-    sync=match sync {
-      NoSync => 0
-      Data => 1
-      Full => 2
-    },
-    permission~,
-    stat_request=NO_STAT,
-    stat_buf_len=STAT_HEADER_SIZE,
-  )
-  defer job.free()
-  // This job combines open and stat. Retrying the whole job could repeat a
-  // successful truncation after a metadata failure; raw-open retry belongs
-  // in the host. New APIs therefore propagate an interrupted open job.
-  job.run()
-  let error = job.err()
-  guard error == 0 else {
-    raise @os_error.from_errno(error, context="open \{path}")
+) -> FileHandle raise @os_error.OsError {
+  let access = match mode {
+    ReadOnly => ACCESS_READ_ONLY
+    WriteOnly => ACCESS_WRITE_ONLY
+    ReadWrite => 2
   }
-  job.fd()
+  open_wasm_handle(
+    path,
+    access,
+    create=create_mode,
+    append~,
+    sync~,
+    permission~,
+  )
 }
 
 ///|
@@ -314,7 +248,7 @@ fn FileHandle::read_once(
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise {
+) -> Int32 raise @os_error.OsError {
   for ;; {
     let job = make_read_job(self, len, position~)
     defer job.free()
@@ -337,7 +271,7 @@ fn FileHandle::write(
   offset : Int32,
   len : Int32,
   position : Int64,
-) -> Int32 raise {
+) -> Int32 raise @os_error.OsError {
   for ;; {
     let job = make_write_job(self, buffer, offset, len, position~)
     defer job.free()
@@ -392,7 +326,7 @@ fn FileHandle::finish_write(_self : FileHandle) -> Unit {
 
 ///|
 fn read_file_to_bytes_internal(path : String) -> Bytes raise IOError {
-  let handle = open_handle(path, false)
+  let handle = open_legacy_handle(path, ACCESS_READ_ONLY)
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(handle)) })
   let contents = handle.read_all(path, handle.size_hint())
@@ -408,7 +342,11 @@ fn write_bytes_to_file_internal(
   path : String,
   content : Bytes,
 ) -> Unit raise IOError {
-  let handle = open_handle(path, true)
+  let handle = open_legacy_handle(
+    path,
+    ACCESS_WRITE_ONLY,
+    create=CreateOrTruncate,
+  )
   let mut closed = false
   defer (if !closed { ignore(file_close_ffi(handle)) })
   for total = 0; total < content.length(); {
@@ -419,9 +357,8 @@ fn write_bytes_to_file_internal(
       content.length() - total,
       SEQUENTIAL_POSITION,
     ) catch {
-      @os_error.OsError(_, raw_code=error, ..) =>
-        raise file_error(error, "write \{path}")
-      error => raise IOError("write \{path}: \{error}")
+      err =>
+        raise IOError::from_os_error(err.wrap_context(op => "\{op} \{path}"))
     }
     guard n > 0 else { raise IOError("write \{path}: made no progress") }
     continue total + n
