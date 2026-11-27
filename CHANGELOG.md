@@ -37,6 +37,9 @@
 
 ### Fixed
 
+- `@time.PlainTime::add_hours` wraps negative hours across midnight instead of
+  raising `Invalid time`. (#371)
+
 - `@fs.File::read_exactly` is compatible with the current MoonBit core library
   and reports `@io.UnexpectedEof` on premature EOF, retaining partial read progress. (#368)
 

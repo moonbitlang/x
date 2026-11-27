@@ -206,7 +206,8 @@ pub fn PlainTime::add_hours(
   if hours == 0L {
     return self
   }
-  let new_hour = (hours % hours_per_day + self.hour.to_int64()) % hours_per_day
+  let new_hour = (hours % hours_per_day + self.hour.to_int64() + hours_per_day) %
+    hours_per_day
   PlainTime::of(new_hour.to_int(), self.minute, self.second, self.nanosecond)
 }
 
